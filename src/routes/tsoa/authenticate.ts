@@ -49,7 +49,7 @@ export class AuthenticateController extends Controller {
   @Post("authenticate")
   public async authenticate(
     @Body() body: CodeAuthenticateParams | PasswordAuthenticateParams,
-    @Request() request: RequestWithContext<Env>
+    @Request() request: RequestWithContext
   ): Promise<LoginTicket | LoginError> {
     const { env } = request.ctx
 

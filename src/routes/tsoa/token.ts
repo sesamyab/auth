@@ -3,18 +3,18 @@ import {
   Body,
   Controller,
   Post,
-  Query,
   Request,
   Route,
   Tags,
 } from "@tsoa/runtime";
-import { RequestWithContext } from "../../types/RequestWithContext";
 import {
-  authorizationCodeGrant,
+  authorizeCodeGrant,
   passwordGrant,
   passwordlessGrant,
-} from "../../authorization-grants";
+  pkceAuthorizeCodeGrant
+} from "../../token-grant-types";
 import { contentTypes, headers } from "../../constants";
+import { RequestWithContext } from "../../types";
 
 @Route("")
 @Tags("token")
@@ -35,7 +35,11 @@ export class TokenRoutes extends Controller {
       case GrantType.RefreshToken:
         break;
       case GrantType.AuthorizationCode:
-        tokenResponse = await authorizationCodeGrant(ctx.env, this, body);
+        if ('client_secret' in body) {
+          return authorizeCodeGrant(ctx.env, this, body);
+        } else {
+          return pkceAuthorizeCodeGrant(ctx.env, this, body);
+        }
         break;
       case GrantType.ClientCredential:
         break;

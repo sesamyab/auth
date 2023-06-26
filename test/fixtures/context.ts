@@ -34,7 +34,7 @@ export function contextFixture(params?: MockedContextParams): Context<Env> {
     headers: new URLSearchParams(),
     env: {
       AUTH_TEMPLATES: mockedR2Bucket(),
-      AUTH_DOMAIN_URL: "https://auth.example.com",
+      ISSUER: "https://auth.example.com",
       oauth2ClientFactory: {
         create: oAuth2ClientFactory,
       },

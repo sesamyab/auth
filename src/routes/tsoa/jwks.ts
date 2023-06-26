@@ -60,96 +60,84 @@ export class JWKSRoutes extends Controller {
     return { keys };
   }
 
-  @Get(".well-known/openid-configuration")
+  @Get('.well-known/openid-configuration')
   /**
    * An endpoint for converting an auth0 token to a publisher token using a redirect
    */
   public async getOpenIDConfigration(
-    @Request() request: RequestWithContext
+    @Request() request: RequestWithContext,
   ): Promise<OpenIDConfiguration> {
-    const baseUrl = `${request.ctx.protocol}//${request.ctx.hostname}`;
+    const { ISSUER } = request.ctx.env;
 
     return {
-      "issuer": baseUrl,
-      "authorization_endpoint": `${baseUrl}/authorize`,
-      "token_endpoint": `${baseUrl}/oauth/token`,
-      "device_authorization_endpoint": `${baseUrl}/oauth/device/code`,
-      "userinfo_endpoint": `${baseUrl}/userinfo`,
-      "mfa_challenge_endpoint": `${baseUrl}/mfa/challenge`,
-      "jwks_uri": `${baseUrl}/.well-known/jwks.json`,
-      "registration_endpoint": `${baseUrl}/oidc/register`,
-      "revocation_endpoint": `${baseUrl}/oauth/revoke`,
-      "scopes_supported": [
-        "openid",
-        "profile",
-        "offline_access",
-        "name",
-        "given_name",
-        "family_name",
-        "nickname",
-        "email",
-        "email_verified",
-        "picture",
-        "created_at",
-        "identities",
-        "phone",
-        "address"
+      issuer: ISSUER,
+      authorization_endpoint: `${ISSUER}authorize`,
+      token_endpoint: `${ISSUER}oauth/token`,
+      device_authorization_endpoint: `${ISSUER}oauth/device/code`,
+      userinfo_endpoint: `${ISSUER}userinfo`,
+      mfa_challenge_endpoint: `${ISSUER}mfa/challenge`,
+      jwks_uri: `${ISSUER}.well-known/jwks.json`,
+      registration_endpoint: `${ISSUER}oidc/register`,
+      revocation_endpoint: `${ISSUER}oauth/revoke`,
+      scopes_supported: [
+        'openid',
+        'profile',
+        'offline_access',
+        'name',
+        'given_name',
+        'family_name',
+        'nickname',
+        'email',
+        'email_verified',
+        'picture',
+        'created_at',
+        'identities',
+        'phone',
+        'address',
       ],
-      "response_types_supported": [
-        "code",
-        "token",
-        "id_token",
-        "code token",
-        "code id_token",
-        "token id_token",
-        "code token id_token"
+      response_types_supported: [
+        'code',
+        'token',
+        'id_token',
+        'code token',
+        'code id_token',
+        'token id_token',
+        'code token id_token',
       ],
-      "code_challenge_methods_supported": [
-        "S256",
-        "plain"
+      code_challenge_methods_supported: ['S256', 'plain'],
+      response_modes_supported: ['query', 'fragment', 'form_post'],
+      subject_types_supported: ['public'],
+      id_token_signing_alg_values_supported: ['HS256', 'RS256'],
+      token_endpoint_auth_methods_supported: [
+        'client_secret_basic',
+        'client_secret_post',
+        'private_key_jwt',
       ],
-      "response_modes_supported": [
-        "query",
-        "fragment",
-        "form_post"
+      claims_supported: [
+        'aud',
+        'auth_time',
+        'created_at',
+        'email',
+        'email_verified',
+        'exp',
+        'family_name',
+        'given_name',
+        'iat',
+        'identities',
+        'iss',
+        'name',
+        'nickname',
+        'phone_number',
+        'picture',
+        'sub',
       ],
-      "subject_types_supported": [
-        "public"
+      request_uri_parameter_supported: false,
+      request_parameter_supported: false,
+      token_endpoint_auth_signing_alg_values_supported: [
+        'RS256',
+        'RS384',
+        'PS256',
       ],
-      "id_token_signing_alg_values_supported": [
-        "HS256",
-        "RS256"
-      ],
-      "token_endpoint_auth_methods_supported": [
-        "client_secret_basic",
-        "client_secret_post",
-        "private_key_jwt"
-      ],
-      "claims_supported": [
-        "aud",
-        "auth_time",
-        "created_at",
-        "email",
-        "email_verified",
-        "exp",
-        "family_name",
-        "given_name",
-        "iat",
-        "identities",
-        "iss",
-        "name",
-        "nickname",
-        "phone_number",
-        "picture",
-        "sub"
-      ],
-      "request_uri_parameter_supported": false,
-      "request_parameter_supported": false,
-      "token_endpoint_auth_signing_alg_values_supported": [
-        "RS256",
-        "RS384",
-        "PS256"
-      ]
-    }
+    };
   }
 }

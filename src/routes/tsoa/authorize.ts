@@ -11,7 +11,6 @@ import {
   AuthorizationResponseType,
   AuthParams,
   CodeChallengeMethod,
-  Env,
 } from "../../types";
 import { getClient } from "../../services/clients";
 import { RequestWithContext } from "../../types/RequestWithContext";
@@ -20,18 +19,14 @@ import {
   ticketAuth,
   socialAuth,
   universalAuth,
-  socialAuthCallback,
-  SocialAuthState,
 } from "../../authentication-flows";
-import { decode } from "../../utils/base64";
-
-@Route("")
+@Route("authorize")
 @Tags("authorize")
 export class AuthorizeController extends Controller {
-  @Get("authorize")
+  @Get("")
   @SuccessResponse(302, "Redirect")
   public async authorize(
-    @Request() request: RequestWithContext<Env>,
+    @Request() request: RequestWithContext,
     /**
      * This is a required parameter. It is the public identifier for the client (third-party application).
      */
@@ -87,6 +82,8 @@ export class AuthorizeController extends Controller {
       audience,
       nonce,
       response_type,
+      code_challenge,
+      code_challenge_method
     };
 
     // Silent authentication
@@ -106,36 +103,11 @@ export class AuthorizeController extends Controller {
 
     // Social login
     if (connection) {
-      return socialAuth(this, client, connection, authParams);
+      return socialAuth(env, this, client, connection, authParams);
     } else if (loginTicket) {
       return ticketAuth(env, this, loginTicket, state, redirect_uri);
     }
 
-    return universalAuth({ controller: this, authParams });
-  }
-
-  /**
-   * A callback endpoint used for oauth2 providers such as google.
-   */
-  @Get("callback")
-  @SuccessResponse("302", "Redirect")
-  public async callback(
-    @Request() request: RequestWithContext<Env>,
-    @Query("state") state: string,
-    @Query("scope") scope: string,
-    @Query("code") code: string,
-    @Query("prompt") prompt: string,
-    @Query("authuser") authUser?: string,
-    @Query("hd") hd?: string
-  ): Promise<string> {
-    const { env } = request.ctx;
-
-    const socialAuthState: SocialAuthState = JSON.parse(decode(state));
-    return socialAuthCallback({
-      env,
-      controller: this,
-      state: socialAuthState,
-      code,
-    });
+    return universalAuth({ env, controller: this, authParams });
   }
 }

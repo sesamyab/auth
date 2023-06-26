@@ -59,12 +59,13 @@ export interface RenderLoginContext {
   authParams: AuthParams;
   username?: string;
   errorMessage?: string;
+  connection?: string;
 }
 
 export async function renderLogin(
   bucket: R2Bucket,
   controller: Controller,
-  context: RenderLoginContext
+  context: RenderLoginContext,
 ) {
   const layoutTemplate = await getTemplate(bucket, "layout");
 
@@ -73,11 +74,19 @@ export async function renderLogin(
   controller.setHeader("content-type", "text/html");
   controller.setStatus(200);
 
-  const loginState = encode(JSON.stringify(context));
+  const socialLoginQuery = new URLSearchParams();
+  Object.keys(context.authParams).forEach(key => socialLoginQuery.set(key, context.authParams[key]));
+
+  const connections = ['google-oauth2', 'facebook', 'apple'].map(connection => {
+    socialLoginQuery.set('connection', connection)
+    return { href: `/authorize?${socialLoginQuery.toString()}`, icon_class: connection };
+  })
+
   const content = await engine.render(template, {
     ...context.authParams,
-    loginState,
+    connections
   });
+
   return engine.render(layoutTemplate, {
     ...context,
     content,
