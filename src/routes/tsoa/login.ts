@@ -52,9 +52,7 @@ export class LoginController extends Controller {
     @Query("state") state: string
   ): Promise<string> {
     const { env } = request.ctx;
-    const stateInstance = env.stateFactory.getInstanceById(
-      base64ToHex(state)
-    );
+    const stateInstance = env.stateFactory.getInstanceById(base64ToHex(state));
     const loginString = await stateInstance.getState.query();
     const loginState: RenderLoginContext = JSON.parse(loginString);
 
@@ -257,7 +255,11 @@ export class LoginController extends Controller {
     );
 
     try {
-      await user.validatePassword.mutate({ password: loginParams.password, tenantId: client.tenantId, email: loginState.username! });
+      await user.validatePassword.mutate({
+        password: loginParams.password,
+        tenantId: client.tenantId,
+        email: loginState.username!,
+      });
 
       return renderMessage(ctx.env.AUTH_TEMPLATES, this, {
         page_title: "Logged in",

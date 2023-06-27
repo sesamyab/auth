@@ -4,7 +4,7 @@ import { headers } from "../constants";
 import { encode, hexToBase64 } from "../utils/base64";
 
 export interface UniversalAuthParams {
-  env: Env,
+  env: Env;
   controller: Controller;
   authParams: AuthParams;
 }
@@ -21,6 +21,9 @@ export async function universalAuth({
   });
 
   controller.setStatus(302);
-  controller.setHeader(headers.location, `/u/login?state=${hexToBase64(stateId)}`);
+  controller.setHeader(
+    headers.location,
+    `/u/login?state=${hexToBase64(stateId)}`
+  );
   return "Redirect to login";
 }

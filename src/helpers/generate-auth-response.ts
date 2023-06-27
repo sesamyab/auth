@@ -1,6 +1,6 @@
 // This should probably live somewhere else.
 import { getCertificate } from "../models";
-import { Env, AuthParams } from "../types";
+import { Env, AuthParams, CodeChallengeMethod } from "../types";
 import { TokenResponse } from "../types/Token";
 import { ACCESS_TOKEN_EXPIRE_IN_SECONDS } from "../constants";
 import { hexToBase64 } from "../utils/base64";
@@ -19,6 +19,8 @@ export interface GenerateAuthResponseParams {
     familyName?: string;
     nickname?: string;
   };
+  code_challenge_method?: CodeChallengeMethod;
+  code_challenge?: string;
 }
 
 export async function generateCode({
@@ -29,6 +31,8 @@ export async function generateCode({
   authParams,
   user,
   sid,
+  code_challenge_method,
+  code_challenge,
 }: GenerateAuthResponseParams) {
   const stateId = env.STATE.newUniqueId().toString();
   const stateInstance = env.stateFactory.getInstanceById(stateId);
@@ -40,11 +44,13 @@ export async function generateCode({
       state,
       user,
       sid,
+      code_challenge_method,
+      code_challenge,
     }),
   });
 
   return hexToBase64(stateId);
-};
+}
 
 export async function generateAuthResponse({
   env,

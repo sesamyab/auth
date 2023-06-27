@@ -37,7 +37,7 @@
         </div>
         <div class="flex-c-m">
             {% for item in connections %}
-            <a href="{{ item.href }}" class="login100-social-item bg1">
+            <a href="{{ item.href }}" class="login100-social-item {{ item.bg_class }}">
                 <i class="fa fa-{{ item.icon_class }}"></i>
             </a>
             {% endfor %}

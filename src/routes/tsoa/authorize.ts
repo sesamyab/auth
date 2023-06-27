@@ -8,6 +8,7 @@ import {
   SuccessResponse,
 } from "@tsoa/runtime";
 import {
+  AuthorizationResponseMode,
   AuthorizationResponseType,
   AuthParams,
   CodeChallengeMethod,
@@ -20,6 +21,26 @@ import {
   socialAuth,
   universalAuth,
 } from "../../authentication-flows";
+
+export interface AuthorizeParams {
+  request: RequestWithContext;
+  client_id: string;
+  response_type: AuthorizationResponseType;
+  redirect_uri: string;
+  scope: string;
+  state: string;
+  prompt?: string;
+  response_mode?: AuthorizationResponseMode;
+  audience?: string;
+  connection?: string;
+  username?: string;
+  nonce?: string;
+  max_age?: number;
+  loginTicket?: string;
+  code_challenge_method?: CodeChallengeMethod;
+  code_challenge?: string;
+}
+
 @Route("authorize")
 @Tags("authorize")
 export class AuthorizeController extends Controller {
@@ -63,9 +84,9 @@ export class AuthorizeController extends Controller {
      */
     @Query("nonce") nonce?: string,
     /**
-     * It allows to set the maximum authentication age. 
+     * It allows to set the maximum authentication age.
      * */
-    @Query('max_age') max_age?: number,
+    @Query("max_age") max_age?: number,
     @Query("login_ticket") loginTicket?: string,
     @Query("code_challenge_method") code_challenge_method?: CodeChallengeMethod,
     @Query("code_challenge") code_challenge?: string
@@ -83,7 +104,7 @@ export class AuthorizeController extends Controller {
       nonce,
       response_type,
       code_challenge,
-      code_challenge_method
+      code_challenge_method,
     };
 
     // Silent authentication
@@ -109,5 +130,26 @@ export class AuthorizeController extends Controller {
     }
 
     return universalAuth({ env, controller: this, authParams });
+  }
+
+  public async authorizeWithParams(params: AuthorizeParams): Promise<string> {
+    return this.authorize(
+      params.request,
+      params.client_id,
+      params.response_type,
+      params.redirect_uri,
+      params.scope,
+      params.state,
+      params.prompt,
+      params.response_mode,
+      params.audience,
+      params.connection,
+      params.username,
+      params.nonce,
+      params.max_age,
+      params.loginTicket,
+      params.code_challenge_method,
+      params.code_challenge
+    );
   }
 }

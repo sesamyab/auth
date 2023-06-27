@@ -1,7 +1,7 @@
-import datadogLogger from '../services/datadog';
-import { Context, Next } from 'cloudworker-router';
-import { Env } from '../types/Env';
-import packageJson from '../../package.json';
+import datadogLogger from "../services/datadog";
+import { Context, Next } from "cloudworker-router";
+import { Env } from "../types/Env";
+import packageJson from "../../package.json";
 
 async function logResponse(ctx: Context<Env>, response: Response) {
   await datadogLogger.log(ctx, response);

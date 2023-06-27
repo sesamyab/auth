@@ -1,6 +1,11 @@
 import { base64ToHex } from "../utils/base64";
 import { Controller } from "tsoa";
-import { AuthorizationCodeGrantTypeParams, AuthParams, Env, TokenResponse } from "../types";
+import {
+  AuthorizationCodeGrantTypeParams,
+  AuthParams,
+  Env,
+  TokenResponse,
+} from "../types";
 import { User } from "../types/sql";
 import { InvalidClientError } from "../errors";
 import { getClient } from "../services/clients";
@@ -10,16 +15,16 @@ import hash from "../utils/hash";
 export async function authorizeCodeGrant(
   env: Env,
   controller: Controller,
-  params: AuthorizationCodeGrantTypeParams,
+  params: AuthorizationCodeGrantTypeParams
 ): Promise<TokenResponse> {
   // Either get the instance based on the id or the code
-  const stateInstance =
-
-    env.stateFactory.getInstanceById(base64ToHex(params.code))
+  const stateInstance = env.stateFactory.getInstanceById(
+    base64ToHex(params.code)
+  );
 
   const stateString = await stateInstance.getState.query();
   if (!stateString) {
-    throw new Error('State required')
+    throw new Error("State required");
   }
 
   const state: {
@@ -38,7 +43,7 @@ export async function authorizeCodeGrant(
   // Check the secret if this is a code grant flow
   const secretHash = await hash(params.client_secret);
   if (client.clientSecret !== secretHash) {
-    throw new InvalidClientError('Invalid Secret');
+    throw new InvalidClientError("Invalid Secret");
   }
 
   // await setSilentAuthCookies(env, controller, state.user, state.authParams);

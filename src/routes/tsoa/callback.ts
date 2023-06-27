@@ -8,9 +8,7 @@ import {
   SuccessResponse,
 } from "@tsoa/runtime";
 import { RequestWithContext } from "../../types/RequestWithContext";
-import {
-  socialAuthCallback,
-} from "../../authentication-flows";
+import { socialAuthCallback } from "../../authentication-flows";
 import { base64ToHex } from "../../utils/base64";
 import { RenderLoginContext } from "../../templates/render";
 
@@ -32,9 +30,7 @@ export class CallbackController extends Controller {
     @Query("hd") hd?: string
   ): Promise<string> {
     const { env } = request.ctx;
-    const stateInstance = env.stateFactory.getInstanceById(
-      base64ToHex(state)
-    );
+    const stateInstance = env.stateFactory.getInstanceById(base64ToHex(state));
     const loginString = await stateInstance.getState.query();
     const loginState: RenderLoginContext = JSON.parse(loginString);
 

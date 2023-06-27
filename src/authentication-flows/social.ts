@@ -1,7 +1,7 @@
 import { Controller } from "@tsoa/runtime";
 import { AuthorizationResponseType, AuthParams, Client, Env } from "../types";
 import { contentTypes, headers } from "../constants";
-import { encode, hexToBase64 } from "../utils/base64";
+import { hexToBase64 } from "../utils/base64";
 import { getClient } from "../services/clients";
 import { getId } from "../models";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
@@ -90,10 +90,15 @@ export async function socialAuthCallback({
     connections: [{ name: oauthProvider.name, profile: oauth2Profile }],
   });
 
-  const sessionId = await setSilentAuthCookies(env, controller, userId, state.authParams);
+  const sessionId = await setSilentAuthCookies(
+    env,
+    controller,
+    userId,
+    state.authParams
+  );
 
   if (!state.authParams.redirect_uri) {
-    throw new Error('Redirect URI not defined');
+    throw new Error("Redirect URI not defined");
   }
 
   // TODO: This is quick and dirty.. we should validate the values.
@@ -106,17 +111,17 @@ export async function socialAuthCallback({
         userId,
         authParams: state.authParams,
         user: {
-          email: 'dummy@example.com'
+          email: "dummy@example.com",
         },
         sid: sessionId,
-      })
+      });
       redirectUri.searchParams.set("code", code);
       if (state.authParams.state) {
         redirectUri.searchParams.set("state", state.authParams.state);
       }
       break;
     default:
-      throw new Error('Unsupported response type')
+      throw new Error("Unsupported response type");
   }
 
   controller.setStatus(302);

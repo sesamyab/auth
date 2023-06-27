@@ -24,7 +24,7 @@ export const stateRouter = t.router({
     const state = await ctx.state.storage.get<string>(STATE);
 
     if (!state) {
-      throw new Error('State not found')
+      throw new Error("State not found");
     }
 
     return state;

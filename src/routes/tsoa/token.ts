@@ -1,17 +1,10 @@
 import { TokenResponse, TokenParams, GrantType } from "../../types/Token";
-import {
-  Body,
-  Controller,
-  Post,
-  Request,
-  Route,
-  Tags,
-} from "@tsoa/runtime";
+import { Body, Controller, Post, Request, Route, Tags } from "@tsoa/runtime";
 import {
   authorizeCodeGrant,
   passwordGrant,
   passwordlessGrant,
-  pkceAuthorizeCodeGrant
+  pkceAuthorizeCodeGrant,
 } from "../../token-grant-types";
 import { contentTypes, headers } from "../../constants";
 import { RequestWithContext } from "../../types";
@@ -35,7 +28,7 @@ export class TokenRoutes extends Controller {
       case GrantType.RefreshToken:
         break;
       case GrantType.AuthorizationCode:
-        if ('client_secret' in body) {
+        if ("client_secret" in body) {
           return authorizeCodeGrant(ctx.env, this, body);
         } else {
           return pkceAuthorizeCodeGrant(ctx.env, this, body);

@@ -67,7 +67,7 @@ export class UserConflictError extends Error {
 }
 
 export class InvalidCodeVerifierError extends AuthError {
-  constructor(message = 'Invalid Code Verifier') {
+  constructor(message = "Invalid Code Verifier") {
     super();
 
     this.message = message;
@@ -75,7 +75,7 @@ export class InvalidCodeVerifierError extends AuthError {
 }
 
 export class InvalidClientError extends AuthError {
-  constructor(message = 'Invalid Client') {
+  constructor(message = "Invalid Client") {
     super();
 
     this.message = message;
