@@ -86,15 +86,6 @@ export async function socialAuthCallback({
   const userId = getId(client.tenantId, oauth2Profile.email);
   const user = env.userFactory.getInstanceByName(userId);
 
-  console.log(
-    "Profile to patch: " +
-      JSON.stringify({
-        email: oauth2Profile.email,
-        tenantId: client.tenantId,
-        connections: [{ name: connection.name, profile: oauth2Profile }],
-      })
-  );
-
   await user.patchProfile.mutate({
     email: oauth2Profile.email,
     tenantId: client.tenantId,
