@@ -7,10 +7,9 @@ import {
   Tags,
   SuccessResponse,
 } from "@tsoa/runtime";
-import { RequestWithContext } from "../../types/RequestWithContext";
 import { socialAuthCallback } from "../../authentication-flows";
 import { base64ToHex } from "../../utils/base64";
-import { RenderLoginContext } from "../../templates/render";
+import { LoginState, RequestWithContext } from "../../types";
 
 @Route("callback")
 @Tags("callback")
@@ -36,7 +35,7 @@ export class CallbackController extends Controller {
       throw new Error("State not found");
     }
 
-    const loginState: RenderLoginContext = JSON.parse(loginString);
+    const loginState: LoginState = JSON.parse(loginString);
 
     return socialAuthCallback({
       env,

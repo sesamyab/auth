@@ -1,12 +1,17 @@
 import { Controller } from "@tsoa/runtime";
-import { AuthorizationResponseType, AuthParams, Client, Env } from "../types";
+import {
+  AuthorizationResponseType,
+  AuthParams,
+  Client,
+  Env,
+  LoginState,
+} from "../types";
 import { contentTypes, headers } from "../constants";
 import { hexToBase64 } from "../utils/base64";
 import { getClient } from "../services/clients";
 import { getId } from "../models";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
 import { generateCode } from "../helpers/generate-auth-response";
-import { RenderLoginContext } from "../templates/render";
 import { parseJwt } from "../utils/jwt";
 
 export interface SocialAuthState {
@@ -54,7 +59,7 @@ export async function socialAuth(
 export interface socialAuthCallbackParams {
   env: Env;
   controller: Controller;
-  state: RenderLoginContext;
+  state: LoginState;
   code: string;
 }
 
@@ -79,7 +84,7 @@ export async function socialAuthCallback({
     state.authParams.scope?.split(" ") || []
   );
 
-  const token = await oauth2Client.exchangeCodeForToken(code);
+  const token = await oauth2Client.exchangeCodeForTokenResponse(code);
 
   const oauth2Profile = parseJwt(token.id_token!);
 

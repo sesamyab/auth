@@ -20,7 +20,6 @@ export async function updateUser(env: Env, tenantId: string, email: string) {
     .selectAll()
     .execute();
 
-
   // TODO: this is some ugly upsert functionality
   if (!existingUsers.length) {
     await db
