@@ -32,6 +32,10 @@ export class CallbackController extends Controller {
     const { env } = request.ctx;
     const stateInstance = env.stateFactory.getInstanceById(base64ToHex(state));
     const loginString = await stateInstance.getState.query();
+    if (!loginString) {
+      throw new Error("State not found");
+    }
+
     const loginState: RenderLoginContext = JSON.parse(loginString);
 
     return socialAuthCallback({

@@ -7,6 +7,7 @@ import { getId } from "../models";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
 import { generateCode } from "../helpers/generate-auth-response";
 import { RenderLoginContext } from "../templates/render";
+import { parseJwt } from "../utils/jwt";
 
 export interface SocialAuthState {
   authParams: AuthParams;
@@ -20,8 +21,10 @@ export async function socialAuth(
   connection: string,
   authParams: AuthParams
 ) {
-  const oauthProvider = client.authProviders.find((p) => p.name === connection);
-  if (!oauthProvider) {
+  const connectionInstance = client.connections.find(
+    (p) => p.name === connection
+  );
+  if (!connectionInstance) {
     throw new Error("Connection not found");
   }
 
@@ -31,7 +34,7 @@ export async function socialAuth(
     state: JSON.stringify({ authParams, connection }),
   });
 
-  const oauthLoginUrl = new URL(oauthProvider.authorizationEndpoint);
+  const oauthLoginUrl = new URL(connectionInstance.authorizationEndpoint);
   if (authParams.scope) {
     oauthLoginUrl.searchParams.set("scope", authParams.scope);
   }
@@ -41,7 +44,7 @@ export async function socialAuth(
     "redirect_uri",
     `${client.loginBaseUrl}callback`
   );
-  oauthLoginUrl.searchParams.set("client_id", oauthProvider.clientId);
+  oauthLoginUrl.searchParams.set("client_id", connectionInstance.clientId);
   oauthLoginUrl.searchParams.set("response_type", "code");
   controller.setHeader(headers.location, oauthLoginUrl.href);
   controller.setStatus(302);
@@ -62,32 +65,40 @@ export async function socialAuthCallback({
   code,
 }: socialAuthCallbackParams) {
   const client = await getClient(env, state.authParams.client_id);
-  const oauthProvider = client.authProviders.find(
+  const connection = client.connections.find(
     (p) => p.name === state.connection
   );
 
-  // We need the profile enpdoint to connect the user to the account. Another option would be to unpack the id token..
-  if (!oauthProvider || !oauthProvider.profileEndpoint) {
+  if (!connection) {
     throw new Error("Connection not found");
   }
 
   const oauth2Client = env.oauth2ClientFactory.create(
-    oauthProvider,
+    connection,
     `${client.loginBaseUrl}callback`,
     state.authParams.scope?.split(" ") || []
   );
 
   const token = await oauth2Client.exchangeCodeForToken(code);
 
-  const oauth2Profile = await oauth2Client.getUserProfile(token.access_token);
+  const oauth2Profile = parseJwt(token.id_token!);
 
   const userId = getId(client.tenantId, oauth2Profile.email);
   const user = env.userFactory.getInstanceByName(userId);
 
+  console.log(
+    "Profile to patch: " +
+      JSON.stringify({
+        email: oauth2Profile.email,
+        tenantId: client.tenantId,
+        connections: [{ name: connection.name, profile: oauth2Profile }],
+      })
+  );
+
   await user.patchProfile.mutate({
     email: oauth2Profile.email,
     tenantId: client.tenantId,
-    connections: [{ name: oauthProvider.name, profile: oauth2Profile }],
+    connections: [{ name: connection.name, profile: oauth2Profile }],
   });
 
   const sessionId = await setSilentAuthCookies(
