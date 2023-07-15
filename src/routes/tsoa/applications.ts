@@ -12,7 +12,7 @@ import {
   Security,
   Delete,
 } from "@tsoa/runtime";
-import { v4 as uuidv4 } from "uuid";
+import { nanoid } from "nanoid";
 import { UpdateResult } from "kysely";
 
 import { getDb } from "../../services/db";
@@ -181,7 +181,7 @@ export class ApplicationsController extends Controller {
     const application: Application = {
       ...body,
       tenantId,
-      id: uuidv4(),
+      id: nanoid(),
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
     };
