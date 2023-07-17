@@ -158,7 +158,7 @@ describe("authorize", () => {
       const locationHeader = controller.getHeader("location") as string;
 
       expect(locationHeader).toBe(
-        "https://accounts.google.com/o/oauth2/v2/auth?scope=openid+profile+email&state=AAAAAA4&redirect_uri=https%3A%2F%2Fexample.com&client_id=googleClientId&response_type=code",
+        "https://accounts.google.com/o/oauth2/v2/auth?scope=openid+profile+email&state=AAAAAA4&redirect_uri=https%3A%2F%2Fauth.example.comcallback&client_id=googleClientId&response_type=code",
       );
 
       expect(actual).toBe("Redirecting to google-oauth2");

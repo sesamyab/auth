@@ -45,10 +45,7 @@ export async function socialAuth(
     oauthLoginUrl.searchParams.set("scope", authParams.scope);
   }
   oauthLoginUrl.searchParams.set("state", hexToBase64(stateId));
-  oauthLoginUrl.searchParams.set(
-    "redirect_uri",
-    authParams.redirect_uri || `${client.loginBaseUrl}callback`,
-  );
+  oauthLoginUrl.searchParams.set("redirect_uri", `${env.ISSUER}callback`);
   oauthLoginUrl.searchParams.set("client_id", connectionInstance.clientId);
   oauthLoginUrl.searchParams.set("response_type", "code");
   controller.setHeader(headers.location, oauthLoginUrl.href);
@@ -80,7 +77,7 @@ export async function socialAuthCallback({
 
   const oauth2Client = env.oauth2ClientFactory.create(
     connection,
-    `${client.loginBaseUrl}callback`,
+    `${env.ISSUER}callback`,
     state.authParams.scope?.split(" ") || [],
   );
 
