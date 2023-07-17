@@ -13,6 +13,7 @@ import { getId } from "../models";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
 import { generateCode } from "../helpers/generate-auth-response";
 import { parseJwt } from "../utils/jwt";
+import { InvalidConnectionError } from "../errors";
 
 export interface SocialAuthState {
   authParams: AuthParams;
@@ -30,7 +31,7 @@ export async function socialAuth(
     (p) => p.name === connection,
   );
   if (!connectionInstance) {
-    throw new Error("Connection not found");
+    throw new InvalidConnectionError("Connection not found");
   }
 
   const stateId = env.STATE.newUniqueId().toString();
@@ -44,10 +45,9 @@ export async function socialAuth(
     oauthLoginUrl.searchParams.set("scope", authParams.scope);
   }
   oauthLoginUrl.searchParams.set("state", hexToBase64(stateId));
-  // TODO: this should be pointing to the callback url
   oauthLoginUrl.searchParams.set(
     "redirect_uri",
-    `${client.loginBaseUrl}callback`,
+    authParams.redirect_uri || `${client.loginBaseUrl}callback`,
   );
   oauthLoginUrl.searchParams.set("client_id", connectionInstance.clientId);
   oauthLoginUrl.searchParams.set("response_type", "code");
