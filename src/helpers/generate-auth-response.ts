@@ -66,14 +66,14 @@ export async function generateCode({
 export async function generateTokens(
   params:
     | GenerateAuthResponseParamsForToken
-    | GenerateAuthResponseParamsForIdToken
+    | GenerateAuthResponseParamsForIdToken,
 ) {
   const { env, authParams, userId, state, responseType, sid, nonce } = params;
 
   const certificate = await getCertificate(env);
   const tokenFactory = new TokenFactory(
     certificate.privateKey,
-    certificate.kid
+    certificate.kid,
   );
 
   const accessToken = await tokenFactory.createAccessToken({

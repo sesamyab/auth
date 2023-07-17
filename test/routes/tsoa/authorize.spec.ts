@@ -116,6 +116,9 @@ describe("authorize", () => {
         c20e9b02adc8f69944f036aeff415335c63ede250696a606ae73c5d4db016217:
           JSON.stringify({
             userId: "tenantId|test@example.com",
+            user: {
+              email: "test@example.com",
+            },
             authParams: {
               redirect_uri: "https://example.com",
               scope: "openid profile email",
