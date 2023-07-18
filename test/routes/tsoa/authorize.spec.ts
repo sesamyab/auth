@@ -357,7 +357,7 @@ describe("authorize", () => {
       const controller = new AuthorizeController();
 
       const stateData: { [key: string]: any } = {
-        // This id corresponds to the base64 token below
+        // This id corresponds to the base64 loginTicket below
         c20e9b02adc8f69944f036aeff415335c63ede250696a606ae73c5d4db016217:
           JSON.stringify({
             userId: "tenantId|test@example.com",
