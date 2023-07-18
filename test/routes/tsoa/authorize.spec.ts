@@ -362,14 +362,8 @@ describe("authorize", () => {
           JSON.stringify({
             userId: "tenantId|test@example.com",
             authParams: {
-              redirect_uri: "https://example.com",
               scope: "openid profile email",
-              state:
-                "Rk1BbzJYSEFEVU9fTGd4cGdidGh0OHJnRHIwWTFrWFdOYlNySDMuU3YxMw==",
               client_id: "clientId",
-              nonce:
-                "Y0QuU09HRDB3TGszTX41QmlvM1BVTWRSWDA0WFpJdkZoMUwtNmJqYlFDdg==",
-              response_type: "token id_token",
             },
           }),
       };
