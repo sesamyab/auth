@@ -363,6 +363,7 @@ export const userRouter = router({
             input.password,
           )
         ) {
+          // Hash and store the password used
           await ctx.state.storage.put(
             StorageKeys.passwordHash,
             bcrypt.hashSync(input.password, 10),

@@ -33,23 +33,77 @@ export async function connectIdLogin(
   username: string,
   password: string,
 ) {
-  const response = await fetch("https://connectid.se/user/programmaticLogin", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Origin: migration.origin,
-      "user-agent": userAgent,
+  const response = await fetch(
+    `https://${
+      migration.domain
+    }/user/oauth/authorize?state=${Date.now()}&response_type=code&approval_prompt=auto&redirect_uri=${
+      migration.origin
+    }k&client_id=${migration.clientId}`,
+    {
+      headers: {
+        "user-agent": userAgent,
+        accept: "*/*",
+      },
+      redirect: "manual",
     },
-    body: JSON.stringify({
-      credential_type: "http://auth0.com/oauth/grant-type/password-realm",
-      realm: "Username-Password-Authentication",
-      username,
-      password,
-      client_id: migration.clientId,
-    }),
+  );
+
+  if (response.status !== 302) {
+    return false;
+  }
+
+  const cookies = response.headers.get("set-cookie");
+  const location = response.headers.get("location");
+
+  if (!location || !cookies) {
+    return false;
+  }
+
+  const loginFormResponse = await fetch(location, {
+    headers: {
+      "user-agent": userAgent,
+      cookie: cookies,
+    },
   });
 
-  return response.ok;
+  const body = await loginFormResponse.text();
+  const csrfTokenMatches = body.match(
+    /<meta\s+name\s*=\s*"_csrf"\s+content\s*=\s*"([^"]*)"\s*\/>/,
+  );
+  const clientIdMatches = body.match(/clientId:\s*(\d+),/);
+  if (!csrfTokenMatches || !clientIdMatches) {
+    return false;
+  }
+
+  const csrfToken = csrfTokenMatches[1];
+  const clientId = parseInt(clientIdMatches[1], 10);
+
+  const loginResponse = await fetch(
+    `https://${migration.domain}/user/programmaticLogin`,
+    {
+      method: "POST",
+      headers: {
+        "user-agent": userAgent,
+        cookie: cookies,
+        "content-type": "application/json;charset=UTF-8",
+        "x-csrf-token": csrfToken,
+        accept: "application/json, text/plain, */*",
+      },
+      body: JSON.stringify({
+        actuallySend: true,
+        alwaysVerifyPassword: false,
+        captcha: {},
+        clientId,
+        credential: username,
+        password: password,
+        rememberMe: true,
+        transitions: [],
+      }),
+      redirect: "manual",
+    },
+  );
+
+  return loginResponse.ok;
 }
 
 export async function migratePasswordHook(
@@ -68,23 +122,15 @@ export async function migratePasswordHook(
     .selectAll()
     .execute();
 
-  // const migrations: Migration[] = [{
-  //     id: 'id',
-  //     provider: 'auth0',
-  //     domain: 'auth.sesamy.dev',
-  //     clientId: '0N0wUHXFl0TMTY2L9aDJYvwX7Xy84HkW',
-  //     origin: 'https://login2.sesamy.dev',
-  //     createdAt: '',
-  //     modifiedAt: '',
-  //     tenantId: ''
-  // }]
-
   for (const migration of migrations) {
     let profile;
 
     switch (migration.provider) {
       case "auth0":
         profile = await auth0login(migration, username, password);
+        break;
+      case "connectId":
+        profile = await connectIdLogin(migration, username, password);
         break;
     }
 
