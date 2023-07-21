@@ -92,7 +92,9 @@ async function getJwks(env: Env) {
 function isPermissionsValid(token: TokenData, permissions: string[]) {
   const tokenPermissions = token.payload.permissions || [];
 
-  const match = !permissions.some((permissions) => !tokenPermissions.includes(permissions));
+  const match = !permissions.some(
+    (permissions) => !tokenPermissions.includes(permissions),
+  );
 
   return match;
 }

@@ -27,10 +27,7 @@ export class TenantsController extends Controller {
     const db = getDb(ctx.env);
 
     if (hasReadPermission(ctx)) {
-      return await db
-        .selectFrom("tenants")
-        .selectAll()
-        .execute();
+      return await db.selectFrom("tenants").selectAll().execute();
     }
 
     return await db
