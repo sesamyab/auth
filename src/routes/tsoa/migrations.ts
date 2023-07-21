@@ -21,6 +21,7 @@ import { updateTenantClientsInKV } from "../../hooks/update-client";
 import { Context } from "cloudworker-router";
 import { Env } from "../../types";
 import { NotFoundError, UnauthorizedError } from "../../errors";
+import { hasReadPermission, hasWritePermission } from "../../utils/permissions";
 
 async function checkAccess(ctx: Context<Env>, tenantId: string, id: string) {
   const db = getDb(ctx.env);
@@ -53,6 +54,14 @@ export class MigrationsController extends Controller {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
+
+    if (hasReadPermission(ctx)) {
+      return await db
+        .selectFrom("migrations")
+        .where("migrations.tenantId", "=", tenantId)
+        .selectAll()
+        .execute();
+    }
     const migrations = await db
       .selectFrom("migrations")
       .innerJoin("tenants", "tenants.id", "migrations.tenantId")
@@ -75,15 +84,27 @@ export class MigrationsController extends Controller {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
-    const migration = await db
-      .selectFrom("migrations")
-      .innerJoin("tenants", "tenants.id", "migrations.tenantId")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .where("migrations.id", "=", id)
-      .selectAll("migrations")
-      .executeTakeFirst();
+
+    let migration: Migration | undefined;
+
+    if (hasReadPermission(ctx)) {
+      migration = await db
+        .selectFrom("migrations")
+        .where("migrations.tenantId", "=", tenantId)
+        .where("migrations.id", "=", id)
+        .selectAll()
+        .executeTakeFirst();
+    } else {
+      migration = await db
+        .selectFrom("migrations")
+        .innerJoin("tenants", "tenants.id", "migrations.tenantId")
+        .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
+        .where("admin_users.id", "=", ctx.state.user.sub)
+        .where("tenants.id", "=", tenantId)
+        .where("migrations.id", "=", id)
+        .selectAll("migrations")
+        .executeTakeFirst();
+    }
 
     if (!migration) {
       this.setStatus(404);
@@ -100,18 +121,20 @@ export class MigrationsController extends Controller {
     @Path("id") id: string,
     @Path("tenantId") tenantId: string,
   ): Promise<string> {
-    const { env } = request.ctx;
+    const { ctx } = request;
 
-    await checkAccess(request.ctx, tenantId, id);
+    if (!hasWritePermission) {
+      await checkAccess(request.ctx, tenantId, id);
+    }
 
-    const db = getDb(env);
+    const db = getDb(ctx.env);
     await db
       .deleteFrom("migrations")
       .where("migrations.tenantId", "=", tenantId)
       .where("migrations.id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(ctx.env, tenantId);
 
     return "OK";
   }
@@ -127,24 +150,26 @@ export class MigrationsController extends Controller {
       Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">
     >,
   ) {
-    const { env } = request.ctx;
+    const { ctx } = request;
 
-    await checkAccess(request.ctx, tenantId, id);
+    if (!hasWritePermission) {
+      await checkAccess(request.ctx, tenantId, id);
+    }
 
-    const db = getDb(env);
     const migration = {
       ...body,
       tenantId,
       modifiedAt: new Date().toISOString(),
     };
 
+    const db = getDb(ctx.env);
     const results = await db
       .updateTable("migrations")
       .set(migration)
       .where("id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(ctx.env, tenantId);
 
     return Number(results[0].numUpdatedRows);
   }
@@ -159,20 +184,20 @@ export class MigrationsController extends Controller {
     body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">,
   ): Promise<Migration> {
     const { ctx } = request;
-    const { env } = ctx;
+    const db = getDb(ctx.env);
 
-    const db = getDb(env);
+    if (!hasWritePermission) {
+      const tenant = await db
+        .selectFrom("tenants")
+        .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
+        .where("admin_users.id", "=", ctx.state.user.sub)
+        .where("tenants.id", "=", tenantId)
+        .select("tenants.id")
+        .executeTakeFirst();
 
-    const tenant = await db
-      .selectFrom("tenants")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .select("tenants.id")
-      .executeTakeFirst();
-
-    if (!tenant) {
-      throw new UnauthorizedError();
+      if (!tenant) {
+        throw new UnauthorizedError();
+      }
     }
 
     const migration: Migration = {
@@ -185,7 +210,7 @@ export class MigrationsController extends Controller {
 
     await db.insertInto("migrations").values(migration).execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(ctx.env, tenantId);
 
     this.setStatus(201);
     return migration;

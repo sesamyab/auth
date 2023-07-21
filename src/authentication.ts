@@ -89,10 +89,10 @@ async function getJwks(env: Env) {
   return (body as any).keys as JwkKey[];
 }
 
-function isValidScopes(token: TokenData, scopes: string[]) {
-  const tokenScopes = token.payload.scope?.split(" ") || [];
+function isPermissionsValid(token: TokenData, permissions: string[]) {
+  const tokenPermissions = token.payload.permissions || [];
 
-  const match = !scopes.some((scope) => !tokenScopes.includes(scope));
+  const match = !permissions.some((permissions) => !tokenPermissions.includes(permissions));
 
   return match;
 }
@@ -128,7 +128,7 @@ export async function getUser(
   ctx: Context<Env>,
   clientId: string,
   bearer: string,
-  scopes: string[],
+  permissions: string[],
 ): Promise<any | null> {
   const token = decodeJwt(bearer);
 
@@ -139,7 +139,7 @@ export async function getUser(
     return null;
   }
 
-  if (!isValidScopes(token, scopes)) {
+  if (!isPermissionsValid(token, permissions)) {
     return null;
   }
 
@@ -155,7 +155,7 @@ export interface Security {
 }
 
 export function authenticationHandler(security: Security[]) {
-  const [scope] = security[0].oauth2;
+  const [permissions] = security[0].oauth2;
   return async function jwtMiddleware(
     ctx: Context<Env>,
     next: Next,
@@ -171,7 +171,7 @@ export function authenticationHandler(security: Security[]) {
       ctx,
       ctx.params.clientId,
       bearer,
-      scope?.split(" ") || [],
+      permissions?.split(" ") || [],
     );
 
     if (!ctx.state.user) {

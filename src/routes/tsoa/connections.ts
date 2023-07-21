@@ -21,6 +21,7 @@ import { updateTenantClientsInKV } from "../../hooks/update-client";
 import { Context } from "cloudworker-router";
 import { Env } from "../../types";
 import { NotFoundError, UnauthorizedError } from "../../errors";
+import { hasReadPermission, hasWritePermission } from "../../utils/permissions";
 
 async function checkAccess(ctx: Context<Env>, tenantId: string, id: string) {
   const db = getDb(ctx.env);
@@ -53,6 +54,15 @@ export class ConnectionsController extends Controller {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
+
+    if (hasReadPermission(ctx)) {
+      return await db
+        .selectFrom("connections")
+        .where("connections.tenantId", "=", tenantId)
+        .selectAll()
+        .execute();
+    }
+
     const connections = await db
       .selectFrom("connections")
       .innerJoin("tenants", "tenants.id", "connections.tenantId")
@@ -73,17 +83,28 @@ export class ConnectionsController extends Controller {
     @Path("tenantId") tenantId: string,
   ): Promise<Connection | string> {
     const { ctx } = request;
-
     const db = getDb(ctx.env);
-    const connection = await db
-      .selectFrom("connections")
-      .innerJoin("tenants", "tenants.id", "connections.tenantId")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .where("connections.id", "=", id)
-      .selectAll("connections")
-      .executeTakeFirst();
+
+    let connection: Connection | undefined;
+
+    if (hasReadPermission(ctx)) {
+      connection = await db
+        .selectFrom("connections")
+        .where("connections.tenantId", "=", tenantId)
+        .where("connections.id", "=", id)
+        .selectAll()
+        .executeTakeFirst();
+    } else {
+      connection = await db
+        .selectFrom("connections")
+        .innerJoin("tenants", "tenants.id", "connections.tenantId")
+        .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
+        .where("admin_users.id", "=", ctx.state.user.sub)
+        .where("tenants.id", "=", tenantId)
+        .where("connections.id", "=", id)
+        .selectAll("connections")
+        .executeTakeFirst();
+    }
 
     if (!connection) {
       this.setStatus(404);
@@ -100,18 +121,20 @@ export class ConnectionsController extends Controller {
     @Path("id") id: string,
     @Path("tenantId") tenantId: string,
   ): Promise<string> {
-    const { env } = request.ctx;
+    const { ctx } = request;
 
-    await checkAccess(request.ctx, tenantId, id);
+    if (!hasWritePermission) {
+      await checkAccess(request.ctx, tenantId, id);
+    }
 
-    const db = getDb(env);
+    const db = getDb(ctx.env);
     await db
       .deleteFrom("connections")
       .where("connections.tenantId", "=", tenantId)
       .where("connections.id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(ctx.env, tenantId);
 
     return "OK";
   }
@@ -127,11 +150,13 @@ export class ConnectionsController extends Controller {
       Omit<Connection, "id" | "tenantId" | "createdAt" | "modifiedAt">
     >,
   ) {
-    const { env } = request.ctx;
+    const { ctx } = request;
 
-    await checkAccess(request.ctx, tenantId, id);
+    if (!hasWritePermission) {
+      await checkAccess(request.ctx, tenantId, id);
+    }
 
-    const db = getDb(env);
+    const db = getDb(ctx.env);
     const connection = {
       ...body,
       tenantId,
@@ -144,7 +169,7 @@ export class ConnectionsController extends Controller {
       .where("id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(ctx.env, tenantId);
 
     return Number(results[0].numUpdatedRows);
   }
@@ -159,20 +184,20 @@ export class ConnectionsController extends Controller {
     body: Omit<Connection, "id" | "tenantId" | "createdAt" | "modifiedAt">,
   ): Promise<Connection> {
     const { ctx } = request;
-    const { env } = ctx;
+    const db = getDb(ctx.env);
 
-    const db = getDb(env);
+    if (!hasWritePermission) {
+      const tenant = await db
+        .selectFrom("tenants")
+        .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
+        .where("admin_users.id", "=", ctx.state.user.sub)
+        .where("tenants.id", "=", tenantId)
+        .select("tenants.id")
+        .executeTakeFirst();
 
-    const tenant = await db
-      .selectFrom("tenants")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .select("tenants.id")
-      .executeTakeFirst();
-
-    if (!tenant) {
-      throw new UnauthorizedError();
+      if (!tenant) {
+        throw new UnauthorizedError();
+      }
     }
 
     const connection: Connection = {
@@ -185,7 +210,7 @@ export class ConnectionsController extends Controller {
 
     await db.insertInto("connections").values(connection).execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(ctx.env, tenantId);
 
     this.setStatus(201);
     return connection;

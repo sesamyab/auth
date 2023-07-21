@@ -21,6 +21,7 @@ import { updateClientInKV } from "../../hooks/update-client";
 import { NotFoundError, UnauthorizedError } from "../../errors";
 import { Context } from "cloudworker-router";
 import { Env } from "../../types";
+import { hasReadPermission, hasWritePermission } from "../../utils/permissions";
 
 async function checkAccess(ctx: Context<Env>, tenantId: string, id: string) {
   const db = getDb(ctx.env);
@@ -51,9 +52,17 @@ export class ApplicationsController extends Controller {
     @Path("tenantId") tenantId: string,
   ): Promise<Application[]> {
     const { ctx } = request;
-
     const db = getDb(ctx.env);
-    const applications = await db
+
+    if (hasReadPermission(ctx)) {
+      return await db
+        .selectFrom("applications")
+        .where("applications.tenantId", "=", tenantId)
+        .selectAll()
+        .execute();
+    }
+
+    return db
       .selectFrom("applications")
       .innerJoin("tenants", "tenants.id", "applications.tenantId")
       .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
@@ -61,8 +70,6 @@ export class ApplicationsController extends Controller {
       .where("tenants.id", "=", tenantId)
       .selectAll("applications")
       .execute();
-
-    return applications;
   }
 
   @Get("{id}")
@@ -75,15 +82,27 @@ export class ApplicationsController extends Controller {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
-    const application = await db
-      .selectFrom("applications")
-      .innerJoin("tenants", "tenants.id", "applications.tenantId")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .where("applications.id", "=", id)
-      .selectAll("applications")
-      .executeTakeFirst();
+
+    let application: Application | undefined;
+
+    if (hasReadPermission(ctx)) {
+      application = await db
+        .selectFrom("applications")
+        .where("applications.tenantId", "=", tenantId)
+        .where("applications.id", "=", id)
+        .selectAll()
+        .executeTakeFirst();
+    } else {
+      application = await db
+        .selectFrom("applications")
+        .innerJoin("tenants", "tenants.id", "applications.tenantId")
+        .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
+        .where("admin_users.id", "=", ctx.state.user.sub)
+        .where("tenants.id", "=", tenantId)
+        .where("applications.id", "=", id)
+        .selectAll("applications")
+        .executeTakeFirst();
+    }
 
     if (!application) {
       this.setStatus(404);
@@ -100,11 +119,13 @@ export class ApplicationsController extends Controller {
     @Path("id") id: string,
     @Path("tenantId") tenantId: string,
   ): Promise<string> {
-    const { env } = request.ctx;
+    const { ctx } = request;
 
-    const db = getDb(env);
+    const db = getDb(ctx.env);
 
-    await checkAccess(request.ctx, tenantId, id);
+    if (!hasWritePermission(ctx)) {
+      await checkAccess(request.ctx, tenantId, id);
+    }
 
     await db
       .deleteFrom("applications")
@@ -112,7 +133,7 @@ export class ApplicationsController extends Controller {
       .where("applications.id", "=", id)
       .execute();
 
-    await updateClientInKV(env, id);
+    await updateClientInKV(ctx.env, id);
 
     return "OK";
   }
@@ -128,11 +149,13 @@ export class ApplicationsController extends Controller {
       Omit<Application, "id" | "tenantId" | "createdAt" | "modifiedAt">
     >,
   ) {
-    const { env } = request.ctx;
+    const { ctx } = request;
 
-    const db = getDb(env);
+    const db = getDb(ctx.env);
 
-    await checkAccess(request.ctx, tenantId, id);
+    if (!hasWritePermission(ctx)) {
+      await checkAccess(request.ctx, tenantId, id);
+    }
 
     const application = {
       ...body,
@@ -146,7 +169,7 @@ export class ApplicationsController extends Controller {
       .where("id", "=", id)
       .execute();
 
-    await updateClientInKV(env, id);
+    await updateClientInKV(ctx.env, id);
 
     return Number(results[0].numUpdatedRows);
   }
@@ -167,16 +190,18 @@ export class ApplicationsController extends Controller {
 
     const db = getDb(env);
 
-    const tenant = await db
-      .selectFrom("tenants")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .select("tenants.id")
-      .executeTakeFirst();
+    if (!hasWritePermission(ctx)) {
+      const tenant = await db
+        .selectFrom("tenants")
+        .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
+        .where("admin_users.id", "=", ctx.state.user.sub)
+        .where("tenants.id", "=", tenantId)
+        .select("tenants.id")
+        .executeTakeFirst();
 
-    if (!tenant) {
-      throw new UnauthorizedError();
+      if (!tenant) {
+        throw new UnauthorizedError();
+      }
     }
 
     const application: Application = {

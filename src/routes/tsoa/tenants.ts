@@ -13,6 +13,7 @@ import { Tenant, AdminUser } from "../../types/sql";
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { nanoid } from "nanoid";
+import { hasReadPermission } from "../../utils/permissions";
 
 @Route("tenants")
 @Tags("tenants")
@@ -25,14 +26,19 @@ export class TenantsController extends Controller {
     const { ctx } = request;
     const db = getDb(ctx.env);
 
-    const tenants = await db
+    if (hasReadPermission(ctx)) {
+      return await db
+        .selectFrom("tenants")
+        .selectAll()
+        .execute();
+    }
+
+    return await db
       .selectFrom("tenants")
       .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
       .where("admin_users.id", "=", ctx.state.user.sub)
       .selectAll("tenants")
       .execute();
-
-    return tenants;
   }
 
   @Post("")
