@@ -1,4 +1,5 @@
 import {
+  AuthorizationResponseType,
   AuthParams,
   CodeResponse,
   Env,
@@ -57,15 +58,11 @@ export async function pkceAuthorizeCodeGrant(
     throw new InvalidCodeVerifierError();
   }
 
-  if (!state.authParams.response_type) {
-    throw new Error("Response type needs to be defined");
-  }
-
   await setSilentAuthCookies(env, controller, state.user, state.authParams);
 
   return generateAuthResponse({
     env,
     ...state,
-    responseType: state.authParams.response_type,
+    responseType: AuthorizationResponseType.TOKEN_ID_TOKEN,
   });
 }

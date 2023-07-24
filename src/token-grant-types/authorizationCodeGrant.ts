@@ -1,6 +1,7 @@
 import { base64ToHex } from "../utils/base64";
 import {
   AuthorizationCodeGrantTypeParams,
+  AuthorizationResponseType,
   AuthParams,
   CodeResponse,
   Env,
@@ -45,13 +46,9 @@ export async function authorizeCodeGrant(
     throw new InvalidClientError("Invalid Secret");
   }
 
-  if (!state.authParams.response_type) {
-    throw new Error("Response type needs to be defined");
-  }
-
   return generateAuthResponse({
     env,
     ...state,
-    responseType: state.authParams.response_type,
+    responseType: AuthorizationResponseType.TOKEN_ID_TOKEN,
   });
 }
