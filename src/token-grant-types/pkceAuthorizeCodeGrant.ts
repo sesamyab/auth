@@ -1,22 +1,24 @@
 import {
   AuthParams,
+  CodeResponse,
   Env,
   PKCEAuthorizationCodeGrantTypeParams,
+  Profile,
   TokenResponse,
 } from "../types";
 import { Controller } from "tsoa";
 import { base64ToHex } from "../utils/base64";
-import { User } from "../types/sql";
 import { InvalidClientError, InvalidCodeVerifierError } from "../errors";
 import { getClient } from "../services/clients";
 import { computeCodeChallenge } from "../helpers/pkce";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
+import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
 
 export async function pkceAuthorizeCodeGrant(
   env: Env,
   controller: Controller,
   params: PKCEAuthorizationCodeGrantTypeParams,
-): Promise<TokenResponse> {
+): Promise<TokenResponse | CodeResponse> {
   const stateInstance = env.stateFactory.getInstanceById(
     base64ToHex(params.code),
   );
@@ -28,7 +30,7 @@ export async function pkceAuthorizeCodeGrant(
   const state: {
     userId: string;
     authParams: AuthParams;
-    user: User;
+    user: Profile;
     sid: string;
   } = JSON.parse(stateString);
 
@@ -55,10 +57,15 @@ export async function pkceAuthorizeCodeGrant(
     throw new InvalidCodeVerifierError();
   }
 
-  // await setSilentAuthCookies(env, controller, state.user, state.authParams);
+  if (!state.authParams.response_type) {
+    throw new Error("Response type needs to be defined");
+  }
+
+  await setSilentAuthCookies(env, controller, state.user, state.authParams);
 
   return generateAuthResponse({
     env,
     ...state,
+    responseType: state.authParams.response_type,
   });
 }
