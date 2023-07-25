@@ -1,4 +1,6 @@
 import { Context, Next } from "cloudworker-router";
+import { UnauthorizedError } from "./errors";
+import { getDb } from "./services/db";
 import { Env } from "./types/Env";
 
 interface TokenData {
@@ -126,7 +128,6 @@ async function isValidJwtSignature(ctx: Context<Env>, token: TokenData) {
 
 export async function getUser(
   ctx: Context<Env>,
-  clientId: string,
   bearer: string,
   scopes: string[],
 ): Promise<any | null> {
@@ -150,6 +151,60 @@ export async function getUser(
   return token.payload;
 }
 
+export async function verifyTenantPermissions(ctx: Context<Env>) {
+  if (
+    !["POST", "PATCH", "PUT", "DELETE", "GET", "HEAD"].includes(
+      ctx.request.method,
+    )
+  ) {
+    // Don't bother about OPTIONS requests
+    return;
+  }
+
+  // Check token permissions first
+  if (["GET", "HEAD"].includes(ctx.request.method)) {
+    // Read requets
+    if (ctx.state.user.permissions.include(ctx.env.READ_PERMISSION)) {
+      return true;
+    }
+  } else {
+    // Write requests
+    if (ctx.state.user.permissions.include(ctx.env.WRITE_PERMISSION)) {
+      return true;
+    }
+  }
+
+  // Check db permissions
+  const tenantId = ctx.params.tenantId;
+
+  const db = getDb(ctx.env);
+  const adminUser = await db
+    .selectFrom("admin_users")
+    .where("admin_users.id", "=", ctx.state.user.sub)
+    .where("admin_users.tenantId", "=", tenantId)
+    .where("admin_users.status", "=", "active")
+    .select("admin_users.role")
+    .executeTakeFirst();
+
+  if (!adminUser?.role) {
+    throw new UnauthorizedError();
+  }
+
+  if (["GET", "HEAD"].includes(ctx.request.method)) {
+    // Read requets
+    if (["admin", "viewer"].includes(adminUser.role)) {
+      return true;
+    }
+  } else {
+    // Write requests
+    if (["admin"].includes(adminUser.role)) {
+      return true;
+    }
+  }
+
+  throw new UnauthorizedError();
+}
+
 export interface Security {
   oauth2: string[];
 }
@@ -167,12 +222,9 @@ export function authenticationHandler(security: Security[]) {
       });
     }
     const bearer = authHeader.slice(7);
-    ctx.state.user = await getUser(
-      ctx,
-      ctx.params.clientId,
-      bearer,
-      scope?.split(" ") || [],
-    );
+    ctx.state.user = await getUser(ctx, bearer, scope?.split(" ") || []);
+
+    await verifyTenantPermissions(ctx);
 
     if (!ctx.state.user) {
       return new Response("Not Authorized", {
