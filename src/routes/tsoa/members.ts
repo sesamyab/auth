@@ -12,6 +12,7 @@ import {
   Security,
   Delete,
   Header,
+  Put,
 } from "@tsoa/runtime";
 import { nanoid } from "nanoid";
 
@@ -152,6 +153,37 @@ export class MembersController extends Controller {
     await db.insertInto("admin_users").values(member).execute();
 
     this.setStatus(201);
+    return member;
+  }
+
+  @Put("{id}")
+  @Security("oauth2", [])
+  public async putMember(
+    @Request() request: RequestWithContext,
+    @Path("tenantId") tenantId: string,
+    @Path("id") id: string,
+    @Body()
+    body: Omit<AdminUser, "id" | "tenantId" | "createdAt" | "modifiedAt">,
+  ): Promise<AdminUser> {
+    const { ctx } = request;
+    const { env } = ctx;
+
+    const db = getDb(env);
+
+    const member: AdminUser = {
+      ...body,
+      tenantId,
+      id,
+      createdAt: new Date().toISOString(),
+      modifiedAt: new Date().toISOString(),
+    };
+
+    await db.insertInto("admin_users").values(member).onConflict((oc) => oc
+      .column('id')
+      .doUpdateSet(body)
+    ).execute();
+
+    this.setStatus(200);
     return member;
   }
 }
