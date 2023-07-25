@@ -23,7 +23,7 @@ import { headers } from "../../constants";
 
 @Route("tenants/{tenantId}/members")
 @Tags("members")
-export class MigrationsController extends Controller {
+export class MembersController extends Controller {
   @Get("")
   @Security("oauth2", [])
   public async listMembers(

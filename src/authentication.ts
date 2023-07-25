@@ -165,12 +165,12 @@ export async function verifyTenantPermissions(ctx: Context<Env>) {
   if (["GET", "HEAD"].includes(ctx.request.method)) {
     // Read requets
     if (ctx.state.user.permissions.include(ctx.env.READ_PERMISSION)) {
-      return true;
+      return;
     }
   } else {
     // Write requests
     if (ctx.state.user.permissions.include(ctx.env.WRITE_PERMISSION)) {
-      return true;
+      return;
     }
   }
 
@@ -193,12 +193,12 @@ export async function verifyTenantPermissions(ctx: Context<Env>) {
   if (["GET", "HEAD"].includes(ctx.request.method)) {
     // Read requets
     if (["admin", "viewer"].includes(adminUser.role)) {
-      return true;
+      return;
     }
   } else {
     // Write requests
     if (["admin"].includes(adminUser.role)) {
-      return true;
+      return;
     }
   }
 
