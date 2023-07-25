@@ -152,6 +152,11 @@ export async function getUser(
 }
 
 export async function verifyTenantPermissions(ctx: Context<Env>) {
+  const tenantId = ctx.params.tenantId;
+  if (!tenantId) {
+    return;
+  }
+
   if (
     !["POST", "PATCH", "PUT", "DELETE", "GET", "HEAD"].includes(
       ctx.request.method,
@@ -162,21 +167,21 @@ export async function verifyTenantPermissions(ctx: Context<Env>) {
   }
 
   // Check token permissions first
+  const permissions: string[] = ctx.state.user.permissions || [];
+
   if (["GET", "HEAD"].includes(ctx.request.method)) {
     // Read requets
-    if (ctx.state.user.permissions.include(ctx.env.READ_PERMISSION)) {
+    if (permissions.includes(ctx.env.READ_PERMISSION as string)) {
       return;
     }
   } else {
     // Write requests
-    if (ctx.state.user.permissions.include(ctx.env.WRITE_PERMISSION)) {
+    if (permissions.includes(ctx.env.WRITE_PERMISSION as string)) {
       return;
     }
   }
 
   // Check db permissions
-  const tenantId = ctx.params.tenantId;
-
   const db = getDb(ctx.env);
   const adminUser = await db
     .selectFrom("admin_users")
