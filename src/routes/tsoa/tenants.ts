@@ -24,7 +24,7 @@ export class TenantsController extends Controller {
   @Security("oauth2", [])
   public async listTenants(
     @Request() request: RequestWithContext,
-    @Header('range') range?: string,
+    @Header("range") range?: string,
   ): Promise<Tenant[]> {
     const { ctx } = request;
     const db = getDb(ctx.env);
@@ -41,7 +41,10 @@ export class TenantsController extends Controller {
       .execute();
 
     if (parsedRange.entity) {
-      this.setHeader(headers.contentRange, `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`)
+      this.setHeader(
+        headers.contentRange,
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
+      );
     }
 
     return tenants;

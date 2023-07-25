@@ -12,7 +12,7 @@ export const headers = {
   accessControlExposeHeaders: "Access-Control-Expose-Headers",
   cacheControl: "cache-control",
   contentType: "content-type",
-  contentRange: 'content-range',
+  contentRange: "content-range",
   location: "location",
   setCookie: "set-cookie",
 };

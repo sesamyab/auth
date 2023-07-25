@@ -53,7 +53,7 @@ export class UsersController extends Controller {
   public async listUsers(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header('range') range?: string,
+    @Header("range") range?: string,
   ): Promise<User[]> {
     const { ctx } = request;
 
@@ -72,7 +72,10 @@ export class UsersController extends Controller {
       .execute();
 
     if (parsedRange.entity) {
-      this.setHeader(headers.contentRange, `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`)
+      this.setHeader(
+        headers.contentRange,
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
+      );
     }
 
     return users;

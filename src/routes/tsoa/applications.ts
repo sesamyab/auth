@@ -52,7 +52,7 @@ export class ApplicationsController extends Controller {
   public async listApplications(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header('range') range?: string,
+    @Header("range") range?: string,
   ): Promise<Application[]> {
     const { ctx } = request;
 
@@ -71,7 +71,10 @@ export class ApplicationsController extends Controller {
       .execute();
 
     if (parsedRange.entity) {
-      this.setHeader(headers.contentRange, `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`)
+      this.setHeader(
+        headers.contentRange,
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
+      );
     }
 
     return applications;
