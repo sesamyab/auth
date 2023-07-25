@@ -66,7 +66,7 @@ export class MigrationsController extends Controller {
     const db = getDb(ctx.env);
     const member = await db
       .selectFrom("admin_users")
-      .where("admin_users.id", "=", ctx.state.user.sub)
+      .where("admin_users.id", "=", id)
       .where("admin_users.tenantId", "=", tenantId)
       .selectAll()
       .executeTakeFirst();
