@@ -19,30 +19,9 @@ import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { Connection } from "../../types/sql";
 import { updateTenantClientsInKV } from "../../hooks/update-client";
-import { Context } from "cloudworker-router";
-import { Env } from "../../types";
-import { NotFoundError, UnauthorizedError } from "../../errors";
+import { UnauthorizedError } from "../../errors";
 import { parseRange } from "../../helpers/content-range";
 import { headers } from "../../constants";
-
-async function checkAccess(ctx: Context<Env>, tenantId: string, id: string) {
-  const db = getDb(ctx.env);
-
-  const user = await db
-    .selectFrom("connections")
-    .innerJoin("tenants", "tenants.id", "connections.tenantId")
-    .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-    .where("admin_users.id", "=", ctx.state.user.sub)
-    .where("tenants.id", "=", tenantId)
-    .where("connections.id", "=", id)
-    .select("connections.id")
-    .executeTakeFirst();
-
-  if (!user) {
-    // Application not found. Could be that the user has no access
-    throw new NotFoundError();
-  }
-}
 
 @Route("tenants/{tenantId}/connections")
 @Tags("connections")
@@ -61,11 +40,8 @@ export class ConnectionsController extends Controller {
     const db = getDb(ctx.env);
     const connections = await db
       .selectFrom("connections")
-      .innerJoin("tenants", "tenants.id", "connections.tenantId")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .selectAll("connections")
+      .where("connections.tenantId", "=", tenantId)
+      .selectAll()
       .offset(parsedRange.from)
       .limit(parsedRange.limit)
       .execute();
@@ -92,12 +68,9 @@ export class ConnectionsController extends Controller {
     const db = getDb(ctx.env);
     const connection = await db
       .selectFrom("connections")
-      .innerJoin("tenants", "tenants.id", "connections.tenantId")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
+      .where("connections.tenantId", "=", tenantId)
       .where("connections.id", "=", id)
-      .selectAll("connections")
+      .selectAll()
       .executeTakeFirst();
 
     if (!connection) {
@@ -116,8 +89,6 @@ export class ConnectionsController extends Controller {
     @Path("tenantId") tenantId: string,
   ): Promise<string> {
     const { env } = request.ctx;
-
-    await checkAccess(request.ctx, tenantId, id);
 
     const db = getDb(env);
     await db
@@ -143,8 +114,6 @@ export class ConnectionsController extends Controller {
     >,
   ) {
     const { env } = request.ctx;
-
-    await checkAccess(request.ctx, tenantId, id);
 
     const db = getDb(env);
     const connection = {
@@ -177,19 +146,6 @@ export class ConnectionsController extends Controller {
     const { env } = ctx;
 
     const db = getDb(env);
-
-    const tenant = await db
-      .selectFrom("tenants")
-      .innerJoin("admin_users", "tenants.id", "admin_users.tenantId")
-      .where("admin_users.id", "=", ctx.state.user.sub)
-      .where("tenants.id", "=", tenantId)
-      .select("tenants.id")
-      .executeTakeFirst();
-
-    if (!tenant) {
-      throw new UnauthorizedError();
-    }
-
     const connection: Connection = {
       ...body,
       tenantId,

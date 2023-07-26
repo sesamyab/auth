@@ -183,26 +183,26 @@ export async function verifyTenantPermissions(ctx: Context<Env>) {
 
   // Check db permissions
   const db = getDb(ctx.env);
-  const adminUser = await db
-    .selectFrom("admin_users")
-    .where("admin_users.id", "=", ctx.state.user.sub)
-    .where("admin_users.tenantId", "=", tenantId)
-    .where("admin_users.status", "=", "active")
-    .select("admin_users.role")
+  const member = await db
+    .selectFrom("members")
+    .where("members.id", "=", ctx.state.user.sub)
+    .where("members.tenantId", "=", tenantId)
+    .where("members.status", "=", "active")
+    .select("members.role")
     .executeTakeFirst();
 
-  if (!adminUser?.role) {
+  if (!member?.role) {
     throw new UnauthorizedError();
   }
 
   if (["GET", "HEAD"].includes(ctx.request.method)) {
     // Read requets
-    if (["admin", "viewer"].includes(adminUser.role)) {
+    if (["admin", "viewer"].includes(member.role)) {
       return;
     }
   } else {
     // Write requests
-    if (["admin"].includes(adminUser.role)) {
+    if (["admin"].includes(member.role)) {
       return;
     }
   }
