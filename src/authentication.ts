@@ -185,7 +185,7 @@ export async function verifyTenantPermissions(ctx: Context<Env>) {
   const db = getDb(ctx.env);
   const member = await db
     .selectFrom("members")
-    .where("members.id", "=", ctx.state.user.sub)
+    .where("members.sub", "=", ctx.state.user.sub)
     .where("members.tenantId", "=", tenantId)
     .where("members.status", "=", "active")
     .select("members.role")
