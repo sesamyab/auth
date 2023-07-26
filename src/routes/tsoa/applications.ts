@@ -140,10 +140,11 @@ export class ApplicationsController extends Controller {
   public async postApplications(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Body() body: Partial<
+    @Body()
+    body: Partial<
       Omit<Application, "tenantId" | "createdAt" | "modifiedAt">
     > & {
-      name: string
+      name: string;
     },
   ): Promise<Application> {
     const { ctx } = request;
@@ -152,9 +153,9 @@ export class ApplicationsController extends Controller {
     const db = getDb(env);
 
     const application: Application = {
-      allowedWebOrigins: '',
-      allowedCallbackUrls: '',
-      allowedLogoutUrls: '',
+      allowedWebOrigins: "",
+      allowedCallbackUrls: "",
+      allowedLogoutUrls: "",
       clientSecret: nanoid(),
       id: nanoid(),
       ...body,

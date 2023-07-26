@@ -18,7 +18,7 @@ import { nanoid } from "nanoid";
 
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
-import { AdminUser } from "../../types/sql";
+import { Member } from "../../types/sql";
 import { parseRange } from "../../helpers/content-range";
 import { headers } from "../../constants";
 
@@ -31,15 +31,15 @@ export class MembersController extends Controller {
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Header("range") range?: string,
-  ): Promise<AdminUser[]> {
+  ): Promise<Member[]> {
     const { ctx } = request;
 
     const parsedRange = parseRange(range);
 
     const db = getDb(ctx.env);
     const members = await db
-      .selectFrom("admin_users")
-      .where("admin_users.tenantId", "=", tenantId)
+      .selectFrom("members")
+      .where("members.tenantId", "=", tenantId)
       .selectAll()
       .offset(parsedRange.from)
       .limit(parsedRange.limit)
@@ -61,14 +61,14 @@ export class MembersController extends Controller {
     @Request() request: RequestWithContext,
     @Path("id") id: string,
     @Path("tenantId") tenantId: string,
-  ): Promise<AdminUser | string> {
+  ): Promise<Member | string> {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
     const member = await db
-      .selectFrom("admin_users")
-      .where("admin_users.id", "=", id)
-      .where("admin_users.tenantId", "=", tenantId)
+      .selectFrom("members")
+      .where("members.id", "=", id)
+      .where("members.tenantId", "=", tenantId)
       .selectAll()
       .executeTakeFirst();
 
@@ -91,9 +91,9 @@ export class MembersController extends Controller {
 
     const db = getDb(env);
     await db
-      .deleteFrom("admin_users")
-      .where("admin_users.tenantId", "=", tenantId)
-      .where("admin_users.id", "=", id)
+      .deleteFrom("members")
+      .where("members.tenantId", "=", tenantId)
+      .where("members.id", "=", id)
       .execute();
 
     return "OK";
@@ -106,9 +106,7 @@ export class MembersController extends Controller {
     @Path("id") id: string,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Partial<
-      Omit<AdminUser, "id" | "tenantId" | "createdAt" | "modifiedAt">
-    >,
+    body: Partial<Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">>,
   ) {
     const { env } = request.ctx;
 
@@ -120,7 +118,7 @@ export class MembersController extends Controller {
     };
 
     const results = await db
-      .updateTable("admin_users")
+      .updateTable("members")
       .set(member)
       .where("id", "=", id)
       .execute();
@@ -135,14 +133,14 @@ export class MembersController extends Controller {
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Omit<AdminUser, "id" | "tenantId" | "createdAt" | "modifiedAt">,
-  ): Promise<AdminUser> {
+    body: Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">,
+  ): Promise<Member> {
     const { ctx } = request;
     const { env } = ctx;
 
     const db = getDb(env);
 
-    const member: AdminUser = {
+    const member: Member = {
       ...body,
       tenantId,
       id: nanoid(),
@@ -150,7 +148,7 @@ export class MembersController extends Controller {
       modifiedAt: new Date().toISOString(),
     };
 
-    await db.insertInto("admin_users").values(member).execute();
+    await db.insertInto("members").values(member).execute();
 
     this.setStatus(201);
     return member;
@@ -163,14 +161,14 @@ export class MembersController extends Controller {
     @Path("tenantId") tenantId: string,
     @Path("id") id: string,
     @Body()
-    body: Omit<AdminUser, "id" | "tenantId" | "createdAt" | "modifiedAt">,
-  ): Promise<AdminUser> {
+    body: Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">,
+  ): Promise<Member> {
     const { ctx } = request;
     const { env } = ctx;
 
     const db = getDb(env);
 
-    const member: AdminUser = {
+    const member: Member = {
       ...body,
       tenantId,
       id,
@@ -178,10 +176,11 @@ export class MembersController extends Controller {
       modifiedAt: new Date().toISOString(),
     };
 
-    await db.insertInto("admin_users").values(member).onConflict((oc) => oc
-      .column('id')
-      .doUpdateSet(body)
-    ).execute();
+    await db
+      .insertInto("members")
+      .values(member)
+      .onConflict((oc) => oc.column("id").doUpdateSet(body))
+      .execute();
 
     this.setStatus(200);
     return member;
