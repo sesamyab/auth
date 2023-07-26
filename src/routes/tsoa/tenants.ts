@@ -10,7 +10,7 @@ import {
   Security,
   Header,
 } from "@tsoa/runtime";
-import { Tenant, AdminUser, Member } from "../../types/sql";
+import { Tenant, Member } from "../../types/sql";
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { nanoid } from "nanoid";
