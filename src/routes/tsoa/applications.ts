@@ -200,7 +200,6 @@ export class ApplicationsController extends Controller {
       .onConflict((oc) => oc.column("id").doUpdateSet(body))
       .execute();
 
-
     await updateClientInKV(env, application.id);
 
     this.setStatus(200);
