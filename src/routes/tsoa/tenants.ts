@@ -49,7 +49,7 @@ export class TenantsController extends Controller {
         .where("members.sub", "=", ctx.state.user.sub)
         .offset(parsedRange.from)
         .limit(parsedRange.limit)
-        .selectAll('tenants')
+        .selectAll("tenants")
         .execute();
     }
 
@@ -71,15 +71,16 @@ export class TenantsController extends Controller {
   ): Promise<Tenant | string> {
     const { ctx } = request;
 
-    console.log('id: ' + id)
+    console.log("id: " + id);
 
     const db = getDb(ctx.env);
-    const tenant = await db.selectFrom("tenants")
+    const tenant = await db
+      .selectFrom("tenants")
       .where("tenants.id", "=", id)
       .selectAll()
       .executeTakeFirst();
 
-    console.log('tenant: ' + JSON.stringify(tenant))
+    console.log("tenant: " + JSON.stringify(tenant));
 
     if (!tenant) {
       this.setStatus(404);
