@@ -191,6 +191,9 @@ export class ConnectionsController extends Controller {
       .onConflict((oc) => oc.column("id").doUpdateSet(body))
       .execute();
 
+
+    await updateTenantClientsInKV(env, tenantId);
+
     this.setStatus(200);
     return connection;
   }

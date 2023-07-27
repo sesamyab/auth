@@ -30,6 +30,6 @@ export async function updateUser(env: Env, tenantId: string, email: string) {
   await db
     .insertInto("users")
     .values(user)
-    .onConflict((oc) => oc.column("id").doUpdateSet(user))
+    .onConflict((oc) => oc.columns(["id", "tenantId"]).doUpdateSet(user))
     .execute();
 }
