@@ -14,8 +14,6 @@ export async function updateUser(env: Env, tenantId: string, email: string) {
 
   const db = getDb(env);
 
-  console.log("connections: " + JSON.stringify(profile.connections));
-
   const tags: UserTag[] = profile.connections.map((connection) => ({
     category: "connection",
     name: connection.name,
