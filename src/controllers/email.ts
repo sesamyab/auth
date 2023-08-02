@@ -6,6 +6,10 @@ export async function sendEmailValidation(
   to: string,
   code: string,
 ) {
+  if (client.emailValidation === "disabled") {
+    return;
+  }
+
   const message = `Here is the code to validate your email: ${code}`;
   await env.sendEmail({
     to: [{ email: to, name: to }],
@@ -20,6 +24,29 @@ export async function sendEmailValidation(
       },
     ],
     subject: "Validate email",
+  });
+}
+
+export async function sendCode(
+  env: Env,
+  client: Client,
+  to: string,
+  code: string,
+) {
+  const message = `Here is your login code: ${code}`;
+  await env.sendEmail({
+    to: [{ email: to, name: to }],
+    from: {
+      email: client.senderEmail,
+      name: client.senderName,
+    },
+    content: [
+      {
+        type: "text/plain",
+        value: message,
+      },
+    ],
+    subject: "Login Code",
   });
 }
 

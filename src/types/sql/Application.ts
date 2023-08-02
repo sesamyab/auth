@@ -6,8 +6,8 @@ export interface Application {
   allowedCallbackUrls: string;
   allowedLogoutUrls: string;
   emailValidation: "enabled" | "disabled" | "enforced";
-  twoFactorAuthentication: "enabled" | "disabled" | "enforced";
-  enableSignup: boolean;
+  // twoFactorAuthentication: "enabled" | "disabled" | "enforced";
+  // enableSignup: boolean;
   clientSecret: string;
   createdAt: string;
   modifiedAt: string;
