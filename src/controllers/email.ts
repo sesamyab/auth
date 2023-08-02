@@ -28,6 +28,7 @@ export async function sendResetPassword(
   client: Client,
   to: string,
   code: string,
+  state: string,
 ) {
   const message = `Click this link to reset your password: ${env.ISSUER}u/reset-password?state=${state}&code=${code}`;
   await env.sendEmail({

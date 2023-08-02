@@ -308,7 +308,7 @@ export class LoginController extends Controller {
 
     const { code } = await user.createPasswordResetCode.mutate();
 
-    await sendResetPassword(env, client, params.username, code);
+    await sendResetPassword(env, client, params.username, code, state);
 
     return renderMessage(env.AUTH_TEMPLATES, this, {
       ...loginState,
