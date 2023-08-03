@@ -20,7 +20,6 @@ import { QueueMessage, sendUserEvent, UserEvent } from "../services/events";
 import { Profile } from "../types";
 import { migratePasswordHook } from "../hooks/migrate-password";
 
-
 const CodeSchema = z.object({
   authParams: z.custom<AuthParams>().optional(),
   code: z.string(),
@@ -335,7 +334,7 @@ export const userRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const code = await getAuthentiationCode(ctx.state.storage)
+      const code = await getAuthentiationCode(ctx.state.storage);
 
       if (!code) {
         throw new NoCodeError();
@@ -349,19 +348,23 @@ export const userRouter = router({
         throw new AuthenticationCodeExpiredError();
       }
 
-      const profile = await updateProfile(ctx.state.storage, ctx.env.USERS_QUEUE, {
-        email: input.email,
-        tenantId: input.tenantId,
-        connections: [
-          {
-            name: "email",
-            profile: {
-              email: input.email,
-              validated: true,
-            }
-          },
-        ],
-      });
+      const profile = await updateProfile(
+        ctx.state.storage,
+        ctx.env.USERS_QUEUE,
+        {
+          email: input.email,
+          tenantId: input.tenantId,
+          connections: [
+            {
+              name: "email",
+              profile: {
+                email: input.email,
+                validated: true,
+              },
+            },
+          ],
+        },
+      );
 
       // Remove once used
       await ctx.state.storage.put(StorageKeys.authenticationCode, "");
@@ -377,7 +380,7 @@ export const userRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const emailValidation = await getEmailValidationCode(ctx.state.storage)
+      const emailValidation = await getEmailValidationCode(ctx.state.storage);
 
       if (!emailValidation) {
         throw new UnauthenticatedError();

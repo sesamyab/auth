@@ -10,7 +10,7 @@ function createCaller(storage: any) {
     resHeaders: new Headers(),
     env: {
       USERS_QUEUE: {
-        send: async () => { },
+        send: async () => {},
       } as unknown as Queue<QueueMessage>,
     },
     state: {
@@ -233,12 +233,14 @@ describe("User", () => {
                 tenantId: "tenantId",
                 created_at: "2021-01-01T00:00:00.000Z",
                 modified_at: "2021-01-01T00:00:00.000Z",
-                connections: [{
-                  name: 'auth',
-                  profile: {
-                    validated: false,
-                  }
-                }],
+                connections: [
+                  {
+                    name: "auth",
+                    profile: {
+                      validated: false,
+                    },
+                  },
+                ],
               });
           }
         },
@@ -268,7 +270,6 @@ describe("User", () => {
       expect(profile.connections[0].profile.validated).toBe(true);
     });
 
-
     it("should add a a name to an existing user", async () => {
       let profile: any = {};
 
@@ -295,7 +296,7 @@ describe("User", () => {
       await caller.patchProfile({
         tenantId: "tenantId",
         email: "test@example.com",
-        name: "Test"
+        name: "Test",
       });
 
       expect(profile.name).toEqual("Test");
@@ -402,7 +403,6 @@ describe("User", () => {
   });
 
   describe("validate email", () => {
-
     it("should add a validated true to the auth connection", async () => {
       const storage: { [key: string]: string } = {};
 
@@ -416,13 +416,15 @@ describe("User", () => {
                 id: "id",
                 created_at: ".",
                 modified_at: ".",
-                connections: [{
-                  name: 'auth',
-                  profile: {
-                    id: '2345',
-                    validated: false
-                  }
-                }]
+                connections: [
+                  {
+                    name: "auth",
+                    profile: {
+                      id: "2345",
+                      validated: false,
+                    },
+                  },
+                ],
               });
             case "email-validation-code":
               return JSON.stringify({
@@ -437,7 +439,7 @@ describe("User", () => {
         put: async (key: string, value: string) => {
           storage[key] = value;
         },
-        delete: async () => { }
+        delete: async () => {},
       });
 
       await caller.validateEmailValidationCode({

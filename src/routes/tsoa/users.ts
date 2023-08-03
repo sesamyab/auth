@@ -92,7 +92,9 @@ export class UsersController extends Controller {
   public async updateUser(
     @Request() request: RequestWithContext,
     @Body()
-    body: Partial<Omit<Profile, "id" | "createdAt" | "modifiedAt" | "tenantId">> & {
+    body: Partial<
+      Omit<Profile, "id" | "createdAt" | "modifiedAt" | "tenantId">
+    > & {
       password?: string;
     },
     @Path("userId") userId: string,
