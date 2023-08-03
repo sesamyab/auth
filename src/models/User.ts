@@ -366,7 +366,7 @@ export const userRouter = router({
       const emailValidation: Code = JSON.parse(emailValidationJson);
 
       if (input.code !== emailValidation.code) {
-        throw new InvalidCodeError(JSON.stringify(emailValidation.code));
+        throw new InvalidCodeError();
       }
 
       if (!emailValidation.expireAt || Date.now() > emailValidation.expireAt) {
