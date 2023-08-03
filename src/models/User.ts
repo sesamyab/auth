@@ -74,7 +74,7 @@ async function getPasswordResetCode(storage: DurableObjectStorage) {
   return parseStringToType<Code>(CodeSchema, jsonData);
 }
 
-async function getAuthentiationCode(storage: DurableObjectStorage) {
+async function getAuthenticationCode(storage: DurableObjectStorage) {
   const jsonData = await storage.get<string>(StorageKeys.authenticationCode);
 
   return parseStringToType<Code>(CodeSchema, jsonData);
@@ -334,7 +334,7 @@ export const userRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const code = await getAuthentiationCode(ctx.state.storage);
+      const code = await getAuthenticationCode(ctx.state.storage);
 
       if (!code) {
         throw new NoCodeError();
