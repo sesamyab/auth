@@ -39,7 +39,7 @@ interface Connection {
   profile?: { [key: string]: string | boolean | number };
 }
 
-export interface Profile {
+export type Profile = {
   id: string;
   tenantId: string;
   email: string;
@@ -73,3 +73,5 @@ export const ProfileSchema = z.object({
   locale: z.string().optional(),
   connections: z.array(ConnectionSchema),
 });
+
+// export type Profile = {} & z.infer<typeof ProfileSchema>;
