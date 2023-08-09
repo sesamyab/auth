@@ -185,11 +185,22 @@ export class ConnectionsController extends Controller {
       modifiedAt: new Date().toISOString(),
     };
 
-    await db
-      .insertInto("connections")
-      .values(connection)
-      .onConflict((oc) => oc.column("id").doUpdateSet(body))
-      .execute();
+    try {
+      await db
+        .insertInto("connections")
+        .values(connection)
+        // .onConflict((oc) => oc.column("id").doUpdateSet(body))
+        .execute();
+    } catch (err: any) {
+      if (!err.message.includes("AlreadyExists")) {
+        throw err;
+      }
+      await db
+        .updateTable("connections")
+        .set(connection)
+        .where("id", "=", connection.id)
+        .execute();
+    }
 
     await updateTenantClientsInKV(env, tenantId);
 

@@ -105,11 +105,22 @@ export class TenantsController extends Controller {
       modifiedAt: new Date().toISOString(),
     };
 
-    await db
-      .insertInto("tenants")
-      .values(tenant)
-      .onConflict((oc) => oc.column("id").doUpdateSet(tenant))
-      .execute();
+    try {
+      await db
+        .insertInto("tenants")
+        .values(tenant)
+        // .onConflict((oc) => oc.column("id").doUpdateSet(tenant))
+        .execute();
+    } catch (err: any) {
+      if (!err.message.includes("AlreadyExists")) {
+        throw err;
+      }
+      await db
+        .updateTable("tenants")
+        .set(tenant)
+        .where("id", "=", tenant.id)
+        .execute();
+    }
 
     this.setStatus(201);
     return tenant;

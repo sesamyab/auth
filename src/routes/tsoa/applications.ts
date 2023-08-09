@@ -177,7 +177,7 @@ export class ApplicationsController extends Controller {
 
   @Put("{id}")
   @Security("oauth2", [])
-  public async putConnection(
+  public async putApplication(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Path("id") id: string,
@@ -197,11 +197,22 @@ export class ApplicationsController extends Controller {
       modifiedAt: new Date().toISOString(),
     };
 
-    await db
-      .insertInto("applications")
-      .values(application)
-      .onConflict((oc) => oc.column("id").doUpdateSet(body))
-      .execute();
+    try {
+      await db
+        .insertInto("applications")
+        .values(application)
+        // .onConflict((oc) => oc.column("id").doUpdateSet(body))
+        .execute();
+    } catch (err: any) {
+      if (!err.message.includes("AlreadyExists")) {
+        throw err;
+      }
+      await db
+        .updateTable("applications")
+        .set(application)
+        .where("id", "=", application.id)
+        .execute();
+    }
 
     await updateClientInKV(env, application.id);
 
