@@ -1,10 +1,9 @@
-
 import { Migrator } from "kysely";
 import { Context } from "cloudworker-router";
 import { Env } from "../types/Env";
 import migrations from "./migrations";
 import ReferenceMigrationProvider from "./ReferenceMigrationProvider";
-import { getDb } from '../services/db';
+import { getDb } from "../services/db";
 
 export async function migrateToLatest(ctx: Context<Env>) {
   const provider = new ReferenceMigrationProvider(migrations);

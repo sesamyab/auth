@@ -52,7 +52,7 @@ export type Profile = {
   picture?: string;
   locale?: string;
   connections: Connection[];
-}
+};
 
 const ConnectionSchema = z.object({
   name: z.string(),
