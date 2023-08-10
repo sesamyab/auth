@@ -32,7 +32,7 @@ export class ConnectionsController extends Controller {
   public async listConnections(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header("range") range?: string,
+    @Header("range") range?: string
   ): Promise<SqlConnection[]> {
     const { ctx } = request;
 
@@ -50,7 +50,7 @@ export class ConnectionsController extends Controller {
     if (parsedRange.entity) {
       this.setHeader(
         headers.contentRange,
-        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`
       );
     }
 
@@ -62,7 +62,7 @@ export class ConnectionsController extends Controller {
   public async getConnection(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenantId") tenantId: string
   ): Promise<SqlConnection | string> {
     const { ctx } = request;
 
@@ -87,7 +87,7 @@ export class ConnectionsController extends Controller {
   public async deleteConnection(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenantId") tenantId: string
   ): Promise<string> {
     const { env } = request.ctx;
 
@@ -112,7 +112,7 @@ export class ConnectionsController extends Controller {
     @Body()
     body: Partial<
       Omit<SqlConnection, "id" | "tenantId" | "createdAt" | "modifiedAt">
-    >,
+    >
   ) {
     const { env } = request.ctx;
 
@@ -141,7 +141,7 @@ export class ConnectionsController extends Controller {
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Omit<SqlConnection, "id" | "tenantId" | "createdAt" | "modifiedAt">,
+    body: Omit<SqlConnection, "id" | "tenantId" | "createdAt" | "modifiedAt">
   ): Promise<SqlConnection> {
     const { ctx } = request;
     const { env } = ctx;
@@ -170,7 +170,7 @@ export class ConnectionsController extends Controller {
     @Path("tenantId") tenantId: string,
     @Path("id") id: string,
     @Body()
-    body: Omit<SqlConnection, "id" | "tenantId" | "createdAt" | "modifiedAt">,
+    body: Omit<SqlConnection, "id" | "tenantId" | "createdAt" | "modifiedAt">
   ): Promise<SqlConnection> {
     const { ctx } = request;
     const { env } = ctx;
@@ -195,9 +195,11 @@ export class ConnectionsController extends Controller {
       if (!err.message.includes("AlreadyExists")) {
         throw err;
       }
+
+      const { id, createdAt, tenantId, ...connectionUpdate } = connection;
       await db
         .updateTable("connections")
-        .set(connection)
+        .set(connectionUpdate)
         .where("id", "=", connection.id)
         .execute();
     }

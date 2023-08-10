@@ -12,6 +12,7 @@ import {
   Security,
   Delete,
   Header,
+  Put,
 } from "@tsoa/runtime";
 import { nanoid } from "nanoid";
 
@@ -30,7 +31,7 @@ export class MigrationsController extends Controller {
   public async listMigrations(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header("range") range?: string,
+    @Header("range") range?: string
   ): Promise<Migration[]> {
     const { ctx } = request;
 
@@ -48,7 +49,7 @@ export class MigrationsController extends Controller {
     if (parsedRange.entity) {
       this.setHeader(
         headers.contentRange,
-        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`
       );
     }
 
@@ -60,7 +61,7 @@ export class MigrationsController extends Controller {
   public async getMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenantId") tenantId: string
   ): Promise<Migration | string> {
     const { ctx } = request;
 
@@ -85,7 +86,7 @@ export class MigrationsController extends Controller {
   public async deleteMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenantId") tenantId: string
   ): Promise<string> {
     const { env } = request.ctx;
 
@@ -110,7 +111,7 @@ export class MigrationsController extends Controller {
     @Body()
     body: Partial<
       Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">
-    >,
+    >
   ) {
     const { env } = request.ctx;
 
@@ -137,7 +138,7 @@ export class MigrationsController extends Controller {
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">,
+    body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">
   ): Promise<Migration> {
     const { ctx } = request;
     const { env } = ctx;
@@ -151,6 +152,54 @@ export class MigrationsController extends Controller {
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
     };
+
+    await db.insertInto("migrations").values(migration).execute();
+
+    this.setStatus(201);
+    return migration;
+  }
+
+  @Put("{id}")
+  @Security("oauth2", [])
+  @SuccessResponse(201, "Created")
+  public async putMigration(
+    @Request() request: RequestWithContext,
+    @Path("id") id: string,
+    @Path("tenantId") tenantId: string,
+    @Body()
+    body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">
+  ): Promise<Migration> {
+    const { ctx } = request;
+    const { env } = ctx;
+
+    const db = getDb(env);
+
+    const migration: Migration = {
+      ...body,
+      tenantId,
+      id,
+      createdAt: new Date().toISOString(),
+      modifiedAt: new Date().toISOString(),
+    };
+
+    try {
+      await db
+        .insertInto("migrations")
+        .values(migration)
+        // .onConflict((oc) => oc.column("id").doUpdateSet(body))
+        .execute();
+    } catch (err: any) {
+      if (!err.message.includes("AlreadyExists")) {
+        throw err;
+      }
+
+      const { id, createdAt, tenantId, ...migrationUpdate } = migration;
+      await db
+        .updateTable("migrations")
+        .set(migrationUpdate)
+        .where("id", "=", migration.id)
+        .execute();
+    }
 
     await db.insertInto("migrations").values(migration).execute();
 
