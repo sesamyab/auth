@@ -30,7 +30,7 @@ export class MembersController extends Controller {
   public async listMembers(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header("range") range?: string
+    @Header("range") range?: string,
   ): Promise<Member[]> {
     const { ctx } = request;
 
@@ -48,7 +48,7 @@ export class MembersController extends Controller {
     if (parsedRange.entity) {
       this.setHeader(
         headers.contentRange,
-        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
       );
     }
 
@@ -60,7 +60,7 @@ export class MembersController extends Controller {
   public async getMember(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string
+    @Path("tenantId") tenantId: string,
   ): Promise<Member | string> {
     const { ctx } = request;
 
@@ -85,7 +85,7 @@ export class MembersController extends Controller {
   public async deleteMember(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string
+    @Path("tenantId") tenantId: string,
   ): Promise<string> {
     const { env } = request.ctx;
 
@@ -106,7 +106,7 @@ export class MembersController extends Controller {
     @Path("id") id: string,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Partial<Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">>
+    body: Partial<Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">>,
   ) {
     const { env } = request.ctx;
 
@@ -133,7 +133,7 @@ export class MembersController extends Controller {
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">
+    body: Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">,
   ): Promise<Member> {
     const { ctx } = request;
     const { env } = ctx;
@@ -162,7 +162,7 @@ export class MembersController extends Controller {
     @Path("tenantId") tenantId: string,
     @Path("id") id: string,
     @Body()
-    body: Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">
+    body: Omit<Member, "id" | "tenantId" | "createdAt" | "modifiedAt">,
   ): Promise<Member> {
     const { ctx } = request;
     const { env } = ctx;

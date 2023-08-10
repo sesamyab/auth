@@ -31,7 +31,7 @@ export class ApplicationsController extends Controller {
   public async listApplications(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header("range") range?: string
+    @Header("range") range?: string,
   ): Promise<Application[]> {
     const { ctx } = request;
 
@@ -49,7 +49,7 @@ export class ApplicationsController extends Controller {
     if (parsedRange.entity) {
       this.setHeader(
         headers.contentRange,
-        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
       );
     }
 
@@ -61,7 +61,7 @@ export class ApplicationsController extends Controller {
   public async getApplication(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string
+    @Path("tenantId") tenantId: string,
   ): Promise<Application | string> {
     const { ctx } = request;
 
@@ -85,7 +85,7 @@ export class ApplicationsController extends Controller {
   public async deleteApplication(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string
+    @Path("tenantId") tenantId: string,
   ): Promise<string> {
     const { env } = request.ctx;
 
@@ -111,7 +111,7 @@ export class ApplicationsController extends Controller {
     @Body()
     body: Partial<
       Omit<Application, "id" | "tenantId" | "createdAt" | "modifiedAt">
-    >
+    >,
   ) {
     const { env } = request.ctx;
 
@@ -145,7 +145,7 @@ export class ApplicationsController extends Controller {
       Omit<Application, "tenantId" | "createdAt" | "modifiedAt">
     > & {
       name: string;
-    }
+    },
   ): Promise<Application> {
     const { ctx } = request;
     const { env } = ctx;
@@ -182,7 +182,7 @@ export class ApplicationsController extends Controller {
     @Path("tenantId") tenantId: string,
     @Path("id") id: string,
     @Body()
-    body: Omit<Application, "id" | "tenantId" | "createdAt" | "modifiedAt">
+    body: Omit<Application, "id" | "tenantId" | "createdAt" | "modifiedAt">,
   ): Promise<Application> {
     const { ctx } = request;
     const { env } = ctx;

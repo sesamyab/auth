@@ -31,7 +31,7 @@ export class MigrationsController extends Controller {
   public async listMigrations(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header("range") range?: string
+    @Header("range") range?: string,
   ): Promise<Migration[]> {
     const { ctx } = request;
 
@@ -49,7 +49,7 @@ export class MigrationsController extends Controller {
     if (parsedRange.entity) {
       this.setHeader(
         headers.contentRange,
-        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
       );
     }
 
@@ -61,7 +61,7 @@ export class MigrationsController extends Controller {
   public async getMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string
+    @Path("tenantId") tenantId: string,
   ): Promise<Migration | string> {
     const { ctx } = request;
 
@@ -86,7 +86,7 @@ export class MigrationsController extends Controller {
   public async deleteMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string
+    @Path("tenantId") tenantId: string,
   ): Promise<string> {
     const { env } = request.ctx;
 
@@ -111,7 +111,7 @@ export class MigrationsController extends Controller {
     @Body()
     body: Partial<
       Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">
-    >
+    >,
   ) {
     const { env } = request.ctx;
 
@@ -138,7 +138,7 @@ export class MigrationsController extends Controller {
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">
+    body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">,
   ): Promise<Migration> {
     const { ctx } = request;
     const { env } = ctx;
@@ -167,7 +167,7 @@ export class MigrationsController extends Controller {
     @Path("id") id: string,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">
+    body: Omit<Migration, "id" | "tenantId" | "createdAt" | "modifiedAt">,
   ): Promise<Migration> {
     const { ctx } = request;
     const { env } = ctx;
