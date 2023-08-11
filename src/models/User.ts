@@ -95,19 +95,21 @@ async function getLogs(storage: DurableObjectStorage) {
     return [];
   }
 
-  return parseStringToType<LogMessage[]>(LogMessageSchemaList, jsonData) || [];
+  // return parseStringToType<LogMessage[]>(LogMessageSchemaList, jsonData) || [];
+  return JSON.parse(jsonData) as LogMessage[];
 }
 
 async function writeLog(
   storage: DurableObjectStorage,
-  message: Omit<LogMessage, "timestamp">,
+  message: Omit<LogMessage, "timestamp" | "id">
 ) {
   // Make space for the new log row
   const logs = (await getLogs(storage)).slice(-MAX_LOGS_LENGTH + 1);
 
   logs.push({
     ...message,
-    timestamp: new Date(),
+    id: nanoid(),
+    timestamp: new Date().toISOString(),
   });
 
   await storage.put(StorageKeys.logs, JSON.stringify(logs));
@@ -117,7 +119,7 @@ async function writeLog(
 async function updateProfile(
   storage: DurableObjectStorage,
   queue: Queue<QueueMessage>,
-  profile: Partial<Profile> & Pick<Profile, "tenantId" | "email">,
+  profile: Partial<Profile> & Pick<Profile, "tenantId" | "email">
 ) {
   let existingProfile = await getProfile(storage);
 
@@ -141,7 +143,7 @@ async function updateProfile(
   profile.connections?.forEach((connection) => {
     // remove any existing connections with the same name
     updatedProfile.connections = updatedProfile.connections?.filter(
-      (c) => c.name !== connection.name,
+      (c) => c.name !== connection.name
     );
 
     updatedProfile.connections?.push(connection);
@@ -159,7 +161,7 @@ async function updateProfile(
   await sendUserEvent(
     queue,
     `${profile.tenantId}|${profile.email}`,
-    existingProfile ? UserEvent.userUpdated : UserEvent.userCreated,
+    existingProfile ? UserEvent.userUpdated : UserEvent.userCreated
   );
 
   return updatedProfile;
@@ -170,7 +172,7 @@ export const userRouter = router({
     .input(
       z.object({
         authParams: z.custom<AuthParams>(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const result: Code = {
@@ -181,7 +183,7 @@ export const userRouter = router({
 
       await ctx.state.storage.put(
         StorageKeys.authenticationCode,
-        JSON.stringify(result),
+        JSON.stringify(result)
       );
 
       await writeLog(ctx.state.storage, {
@@ -199,7 +201,7 @@ export const userRouter = router({
 
     await ctx.state.storage.put(
       StorageKeys.emailValidationCode,
-      JSON.stringify(result),
+      JSON.stringify(result)
     );
 
     await writeLog(ctx.state.storage, {
@@ -217,7 +219,7 @@ export const userRouter = router({
 
     await ctx.state.storage.put(
       StorageKeys.passwordResetCode,
-      JSON.stringify(result),
+      JSON.stringify(result)
     );
 
     await writeLog(ctx.state.storage, {
@@ -242,7 +244,7 @@ export const userRouter = router({
         tenantId: z.string(),
         email: z.string(),
         password: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const passwordHash = await getPasswordResetCode(ctx.state.storage);
@@ -253,7 +255,7 @@ export const userRouter = router({
 
       await ctx.state.storage.put(
         StorageKeys.passwordHash,
-        bcrypt.hashSync(input.password, 10),
+        bcrypt.hashSync(input.password, 10)
       );
 
       await writeLog(ctx.state.storage, {
@@ -280,7 +282,7 @@ export const userRouter = router({
       z.object({
         code: z.string(),
         password: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const passwordResetCode = await getPasswordResetCode(ctx.state.storage);
@@ -302,7 +304,7 @@ export const userRouter = router({
 
       await ctx.state.storage.put(
         StorageKeys.passwordHash,
-        bcrypt.hashSync(input.password, 10),
+        bcrypt.hashSync(input.password, 10)
       );
 
       await writeLog(ctx.state.storage, {
@@ -318,7 +320,7 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         validated: z.boolean(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       await writeLog(ctx.state.storage, {
@@ -350,7 +352,7 @@ export const userRouter = router({
 
       await ctx.state.storage.put(
         StorageKeys.passwordHash,
-        bcrypt.hashSync(input, 10),
+        bcrypt.hashSync(input, 10)
       );
     }),
   patchProfile: publicProcedure
@@ -374,16 +376,16 @@ export const userRouter = router({
               profile: z
                 .record(z.union([z.string(), z.boolean(), z.number()]))
                 .optional(),
-            }),
+            })
           )
           .optional(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const profile = await updateProfile(
         ctx.state.storage,
         ctx.env.USERS_QUEUE,
-        input,
+        input
       );
 
       await writeLog(ctx.state.storage, {
@@ -399,7 +401,7 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         code: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const code = await getAuthenticationCode(ctx.state.storage);
@@ -431,7 +433,7 @@ export const userRouter = router({
               },
             },
           ],
-        },
+        }
       );
 
       await writeLog(ctx.state.storage, {
@@ -450,7 +452,7 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         code: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const emailValidation = await getEmailValidationCode(ctx.state.storage);
@@ -496,11 +498,11 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         password: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const passwordHash = await ctx.state.storage.get<string>(
-        StorageKeys.passwordHash,
+        StorageKeys.passwordHash
       );
 
       if (!passwordHash) {
@@ -509,13 +511,13 @@ export const userRouter = router({
             ctx.env,
             input.tenantId,
             input.email,
-            input.password,
+            input.password
           )
         ) {
           // Hash and store the password used
           await ctx.state.storage.put(
             StorageKeys.passwordHash,
-            bcrypt.hashSync(input.password, 10),
+            bcrypt.hashSync(input.password, 10)
           );
         } else {
           throw new NoUserFoundError();

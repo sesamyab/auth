@@ -17,7 +17,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .createTable("users")
     .addColumn("id", "varchar(255)", (col) => col.notNull())
     .addColumn("tenant_id", "varchar(255)", (col) =>
-      col.references("tenants.id").onDelete("cascade").notNull(),
+      col.references("tenants.id").onDelete("cascade").notNull()
     )
     .addColumn("email", "varchar(255)", (col) => col.notNull())
     .addColumn("linked_to", "varchar(255)")
@@ -36,7 +36,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .createTable("members")
     .addColumn("id", "varchar(255)", (col) => col.notNull().primaryKey())
     .addColumn("tenant_id", "varchar(255)", (col) =>
-      col.references("tenants.id").onDelete("cascade").notNull(),
+      col.references("tenants.id").onDelete("cascade").notNull()
     )
     .addColumn("sub", "varchar(255)")
     .addColumn("email", "varchar(255)")
@@ -52,10 +52,9 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .createTable("applications")
     .addColumn("id", "varchar(255)", (col) => col.notNull().primaryKey())
     .addColumn("tenant_id", "varchar(255)", (col) =>
-      col.references("tenants.id").onDelete("cascade").notNull(),
+      col.references("tenants.id").onDelete("cascade").notNull()
     )
     .addColumn("name", "varchar(255)", (col) => col.notNull())
-    .addColumn("client_id", "varchar(255)")
     .addColumn("client_secret", "varchar(255)")
     .addColumn("allowed_callback_urls", "varchar(255)")
     .addColumn("allowed_logout_urls", "varchar(255)")
@@ -73,7 +72,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .createTable("connections")
     .addColumn("id", "varchar(255)", (col) => col.notNull().primaryKey())
     .addColumn("tenant_id", "varchar(255)", (col) =>
-      col.references("tenants.id").onDelete("cascade").notNull(),
+      col.references("tenants.id").onDelete("cascade").notNull()
     )
     .addColumn("name", "varchar(255)", (col) => col.notNull())
     .addColumn("client_id", "varchar(255)")
@@ -88,7 +87,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .createTable("migrations")
     .addColumn("id", "varchar(255)", (col) => col.notNull().primaryKey())
     .addColumn("tenant_id", "varchar(255)", (col) =>
-      col.references("tenants.id").onDelete("cascade").notNull(),
+      col.references("tenants.id").onDelete("cascade").notNull()
     )
     .addColumn("provider", "varchar(255)")
     .addColumn("client_id", "varchar(255)")

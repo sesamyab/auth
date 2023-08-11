@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const LogMessageSchema = z.object({
-  timestamp: z.date(),
+  id: z.string(),
+  timestamp: z.string(),
   category: z.string(),
   message: z.string(),
 });

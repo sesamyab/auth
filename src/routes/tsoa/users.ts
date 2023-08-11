@@ -21,7 +21,6 @@ import { getId } from "../../models";
 import { Profile } from "../../types";
 import { parseRange } from "../../helpers/content-range";
 import { headers } from "../../constants";
-import { profile } from "console";
 
 @Route("tenants/{tenantId}/users")
 @Security("oauth2", [])
@@ -31,7 +30,7 @@ export class UsersController extends Controller {
   public async listUsers(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Header("range") range?: string,
+    @Header("range") range?: string
   ): Promise<User[]> {
     const { ctx } = request;
 
@@ -49,7 +48,7 @@ export class UsersController extends Controller {
     if (parsedRange.entity) {
       this.setHeader(
         headers.contentRange,
-        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`
       );
     }
 
@@ -63,7 +62,7 @@ export class UsersController extends Controller {
   public async getUser(
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
-    @Path("userId") userId: string,
+    @Path("userId") userId: string
   ): Promise<Profile> {
     const { ctx } = request;
     const { env } = ctx;
@@ -82,39 +81,10 @@ export class UsersController extends Controller {
 
     // Fetch the user from durable object
     const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
+      getId(tenantId, dbUser.email)
     );
 
     return user.getProfile.query();
-  }
-
-  @Get("{userId}/logs")
-  public async getUserLogs(
-    @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
-    @Path("userId") userId: string,
-  ) {
-    const { ctx } = request;
-    const { env } = ctx;
-
-    const db = getDb(env);
-    const dbUser = await db
-      .selectFrom("users")
-      .where("users.tenantId", "=", tenantId)
-      .where("users.id", "=", userId)
-      .select("users.email")
-      .executeTakeFirst();
-
-    if (!dbUser) {
-      throw new NotFoundError();
-    }
-
-    // Fetch the user from durable object
-    const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
-    );
-
-    return user.getLogs.query();
   }
 
   @Patch("{userId}")
@@ -127,7 +97,7 @@ export class UsersController extends Controller {
       password?: string;
     },
     @Path("userId") userId: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenantId") tenantId: string
   ): Promise<Profile> {
     const { env } = request.ctx;
 
@@ -159,7 +129,7 @@ export class UsersController extends Controller {
     @Body()
     body: Omit<Profile, "id" | "createdAt" | "modifiedAt" | "tenantId">,
     @Path("userId") userId: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenantId") tenantId: string
   ): Promise<Profile> {
     const { env } = request.ctx;
 
@@ -179,7 +149,7 @@ export class UsersController extends Controller {
     @Path("tenantId") tenantId: string,
     @Body()
     user: Omit<User, "tenantId" | "createdAt" | "modifiedAt" | "id"> &
-      Partial<Pick<User, "createdAt" | "modifiedAt" | "id">>,
+      Partial<Pick<User, "createdAt" | "modifiedAt" | "id">>
   ): Promise<Profile> {
     const { ctx } = request;
 
