@@ -19,6 +19,7 @@ import { Env, ProfileSchema } from "../types";
 import { QueueMessage, sendUserEvent, UserEvent } from "../services/events";
 import { Profile } from "../types";
 import { migratePasswordHook } from "../hooks/migrate-password";
+import { LogMessage, LogMessageSchemaList } from "../types/LogMessage";
 
 const CodeSchema = z.object({
   authParams: z.custom<AuthParams>().optional(),
@@ -26,6 +27,8 @@ const CodeSchema = z.object({
   expireAt: z.number().optional(),
   password: z.string().optional(),
 });
+
+const MAX_LOGS_LENGTH = 500;
 
 type Code = z.infer<typeof CodeSchema>;
 
@@ -86,11 +89,35 @@ async function getEmailValidationCode(storage: DurableObjectStorage) {
   return parseStringToType<Code>(CodeSchema, jsonData);
 }
 
+async function getLogs(storage: DurableObjectStorage) {
+  const jsonData = await storage.get<string>(StorageKeys.logs);
+  if (!jsonData) {
+    return [];
+  }
+
+  return parseStringToType<LogMessage[]>(LogMessageSchemaList, jsonData) || [];
+}
+
+async function writeLog(
+  storage: DurableObjectStorage,
+  message: Omit<LogMessage, "timestamp">
+) {
+  // Make space for the new log row
+  const logs = (await getLogs(storage)).slice(-MAX_LOGS_LENGTH + 1);
+
+  logs.push({
+    ...message,
+    timestamp: new Date(),
+  });
+
+  await storage.put(StorageKeys.logs, JSON.stringify(logs));
+}
+
 // Stores information about the current operation and ensures that the user has an id.
 async function updateProfile(
   storage: DurableObjectStorage,
   queue: Queue<QueueMessage>,
-  profile: Partial<Profile> & Pick<Profile, "tenantId" | "email">,
+  profile: Partial<Profile> & Pick<Profile, "tenantId" | "email">
 ) {
   let existingProfile = await getProfile(storage);
 
@@ -114,7 +141,7 @@ async function updateProfile(
   profile.connections?.forEach((connection) => {
     // remove any existing connections with the same name
     updatedProfile.connections = updatedProfile.connections?.filter(
-      (c) => c.name !== connection.name,
+      (c) => c.name !== connection.name
     );
 
     updatedProfile.connections?.push(connection);
@@ -132,7 +159,7 @@ async function updateProfile(
   await sendUserEvent(
     queue,
     `${profile.tenantId}|${profile.email}`,
-    existingProfile ? UserEvent.userUpdated : UserEvent.userCreated,
+    existingProfile ? UserEvent.userUpdated : UserEvent.userCreated
   );
 
   return updatedProfile;
@@ -143,7 +170,7 @@ export const userRouter = router({
     .input(
       z.object({
         authParams: z.custom<AuthParams>(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const result: Code = {
@@ -154,8 +181,13 @@ export const userRouter = router({
 
       await ctx.state.storage.put(
         StorageKeys.authenticationCode,
-        JSON.stringify(result),
+        JSON.stringify(result)
       );
+
+      await writeLog(ctx.state.storage, {
+        category: "login",
+        message: "Create authentication code",
+      });
 
       return result;
     }),
@@ -167,8 +199,13 @@ export const userRouter = router({
 
     await ctx.state.storage.put(
       StorageKeys.emailValidationCode,
-      JSON.stringify(result),
+      JSON.stringify(result)
     );
+
+    await writeLog(ctx.state.storage, {
+      category: "login",
+      message: "Create email validation code",
+    });
 
     return result;
   }),
@@ -180,11 +217,17 @@ export const userRouter = router({
 
     await ctx.state.storage.put(
       StorageKeys.passwordResetCode,
-      JSON.stringify(result),
+      JSON.stringify(result)
     );
+
+    await writeLog(ctx.state.storage, {
+      category: "login",
+      message: "Send password reset",
+    });
 
     return result;
   }),
+  getLogs: publicProcedure.query(async ({ ctx }) => getLogs(ctx.state.storage)),
   getProfile: publicProcedure.query(async ({ ctx }) => {
     const profile = await getProfile(ctx.state.storage);
     if (!profile) {
@@ -199,7 +242,7 @@ export const userRouter = router({
         tenantId: z.string(),
         email: z.string(),
         password: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const passwordHash = await getPasswordResetCode(ctx.state.storage);
@@ -210,8 +253,13 @@ export const userRouter = router({
 
       await ctx.state.storage.put(
         StorageKeys.passwordHash,
-        bcrypt.hashSync(input.password, 10),
+        bcrypt.hashSync(input.password, 10)
       );
+
+      await writeLog(ctx.state.storage, {
+        category: "login",
+        message: "User created with password",
+      });
 
       return updateProfile(ctx.state.storage, ctx.env.USERS_QUEUE, {
         email: input.email,
@@ -232,7 +280,7 @@ export const userRouter = router({
       z.object({
         code: z.string(),
         password: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const passwordResetCode = await getPasswordResetCode(ctx.state.storage);
@@ -254,8 +302,13 @@ export const userRouter = router({
 
       await ctx.state.storage.put(
         StorageKeys.passwordHash,
-        bcrypt.hashSync(input.password, 10),
+        bcrypt.hashSync(input.password, 10)
       );
+
+      await writeLog(ctx.state.storage, {
+        category: "update",
+        message: "Reset password with code",
+      });
 
       ctx.state.storage.delete(StorageKeys.passwordResetCode);
     }),
@@ -265,9 +318,14 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         validated: z.boolean(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
+      await writeLog(ctx.state.storage, {
+        category: "update",
+        message: "Set email validated",
+      });
+
       return updateProfile(ctx.state.storage, ctx.env.USERS_QUEUE, {
         email: input.email,
         tenantId: input.tenantId,
@@ -285,9 +343,14 @@ export const userRouter = router({
   setPassword: publicProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
+      await writeLog(ctx.state.storage, {
+        category: "update",
+        message: "Set password",
+      });
+
       await ctx.state.storage.put(
         StorageKeys.passwordHash,
-        bcrypt.hashSync(input, 10),
+        bcrypt.hashSync(input, 10)
       );
     }),
   patchProfile: publicProcedure
@@ -311,17 +374,22 @@ export const userRouter = router({
               profile: z
                 .record(z.union([z.string(), z.boolean(), z.number()]))
                 .optional(),
-            }),
+            })
           )
           .optional(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const profile = await updateProfile(
         ctx.state.storage,
         ctx.env.USERS_QUEUE,
-        input,
+        input
       );
+
+      await writeLog(ctx.state.storage, {
+        category: "update",
+        message: "User profile",
+      });
 
       return profile;
     }),
@@ -331,7 +399,7 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         code: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const code = await getAuthenticationCode(ctx.state.storage);
@@ -363,8 +431,13 @@ export const userRouter = router({
               },
             },
           ],
-        },
+        }
       );
+
+      await writeLog(ctx.state.storage, {
+        category: "login",
+        message: "Login with code",
+      });
 
       // Remove once used
       await ctx.state.storage.put(StorageKeys.authenticationCode, "");
@@ -377,7 +450,7 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         code: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const emailValidation = await getEmailValidationCode(ctx.state.storage);
@@ -393,6 +466,11 @@ export const userRouter = router({
       if (!emailValidation.expireAt || Date.now() > emailValidation.expireAt) {
         throw new AuthenticationCodeExpiredError();
       }
+
+      await writeLog(ctx.state.storage, {
+        category: "validation",
+        message: "Validate with code",
+      });
 
       // Remove once used
       await ctx.state.storage.delete(StorageKeys.emailValidationCode);
@@ -418,11 +496,11 @@ export const userRouter = router({
         email: z.string(),
         tenantId: z.string(),
         password: z.string(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const passwordHash = await ctx.state.storage.get<string>(
-        StorageKeys.passwordHash,
+        StorageKeys.passwordHash
       );
 
       if (!passwordHash) {
@@ -431,13 +509,13 @@ export const userRouter = router({
             ctx.env,
             input.tenantId,
             input.email,
-            input.password,
+            input.password
           )
         ) {
           // Hash and store the password used
           await ctx.state.storage.put(
             StorageKeys.passwordHash,
-            bcrypt.hashSync(input.password, 10),
+            bcrypt.hashSync(input.password, 10)
           );
         } else {
           throw new NoUserFoundError();
@@ -445,6 +523,11 @@ export const userRouter = router({
       } else if (!bcrypt.compareSync(input.password, passwordHash)) {
         throw new UnauthenticatedError();
       }
+
+      await writeLog(ctx.state.storage, {
+        category: "login",
+        message: "Login with password",
+      });
     }),
 });
 

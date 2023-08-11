@@ -88,6 +88,35 @@ export class UsersController extends Controller {
     return user.getProfile.query();
   }
 
+  @Get("{userId}/logs")
+  public async getUserLogs(
+    @Request() request: RequestWithContext,
+    @Path("tenantId") tenantId: string,
+    @Path("userId") userId: string,
+  ) {
+    const { ctx } = request;
+    const { env } = ctx;
+
+    const db = getDb(env);
+    const dbUser = await db
+      .selectFrom("users")
+      .where("users.tenantId", "=", tenantId)
+      .where("users.id", "=", userId)
+      .select("users.email")
+      .executeTakeFirst();
+
+    if (!dbUser) {
+      throw new NotFoundError();
+    }
+
+    // Fetch the user from durable object
+    const user = env.userFactory.getInstanceByName(
+      getId(tenantId, dbUser.email),
+    );
+
+    return user.getLogs.query();
+  }
+
   @Patch("{userId}")
   public async updateUser(
     @Request() request: RequestWithContext,
