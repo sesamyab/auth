@@ -15,7 +15,7 @@ import { getId } from "../../models";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { z } from "zod";
 import { headers } from "../../constants";
-import { LogMessage, LogMessageSchema } from "../../types/LogMessage";
+import { LogMessage } from "../../types/LogMessage";
 
 export const LogsFilterSchema = z.object({
   userId: z.string(),
@@ -31,7 +31,7 @@ function applySort(logs: LogMessage[], sort?: string) {
   logs.sort((a, b) =>
     order === "DESC"
       ? a[column]?.localeCompare(b[column])
-      : b[column]?.localeCompare(a[column]),
+      : b[column]?.localeCompare(a[column])
   );
 
   return logs;
@@ -59,7 +59,7 @@ export class LogsController extends Controller {
     @Path("tenantId") tenantId: string,
     @Query("filter") filterJson: string,
     @Query("range") range?: string,
-    @Query("sort") sort?: string,
+    @Query("sort") sort?: string
   ) {
     const { ctx } = request;
     const { env } = ctx;
@@ -80,13 +80,14 @@ export class LogsController extends Controller {
 
     // Fetch the user from durable object
     const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
+      getId(tenantId, dbUser.email)
     );
 
     const logs = await user.getLogs.query();
 
     return this.applyRange(applySort(logs, sort), range).map((log) => ({
       ...log,
+      // TODO: this is a temporary hack as we didn't have id in the start. Can be removed once the users are recreated.
       id: nanoid(),
     }));
   }
