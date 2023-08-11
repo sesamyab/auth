@@ -30,8 +30,8 @@ function applySort(logs: LogMessage[], sort?: string) {
 
   logs.sort((a, b) =>
     order === "DESC"
-      ? a[column]?.localeCompare(b[column])
-      : b[column]?.localeCompare(a[column])
+      ? b[column]?.localeCompare(a[column])
+      : a[column]?.localeCompare(b[column])
   );
 
   return logs;
