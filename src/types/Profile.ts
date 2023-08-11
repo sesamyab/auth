@@ -73,5 +73,3 @@ export const ProfileSchema = z.object({
   locale: z.string().optional(),
   connections: z.array(ConnectionSchema),
 });
-
-// export type Profile = {} & z.infer<typeof ProfileSchema>;
