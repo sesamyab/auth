@@ -1,5 +1,10 @@
 import { Context, Next } from "cloudworker-router";
-import { UnauthorizedError } from "./errors";
+import {
+  ExpiredTokenError,
+  InvalidScopesError,
+  InvalidSignatureError,
+  UnauthorizedError,
+} from "./errors";
 import { getDb } from "./services/db";
 import { Env } from "./types/Env";
 import swagger from "../build/swagger.json";
@@ -69,40 +74,46 @@ function decodeJwt(token: string): TokenData {
   };
 }
 
-async function getJwks(env: Env, securitySchemeName: SecuritySchemeName) {
-  // TODO: add caching
+const jwksUrls: { [key: string]: JwkKey[] } = {};
 
+async function getJwks(env: Env, securitySchemeName: SecuritySchemeName) {
   const jwksUrl =
     securitySchemeName === SecuritySchemeName.oauth2
       ? `${env.ISSUER}.well-known/jwks.json`
       : env.JWKS_URL;
 
-  // If we're using this service for authenticating
-  if (jwksUrl.startsWith(env.ISSUER)) {
-    const certificatesString = await env.CERTIFICATES.get("default");
-    const keys = (certificatesString ? JSON.parse(certificatesString) : []).map(
-      (cert: any) => {
+  if (!jwksUrls[jwksUrl]) {
+    // If we're using this service for authenticating
+    if (jwksUrl.startsWith(env.ISSUER)) {
+      const certificatesString = await env.CERTIFICATES.get("default");
+      const keys = (
+        certificatesString ? JSON.parse(certificatesString) : []
+      ).map((cert: any) => {
         return { kid: cert.kid, ...cert.publicKey };
-      },
-    );
+      });
 
-    return keys;
+      return keys;
+    }
+
+    const response = env.TOKEN_SERVICE
+      ? await env.TOKEN_SERVICE.fetch(jwksUrl)
+      : await fetch(jwksUrl);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch jwks");
+    }
+
+    jwksUrls[jwksUrl] = await response.json();
   }
 
-  const response = env.TOKEN_SERVICE
-    ? await env.TOKEN_SERVICE.fetch(jwksUrl)
-    : await fetch(jwksUrl);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch jwks");
-  }
-
-  const body = await response.json();
-
-  return (body as any).keys as JwkKey[];
+  return jwksUrls[jwksUrl];
 }
 
 function isValidScopes(token: TokenData, scopes: string[]) {
+  if (!scopes.length) {
+    return true;
+  }
+
   const tokenScopes = token.payload.scope?.split(" ") || [];
 
   const match = !scopes.some((scope) => !tokenScopes.includes(scope));
@@ -120,7 +131,6 @@ async function isValidJwtSignature(
   const signature = new Uint8Array(
     Array.from(token.signature).map((c) => c.charCodeAt(0)),
   );
-
   const jwkKeys = await getJwks(ctx.env, securitySchemeName);
 
   const jwkKey = jwkKeys.find((key) => key.kid === token.header.kid);
@@ -146,22 +156,24 @@ export async function getUser(
   securitySchemeName: SecuritySchemeName,
   bearer: string,
   scopes: string[],
-): Promise<any | null> {
+): Promise<any> {
+  console.log("getUser: " + bearer);
+
   const token = decodeJwt(bearer);
 
   // Is the token expired?
   const expiryDate = new Date(token.payload.exp * 1000);
   const currentDate = new Date(Date.now());
   if (expiryDate < currentDate) {
-    return null;
+    throw new ExpiredTokenError();
   }
 
   if (!isValidScopes(token, scopes)) {
-    return null;
+    throw new InvalidScopesError();
   }
 
   if (!(await isValidJwtSignature(ctx, securitySchemeName, token))) {
-    return null;
+    throw new InvalidSignatureError();
   }
 
   return token.payload;
@@ -255,23 +267,12 @@ export function authenticationHandler(
       });
     }
     const bearer = authHeader.slice(7);
-    ctx.state.user = await getUser(
-      ctx,
-      securitySchemeName,
-      bearer,
-      scope?.split(" ") || [],
-    );
+
+    const scopes = scope?.split(" ").filter((scope) => scope) || [];
+
+    ctx.state.user = await getUser(ctx, securitySchemeName, bearer, scopes);
 
     await verifyTenantPermissions(ctx);
-
-    if (!ctx.state.user) {
-      return new Response("Not Authorized", {
-        status: 403,
-        headers: {
-          "content-type": "text/plain",
-        },
-      });
-    }
 
     return next();
   };
