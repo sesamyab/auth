@@ -2,6 +2,12 @@ import { Context, Next } from "cloudworker-router";
 import { UnauthorizedError } from "./errors";
 import { getDb } from "./services/db";
 import { Env } from "./types/Env";
+import swagger from "../build/swagger.json";
+
+export enum SecuritySchemeName {
+  oauth2 = "oauth2",
+  oauth2managmentApi = "oauth2managementApi",
+}
 
 interface TokenData {
   header: {
@@ -63,11 +69,16 @@ function decodeJwt(token: string): TokenData {
   };
 }
 
-async function getJwks(env: Env) {
+async function getJwks(env: Env, securitySchemeName: SecuritySchemeName) {
   // TODO: add caching
 
+  const jwksUrl =
+    securitySchemeName === SecuritySchemeName.oauth2
+      ? `${env.ISSUER}.well-known/jwks.json`
+      : env.JWKS_URL;
+
   // If we're using this service for authenticating
-  if (env.JWKS_URL.startsWith(env.ISSUER)) {
+  if (jwksUrl.startsWith(env.ISSUER)) {
     const certificatesString = await env.CERTIFICATES.get("default");
     const keys = (certificatesString ? JSON.parse(certificatesString) : []).map(
       (cert: any) => {
@@ -79,8 +90,8 @@ async function getJwks(env: Env) {
   }
 
   const response = env.TOKEN_SERVICE
-    ? await env.TOKEN_SERVICE.fetch(env.JWKS_URL)
-    : await fetch(env.JWKS_URL);
+    ? await env.TOKEN_SERVICE.fetch(jwksUrl)
+    : await fetch(jwksUrl);
 
   if (!response.ok) {
     throw new Error("Failed to fetch jwks");
@@ -99,14 +110,18 @@ function isValidScopes(token: TokenData, scopes: string[]) {
   return match;
 }
 
-async function isValidJwtSignature(ctx: Context<Env>, token: TokenData) {
+async function isValidJwtSignature(
+  ctx: Context<Env>,
+  securitySchemeName: SecuritySchemeName,
+  token: TokenData,
+) {
   const encoder = new TextEncoder();
   const data = encoder.encode([token.raw.header, token.raw.payload].join("."));
   const signature = new Uint8Array(
     Array.from(token.signature).map((c) => c.charCodeAt(0)),
   );
 
-  const jwkKeys = await getJwks(ctx.env);
+  const jwkKeys = await getJwks(ctx.env, securitySchemeName);
 
   const jwkKey = jwkKeys.find((key) => key.kid === token.header.kid);
 
@@ -128,6 +143,7 @@ async function isValidJwtSignature(ctx: Context<Env>, token: TokenData) {
 
 export async function getUser(
   ctx: Context<Env>,
+  securitySchemeName: SecuritySchemeName,
   bearer: string,
   scopes: string[],
 ): Promise<any | null> {
@@ -144,7 +160,7 @@ export async function getUser(
     return null;
   }
 
-  if (!(await isValidJwtSignature(ctx, token))) {
+  if (!(await isValidJwtSignature(ctx, securitySchemeName, token))) {
     return null;
   }
 
@@ -214,8 +230,20 @@ export interface Security {
   oauth2: string[];
 }
 
-export function authenticationHandler(security: Security[]) {
-  const [scope] = security[0].oauth2;
+export interface ManagementApiSecurity {
+  oauth2managementApi: string[];
+}
+
+export function authenticationHandler(
+  security: (Security | ManagementApiSecurity)[],
+) {
+  const authProvider = security[0];
+  const securitySchemeName: SecuritySchemeName =
+    "oauth2" in authProvider
+      ? SecuritySchemeName.oauth2
+      : SecuritySchemeName.oauth2managmentApi;
+
+  const [scope] = authProvider[securitySchemeName];
   return async function jwtMiddleware(
     ctx: Context<Env>,
     next: Next,
@@ -227,7 +255,12 @@ export function authenticationHandler(security: Security[]) {
       });
     }
     const bearer = authHeader.slice(7);
-    ctx.state.user = await getUser(ctx, bearer, scope?.split(" ") || []);
+    ctx.state.user = await getUser(
+      ctx,
+      securitySchemeName,
+      bearer,
+      scope?.split(" ") || [],
+    );
 
     await verifyTenantPermissions(ctx);
 
