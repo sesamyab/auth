@@ -124,12 +124,12 @@ function isValidScopes(token: TokenData, scopes: string[]) {
 async function isValidJwtSignature(
   ctx: Context<Env>,
   securitySchemeName: SecuritySchemeName,
-  token: TokenData,
+  token: TokenData
 ) {
   const encoder = new TextEncoder();
   const data = encoder.encode([token.raw.header, token.raw.payload].join("."));
   const signature = new Uint8Array(
-    Array.from(token.signature).map((c) => c.charCodeAt(0)),
+    Array.from(token.signature).map((c) => c.charCodeAt(0))
   );
   const jwkKeys = await getJwks(ctx.env, securitySchemeName);
 
@@ -145,7 +145,7 @@ async function isValidJwtSignature(
     jwkKey,
     { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
     false,
-    ["verify"],
+    ["verify"]
   );
 
   return crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, signature, data);
@@ -155,10 +155,8 @@ export async function getUser(
   ctx: Context<Env>,
   securitySchemeName: SecuritySchemeName,
   bearer: string,
-  scopes: string[],
+  scopes: string[]
 ): Promise<any> {
-  console.log("getUser: " + bearer);
-
   const token = decodeJwt(bearer);
 
   // Is the token expired?
@@ -187,7 +185,7 @@ export async function verifyTenantPermissions(ctx: Context<Env>) {
 
   if (
     !["POST", "PATCH", "PUT", "DELETE", "GET", "HEAD"].includes(
-      ctx.request.method,
+      ctx.request.method
     )
   ) {
     // Don't bother about OPTIONS requests
@@ -247,7 +245,7 @@ export interface ManagementApiSecurity {
 }
 
 export function authenticationHandler(
-  security: (Security | ManagementApiSecurity)[],
+  security: (Security | ManagementApiSecurity)[]
 ) {
   const authProvider = security[0];
   const securitySchemeName: SecuritySchemeName =
@@ -258,7 +256,7 @@ export function authenticationHandler(
   const [scope] = authProvider[securitySchemeName];
   return async function jwtMiddleware(
     ctx: Context<Env>,
-    next: Next,
+    next: Next
   ): Promise<Response | undefined> {
     const authHeader = ctx.headers.get("authorization");
     if (!authHeader || !authHeader.toLowerCase().startsWith("bearer")) {
