@@ -11,7 +11,7 @@ import swagger from "../build/swagger.json";
 
 export enum SecuritySchemeName {
   oauth2 = "oauth2",
-  oauth2managmentApi = "oauth2managementApi",
+  oauth2managementApi = "oauth2managementApi",
 }
 
 interface TokenData {
