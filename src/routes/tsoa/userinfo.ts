@@ -10,7 +10,7 @@ export class UserinfoController extends Controller {
   @Get("userinfo")
   @Security("oauth2", ["openid profile"])
   public async getUser(
-    @Request() request: RequestWithContext
+    @Request() request: RequestWithContext,
   ): Promise<{ id: string }> {
     const { ctx } = request;
     const { env } = ctx;
@@ -28,7 +28,7 @@ export class UserinfoController extends Controller {
 
     // Fetch the user from durable object
     const user = env.userFactory.getInstanceByName(
-      getId(dbUser.tenantId, dbUser.email)
+      getId(dbUser.tenantId, dbUser.email),
     );
 
     return user.getProfile.query();
