@@ -21,6 +21,7 @@ import {
   socialAuth,
   universalAuth,
 } from "../../authentication-flows";
+import { validateRedirectUrl } from "../../utils/validate-redirect-url";
 
 export interface AuthorizeParams {
   request: RequestWithContext;
@@ -108,6 +109,9 @@ export class AuthorizeController extends Controller {
       code_challenge,
       code_challenge_method,
     };
+
+    // TODO: Should we check the origin here as well?
+    validateRedirectUrl(client.allowedCallbackUrls, authParams.redirect_uri);
 
     // Silent authentication
     if (prompt == "none") {

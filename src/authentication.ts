@@ -107,7 +107,9 @@ async function getJwks(env: Env, securitySchemeName: SecuritySchemeName) {
         throw new Error("Failed to fetch jwks");
       }
 
-      const responseBody = JwksKeysSchema.parse(await response.json());
+      const responseBody: { keys: JwksKey[] } = await response.json();
+
+      console.log("Body: " + JSON.stringify(responseBody));
 
       jwksUrls[jwksUrl] = responseBody.keys;
     }
