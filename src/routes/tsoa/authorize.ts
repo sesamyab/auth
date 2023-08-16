@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Query,
+  Header,
   Request,
   Route,
   Tags,
@@ -93,6 +94,7 @@ export class AuthorizeController extends Controller {
     @Query("code_challenge_method") code_challenge_method?: CodeChallengeMethod,
     @Query("code_challenge") code_challenge?: string,
     @Query("realm") realm?: string,
+    @Header("referer") referer?: string,
   ): Promise<string> {
     const { ctx } = request;
     const { env } = ctx;
@@ -110,7 +112,10 @@ export class AuthorizeController extends Controller {
       code_challenge_method,
     };
 
-    // TODO: Should we check the origin here as well?
+    if (referer) {
+      validateRedirectUrl(client.allowedWebOrigins, authParams.redirect_uri);
+    }
+
     validateRedirectUrl(client.allowedCallbackUrls, authParams.redirect_uri);
 
     // Silent authentication

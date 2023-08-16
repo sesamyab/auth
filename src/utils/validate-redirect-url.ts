@@ -1,27 +1,27 @@
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+}
+
 export function validateRedirectUrl(
-  logoutUrls: string[],
+  allowedUrls: string[],
   redirectUri?: string,
 ) {
   if (!redirectUri) {
     return;
   }
 
-  const url = new URL(redirectUri);
-  const urlToCompare = `${url.protocol}//${url.host}`;
+  const regexes = allowedUrls.map(
+    // This replaces * with .*
+    (allowedUrl) => {
+      const url = new URL(allowedUrl);
+      const path = escapeRegExp(url.pathname.replace(/\/$/, ""));
+      const host = escapeRegExp(url.host).replace(/\\\*/g, ".*");
 
-  const regexes = logoutUrls.map(
-    // This replaces * with .* but not if there's already a regex wildcard
-    (url) =>
-      new RegExp(
-        url
-          .replace(/\./g, "\\.")
-          .replace(/\//g, "\\/")
-          .replace(/(?<!\.)\*/g, ".*"),
-        "i",
-      ),
+      return new RegExp(`^${url.protocol}\/\/${host}${path}$`, "i");
+    },
   );
 
-  if (!regexes.some((regex) => regex.test(urlToCompare))) {
+  if (!regexes.some((regex) => regex.test(redirectUri))) {
     throw new Error("Invalid redirectUri");
   }
 }
