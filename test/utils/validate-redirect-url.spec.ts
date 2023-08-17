@@ -68,4 +68,10 @@ describe("validateRedirectUrl", () => {
     const redirectUri = "http://example.com/";
     expect(() => validateRedirectUrl(allowedUrls, redirectUri)).not.toThrow();
   });
+
+  it("should should ignore query strings", () => {
+    const allowedUrls = ["http://example.com"];
+    const redirectUri = "http://example.com?foo=bar";
+    expect(() => validateRedirectUrl(allowedUrls, redirectUri)).not.toThrow();
+  });
 });

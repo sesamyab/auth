@@ -4,8 +4,8 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 }
 
-// This splits a url in a hosts part including the protocol and the path
-const urlPattern: RegExp = /^((?:http[s]?:\/\/)?[^\/]+)(\/.*)?$/;
+// Regular expression to extract protocol + host and path (without query string) from a URL
+const urlPattern: RegExp = /^((?:http[s]?:\/\/)?[^\/]+)([^?]*)(\?.*)?$/;
 
 export function validateRedirectUrl(
   allowedUrls: string[],
@@ -31,9 +31,10 @@ export function validateRedirectUrl(
     return new RegExp(`^${host}${path}$`, "i");
   });
 
-  const redirectUrlWithoutTrailingSlash = redirectUri.replace(/\/+$/, "");
+  // Regular expression to remove trailing slashes, query strings, and fragments
+  const cleanedUrl = redirectUri.replace(/(\/+)?(\?.*)?(#[^#]*)?$/, "");
 
-  if (!regexes.some((regex) => regex.test(redirectUrlWithoutTrailingSlash))) {
+  if (!regexes.some((regex) => regex.test(cleanedUrl))) {
     throw new InvalidRedirectError("Invalid redirectUri");
   }
 }
