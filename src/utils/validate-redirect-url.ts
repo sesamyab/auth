@@ -25,7 +25,7 @@ export function validateRedirectUrl(
 
     // This replaces * with .* and escapes any other regexes in the string
     const host = escapeRegExp(match[1]).replace(/\\\*/g, ".*");
-    // This removes any trailing slahes in the path and escapes any other regexes in the string
+    // This removes any trailing slashes in the path and escapes any other regexes in the string
     const path = escapeRegExp(match[2] || "").replace(/\/$/, "");
 
     return new RegExp(`^${host}${path}$`, "i");
