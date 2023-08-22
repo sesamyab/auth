@@ -1,6 +1,6 @@
 import { base64UrlEncode } from "./base64";
 
-function pemToBuffer(pem: string): ArrayBuffer {
+export function pemToBuffer(pem: string): ArrayBuffer {
   const base64String = pem
     .replace(/^-----BEGIN.*PRIVATE KEY-----/, "")
     .replace(/-----END.*PRIVATE KEY-----$/, "")
@@ -8,7 +8,7 @@ function pemToBuffer(pem: string): ArrayBuffer {
   return Uint8Array.from(atob(base64String), (c) => c.charCodeAt(0)).buffer;
 }
 
-function getKeyFormat(pemString: string): "pkcs8" | "spki" | "raw" {
+export function getKeyFormat(pemString: string): "pkcs8" | "spki" | "raw" {
   if (pemString.startsWith("-----BEGIN PRIVATE KEY-----")) {
     return "pkcs8"; // PKCS#8 format for private keys
   } else if (pemString.startsWith("-----BEGIN PUBLIC KEY-----")) {
@@ -37,7 +37,7 @@ export interface CreateTokenParams {
 
 export function getAlgorithm(
   alg: JwtAlgorithm,
-  operation: "sign" | "import",
+  operation: "sign" | "import"
 ): any {
   switch (alg) {
     case "RS256":
@@ -86,7 +86,7 @@ export async function createToken(params: CreateTokenParams) {
     keyBuffer,
     getAlgorithm(params.alg, "import"),
     false, // Not extractable
-    ["sign"],
+    ["sign"]
   );
 
   const header = {
@@ -104,12 +104,12 @@ export async function createToken(params: CreateTokenParams) {
   const signature = await crypto.subtle.sign(
     getAlgorithm(params.alg, "sign"),
     key,
-    unsignedTokenBuffer,
+    unsignedTokenBuffer
   );
 
   // Concatenate the unsignedToken with the base64Url-encoded signature to get the JWT
   const signedToken = `${unsignedToken}.${base64UrlEncode(
-    String.fromCharCode.apply(null, Array.from(new Uint8Array(signature))),
+    String.fromCharCode.apply(null, Array.from(new Uint8Array(signature)))
   )}`;
 
   return signedToken;
