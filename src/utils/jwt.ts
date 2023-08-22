@@ -37,7 +37,7 @@ export interface CreateTokenParams {
 
 export function getAlgorithm(
   alg: JwtAlgorithm,
-  operation: "sign" | "import"
+  operation: "sign" | "import",
 ): any {
   switch (alg) {
     case "RS256":
@@ -86,7 +86,7 @@ export async function createToken(params: CreateTokenParams) {
     keyBuffer,
     getAlgorithm(params.alg, "import"),
     false, // Not extractable
-    ["sign"]
+    ["sign"],
   );
 
   const header = {
@@ -104,12 +104,12 @@ export async function createToken(params: CreateTokenParams) {
   const signature = await crypto.subtle.sign(
     getAlgorithm(params.alg, "sign"),
     key,
-    unsignedTokenBuffer
+    unsignedTokenBuffer,
   );
 
   // Concatenate the unsignedToken with the base64Url-encoded signature to get the JWT
   const signedToken = `${unsignedToken}.${base64UrlEncode(
-    String.fromCharCode.apply(null, Array.from(new Uint8Array(signature)))
+    String.fromCharCode.apply(null, Array.from(new Uint8Array(signature))),
   )}`;
 
   return signedToken;

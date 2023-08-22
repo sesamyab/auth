@@ -43,7 +43,7 @@ describe("getAlgorithm", () => {
 
   it("throws error for unsupported JWT algorithm", () => {
     expect(() => getAlgorithm("unsupported-algorithm" as any, "sign")).toThrow(
-      "Unsupported JWT algorithm: unsupported-algorithm"
+      "Unsupported JWT algorithm: unsupported-algorithm",
     );
   });
 });
