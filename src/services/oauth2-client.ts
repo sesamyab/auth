@@ -20,7 +20,7 @@ export interface OAuthProviderParams {
 }
 
 export interface IOAuth2ClientFactory {
-  create(params: OAuthProviderParams, rediectUri: string): IOAuth2Client;
+  create(params: OAuthProviderParams, redirectUrl: string): IOAuth2Client;
 }
 
 export function oAuth2ClientFactory(
@@ -40,9 +40,9 @@ export class OAuth2Client implements IOAuth2Client {
   private readonly params: OAuthProviderParams;
   private readonly redirectUri: string;
 
-  constructor(params: OAuthProviderParams, rediectUri: string) {
+  constructor(params: OAuthProviderParams, redirectUri: string) {
     this.params = params;
-    this.redirectUri = rediectUri;
+    this.redirectUri = redirectUri;
   }
 
   async getAuthorizationUrl(state: string): Promise<string> {
