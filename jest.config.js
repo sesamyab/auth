@@ -3,7 +3,7 @@ module.exports = {
   transform: {
     "^.+\\.(t|j)sx?$": "ts-jest",
   },
-  testEnvironment: "jest-environment-jsdom",
+  // testEnvironment: "jest-environment-jsdom",
   testRegex: "/test/.*\\.spec\\.ts$",
   collectCoverageFrom: ["src/**/*.{ts,js}"],
   setupFilesAfterEnv: ["./jest.setup.js"],
