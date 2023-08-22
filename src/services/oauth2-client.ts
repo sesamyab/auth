@@ -88,7 +88,7 @@ export class OAuth2Client implements IOAuth2Client {
       : this.params.clientSecret;
 
     if (!clientSecret) {
-      throw new Error("Client ID required");
+      throw new Error("Client secret  or private key required");
     }
 
     const params = new URLSearchParams({
