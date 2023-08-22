@@ -86,7 +86,7 @@ export class TokenFactory {
       },
       alg: "RS256",
       headerAdditions: {
-        // kid: this.keyId,
+        kid: this.keyId,
       },
     });
   }
