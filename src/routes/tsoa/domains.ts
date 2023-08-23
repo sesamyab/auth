@@ -140,15 +140,7 @@ export class DomainsController extends Controller {
     @Request() request: RequestWithContext,
     @Path("tenantId") tenantId: string,
     @Body()
-    body: Omit<
-      SqlDomain,
-      | "id"
-      | "tenantId"
-      | "createdAt"
-      | "modifiedAt"
-      | "dkimPrivateKey"
-      | "dkimPublicKey"
-    >,
+    body: { domain: string },
   ): Promise<SqlDomain> {
     const { ctx } = request;
     const { env } = ctx;
