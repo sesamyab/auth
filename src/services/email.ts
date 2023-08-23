@@ -45,8 +45,6 @@ export default async function send(emailOptions: EmailOptions) {
     content,
   });
 
-  console.log("Mail body: " + body);
-
   const response = await fetch("https://api.mailchannels.net/tx/v1/send", {
     method: "POST",
     headers: {
