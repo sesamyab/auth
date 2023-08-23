@@ -26,7 +26,7 @@ export class TenantsController extends Controller {
   @Security("oauth2managementApi", [""])
   public async listTenants(
     @Request() request: RequestWithContext,
-    @Header("range") range?: string,
+    @Header("range") range?: string
   ): Promise<Tenant[]> {
     const { ctx } = request;
     const db = getDb(ctx.env);
@@ -57,7 +57,7 @@ export class TenantsController extends Controller {
     if (parsedRange.entity) {
       this.setHeader(
         headers.contentRange,
-        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`,
+        `${parsedRange.entity}=${parsedRange.from}-${parsedRange.to}/${parsedRange.limit}`
       );
     }
 
@@ -68,7 +68,7 @@ export class TenantsController extends Controller {
   @Security("oauth2managementApi", [""])
   public async getTenant(
     @Request() request: RequestWithContext,
-    @Path("id") id: string,
+    @Path("id") id: string
   ): Promise<Tenant | string> {
     const { ctx } = request;
 
@@ -94,7 +94,7 @@ export class TenantsController extends Controller {
   public async putTenant(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Body() body: Omit<Tenant, "id">,
+    @Body() body: Omit<Tenant, "id" | "createdAt" | "modifiedAt">
   ): Promise<Tenant | string> {
     const { ctx } = request;
 
@@ -102,14 +102,24 @@ export class TenantsController extends Controller {
     const tenant = {
       ...body,
       id,
+      createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
     };
 
-    await db
-      .insertInto("tenants")
-      .values(tenant)
-      .onConflict((oc) => oc.column("id").doUpdateSet(tenant))
-      .execute();
+    try {
+      await db.insertInto("tenants").values(tenant).execute();
+    } catch (err: any) {
+      if (!err.message.includes("AlreadyExists")) {
+        throw err;
+      }
+
+      const { id, createdAt, ...tenantUpdate } = tenant;
+      await db
+        .updateTable("tenants")
+        .set(tenantUpdate)
+        .where("id", "=", tenant.id)
+        .execute();
+    }
 
     this.setStatus(201);
     return tenant;
@@ -120,7 +130,7 @@ export class TenantsController extends Controller {
   @SuccessResponse(201, "Created")
   public async postTenants(
     @Request() request: RequestWithContext,
-    @Body() body: Omit<Tenant, "id" | "createdAt" | "modifiedAt">,
+    @Body() body: Omit<Tenant, "id" | "createdAt" | "modifiedAt">
   ): Promise<Tenant> {
     const { ctx } = request;
 
