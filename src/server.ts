@@ -6,7 +6,6 @@ import { oAuth2ClientFactory } from "./services/oauth2-client";
 import { QueueMessage } from "./services/events";
 import { updateUser } from "./handlers/update-user";
 import sendEmail from "./services/email";
-import hash from "./utils/hash";
 
 // In order for the workers runtime to find the class that implements
 // our Durable Object namespace, we must export it from the root module.
@@ -16,7 +15,7 @@ const server = {
   async fetch(
     request: Request,
     env: Env,
-    ctx: ExecutionContext,
+    ctx: ExecutionContext
   ): Promise<Response> {
     return app.handle(
       request,
@@ -27,9 +26,8 @@ const server = {
         sendEmail,
         stateFactory: State.getFactory(env.STATE, env),
         userFactory: User.getFactory(env.USER, env),
-        hash,
       },
-      ctx,
+      ctx
     );
   },
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
@@ -38,7 +36,7 @@ const server = {
   async queue(
     batch: MessageBatch<QueueMessage>,
     env: Env,
-    ctx: ExecutionContext,
+    ctx: ExecutionContext
   ) {
     for (const message of batch.messages) {
       const { body } = message;
