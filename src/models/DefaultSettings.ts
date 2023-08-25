@@ -17,7 +17,7 @@ const DefaultSettingsSchema = z.object({
         tokenEndpoint: z.string().optional(),
         responseType: z.string().optional(),
         responseMode: z.string().optional(),
-      }),
+      })
     )
     .optional(),
   domains: z
@@ -25,7 +25,7 @@ const DefaultSettingsSchema = z.object({
       z.object({
         domain: z.string(),
         dkimPrivateKey: z.string(),
-      }),
+      })
     )
     .optional(),
 });
@@ -36,7 +36,7 @@ export function getDefaultSettings(env: Env) {
   const defaultSettingsString = env.DEFAULT_SETTINGS;
 
   if (!defaultSettingsString) {
-    return {};
+    throw new Error("No default settings provided");
   }
 
   try {
