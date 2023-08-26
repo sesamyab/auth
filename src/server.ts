@@ -15,7 +15,7 @@ const server = {
   async fetch(
     request: Request,
     env: Env,
-    ctx: ExecutionContext,
+    ctx: ExecutionContext
   ): Promise<Response> {
     return app.handle(
       request,
@@ -27,7 +27,7 @@ const server = {
         stateFactory: State.getFactory(env.STATE, env),
         userFactory: User.getFactory(env.USER, env),
       },
-      ctx,
+      ctx
     );
   },
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
@@ -36,7 +36,7 @@ const server = {
   async queue(
     batch: MessageBatch<QueueMessage>,
     env: Env,
-    ctx: ExecutionContext,
+    ctx: ExecutionContext
   ) {
     for (const message of batch.messages) {
       const { body } = message;
@@ -44,7 +44,7 @@ const server = {
 
       switch (body.queueName) {
         case "users":
-          await updateUser(env, body.tenantId, body.userId);
+          await updateUser(env, body.tenantId, body.email);
           break;
         default:
           console.log(`Unknown message: ${JSON.stringify(message.body)}`);
