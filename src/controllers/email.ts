@@ -52,7 +52,6 @@ export async function sendCode(
   const language = client.language || "en";
 
   const sendCodeTemplate = engine.parse(templateString);
-
   const codeEmailBody = await engine.render(sendCodeTemplate, {
     code,
     vendorName: client.name,

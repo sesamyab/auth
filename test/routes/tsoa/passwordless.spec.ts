@@ -41,14 +41,14 @@ describe("Passwordless", () => {
       });
 
       expect(sentEmail.subject).toEqual(
-        "Welcome to clientName! 123456 is the login code"
+        "Welcome to clientName! 123456 is the login code",
       );
 
       expect(sentEmail.content[0].type).toEqual("text/plain");
 
       // this text seems wrong  8-0
       expect(sentEmail.content[0].value).toContain(
-        "Welcome to clientName! 123456 is the login code"
+        "Welcome to clientName! 123456 is the login code",
       );
       // TODO - we could load this into a browser in playwright and snapshot it...
 
