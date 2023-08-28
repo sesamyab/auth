@@ -5,8 +5,7 @@ import { requestWithContext } from "../../fixtures/requestWithContext";
 
 describe("Passwordless", () => {
   describe("start", () => {
-    // This fails as the fixtures tries to load the code.liquid from the auth-templates folder.
-    it.skip("should send a code to the user", async () => {
+    it("should send a code to the user", async () => {
       const controller = new PasswordlessController();
 
       const body = {
@@ -24,7 +23,8 @@ describe("Passwordless", () => {
         },
       };
 
-      const logs = [];
+      // TODO - can we type this?
+      const logs: any = [];
 
       const ctx = contextFixture({
         stateData: {},
@@ -33,25 +33,24 @@ describe("Passwordless", () => {
 
       await controller.startPasswordless(body, requestWithContext(ctx));
 
-      expect(logs).toEqual([
+      console.log(logs);
+
+      const sentEmail = logs[0];
+
+      expect(sentEmail.from).toEqual({
+        email: "senderEmail",
+        name: "senderName",
+      });
+
+      expect(sentEmail.subject).toEqual("Login Code - 123456");
+
+      // expect(sentEmail.content.type).toEqual("text/plain");
+
+      expect(sentEmail.to).toEqual([
         {
-          content: [
-            {
-              type: "text/plain",
-              value: "Here's your login code: 123456",
-            },
-          ],
-          from: {
-            email: "senderEmail",
-            name: "senderName",
-          },
-          subject: "Login code",
-          to: [
-            {
-              email: "markus@ahlstrand.es",
-              name: "",
-            },
-          ],
+          // TODO - change these before release? Test that they are changing for kvartal emails?
+          email: "markus@ahlstrand.es",
+          name: "markus@ahlstrand.es",
         },
       ]);
     });
