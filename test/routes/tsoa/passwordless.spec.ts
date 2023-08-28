@@ -33,8 +33,6 @@ describe("Passwordless", () => {
 
       await controller.startPasswordless(body, requestWithContext(ctx));
 
-      console.log(logs);
-
       const sentEmail = logs[0];
 
       expect(sentEmail.from).toEqual({
@@ -44,7 +42,11 @@ describe("Passwordless", () => {
 
       expect(sentEmail.subject).toEqual("Login Code - 123456");
 
-      // expect(sentEmail.content.type).toEqual("text/plain");
+      expect(sentEmail.content[0].type).toEqual("text/plain");
+
+      // this text seems wrong  8-0
+      expect(sentEmail.content[0].value).toContain("This is your 123456");
+      // TODO - we could load this into a browser in playwright and snapshot it...
 
       expect(sentEmail.to).toEqual([
         {
