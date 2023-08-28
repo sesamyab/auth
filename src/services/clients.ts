@@ -44,11 +44,14 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
       ...client.allowedLogoutUrls,
       env.ISSUER,
       "http://localhost:8787",
+      "https://login2.sesamy.dev",
     ],
     allowedCallbackUrls: [
       ...client.allowedCallbackUrls,
       `${env.ISSUER}u/info`,
       "http://localhost:8787/u/info",
+      // TODO - something else so we don't keep losing all the config, but we also don't hardcode these URLs in prod
+      "https://login2.sesamy.dev/callback",
     ],
     connections,
     domains: [...client.domains, ...(defaultSettings.domains || [])],
