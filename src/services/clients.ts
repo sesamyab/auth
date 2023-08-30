@@ -7,7 +7,7 @@ import {
 } from "../types/Client";
 import { DefaultSettings, getDefaultSettings } from "../models/DefaultSettings";
 
-// Thsese default settings are static and doesn't contain any keys
+// Thsese default settings are static and don't contain any keys
 const defaultSettings: DefaultSettings = {
   connections: [
     {
