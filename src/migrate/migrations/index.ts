@@ -14,4 +14,5 @@ export default {
   m4_dkim,
   m5_styles,
   m6_mailgun,
+  m7_seed_database,
 };
