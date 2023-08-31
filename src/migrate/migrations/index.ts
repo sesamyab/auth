@@ -4,6 +4,7 @@ import * as m3_connection_scopes from "./2023-08-18T14:41:03_connection_scope";
 import * as m4_dkim from "./2023-08-22T15:06:26_dkim";
 import * as m5_styles from "./2023-08-28T09:12:44_styles";
 import * as m6_mailgun from "./2023-08-31T13:50:12_mailgun";
+import * as m7_seed_database from "./2023-08-31T16:31:44_seed";
 
 // These needs to be in alphabetic order
 export default {
