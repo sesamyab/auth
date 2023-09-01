@@ -7,8 +7,8 @@
     "build": "node tsoa.mjs",
     "dev": "node tsoa.mjs && wrangler dev --remote",
     "mf": "node tsoa.mjs && tsc & miniflare",
-    "format": "prettier --write '**/*.{ts,css,json,md}'",
-    "format:ci-cd": "prettier --check '**/*.{ts,css,json,md}'",
+    "format": "prettier --write",
+    "format:ci-cd": "prettier --check",
     "lint": "eslint",
     "test": "jest --config jest.config.js --verbose",
     "test-with-coverage": "jest --config jest.config.js --coverage",
@@ -84,7 +84,7 @@
     "wrangler": "^3.6.0"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
+    "**/*.{ts,css,json,md,mjml}": [
       "prettier --write"
     ]
   }
