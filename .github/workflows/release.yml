@@ -1,7 +1,7 @@
 name: Release
 on:
   release:
-    types: ['released']
+    types: ["released"]
 jobs:
   release:
     name: Release
@@ -12,10 +12,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          cache: 'yarn'
-          node-version: '18.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@sesamyab'
+          cache: "yarn"
+          node-version: "18.x"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@sesamyab"
       - name: Install dependencies
         run: yarn install --ignore-scripts
         env:

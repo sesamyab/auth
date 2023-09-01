@@ -33,7 +33,7 @@ form.addEventListener("submit", function (event) {
       } else {
         window.location.href = "/dashboard";
       }
-    }
+    },
   );
 });
 

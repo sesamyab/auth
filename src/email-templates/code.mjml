@@ -1,57 +1,31 @@
 <mjml>
   <mj-head>
-    <mj-font name="KHTeka" href="https://assets.sesamy.dev/static/fonts/khteka.css" />
+    <mj-font
+      name="KHTeka"
+      href="https://assets.sesamy.dev/static/fonts/khteka.css"
+    />
     <mj-attributes>
-      <mj-text color="#88869F" font-size="14px" line-height="16.8px" font-weight="400" />
+      <mj-text
+        color="#88869F"
+        font-size="14px"
+        line-height="16.8px"
+        font-weight="400"
+      />
       <mj-all font-family="KHTeka, Helvetica, sans-serif" />
     </mj-attributes>
     <mj-style>
-      .custom-table table {
-        width: auto !important;
-        margin: 0 auto !important;
-      }
-      .padding-horizontal > table > tbody > tr > td {
-        padding-left: 4px;
-        padding-right: 4px;
-      }
-      .padding-vertical > table > tbody > tr > td {
-        padding-top: 4px;
-        padding-bottom: 4px;
-      }
-      .custom-table table img {
-        display: block;
-      }
-      html {
-        -webkit-font-smoothing: antialiased;
-      }
-      .text-style {
-        display: inline-block;
-        font-size: 14px;
-        line-height: 16.8px;
-        font-weight: 400;
-        color: #88869F;
-        font-family: KHTeka, Helvetica, sans-serif;
-      }
-      .clickable-button a {
-        display: block;
-        width: calc(100% - 50px);
-      }
-      a {
-        color: #7D68F4;
-        text-decoration: none;
-      }
-      a:hover {
-        color: #7D68F4;
-        text-decoration: underline;
-      }
-      .purple-link {
-        color: #7D68F4 !important;
-        text-decoration: none !important;
-      }
-      .purple-link:hover {
-        color: #7D68F4 !important;
-        text-decoration: underline !important;
-      }
+      .custom-table table { width: auto !important; margin: 0 auto !important; }
+      .padding-horizontal > table > tbody > tr > td { padding-left: 4px;
+      padding-right: 4px; } .padding-vertical > table > tbody > tr > td {
+      padding-top: 4px; padding-bottom: 4px; } .custom-table table img {
+      display: block; } html { -webkit-font-smoothing: antialiased; }
+      .text-style { display: inline-block; font-size: 14px; line-height: 16.8px;
+      font-weight: 400; color: #88869F; font-family: KHTeka, Helvetica,
+      sans-serif; } .clickable-button a { display: block; width: calc(100% -
+      50px); } a { color: #7D68F4; text-decoration: none; } a:hover { color:
+      #7D68F4; text-decoration: underline; } .purple-link { color: #7D68F4
+      !important; text-decoration: none !important; } .purple-link:hover {
+      color: #7D68F4 !important; text-decoration: underline !important; }
     </mj-style>
   </mj-head>
   <mj-body background-color="#F5F5F7">
@@ -67,8 +41,18 @@
       </mj-column>
     </mj-section>
     <mj-section padding="4px">
-      <mj-column padding="16px 0px" border-radius="16px" width="504px" background-color="#fff">
-        <mj-text font-size="18px" line-height="21.6px" font-weight="500" color="#14141A">
+      <mj-column
+        padding="16px 0px"
+        border-radius="16px"
+        width="504px"
+        background-color="#fff"
+      >
+        <mj-text
+          font-size="18px"
+          line-height="21.6px"
+          font-weight="500"
+          color="#14141A"
+        >
           Välkommen till ditt {{vendorName}}-konto!
         </mj-text>
         <mj-text font-size="16px" line-height="19.2px">
@@ -76,15 +60,33 @@
         </mj-text>
         <mj-table>
           <tr>
-            <td style="text-align: center; padding: 10px; border-radius: 8px; background: #F5F5F7;">
-              <div class="text-style" style="font-size: 24px; line-height: 28.8px; font-weight: 500; color: #14141A;">
+            <td
+              style="
+                text-align: center;
+                padding: 10px;
+                border-radius: 8px;
+                background: #f5f5f7;
+              "
+            >
+              <div
+                class="text-style"
+                style="
+                  font-size: 24px;
+                  line-height: 28.8px;
+                  font-weight: 500;
+                  color: #14141a;
+                "
+              >
                 {{code}}
               </div>
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding-top: 6px;">
-              <div class="text-style" style="font-size: 16px; line-height: 19.2px;">
+            <td align="center" style="padding-top: 6px">
+              <div
+                class="text-style"
+                style="font-size: 16px; line-height: 19.2px"
+              >
                 Koden är giltig i 30 minuter
               </div>
             </td>
@@ -96,17 +98,27 @@
       <mj-column width="504px">
         <mj-table padding="0px 20px 0px 20px" css-class="padding-horizontal">
           <tr>
-            <td style="vertical-align: top; width: 14px;padding-top:2px;">
+            <td style="vertical-align: top; width: 14px; padding-top: 2px">
               <img
                 alt=""
                 width="14"
                 height="14"
-                style="width: 14px;border:0;display:block;outline:none;text-decoration:none;height:14px;"
+                style="
+                  width: 14px;
+                  border: 0;
+                  display: block;
+                  outline: none;
+                  text-decoration: none;
+                  height: 14px;
+                "
                 src="https://imgproxy.dev.sesamy.cloud/unsafe/format:png/size:28:28/aHR0cHM6Ly9hc3NldHMuc2VzYW15LmRldi9zdGF0aWMvaW1hZ2VzL2VtYWlsL3F1ZXN0aW9uLnBuZw&#x3D;&#x3D;"
               />
             </td>
             <td>
-              <div class="text-style">Om du har frågor eller behöver assistans kan du kontakta vårt supportteam</div>
+              <div class="text-style">
+                Om du har frågor eller behöver assistans kan du kontakta vårt
+                supportteam
+              </div>
             </td>
           </tr>
         </mj-table>
@@ -122,7 +134,9 @@
           Kontakta oss
         </mj-button>
         <mj-spacer height="4px" />
-        <mj-text>Copyright © 2023 SESAMY. Alla rättigheter förbehållna.</mj-text>
+        <mj-text
+          >Copyright © 2023 SESAMY. Alla rättigheter förbehållna.</mj-text
+        >
       </mj-column>
     </mj-section>
     <mj-section padding="0px 0px 30px 0px">
