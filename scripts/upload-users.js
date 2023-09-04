@@ -47,9 +47,6 @@ async function importUsers(filePath) {
   let counter = 0;
 
   for await (const line of rl) {
-    // if (counter++ > 3) {
-    //   throw new Error("test");
-    // }
 
     try {
       const user = JSON.parse(line);
