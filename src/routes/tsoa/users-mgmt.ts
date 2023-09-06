@@ -10,6 +10,7 @@ import {
   Header,
   SuccessResponse,
   Body,
+  Delete,
 } from "@tsoa/runtime";
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
@@ -37,7 +38,7 @@ export class UsersMgmtController extends Controller {
       .selectFrom("users")
       .where("users.tenantId", "=", tenantId)
       .where("users.id", "=", userId)
-      .selectAll()
+      .select("users.email")
       .executeTakeFirst();
 
     if (!dbUser) {
@@ -51,6 +52,35 @@ export class UsersMgmtController extends Controller {
     const userResult = user.getProfile.query();
 
     return userResult;
+  }
+
+  @Delete("users/{userId}")
+  @SuccessResponse(201, "Delete")
+  public async deleteUser(
+    @Request() request: RequestWithContext,
+    @Path("userId") userId: string,
+    @Header("tenant-id") tenantId: string,
+  ): Promise<Profile> {
+    const { ctx } = request;
+    const { env } = ctx;
+
+    const db = getDb(env);
+    const dbUser = await db
+      .selectFrom("users")
+      .where("users.tenantId", "=", tenantId)
+      .where("users.id", "=", userId)
+      .select("users.email")
+      .executeTakeFirst();
+
+    if (!dbUser) {
+      throw new NotFoundError();
+    }
+
+    const user = env.userFactory.getInstanceByName(
+      getId(tenantId, dbUser.email),
+    );
+
+    return user.delete.mutate();
   }
 
   @Get("users-by-email")
@@ -67,7 +97,7 @@ export class UsersMgmtController extends Controller {
       .selectFrom("users")
       .where("users.tenantId", "=", tenantId)
       .where("users.email", "=", userEmail)
-      .selectAll()
+      .select("users.email")
       .executeTakeFirst();
 
     if (!dbUser) {
@@ -75,7 +105,7 @@ export class UsersMgmtController extends Controller {
     }
 
     const user = env.userFactory.getInstanceByName(
-      getId(dbUser.tenantId, dbUser.email),
+      getId(tenantId, dbUser.email),
     );
 
     const userResult = user.getProfile.query();
