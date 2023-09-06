@@ -48,9 +48,7 @@ export class UsersMgmtController extends Controller {
       getId(tenantId, dbUser.email),
     );
 
-    const userResult = user.getProfile.query();
-
-    return userResult;
+    return user.getProfile.query();
   }
 
   @Delete("users/{userId}")
@@ -105,9 +103,7 @@ export class UsersMgmtController extends Controller {
       getId(tenantId, dbUser.email),
     );
 
-    const userResult = user.getProfile.query();
-
-    return userResult;
+    return user.getProfile.query();
   }
 
   @Post("users")
@@ -125,11 +121,10 @@ export class UsersMgmtController extends Controller {
       getId(tenantId, user.email),
     );
 
-    const result: Profile = await userInstance.createUser.mutate({
+    return userInstance.createUser.mutate({
       ...user,
       connections: [],
       tenantId,
     });
-    return result;
   }
 }
