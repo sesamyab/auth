@@ -30,8 +30,7 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
-    const { ctx } = request;
-    const { env } = ctx;
+    const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
@@ -61,8 +60,7 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
-    const { ctx } = request;
-    const { env } = ctx;
+    const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
@@ -89,8 +87,7 @@ export class UsersMgmtController extends Controller {
     @Query("email") userEmail: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
-    const { ctx } = request;
-    const { env } = ctx;
+    const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
@@ -122,9 +119,9 @@ export class UsersMgmtController extends Controller {
     user: Omit<User, "tenantId" | "createdAt" | "modifiedAt" | "id"> &
       Partial<Pick<User, "createdAt" | "modifiedAt" | "id">>,
   ): Promise<Profile> {
-    const { ctx } = request;
+    const { env } = request.ctx;
 
-    const userInstance = ctx.env.userFactory.getInstanceByName(
+    const userInstance = env.userFactory.getInstanceByName(
       getId(tenantId, user.email),
     );
 
