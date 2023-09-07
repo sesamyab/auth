@@ -294,7 +294,7 @@ export const userRouter = router({
       return profile;
     }),
   delete: publicProcedure.mutation(async ({ ctx }) => {
-    const profile = await getProfile(ctx.env.storage);
+    const profile = await getProfile(ctx.state.storage);
 
     if (!profile?.tenantId) {
       throw new NotFoundError();
