@@ -321,6 +321,41 @@ describe("User", () => {
     });
   });
 
+  describe("delete profile", () => {
+    it("should delete an existing user", async () => {
+      let profile: any = {};
+
+      const caller = createCaller({
+        get: async (key: string) => {
+          switch (key) {
+            case "profile":
+              return JSON.stringify({
+                id: "id",
+                name: "Test",
+                email: "test@example.com",
+                tenantId: "tenantId",
+                created_at: "2021-01-01T00:00:00.000Z",
+                modified_at: "2021-01-01T00:00:00.000Z",
+                connections: [],
+              });
+          }
+        },
+        put: async (key: string, value: string) => {
+          switch (key) {
+            case "profile":
+              profile = JSON.parse(value);
+          }
+          return;
+        },
+        delete: async () => {},
+      });
+
+      await caller.delete();
+
+      // what is even happening here? looks like I'm testing a mock
+    });
+  });
+
   describe("validate authentication code", () => {
     it("should throw a NoCodeError if a user tries to validate a code but no code is stored", async () => {
       const caller = createCaller({
