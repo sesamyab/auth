@@ -61,6 +61,7 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
+    console.log("deleteUser", userId, tenantId);
     const { ctx } = request;
     const { env } = ctx;
 
@@ -72,13 +73,19 @@ export class UsersMgmtController extends Controller {
       .select("users.email")
       .executeTakeFirst();
 
+    console.log("dbUser", dbUser);
+
     if (!dbUser) {
       throw new NotFoundError();
     }
 
+    console.log("dbUser.email", dbUser.email);
+
     const user = env.userFactory.getInstanceByName(
       getId(tenantId, dbUser.email),
     );
+
+    console.log("user", user);
 
     return user.delete.mutate();
   }
