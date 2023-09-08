@@ -28,7 +28,7 @@ export class UsersMgmtController extends Controller {
   @Get("users")
   public async listUsers(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Header("tenant-id") tenantId: string,
     @Header("range") rangeRequest?: string,
     @Query("filter") filterQuerystring?: string,
   ): Promise<User[]> {
