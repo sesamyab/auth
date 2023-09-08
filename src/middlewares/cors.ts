@@ -20,6 +20,9 @@ export default async function corsMiddleware<Env>(
     "Content-Type, Auth0-Client, Authorization, Range, tenant-id",
   );
   response?.headers.set(headers.accessControlExposeHeaders, "Content-Range");
-
+  response?.headers.set(
+    headers.accessControlAllowMethod,
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  );
   return response;
 }
