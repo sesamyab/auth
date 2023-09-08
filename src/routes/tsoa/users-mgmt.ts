@@ -11,6 +11,7 @@ import {
   SuccessResponse,
   Body,
   Delete,
+  Put,
 } from "@tsoa/runtime";
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
@@ -209,5 +210,26 @@ export class UsersMgmtController extends Controller {
       connections: [],
       tenantId,
     });
+  }
+
+  @Put("users")
+  public async putUser(
+    @Request() request: RequestWithContext,
+    @Header("tenant-id") tenantId: string,
+    @Body()
+    user: Omit<User, "tenantId" | "createdAt" | "modifiedAt" | "id"> &
+      Partial<Pick<User, "createdAt" | "modifiedAt" | "id">>,
+  ): Promise<Profile> {
+    const { ctx } = request;
+
+    const userInstance = ctx.env.userFactory.getInstanceByName(
+      getId(tenantId, user.email),
+    );
+
+    const result: Profile = await userInstance.createUser.mutate({
+      ...user,
+      tenantId,
+    });
+    return result;
   }
 }
