@@ -295,25 +295,13 @@ export const userRouter = router({
       return profile;
     }),
   delete: publicProcedure.mutation(async ({ ctx }) => {
-    console.log("delete user mutation called ok");
     const profile = await getProfile(ctx.state.storage);
 
-    console.log("profile returned ok - ", profile);
-
     if (!profile?.tenantId) {
-      console.log("no tenant id found");
       throw new NotFoundError();
     }
 
-    console.log("tenant id found ok - ", profile.tenantId);
-
-    console.log("trying to delete all");
-
     await ctx.state.storage.deleteAll();
-
-    console.log("all deleted ok");
-
-    console.log("sending user event next");
 
     await sendUserEvent(
       ctx.env,
@@ -321,8 +309,6 @@ export const userRouter = router({
       profile.id,
       UserEvent.userDeleted,
     );
-
-    console.log("user event sent ok");
   }),
   getLogs: publicProcedure.query(async ({ ctx }) => getLogs(ctx.state.storage)),
   getProfile: publicProcedure.query(async ({ ctx }) => {

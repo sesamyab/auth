@@ -55,13 +55,12 @@ export class UsersMgmtController extends Controller {
   }
 
   @Delete("users/{userId}")
-  @SuccessResponse(201, "Delete")
+  @SuccessResponse(200, "Delete")
   public async deleteUser(
     @Request() request: RequestWithContext,
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
-    console.log("deleteUser", userId, tenantId);
     const { ctx } = request;
     const { env } = ctx;
 
@@ -73,19 +72,13 @@ export class UsersMgmtController extends Controller {
       .select("users.email")
       .executeTakeFirst();
 
-    console.log("dbUser", dbUser);
-
     if (!dbUser) {
       throw new NotFoundError();
     }
 
-    console.log("dbUser.email", dbUser.email);
-
     const user = env.userFactory.getInstanceByName(
       getId(tenantId, dbUser.email),
     );
-
-    console.log("user", user);
 
     return user.delete.mutate();
   }
