@@ -18,6 +18,7 @@ import { NotFoundError } from "../../errors";
 import { getId } from "../../models";
 import { Profile } from "../../types";
 import { User } from "../../types/sql/User";
+import { headers } from "../../constants";
 
 @Route("api/v2")
 @Tags("management-api")
@@ -61,6 +62,9 @@ export class UsersMgmtController extends Controller {
     //   ...user,
     //   tags: JSON.parse(user.tags || "[]"),
     // }));
+
+    // this is to stop react-admin complaining
+    this.setHeader(headers.contentRange, "users=0-9/1362");
 
     const dbUsersList = await db
       .selectFrom("users")
