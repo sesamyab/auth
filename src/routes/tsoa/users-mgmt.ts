@@ -30,8 +30,7 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
-    const { ctx } = request;
-    const { env } = ctx;
+    const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
@@ -49,9 +48,7 @@ export class UsersMgmtController extends Controller {
       getId(tenantId, dbUser.email),
     );
 
-    const userResult = user.getProfile.query();
-
-    return userResult;
+    return user.getProfile.query();
   }
 
   @Delete("users/{userId}")
@@ -61,8 +58,7 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
-    const { ctx } = request;
-    const { env } = ctx;
+    const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
@@ -89,8 +85,7 @@ export class UsersMgmtController extends Controller {
     @Query("email") userEmail: string,
     @Header("tenant-id") tenantId: string,
   ): Promise<Profile> {
-    const { ctx } = request;
-    const { env } = ctx;
+    const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
@@ -108,9 +103,7 @@ export class UsersMgmtController extends Controller {
       getId(tenantId, dbUser.email),
     );
 
-    const userResult = user.getProfile.query();
-
-    return userResult;
+    return user.getProfile.query();
   }
 
   @Post("users")
@@ -122,17 +115,16 @@ export class UsersMgmtController extends Controller {
     user: Omit<User, "tenantId" | "createdAt" | "modifiedAt" | "id"> &
       Partial<Pick<User, "createdAt" | "modifiedAt" | "id">>,
   ): Promise<Profile> {
-    const { ctx } = request;
+    const { env } = request.ctx;
 
-    const userInstance = ctx.env.userFactory.getInstanceByName(
+    const userInstance = env.userFactory.getInstanceByName(
       getId(tenantId, user.email),
     );
 
-    const result: Profile = await userInstance.createUser.mutate({
+    return userInstance.createUser.mutate({
       ...user,
       connections: [],
       tenantId,
     });
-    return result;
   }
 }
