@@ -64,7 +64,7 @@ export const BaseClientSchema = z.object({
   tenantId: z.string(),
   clientSecret: z.string(),
   tenant: z.object({
-    audience: z.string(),
+    audience: z.string().optional(),
     logo: z.string().optional(),
     primaryColor: z.string().optional(),
     secondaryColor: z.string().optional(),
