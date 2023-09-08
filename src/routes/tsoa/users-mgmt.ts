@@ -134,35 +134,6 @@ export class UsersMgmtController extends Controller {
     return user.delete.mutate();
   }
 
-  @Delete("users/{userId}")
-  @SuccessResponse(200, "Delete")
-  public async deleteUser(
-    @Request() request: RequestWithContext,
-    @Path("userId") userId: string,
-    @Header("tenant-id") tenantId: string,
-  ): Promise<Profile> {
-    const { ctx } = request;
-    const { env } = ctx;
-
-    const db = getDb(env);
-    const dbUser = await db
-      .selectFrom("users")
-      .where("users.tenantId", "=", tenantId)
-      .where("users.id", "=", userId)
-      .select("users.email")
-      .executeTakeFirst();
-
-    if (!dbUser) {
-      throw new NotFoundError();
-    }
-
-    const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
-    );
-
-    return user.delete.mutate();
-  }
-
   @Get("users-by-email")
   public async getUserByEmail(
     @Request() request: RequestWithContext,
