@@ -217,8 +217,8 @@ export class UsersMgmtController extends Controller {
     @Request() request: RequestWithContext,
     @Header("tenant-id") tenantId: string,
     @Body()
-    user: Omit<User, "tenantId" | "createdAt" | "modifiedAt" | "id"> &
-      Partial<Pick<User, "createdAt" | "modifiedAt" | "id">>,
+    user: Omit<User, "tenantId" | "createdAt" | "modifiedAt"> &
+      Partial<Pick<User, "createdAt" | "modifiedAt">>,
   ): Promise<Profile> {
     const { ctx } = request;
 
@@ -226,7 +226,9 @@ export class UsersMgmtController extends Controller {
       getId(tenantId, user.email),
     );
 
-    const result: Profile = await userInstance.createUser.mutate({
+    // I'm assuming that patchProfile isn't actually tested...
+    // is it even what we want here? let's see...
+    const result: Profile = await userInstance.patchProfile.mutate({
       ...user,
       tenantId,
     });
