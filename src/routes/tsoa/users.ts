@@ -113,8 +113,10 @@ export class UsersController extends Controller {
     //   await userInstance.setPassword.mutate(body.password);
     // }
 
+    // ah so the issue is that it's creating a new user every time!
     return userInstance.patchProfile.mutate({
       ...body,
+      id: userId,
       tenantId,
     });
   }
