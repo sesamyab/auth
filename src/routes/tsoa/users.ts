@@ -100,34 +100,18 @@ export class UsersController extends Controller {
   public async updateUser(
     @Request() request: RequestWithContext,
     @Body()
-    body: Partial<
-      Omit<Profile, "id" | "createdAt" | "modifiedAt" | "tenantId">
-    > & {
-      password?: string;
-    },
+    body: Omit<Profile, "id" | "createdAt" | "modifiedAt" | "tenantId">,
     @Path("userId") userId: string,
     @Path("tenantId") tenantId: string,
   ): Promise<Profile> {
     const { env } = request.ctx;
 
-    const db = getDb(request.ctx.env);
-    const user = await db
-      .selectFrom("users")
-      .where("users.tenantId", "=", tenantId)
-      .where("users.id", "=", userId)
-      .select("email")
-      .executeTakeFirst();
-
-    if (!user) {
-      throw new NoUserFoundError();
-    }
-
-    const doId = `${tenantId}|${user.email}`;
+    const doId = `${tenantId}|${body.email}`;
     const userInstance = env.userFactory.getInstanceByName(doId);
 
-    if (body.password) {
-      await userInstance.setPassword.mutate(body.password);
-    }
+    // if (body.password) {
+    //   await userInstance.setPassword.mutate(body.password);
+    // }
 
     return userInstance.patchProfile.mutate({
       ...body,
@@ -140,6 +124,7 @@ export class UsersController extends Controller {
     @Request() request: RequestWithContext,
     @Body()
     body: Omit<Profile, "id" | "createdAt" | "modifiedAt" | "tenantId">,
+    // this param looks left over
     @Path("userId") userId: string,
     @Path("tenantId") tenantId: string,
   ): Promise<Profile> {
