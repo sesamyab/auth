@@ -129,7 +129,10 @@ export class UsersController extends Controller {
       await userInstance.setPassword.mutate(body.password);
     }
 
-    return userInstance.getProfile.query();
+    return userInstance.patchProfile.mutate({
+      ...body,
+      tenantId,
+    });
   }
 
   @Put("{userId}")
