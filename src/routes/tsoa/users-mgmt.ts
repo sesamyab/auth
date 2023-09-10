@@ -163,9 +163,23 @@ export class UsersMgmtController extends Controller {
     @Request() request: RequestWithContext,
     @Header("tenant-id") tenantId: string,
     @Body()
-    user: Omit<User, "tenantId" | "createdAt" | "modifiedAt" | "id"> &
-      Partial<Pick<User, "createdAt" | "modifiedAt" | "id">>,
+    user: Omit<
+      Profile,
+      "tenantId" | "created_at" | "modified_at" | "connections" | "id"
+    >,
   ): Promise<Profile> {
+    /*
+      this is sent up by react admin
+
+      email: "new-full@goo.co"
+      familyName: "family name"
+      givenName: "given name"
+      locale: "en"
+      name: "name"
+      picture: "picture"
+
+      BUT it's not actually persisted.. wrong type? due to the optional parameters typescript isn't warning?
+    */
     const { env } = request.ctx;
 
     const userInstance = env.userFactory.getInstanceByName(
