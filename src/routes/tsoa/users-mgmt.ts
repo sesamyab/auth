@@ -187,7 +187,6 @@ export class UsersMgmtController extends Controller {
     @Body()
     profile: Profile,
   ): Promise<Profile> {
-    console.log("putUser");
     const { ctx } = request;
 
     const userInstance = ctx.env.userFactory.getInstanceByName(
