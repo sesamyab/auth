@@ -203,19 +203,20 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
     @Body()
-    user: User,
+    profile: Profile,
+    // user: User, // this is camel case but receving snake case... why the inconsistency?
   ): Promise<Profile> {
     console.log("putUser");
     const { ctx } = request;
 
     const userInstance = ctx.env.userFactory.getInstanceByName(
-      getId(tenantId, user.email),
+      getId(tenantId, profile.email),
     );
 
     // I'm assuming that patchProfile isn't actually tested...
     // is it even what we want here? let's see...
     const result: Profile = await userInstance.patchProfile.mutate({
-      ...user,
+      ...profile,
       tenantId,
     });
     // this actually seems to be returning the modified user.... BUT THEN on future GETs, the email is reset back... hmmmm
