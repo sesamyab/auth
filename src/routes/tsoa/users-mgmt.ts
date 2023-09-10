@@ -179,17 +179,33 @@ export class UsersMgmtController extends Controller {
     });
   }
 
+  /*
+  from RA we get this data shape
+
+
+    connections: []
+    created_at: "2023-09-10T20:50:09.994Z"
+    email: "new@user.he"
+    id: "u4IcuV41YfQ4--Gq9nXQo"
+    modified_at: "2023-09-10T20:50:09.994Z"
+    tenantId: "test"
+
+    // what are the tsoa types asking for below?
+    // NOT to have these? yes to have these? eh?
+
+  */
+
   // this is the one used by RA for updating
-  @Put("users/{userId}/identities")
+  @Put("users/{userId}")
   public async putUser(
     @Request() request: RequestWithContext,
     // we're not actually using or verifiying the userId here... JUST using the post body..
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
     @Body()
-    user: Omit<User, "tenantId" | "createdAt" | "modifiedAt"> &
-      Partial<Pick<User, "createdAt" | "modifiedAt">>,
+    user: User,
   ): Promise<Profile> {
+    console.log("putUser");
     const { ctx } = request;
 
     const userInstance = ctx.env.userFactory.getInstanceByName(
