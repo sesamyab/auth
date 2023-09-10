@@ -179,9 +179,12 @@ export class UsersMgmtController extends Controller {
     });
   }
 
-  @Put("users")
+  // this is the one used by RA for updating
+  @Put("users/{userId}/identities")
   public async putUser(
     @Request() request: RequestWithContext,
+    // we're not actually using or verifiying the userId here... JUST using the post body..
+    @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
     @Body()
     user: Omit<User, "tenantId" | "createdAt" | "modifiedAt"> &
@@ -199,6 +202,7 @@ export class UsersMgmtController extends Controller {
       ...user,
       tenantId,
     });
+    // this actually seems to be returning the modified user.... BUT THEN on future GETs, the email is reset back... hmmmm
     return result;
   }
 
