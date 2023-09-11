@@ -12,18 +12,18 @@ import { kvStorageFixture } from "../fixtures/kv-storage";
 describe("getClient", () => {
   it("should fallback the connections to the envDefaultSettings", async () => {
     const clientInKV: PartialClient = {
-      id: "id",
+      id: "testClient",
       name: "clientName",
-      clientSecret: "clientSecret",
-      tenantId: "tenantId",
-      allowedCallbackUrls: ["http://localhost:3000", "https://example.com"],
-      allowedLogoutUrls: ["http://localhost:3000", "https://example.com"],
-      allowedWebOrigins: ["http://localhost:3000", "https://example.com"],
-      emailValidation: "enabled",
+      client_secret: "clientSecret",
+      tenant_id: "tenantId",
+      allowed_callback_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_logout_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_web_origins: ["http://localhost:3000", "https://example.com"],
+      email_validation: "enabled",
       tenant: {
+        sender_email: "senderEmail",
+        sender_name: "senderName",
         audience: "audience",
-        senderEmail: "senderEmail",
-        senderName: "senderName",
       },
       connections: [
         {
@@ -64,22 +64,22 @@ describe("getClient", () => {
       (c) => c.name === "facebook",
     );
 
-    expect(facebookConnection?.clientId).toBe("facebookClientId");
+    expect(facebookConnection?.client_id).toBe("facebookClientId");
   });
 
   it("should add a domain from the envDefaultSettings to the client domains", async () => {
     const testClient: Client = {
       id: "testClient",
       name: "clientName",
-      clientSecret: "clientSecret",
-      tenantId: "tenantId",
-      allowedCallbackUrls: ["http://localhost:3000", "https://example.com"],
-      allowedLogoutUrls: ["http://localhost:3000", "https://example.com"],
-      allowedWebOrigins: ["http://localhost:3000", "https://example.com"],
-      emailValidation: "enabled",
+      client_secret: "clientSecret",
+      tenant_id: "tenantId",
+      allowed_callback_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_logout_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_web_origins: ["http://localhost:3000", "https://example.com"],
+      email_validation: "enabled",
       tenant: {
-        senderEmail: "senderEmail",
-        senderName: "senderName",
+        sender_email: "senderEmail",
+        sender_name: "senderName",
         audience: "audience",
       },
       connections: [],
@@ -120,23 +120,23 @@ describe("getClient", () => {
     const testClient: Client = {
       id: "testClient",
       name: "clientName",
-      clientSecret: "clientSecret",
-      tenantId: "tenantId",
-      allowedCallbackUrls: ["http://localhost:3000", "https://example.com"],
-      allowedLogoutUrls: ["http://localhost:3000", "https://example.com"],
-      allowedWebOrigins: ["http://localhost:3000", "https://example.com"],
-      emailValidation: "enabled",
+      client_secret: "clientSecret",
+      tenant_id: "tenantId",
+      allowed_callback_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_logout_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_web_origins: ["http://localhost:3000", "https://example.com"],
+      email_validation: "enabled",
       tenant: {
-        senderEmail: "senderEmail",
-        senderName: "senderName",
+        sender_email: "senderEmail",
+        sender_name: "senderName",
         audience: "audience",
       },
       connections: [],
       domains: [
         {
           domain: "example2.com",
-          apiKey: "apiKey",
-          emailService: "mailgun",
+          api_key: "apiKey",
+          email_service: "mailgun",
         },
       ],
     };
@@ -178,17 +178,17 @@ describe("getClient", () => {
 
   it("should use the connection settings form the defaultSettins and the clientId from envDefaultSettings", async () => {
     const clientInKV: PartialClient = {
-      id: "id",
+      id: "testClient",
       name: "clientName",
-      clientSecret: "clientSecret",
-      tenantId: "tenantId",
-      allowedCallbackUrls: ["http://localhost:3000", "https://example.com"],
-      allowedLogoutUrls: ["http://localhost:3000", "https://example.com"],
-      allowedWebOrigins: ["http://localhost:3000", "https://example.com"],
-      emailValidation: "enabled",
+      client_secret: "clientSecret",
+      tenant_id: "tenantId",
+      allowed_callback_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_logout_urls: ["http://localhost:3000", "https://example.com"],
+      allowed_web_origins: ["http://localhost:3000", "https://example.com"],
+      email_validation: "enabled",
       tenant: {
-        senderEmail: "senderEmail",
-        senderName: "senderName",
+        sender_email: "senderEmail",
+        sender_name: "senderName",
         audience: "audience",
       },
       connections: [
@@ -225,8 +225,8 @@ describe("getClient", () => {
       (c) => c.name === "facebook",
     );
 
-    expect(facebookConnection?.clientId).toBe("facebookClientId");
-    expect(facebookConnection?.authorizationEndpoint).toBe(
+    expect(facebookConnection?.client_id).toBe("facebookClientId");
+    expect(facebookConnection?.authorization_endpoint).toBe(
       "https://www.facebook.com/dialog/oauth",
     );
   });
