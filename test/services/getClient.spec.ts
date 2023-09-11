@@ -46,13 +46,13 @@ describe("getClient", () => {
       connections: [
         {
           name: "facebook",
-          clientId: "facebookClientId",
-          clientSecret: "facebookClientSecret",
+          client_id: "facebookClientId",
+          client_secret: "facebookClientSecret",
           scope: "email public_profile openid",
-          authorizationEndpoint: "https://www.facebook.com/dialog/oauth",
-          tokenEndpoint: "https://graph.facebook.com/oauth/access_token",
-          responseMode: AuthorizationResponseMode.QUERY,
-          responseType: AuthorizationResponseType.CODE,
+          authorization_endpoint: "https://www.facebook.com/dialog/oauth",
+          token_endpoint: "https://graph.facebook.com/oauth/access_token",
+          response_mode: AuthorizationResponseMode.QUERY,
+          response_type: AuthorizationResponseType.CODE,
         },
       ],
     };
@@ -97,8 +97,8 @@ describe("getClient", () => {
       domains: [
         {
           domain: "example.com",
-          dkimPrivateKey: "dkimKey",
-          emailService: "mailchannels",
+          dkim_private_key: "dkimKey",
+          email_service: "mailchannels",
         },
       ],
     };
@@ -152,8 +152,8 @@ describe("getClient", () => {
       domains: [
         {
           domain: "example.com",
-          dkimPrivateKey: "dkimKey",
-          emailService: "mailchannels",
+          dkim_private_key: "dkimKey",
+          email_service: "mailchannels",
         },
       ],
     };
@@ -212,8 +212,8 @@ describe("getClient", () => {
       connections: [
         {
           name: "facebook",
-          clientId: "facebookClientId",
-          clientSecret: "facebookClientSecret",
+          client_id: "facebookClientId",
+          client_secret: "facebookClientSecret",
         },
       ],
     };
