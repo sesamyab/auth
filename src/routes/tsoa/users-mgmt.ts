@@ -242,7 +242,7 @@ export class UsersMgmtController extends Controller {
       getId(tenantId, linkedDbUser.email),
     );
 
-    // Link the account child account
+    // Link the child account
     await linkedUser.linkToUser.mutate({
       tenantId,
       email: linkedDbUser.email,
