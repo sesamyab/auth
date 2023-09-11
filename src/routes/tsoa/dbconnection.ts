@@ -11,7 +11,10 @@ import {
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { getId, User } from "../../models/User";
 import { getClient } from "../../services/clients";
+import sendEmail from "../../services/email";
 
+// is this file actually used? I see git blame from 7+ months ago!
+// I'm guessing not as the type fail
 export interface RegisterUserParams {
   client_id: string;
   client_secret?: string;
@@ -78,7 +81,7 @@ export class DbConnectionController extends Controller {
 
     const message = `Click this link to reset your password: ${env.ISSUER}u/reset-password?email=${body.email}&code=${code}`;
 
-    await env.sendEmail({
+    await sendEmail({
       to: [{ email: body.email, name: "" }],
       from: {
         email: client.senderEmail,
