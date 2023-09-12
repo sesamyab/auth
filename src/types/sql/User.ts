@@ -51,9 +51,13 @@ export interface BaseUser {
   name?: string;
   picture?: string;
   locale?: string;
-  // adding this for consistency - why do we have User & Profile?
+  // why do we have this in Profile but not in  User?
   // seems to be some duplication here... Also in the DOs
-  connections: Connection[];
+  // connections: Connection[];
+  // TODO
+  // - check planet scale SQL db - what do we have here?
+  // - checkout auth0 mgmt API! - what can we send up there?
+  // - also check other Auth0 profile types - SURELY we just copy them 8-0
 }
 
 export interface User extends BaseUser {
