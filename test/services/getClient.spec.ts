@@ -110,8 +110,8 @@ describe("getClient", () => {
     expect(client.domains).toEqual([
       {
         domain: "example.com",
-        dkimPrivateKey: "dkimKey",
-        emailService: "mailchannels",
+        dkim_private_key: "dkimKey",
+        email_service: "mailchannels",
       },
     ]);
   });
@@ -165,13 +165,13 @@ describe("getClient", () => {
     expect(client.domains).toEqual([
       {
         domain: "example2.com",
-        apiKey: "apiKey",
-        emailService: "mailgun",
+        api_key: "apiKey",
+        email_service: "mailgun",
       },
       {
         domain: "example.com",
-        dkimPrivateKey: "dkimKey",
-        emailService: "mailchannels",
+        dkim_private_key: "dkimKey",
+        email_service: "mailchannels",
       },
     ]);
   });
