@@ -34,7 +34,7 @@ import { z } from "zod";
 //   "family_name": ""
 // }
 
-interface Connection {
+export interface Connection {
   name: string;
   profile?: { [key: string]: string | boolean | number };
 }

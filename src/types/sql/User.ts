@@ -32,6 +32,8 @@
 //   "family_name": ""
 // }
 
+import type { Connection } from "../Profile";
+
 export interface UserTag {
   name: string;
   category: string;
@@ -49,6 +51,9 @@ export interface BaseUser {
   name?: string;
   picture?: string;
   locale?: string;
+  // adding this for consistency - why do we have User & Profile?
+  // seems to be some duplication here... Also in the DOs
+  connections: Connection[];
 }
 
 export interface User extends BaseUser {
