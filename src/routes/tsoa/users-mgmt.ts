@@ -183,8 +183,10 @@ export class UsersMgmtController extends Controller {
   public async putUser(
     @Request() request: RequestWithContext,
     @Header("tenant-id") tenantId: string,
+    // should we be using this userId in the path?
+    @Path("userId") userId: string,
     @Body()
-    user: Omit<User, "tenant_id" | "created_at" | "modified_at"> &
+    user: Omit<User, "id" | "tenant_id" | "created_at" | "modified_at"> &
       Partial<Pick<User, "created_at" | "modified_at">>,
   ): Promise<Profile> {
     const { ctx } = request;
