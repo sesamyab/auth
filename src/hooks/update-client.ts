@@ -93,7 +93,7 @@ export async function updateClientInKV(env: Env, applicationId: string) {
     }),
   };
 
-  await env.CLIENTS.put(applicationId, JSON.stringify(client), {});
+  await env.CLIENTS.put(applicationId, JSON.stringify(client));
 
   return client;
 }
