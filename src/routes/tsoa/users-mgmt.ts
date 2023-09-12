@@ -16,7 +16,7 @@ import {
 } from "@tsoa/runtime";
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
-import { ConflictError, NotFoundError } from "../../errors";
+import { NotFoundError } from "../../errors";
 import { getId } from "../../models";
 import { Profile } from "../../types";
 import { User } from "../../types/sql/User";
@@ -186,8 +186,7 @@ export class UsersMgmtController extends Controller {
     // should we be using this userId in the path?
     @Path("userId") userId: string,
     @Body()
-    user: Omit<User, "id" | "tenant_id" | "created_at" | "modified_at"> &
-      Partial<Pick<User, "created_at" | "modified_at">>,
+    user: Omit<User, "id" | "tenant_id" | "created_at" | "modified_at">,
   ): Promise<Profile> {
     const { ctx } = request;
 
