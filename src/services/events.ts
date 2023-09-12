@@ -10,9 +10,9 @@ export enum UserEvent {
 }
 
 export interface UserMessage {
-  queueName: "users";
+  queue_name: "users";
   email: string;
-  userId: string;
+  user_id: string;
   event: UserEvent;
 }
 
@@ -21,7 +21,7 @@ export type QueueMessage = { tenant_id: string } & UserMessage;
 export async function sendUserEvent(
   env: Env,
   doId: string,
-  userId: string,
+  user_id: string,
   event: UserEvent,
 ) {
   const [tenant_id, email] = doId.split("|");
@@ -30,13 +30,13 @@ export async function sendUserEvent(
     const message: QueueMessage = {
       email,
       tenant_id,
-      userId,
-      queueName: "users",
+      user_id,
+      queue_name: "users",
       event,
     };
 
     await env.USERS_QUEUE.send(message);
   } else {
-    await handleUserEvent(env, tenant_id, email, userId, event);
+    await handleUserEvent(env, tenant_id, email, user_id, event);
   }
 }

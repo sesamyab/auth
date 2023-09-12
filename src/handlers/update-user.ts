@@ -7,12 +7,12 @@ export async function handleUserEvent(
   env: Env,
   tenant_id: string,
   email: string,
-  userId: string,
+  user_id: string,
   event: UserEvent,
 ) {
   switch (event) {
     case UserEvent.userDeleted:
-      return deleteUser(env, tenant_id, userId);
+      return deleteUser(env, tenant_id, user_id);
     default:
       return updateUser(env, tenant_id, email);
   }

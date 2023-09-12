@@ -40,13 +40,13 @@ const server = {
       const { body } = message;
       console.log("Received message: ", body);
 
-      switch (body.queueName) {
+      switch (body.queue_name) {
         case "users":
           await handleUserEvent(
             env,
             body.tenant_id,
             body.email,
-            body.userId,
+            body.user_id,
             body.event,
           );
           break;

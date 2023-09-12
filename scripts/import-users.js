@@ -3,7 +3,7 @@ const readline = require("readline");
 const Papa = require("papaparse");
 
 const token = "add token here...";
-const tenant_id = "YH0yxCXqdc-UuPD_1MqSY";
+const tenantId = "YH0yxCXqdc-UuPD_1MqSY";
 const apiUrl = "https://auth2.sesamy.com";
 
 async function postUser(user) {
@@ -13,14 +13,14 @@ async function postUser(user) {
     nickname: user.nickname,
     picture: user.picture,
     tags: [],
-    given_name: user.given_name,
-    family_name: user.family_name,
+    givenName: user.given_name,
+    familyName: user.family_name,
     id: user.user_id,
-    created_at: user.created_at,
-    modified_at: user.updated_at,
+    createdAt: user.created_at,
+    modifiedAt: user.updated_at,
   });
 
-  const response = await fetch(`${apiUrl}/tenants/${tenant_id}/users`, {
+  const response = await fetch(`${apiUrl}/tenants/${tenantId}/users`, {
     method: "POST",
     headers: {
       authorization: `Bearer ${token}`,
@@ -46,12 +46,12 @@ function getCsvUsers(filePath) {
   });
 
   return data.map((user) => ({
-    name: user.full_name,
+    name: user.fullName,
     email: user.email,
     tags: [],
 
     id: user.id,
-    created_at: user.created_at,
+    createdAt: user.createdAt,
   }));
 }
 
