@@ -69,8 +69,6 @@ export async function updateClientInKV(env: Env, applicationId: string) {
     .select(["domain", "dkim_private_key"])
     .execute();
 
-  console.log("got here");
-
   const client: PartialClient = {
     id: application.id,
     name: application.name,
@@ -95,11 +93,7 @@ export async function updateClientInKV(env: Env, applicationId: string) {
     }),
   };
 
-  console.log("applicationId: " + applicationId);
-
   await env.CLIENTS.put(applicationId, JSON.stringify(client), {});
-
-  console.log("clien: " + JSON.stringify(client));
 
   return client;
 }
