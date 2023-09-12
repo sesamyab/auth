@@ -25,14 +25,14 @@ import { headers } from "../../constants";
 import { executeQuery } from "../../helpers/sql";
 import { FilterSchema } from "../../types/Filter";
 
-@Route("tenants/{tenantId}/users")
+@Route("tenants/{tenant_id}/users")
 @Security("oauth2managementApi", [""])
 @Tags("users")
 export class UsersController extends Controller {
   @Get("")
   public async listUsers(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Header("range") rangeRequest?: string,
     @Query("filter") filterQuerystring?: string,
   ): Promise<User[]> {
@@ -40,7 +40,7 @@ export class UsersController extends Controller {
 
     const db = getDb(ctx.env);
 
-    let query = db.selectFrom("users").where("users.tenant_id", "=", tenantId);
+    let query = db.selectFrom("users").where("users.tenant_id", "=", tenant_id);
 
     if (filterQuerystring) {
       const filter = FilterSchema.parse(JSON.parse(filterQuerystring));
@@ -70,7 +70,7 @@ export class UsersController extends Controller {
   @Get("{userId}")
   public async getUser(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Path("userId") userId: string,
   ): Promise<Profile> {
     const { ctx } = request;
@@ -79,7 +79,7 @@ export class UsersController extends Controller {
     const db = getDb(env);
     const dbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", userId)
       .select("users.email")
       .executeTakeFirst();
@@ -90,7 +90,7 @@ export class UsersController extends Controller {
 
     // Fetch the user from durable object
     const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
+      getId(tenant_id, dbUser.email),
     );
 
     return user.getProfile.query();
@@ -101,19 +101,19 @@ export class UsersController extends Controller {
     @Request() request: RequestWithContext,
     @Body()
     body: Partial<
-      Omit<Profile, "id" | "created_at" | "modified_at" | "tenantId">
+      Omit<Profile, "id" | "created_at" | "modified_at" | "tenant_id">
     > & {
       password?: string;
     },
     @Path("userId") userId: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<Profile> {
     const { env } = request.ctx;
 
     const db = getDb(request.ctx.env);
     const user = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", userId)
       .select("email")
       .executeTakeFirst();
@@ -122,7 +122,7 @@ export class UsersController extends Controller {
       throw new NoUserFoundError();
     }
 
-    const doId = `${tenantId}|${user.email}`;
+    const doId = `${tenant_id}|${user.email}`;
     const userInstance = env.userFactory.getInstanceByName(doId);
 
     if (body.password) {
@@ -136,18 +136,18 @@ export class UsersController extends Controller {
   public async putUser(
     @Request() request: RequestWithContext,
     @Body()
-    body: Omit<Profile, "id" | "created_at" | "modified_at" | "tenantId">,
+    body: Omit<Profile, "id" | "created_at" | "modified_at" | "tenant_id">,
     @Path("userId") userId: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<Profile> {
     const { env } = request.ctx;
 
-    const doId = `${tenantId}|${body.email}`;
+    const doId = `${tenant_id}|${body.email}`;
     const userInstance = env.userFactory.getInstanceByName(doId);
 
     return userInstance.patchProfile.mutate({
       ...body,
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
     });
   }
 
@@ -155,23 +155,23 @@ export class UsersController extends Controller {
   @SuccessResponse(201, "Created")
   public async postUser(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
     user: Omit<
       User,
-      "tenantId" | "created_at" | "modified_at" | "id" | "tags"
+      "tenant_id" | "created_at" | "modified_at" | "id" | "tags"
     > &
       Partial<Pick<User, "created_at" | "modified_at" | "id" | "tags">>,
   ): Promise<Profile> {
     const { ctx } = request;
 
-    const doId = `${tenantId}|${user.email}`;
+    const doId = `${tenant_id}|${user.email}`;
     const userInstance = ctx.env.userFactory.getInstanceByName(doId);
 
     const result: Profile = await userInstance.createUser.mutate({
       ...user,
       connections: [],
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
     });
     return result;
   }
@@ -180,7 +180,7 @@ export class UsersController extends Controller {
   @SuccessResponse(200, "Delete")
   public async deleteUser(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Path("userId") userId: string,
   ) {
     const { env } = request.ctx;
@@ -188,7 +188,7 @@ export class UsersController extends Controller {
     const db = getDb(env);
     const dbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", userId)
       .select("users.email")
       .executeTakeFirst();
@@ -200,7 +200,7 @@ export class UsersController extends Controller {
     try {
       // Fetch the user from durable object
       const user = env.userFactory.getInstanceByName(
-        getId(tenantId, dbUser.email),
+        getId(tenant_id, dbUser.email),
       );
 
       await user.delete.mutate();
@@ -209,7 +209,7 @@ export class UsersController extends Controller {
         // If a user is cleared in DO but still available in sql. Should never happen
         await db
           .deleteFrom("users")
-          .where("users.tenant_id", "=", tenantId)
+          .where("users.tenant_id", "=", tenant_id)
           .where("users.id", "=", userId)
           .execute();
       } else {

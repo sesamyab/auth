@@ -44,7 +44,7 @@ const server = {
         case "users":
           await handleUserEvent(
             env,
-            body.tenantId,
+            body.tenant_id,
             body.email,
             body.userId,
             body.event,

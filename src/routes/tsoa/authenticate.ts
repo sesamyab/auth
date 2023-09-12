@@ -75,14 +75,14 @@ export class AuthenticateController extends Controller {
           await user.validateAuthenticationCode.mutate({
             code: body.otp,
             email: body.username,
-            tenantId: client.tenant_id,
+            tenant_id: client.tenant_id,
           });
           break;
         case "Username-Password-Authentication":
           await user.validatePassword.mutate({
             password: body.password,
             email: body.username,
-            tenantId: client.tenant_id,
+            tenant_id: client.tenant_id,
           });
           break;
         default:

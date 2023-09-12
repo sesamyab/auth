@@ -23,14 +23,14 @@ import { parseRange } from "../../helpers/content-range";
 import { headers } from "../../constants";
 import { SqlDomain } from "../../types/sql/Domain";
 
-@Route("tenants/{tenantId}/domains")
+@Route("tenants/{tenant_id}/domains")
 @Tags("domains")
 export class DomainsController extends Controller {
   @Get("")
   @Security("oauth2managementApi", [""])
   public async listDomains(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Header("range") range?: string,
   ): Promise<SqlDomain[]> {
     const { ctx } = request;
@@ -40,7 +40,7 @@ export class DomainsController extends Controller {
     const db = getDb(ctx.env);
     const query = db
       .selectFrom("domains")
-      .where("domains.tenant_id", "=", tenantId);
+      .where("domains.tenant_id", "=", tenant_id);
 
     const domains = await query
       .selectAll()
@@ -67,7 +67,7 @@ export class DomainsController extends Controller {
   public async getDomain(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<SqlDomain | string> {
     const { ctx } = request;
 
@@ -75,7 +75,7 @@ export class DomainsController extends Controller {
     const domain = await db
       .selectFrom("domains")
       .where("domains.id", "=", id)
-      .where("domains.tenant_id", "=", tenantId)
+      .where("domains.tenant_id", "=", tenant_id)
       .selectAll()
       .executeTakeFirst();
 
@@ -92,18 +92,18 @@ export class DomainsController extends Controller {
   public async deleteDomain(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<string> {
     const { env } = request.ctx;
 
     const db = getDb(env);
     await db
       .deleteFrom("domains")
-      .where("domains.tenant_id", "=", tenantId)
+      .where("domains.tenant_id", "=", tenant_id)
       .where("domains.id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     return "OK";
   }
@@ -113,10 +113,10 @@ export class DomainsController extends Controller {
   public async patchDomain(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
     body: Partial<
-      Omit<SqlDomain, "id" | "tenantId" | "created_at" | "modified_at">
+      Omit<SqlDomain, "id" | "tenant_id" | "created_at" | "modified_at">
     >,
   ) {
     const { env } = request.ctx;
@@ -124,7 +124,7 @@ export class DomainsController extends Controller {
     const db = getDb(env);
     const domain = {
       ...body,
-      tenantId,
+      tenant_id,
       modified_at: new Date().toISOString(),
     };
 
@@ -134,7 +134,7 @@ export class DomainsController extends Controller {
       .where("id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     return Number(results[0].numUpdatedRows);
   }
@@ -144,7 +144,7 @@ export class DomainsController extends Controller {
   @SuccessResponse(201, "Created")
   public async postDomain(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
     body: { domain: string },
   ): Promise<SqlDomain> {
@@ -155,7 +155,7 @@ export class DomainsController extends Controller {
 
     const domain: SqlDomain = {
       ...body,
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
       id: nanoid(),
       // TODO: generate keys
       dkim_public_key: "",
@@ -166,7 +166,7 @@ export class DomainsController extends Controller {
 
     await db.insertInto("domains").values(domain).execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     this.setStatus(201);
     return domain;
@@ -178,9 +178,9 @@ export class DomainsController extends Controller {
   public async putDomain(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
-    body: Omit<SqlDomain, "id" | "tenantId" | "created_at" | "modified_at">,
+    body: Omit<SqlDomain, "id" | "tenant_id" | "created_at" | "modified_at">,
   ): Promise<SqlDomain> {
     const { ctx } = request;
     const { env } = ctx;
@@ -189,7 +189,7 @@ export class DomainsController extends Controller {
 
     const domain: SqlDomain = {
       ...body,
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
       id,
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
@@ -202,7 +202,7 @@ export class DomainsController extends Controller {
         throw err;
       }
 
-      const { id, created_at, tenant_id: tenantId, ...domainUpdate } = domain;
+      const { id, created_at, tenant_id: tenant_id, ...domainUpdate } = domain;
       await db
         .updateTable("domains")
         .set(domainUpdate)
@@ -210,7 +210,7 @@ export class DomainsController extends Controller {
         .execute();
     }
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     this.setStatus(200);
     return domain;

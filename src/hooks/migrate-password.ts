@@ -108,7 +108,7 @@ export async function connectIdLogin(
 
 export async function migratePasswordHook(
   env: Env,
-  tenantId: string,
+  tenant_id: string,
   username: string,
   password: string,
 ) {
@@ -119,7 +119,7 @@ export async function migratePasswordHook(
   try {
     const migrations = await db
       .selectFrom("migrations")
-      .where("migrations.tenant_id", "=", tenantId)
+      .where("migrations.tenant_id", "=", tenant_id)
       .selectAll()
       .execute();
 

@@ -327,8 +327,8 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-        linkWithEmail: z.string(),
-        tenantId: z.string(),
+        link_with_email: z.string(),
+        tenant_id: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -342,14 +342,14 @@ export const userRouter = router({
       }
 
       const profile = await updateProfile(ctx, {
-        tenant_id: input.tenantId,
+        tenant_id: input.tenant_id,
         email: input.email,
-        linked_with: input.linkWithEmail,
+        linked_with: input.link_with_email,
       });
 
       await writeLog(ctx.state.storage, {
         category: "link",
-        message: `Linked to ${input.linkWithEmail}`,
+        message: `Linked to ${input.link_with_email}`,
       });
 
       return profile;
@@ -358,8 +358,8 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-        linkWithEmail: z.string(),
-        tenantId: z.string(),
+        link_with_email: z.string(),
+        tenant_id: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -369,13 +369,13 @@ export const userRouter = router({
       }
 
       const profile = await updateProfile(ctx, {
-        tenant_id: input.tenantId,
+        tenant_id: input.tenant_id,
         email: input.email,
         connections: [
           {
             name: "linked-user",
             profile: {
-              email: input.linkWithEmail,
+              email: input.link_with_email,
             },
           },
         ],
@@ -383,7 +383,7 @@ export const userRouter = router({
 
       await writeLog(ctx.state.storage, {
         category: "link",
-        message: `Added ${input.linkWithEmail} as linked user`,
+        message: `Added ${input.link_with_email} as linked user`,
       });
 
       return profile;
@@ -392,7 +392,7 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-        tenantId: z.string(),
+        tenant_id: z.string(),
         connection: z.object({
           name: z.string(),
           profile: z
@@ -404,7 +404,7 @@ export const userRouter = router({
     .mutation(async ({ input, ctx }) => {
       const profile = await updateProfile(ctx, {
         email: input.email,
-        tenant_id: input.tenantId,
+        tenant_id: input.tenant_id,
         connections: [input.connection],
       });
 
@@ -430,7 +430,7 @@ export const userRouter = router({
   registerPassword: publicProcedure
     .input(
       z.object({
-        tenantId: z.string(),
+        tenant_id: z.string(),
         email: z.string(),
         password: z.string(),
       }),
@@ -454,7 +454,7 @@ export const userRouter = router({
 
       return updateProfile(ctx, {
         email: input.email,
-        tenant_id: input.tenantId,
+        tenant_id: input.tenant_id,
         connections: [
           {
             name: "auth",
@@ -507,7 +507,7 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-        tenantId: z.string(),
+        tenant_id: z.string(),
         validated: z.boolean(),
       }),
     )
@@ -519,7 +519,7 @@ export const userRouter = router({
 
       return updateProfile(ctx, {
         email: input.email,
-        tenant_id: input.tenantId,
+        tenant_id: input.tenant_id,
         connections: [
           {
             name: "auth",
@@ -548,7 +548,7 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-        tenantId: z.string(),
+        tenant_id: z.string(),
         code: z.string(),
       }),
     )
@@ -569,7 +569,7 @@ export const userRouter = router({
 
       const profile = await updateProfile(ctx, {
         email: input.email,
-        tenant_id: input.tenantId,
+        tenant_id: input.tenant_id,
         connections: [
           {
             name: "email",
@@ -595,7 +595,7 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-        tenantId: z.string(),
+        tenant_id: z.string(),
         code: z.string(),
       }),
     )
@@ -625,7 +625,7 @@ export const userRouter = router({
       // Set the email to validated
       return updateProfile(ctx, {
         email: input.email,
-        tenant_id: input.tenantId,
+        tenant_id: input.tenant_id,
         connections: [
           {
             name: "auth",
@@ -641,7 +641,7 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-        tenantId: z.string(),
+        tenant_id: z.string(),
         password: z.string(),
       }),
     )
@@ -654,7 +654,7 @@ export const userRouter = router({
         if (
           await migratePasswordHook(
             ctx.env,
-            input.tenantId,
+            input.tenant_id,
             input.email,
             input.password,
           )
@@ -680,8 +680,8 @@ export const userRouter = router({
 
 type UserRouter = typeof userRouter;
 
-export function getId(tenantId: string, email: string) {
-  return `${tenantId}|${email}`;
+export function getId(tenant_id: string, email: string) {
+  return `${tenant_id}|${email}`;
 }
 
 export const User = createProxy<UserRouter, Env>(userRouter);

@@ -41,7 +41,7 @@ describe("User", () => {
         createCaller(storage).validatePassword({
           password: "password",
           email: "test@example.com",
-          tenantId: "tenantId",
+          tenant_id: "tenant_id",
         }),
       ).rejects.toThrow("Unauthenticated");
     });
@@ -53,7 +53,7 @@ describe("User", () => {
         createCaller(storage).validatePassword({
           password: "password",
           email: "test@example.com",
-          tenantId: "tenantId",
+          tenant_id: "tenant_id",
         }),
       ).rejects.toThrow("No User Found");
     });
@@ -65,7 +65,7 @@ describe("User", () => {
       await createCaller(storage).validatePassword({
         password: "password",
         email: "test@example.com",
-        tenantId: "tenantId",
+        tenant_id: "tenant_id",
       });
 
       expect(storage.get("profile")).not.toBe(null);
@@ -81,7 +81,7 @@ describe("User", () => {
       await caller.registerPassword({
         password: "password",
         email: "test@example.com",
-        tenantId: "tenantId",
+        tenant_id: "tenant_id",
       });
 
       const profile = JSON.parse(storage.getSync("profile"));
@@ -100,7 +100,7 @@ describe("User", () => {
       const caller = createCaller(storage);
 
       await caller.patchProfile({
-        tenant_id: "tenantId",
+        tenant_id: "tenant_id",
         email: "test@example.com",
         name: "Test",
       });
@@ -118,7 +118,7 @@ describe("User", () => {
 
       const caller = createCaller(storage);
       await caller.patchProfile({
-        tenant_id: "tenantId",
+        tenant_id: "tenant_id",
         email: "test@example.com",
         name: "Test",
         connections: [
@@ -143,7 +143,7 @@ describe("User", () => {
           id: "id",
           name: "Test",
           email: "test@example.com",
-          tenant_id: "tenantId",
+          tenant_id: "tenant_id",
           created_at: "2021-01-01T00:00:00.000Z",
           modified_at: "2021-01-01T00:00:00.000Z",
           connections: [],
@@ -153,7 +153,7 @@ describe("User", () => {
       const caller = createCaller(storage);
 
       await caller.patchProfile({
-        tenant_id: "tenantId",
+        tenant_id: "tenant_id",
         email: "test@example.com",
         connections: [
           {
@@ -186,7 +186,7 @@ describe("User", () => {
           id: "id",
           name: "Test",
           email: "test@example.com",
-          tenant_id: "tenantId",
+          tenant_id: "tenant_id",
           created_at: "2021-01-01T00:00:00.000Z",
           modified_at: "2021-01-01T00:00:00.000Z",
           connections: [
@@ -203,7 +203,7 @@ describe("User", () => {
       const caller = createCaller(storage);
 
       await caller.patchProfile({
-        tenant_id: "tenantId",
+        tenant_id: "tenant_id",
         email: "test@example.com",
         connections: [
           {
@@ -231,7 +231,7 @@ describe("User", () => {
         JSON.stringify({
           id: "id",
           email: "test@example.com",
-          tenant_id: "tenantId",
+          tenant_id: "tenant_id",
           created_at: "2021-01-01T00:00:00.000Z",
           modified_at: "2021-01-01T00:00:00.000Z",
           connections: [],
@@ -241,7 +241,7 @@ describe("User", () => {
       const caller = createCaller(storage);
 
       await caller.patchProfile({
-        tenant_id: "tenantId",
+        tenant_id: "tenant_id",
         email: "test@example.com",
         name: "Test",
       });
@@ -264,7 +264,7 @@ describe("User", () => {
         caller.validateAuthenticationCode({
           code: "123456",
           email: "test@example.com",
-          tenantId: "tenantId",
+          tenant_id: "tenant_id",
         }),
       ).rejects.toThrow("No code found");
     });
@@ -284,7 +284,7 @@ describe("User", () => {
         caller.validateAuthenticationCode({
           code: "123456",
           email: "test@example.com",
-          tenantId: "tenantId",
+          tenant_id: "tenant_id",
         }),
       ).rejects.toThrow("Invalid code");
     });
@@ -305,7 +305,7 @@ describe("User", () => {
         caller.validateAuthenticationCode({
           code: "123456",
           email: "test@example.com",
-          tenantId: "tenantId",
+          tenant_id: "tenant_id",
         }),
       ).rejects.toThrow("Authentication code expired");
     });
@@ -328,7 +328,7 @@ describe("User", () => {
       await caller.validateAuthenticationCode({
         code: "123456",
         email: "test@example.com",
-        tenantId: "tenantId",
+        tenant_id: "tenant_id",
       });
 
       const profile = JSON.parse(storage.getSync("profile"));
@@ -354,7 +354,7 @@ describe("User", () => {
         "profile",
         JSON.stringify({
           email: "test@example.com",
-          tenant_id: "tenantId",
+          tenant_id: "tenant_id",
           id: "id",
           created_at: ".",
           modified_at: ".",
@@ -375,7 +375,7 @@ describe("User", () => {
       await caller.validateEmailValidationCode({
         code: "123456",
         email: "test@example.com",
-        tenantId: "tenantId",
+        tenant_id: "tenant_id",
       });
 
       const profile = JSON.parse(storage.getSync("profile"));
@@ -471,7 +471,7 @@ describe("User", () => {
         "profile",
         JSON.stringify({
           email: "user1@example.com",
-          tenant_id: "tenantId",
+          tenant_id: "tenant_id",
           id: "userId",
           created_at: "",
           modified_at: "",
@@ -483,8 +483,8 @@ describe("User", () => {
 
       await caller.linkWithUser({
         email: "user1@example.com",
-        tenantId: "tenantId",
-        linkWithEmail: "user2@example.com",
+        tenant_id: "tenant_id",
+        link_with_email: "user2@example.com",
       });
 
       const profile = JSON.parse(storage.getSync("profile"));

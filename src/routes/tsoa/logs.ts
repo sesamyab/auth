@@ -37,7 +37,7 @@ function applySort(logs: LogMessage[], sort?: string) {
   return logs;
 }
 
-@Route("tenants/{tenantId}/logs")
+@Route("tenants/{tenant_id}/logs")
 @Tags("logs")
 @Security("oauth2managementApi", [""])
 export class LogsController extends Controller {
@@ -56,7 +56,7 @@ export class LogsController extends Controller {
   @Get("")
   public async getUserLogs(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Query("filter") filterJson: string,
     @Query("range") range?: string,
     @Query("sort") sort?: string,
@@ -69,7 +69,7 @@ export class LogsController extends Controller {
     const db = getDb(env);
     const dbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", filter.userId)
       .select("users.email")
       .executeTakeFirst();
@@ -80,7 +80,7 @@ export class LogsController extends Controller {
 
     // Fetch the user from durable object
     const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
+      getId(tenant_id, dbUser.email),
     );
 
     const logs = await user.getLogs.query();

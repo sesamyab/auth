@@ -24,14 +24,14 @@ import { parseRange } from "../../helpers/content-range";
 import { headers } from "../../constants";
 import { executeQuery } from "../../helpers/sql";
 
-@Route("tenants/{tenantId}/migrations")
+@Route("tenants/{tenant_id}/migrations")
 @Tags("migrations")
 export class MigrationsController extends Controller {
   @Get("")
   @Security("oauth2managementApi", [""])
   public async listMigrations(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenant_id: string,
+    @Path("tenant_id") tenant_id: string,
     @Header("range") rangeRequest?: string,
   ): Promise<Migration[]> {
     const { ctx } = request;
@@ -55,14 +55,14 @@ export class MigrationsController extends Controller {
   public async getMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<Migration | string> {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
     const migration = await db
       .selectFrom("migrations")
-      .where("migrations.tenant_id", "=", tenantId)
+      .where("migrations.tenant_id", "=", tenant_id)
       .where("migrations.id", "=", id)
       .selectAll()
       .executeTakeFirst();
@@ -80,18 +80,18 @@ export class MigrationsController extends Controller {
   public async deleteMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<string> {
     const { env } = request.ctx;
 
     const db = getDb(env);
     await db
       .deleteFrom("migrations")
-      .where("migrations.tenant_id", "=", tenantId)
+      .where("migrations.tenant_id", "=", tenant_id)
       .where("migrations.id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     return "OK";
   }
@@ -101,10 +101,10 @@ export class MigrationsController extends Controller {
   public async patchMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
     body: Partial<
-      Omit<Migration, "id" | "tenantId" | "created_at" | "modified_at">
+      Omit<Migration, "id" | "tenant_id" | "created_at" | "modified_at">
     >,
   ) {
     const { env } = request.ctx;
@@ -112,7 +112,7 @@ export class MigrationsController extends Controller {
     const db = getDb(env);
     const migration = {
       ...body,
-      tenantId,
+      tenant_id,
       modified_at: new Date().toISOString(),
     };
 
@@ -122,7 +122,7 @@ export class MigrationsController extends Controller {
       .where("id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     return Number(results[0].numUpdatedRows);
   }
@@ -132,9 +132,9 @@ export class MigrationsController extends Controller {
   @SuccessResponse(201, "Created")
   public async postMigrations(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenant_id: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
-    body: Omit<Migration, "id" | "tenantId" | "created_at" | "modified_at">,
+    body: Omit<Migration, "id" | "tenant_id" | "created_at" | "modified_at">,
   ): Promise<Migration> {
     const { ctx } = request;
     const { env } = ctx;
@@ -163,9 +163,9 @@ export class MigrationsController extends Controller {
   public async putMigration(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenant_id: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
-    body: Omit<Migration, "id" | "tenantId" | "created_at" | "modified_at">,
+    body: Omit<Migration, "id" | "tenant_id" | "created_at" | "modified_at">,
   ): Promise<Migration> {
     const { ctx } = request;
     const { env } = ctx;

@@ -1,12 +1,12 @@
 import { Env, SqlConnectionSchema, PartialClient } from "../types";
 import { getDb } from "../services/db";
 
-export async function updateTenantClientsInKV(env: Env, tenantId: string) {
+export async function updateTenantClientsInKV(env: Env, tenant_id: string) {
   const db = getDb(env);
 
   const applications = await db
     .selectFrom("applications")
-    .where("applications.tenant_id", "=", tenantId)
+    .where("applications.tenant_id", "=", tenant_id)
     .select("id")
     .execute();
 

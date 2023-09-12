@@ -209,7 +209,7 @@ export class LoginController extends Controller {
       await user.validateAuthenticationCode.mutate({
         code: params.code,
         email: loginState.authParams.username,
-        tenantId: client.tenant_id,
+        tenant_id: client.tenant_id,
       });
     } catch (err) {
       return renderEnterCode(env.AUTH_TEMPLATES, this, {
@@ -252,7 +252,7 @@ export class LoginController extends Controller {
       const profile = await user.validateEmailValidationCode.mutate({
         code: params.code,
         email,
-        tenantId: client.tenant_id,
+        tenant_id: client.tenant_id,
       });
 
       return handleLogin(env, this, profile, loginState);
@@ -301,7 +301,7 @@ export class LoginController extends Controller {
     try {
       const profile = await user.registerPassword.mutate({
         email: loginParams.username,
-        tenantId: client.tenant_id,
+        tenant_id: client.tenant_id,
         password: loginParams.password,
       });
 
@@ -465,7 +465,7 @@ export class LoginController extends Controller {
     try {
       await user.validatePassword.mutate({
         password: loginParams.password,
-        tenantId: client.tenant_id,
+        tenant_id: client.tenant_id,
         email: loginParams.username,
       });
       const profile = await user.getProfile.query();

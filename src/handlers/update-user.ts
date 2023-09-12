@@ -5,31 +5,31 @@ import { Env, SqlUser, UserTag } from "../types";
 
 export async function handleUserEvent(
   env: Env,
-  tenantId: string,
+  tenant_id: string,
   email: string,
   userId: string,
   event: UserEvent,
 ) {
   switch (event) {
     case UserEvent.userDeleted:
-      return deleteUser(env, tenantId, userId);
+      return deleteUser(env, tenant_id, userId);
     default:
-      return updateUser(env, tenantId, email);
+      return updateUser(env, tenant_id, email);
   }
 }
 
-async function deleteUser(env: Env, tenantId: string, userId: string) {
+async function deleteUser(env: Env, tenant_id: string, userId: string) {
   const db = getDb(env);
 
   await db
     .deleteFrom("users")
-    .where("tenant_id", "=", tenantId)
+    .where("tenant_id", "=", tenant_id)
     .where("id", "=", userId)
     .execute();
 }
 
-async function updateUser(env: Env, tenantId: string, email: string) {
-  const userId = getId(tenantId, email);
+async function updateUser(env: Env, tenant_id: string, email: string) {
+  const userId = getId(tenant_id, email);
   const userInstance = User.getInstanceByName(env.USER, userId);
   const profile = await userInstance.getProfile.query();
 
@@ -56,7 +56,7 @@ async function updateUser(env: Env, tenantId: string, email: string) {
     created_at: profile.created_at,
     modified_at: profile.modified_at,
     tags: JSON.stringify(tags),
-    tenant_id: tenantId,
+    tenant_id: tenant_id,
   };
 
   try {

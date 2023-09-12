@@ -14,7 +14,7 @@ describe("silentAuthCookie", () => {
 
     const profile: Profile = {
       id: "id",
-      tenant_id: "tenantId",
+      tenant_id: "tenant_id",
       email: "test@example.com",
       created_at: "",
       modified_at: "",
@@ -31,7 +31,7 @@ describe("silentAuthCookie", () => {
       },
       user: {
         id: "id",
-        tenant_id: "tenantId",
+        tenant_id: "tenant_id",
         email: "test@example.com",
         created_at: "",
         modified_at: "",

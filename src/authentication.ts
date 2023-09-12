@@ -184,8 +184,8 @@ export async function getUser(
 }
 
 export async function verifyTenantPermissions(ctx: Context<Env>) {
-  const tenantId = ctx.params.tenantId;
-  if (!tenantId) {
+  const tenant_id = ctx.params.tenant_id;
+  if (!tenant_id) {
     return;
   }
 
@@ -218,7 +218,7 @@ export async function verifyTenantPermissions(ctx: Context<Env>) {
   const member = await db
     .selectFrom("members")
     .where("members.sub", "=", ctx.state.user.sub)
-    .where("members.tenant_id", "=", tenantId)
+    .where("members.tenant_id", "=", tenant_id)
     .where("members.status", "=", "active")
     .select("members.role")
     .executeTakeFirst();

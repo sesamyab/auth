@@ -23,14 +23,14 @@ import { updateTenantClientsInKV } from "../../hooks/update-client";
 import { headers } from "../../constants";
 import { executeQuery } from "../../helpers/sql";
 
-@Route("tenants/{tenantId}/connections")
+@Route("tenants/{tenant_id}/connections")
 @Tags("connections")
 export class ConnectionsController extends Controller {
   @Get("")
   @Security("oauth2managementApi", [""])
   public async listConnections(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Header("range") rangeRequest?: string,
   ): Promise<SqlConnection[]> {
     const { ctx } = request;
@@ -38,7 +38,7 @@ export class ConnectionsController extends Controller {
     const db = getDb(ctx.env);
     const query = db
       .selectFrom("connections")
-      .where("connections.tenant_id", "=", tenantId);
+      .where("connections.tenant_id", "=", tenant_id);
 
     const { data, range } = await executeQuery(query, rangeRequest);
 
@@ -54,14 +54,14 @@ export class ConnectionsController extends Controller {
   public async getConnection(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<SqlConnection | string> {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
     const connection = await db
       .selectFrom("connections")
-      .where("connections.tenant_id", "=", tenantId)
+      .where("connections.tenant_id", "=", tenant_id)
       .where("connections.id", "=", id)
       .selectAll()
       .executeTakeFirst();
@@ -79,18 +79,18 @@ export class ConnectionsController extends Controller {
   public async deleteConnection(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<string> {
     const { env } = request.ctx;
 
     const db = getDb(env);
     await db
       .deleteFrom("connections")
-      .where("connections.tenant_id", "=", tenantId)
+      .where("connections.tenant_id", "=", tenant_id)
       .where("connections.id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     return "OK";
   }
@@ -100,10 +100,10 @@ export class ConnectionsController extends Controller {
   public async patchConnection(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
     body: Partial<
-      Omit<SqlConnection, "id" | "tenantId" | "created_at" | "modified_at">
+      Omit<SqlConnection, "id" | "tenant_id" | "created_at" | "modified_at">
     >,
   ) {
     const { env } = request.ctx;
@@ -111,7 +111,7 @@ export class ConnectionsController extends Controller {
     const db = getDb(env);
     const connection = {
       ...body,
-      tenantId,
+      tenant_id,
       modified_at: new Date().toISOString(),
     };
 
@@ -121,7 +121,7 @@ export class ConnectionsController extends Controller {
       .where("id", "=", id)
       .execute();
 
-    await updateTenantClientsInKV(env, tenantId);
+    await updateTenantClientsInKV(env, tenant_id);
 
     return Number(results[0].numUpdatedRows);
   }
@@ -131,9 +131,12 @@ export class ConnectionsController extends Controller {
   @SuccessResponse(201, "Created")
   public async postConnections(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenant_id: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
-    body: Omit<SqlConnection, "id" | "tenantId" | "created_at" | "modified_at">,
+    body: Omit<
+      SqlConnection,
+      "id" | "tenant_id" | "created_at" | "modified_at"
+    >,
   ): Promise<SqlConnection> {
     const { ctx } = request;
     const { env } = ctx;
@@ -159,10 +162,13 @@ export class ConnectionsController extends Controller {
   @Security("oauth2managementApi", [""])
   public async putConnection(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenant_id: string,
+    @Path("tenant_id") tenant_id: string,
     @Path("id") id: string,
     @Body()
-    body: Omit<SqlConnection, "id" | "tenantId" | "created_at" | "modified_at">,
+    body: Omit<
+      SqlConnection,
+      "id" | "tenant_id" | "created_at" | "modified_at"
+    >,
   ): Promise<SqlConnection> {
     const { ctx } = request;
     const { env } = ctx;

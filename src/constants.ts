@@ -15,7 +15,7 @@ export const headers = {
   contentRange: "content-range",
   location: "location",
   setCookie: "set-cookie",
-  tenantId: "tenant-id",
+  tenant_id: "tenant-id",
 };
 
 export const contentTypes = {

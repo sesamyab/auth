@@ -14,7 +14,7 @@ export async function passwordGrant(
 
   await user.validatePassword.mutate({
     password: params.password,
-    tenantId: client.tenant_id,
+    tenant_id: client.tenant_id,
     email: params.username,
   });
 

@@ -39,7 +39,7 @@ describe("authorize", () => {
         // This id corresponds to the base64 token below
         c20e9b02adc8f69944f036aeff415335c63ede250696a606ae73c5d4db016217:
           JSON.stringify({
-            userId: "tenantId|test@example.com",
+            userId: "tenant_id|test@example.com",
             authParams: {
               redirect_uri: "https://example.com",
               scope: "openid profile email",
@@ -89,7 +89,7 @@ describe("authorize", () => {
 
       // This is what should be persisted in the state for the code
       expect(stateJson).toEqual({
-        userId: "tenantId|test@example.com",
+        userId: "tenant_id|test@example.com",
         authParams: {
           redirect_uri: "https://example.com",
           scope: "openid profile email",
@@ -125,7 +125,7 @@ describe("authorize", () => {
         // This id corresponds to the base64 token below
         c20e9b02adc8f69944f036aeff415335c63ede250696a606ae73c5d4db016217:
           JSON.stringify({
-            userId: "tenantId|test@example.com",
+            userId: "tenant_id|test@example.com",
             authParams: {
               redirect_uri: "https://example.com",
               scope: "openid profile email",
@@ -189,7 +189,7 @@ describe("authorize", () => {
 
       expect(accessToken.aud).toBe("default");
       expect(accessToken.scope).toBe("openid profile email");
-      expect(accessToken.sub).toBe("tenantId|test@example.com");
+      expect(accessToken.sub).toBe("tenant_id|test@example.com");
       expect(accessToken.iss).toBe("https://auth.example.com/");
       expect(accessToken.iat).toBeDefined();
       expect(accessToken.exp).toBeDefined();
@@ -197,7 +197,7 @@ describe("authorize", () => {
       const idToken = JSON.parse(response.id_token);
 
       expect(idToken.aud).toBe("clientId");
-      expect(idToken.sub).toBe("tenantId|test@example.com");
+      expect(idToken.sub).toBe("tenant_id|test@example.com");
       expect(idToken.nonce).toBe("nonce");
       expect(idToken.iss).toBe("https://auth.example.com/");
       expect(idToken.iat).toBeDefined();
@@ -349,7 +349,7 @@ describe("authorize", () => {
         // This id corresponds to the base64 token below
         c20e9b02adc8f69944f036aeff415335c63ede250696a606ae73c5d4db016217:
           JSON.stringify({
-            userId: "tenantId|test@example.com",
+            userId: "tenant_id|test@example.com",
             authParams: {
               redirect_uri: "https://example.com",
               scope: "openid profile email",
@@ -391,7 +391,7 @@ describe("authorize", () => {
       expect(accessToken).toEqual({
         aud: "default",
         scope: "openid profile email",
-        sub: "tenantId|test@example.com",
+        sub: "tenant_id|test@example.com",
         iss: "https://auth.example.com/",
         iat: Math.floor(date.getTime() / 1000),
         exp: Math.floor(date.getTime() / 1000) + 86400,
@@ -424,7 +424,7 @@ describe("authorize", () => {
         // This id corresponds to the base64 token below
         c20e9b02adc8f69944f036aeff415335c63ede250696a606ae73c5d4db016217:
           JSON.stringify({
-            userId: "tenantId|test@example.com",
+            userId: "tenant_id|test@example.com",
             authParams: {
               redirect_uri: "https://example.com",
               scope: "openid profile email",
@@ -461,7 +461,7 @@ describe("authorize", () => {
 
       expect(idToken).toEqual({
         aud: "clientId",
-        sub: "tenantId|test@example.com",
+        sub: "tenant_id|test@example.com",
         nonce: "Y0QuU09HRDB3TGszTX41QmlvM1BVTWRSWDA0WFpJdkZoMUwtNmJqYlFDdg==",
         sid: "AAAAAA4",
         iss: "https://auth.example.com/",
@@ -489,7 +489,7 @@ describe("authorize", () => {
         // This id corresponds to the base64 loginTicket below
         c20e9b02adc8f69944f036aeff415335c63ede250696a606ae73c5d4db016217:
           JSON.stringify({
-            userId: "tenantId|test@example.com",
+            userId: "tenant_id|test@example.com",
             authParams: {
               scope: "openid profile email",
               client_id: "clientId",

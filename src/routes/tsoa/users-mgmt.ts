@@ -39,7 +39,7 @@ export class UsersMgmtController extends Controller {
   @Get("users")
   public async listUsers(
     @Request() request: RequestWithContext,
-    @Header("tenant-id") tenantId: string,
+    @Header("tenant-id") tenant_id: string,
     @Header("range") rangeRequest?: string,
     @Query("filter") filterQuerystring?: string,
   ): Promise<User[]> {
@@ -47,7 +47,7 @@ export class UsersMgmtController extends Controller {
 
     const db = getDb(ctx.env);
 
-    let query = db.selectFrom("users").where("users.tenant_id", "=", tenantId);
+    let query = db.selectFrom("users").where("users.tenant_id", "=", tenant_id);
 
     // TODO - check this still actually works using auth0/node on the demo repo https://github.com/sesamyab/auth0-management-api-demo
     if (filterQuerystring) {
@@ -79,14 +79,14 @@ export class UsersMgmtController extends Controller {
   public async getUser(
     @Request() request: RequestWithContext,
     @Path("userId") userId: string,
-    @Header("tenant-id") tenantId: string,
+    @Header("tenant-id") tenant_id: string,
   ): Promise<Profile> {
     const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", userId)
       .select("users.email")
       .executeTakeFirst();
@@ -96,7 +96,7 @@ export class UsersMgmtController extends Controller {
     }
 
     const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
+      getId(tenant_id, dbUser.email),
     );
 
     return user.getProfile.query();
@@ -107,14 +107,14 @@ export class UsersMgmtController extends Controller {
   public async deleteUser(
     @Request() request: RequestWithContext,
     @Path("userId") userId: string,
-    @Header("tenant-id") tenantId: string,
+    @Header("tenant-id") tenant_id: string,
   ): Promise<Profile> {
     const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", userId)
       .select("users.email")
       .executeTakeFirst();
@@ -124,7 +124,7 @@ export class UsersMgmtController extends Controller {
     }
 
     const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
+      getId(tenant_id, dbUser.email),
     );
 
     return user.delete.mutate();
@@ -134,14 +134,14 @@ export class UsersMgmtController extends Controller {
   public async getUserByEmail(
     @Request() request: RequestWithContext,
     @Query("email") userEmail: string,
-    @Header("tenant-id") tenantId: string,
+    @Header("tenant-id") tenant_id: string,
   ): Promise<Profile> {
     const { env } = request.ctx;
 
     const db = getDb(env);
     const dbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.email", "=", userEmail)
       .select("users.email")
       .executeTakeFirst();
@@ -151,7 +151,7 @@ export class UsersMgmtController extends Controller {
     }
 
     const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
+      getId(tenant_id, dbUser.email),
     );
 
     return user.getProfile.query();
@@ -161,43 +161,43 @@ export class UsersMgmtController extends Controller {
   @SuccessResponse(201, "Created")
   public async postUser(
     @Request() request: RequestWithContext,
-    @Header("tenant-id") tenantId: string,
+    @Header("tenant-id") tenant_id: string,
     @Body()
-    user: Omit<User, "tenantId" | "created_at" | "modified_at" | "id"> &
+    user: Omit<User, "tenant_id" | "created_at" | "modified_at" | "id"> &
       Partial<Pick<User, "created_at" | "modified_at" | "id">>,
   ): Promise<Profile> {
     const { env } = request.ctx;
 
     const userInstance = env.userFactory.getInstanceByName(
-      getId(tenantId, user.email),
+      getId(tenant_id, user.email),
     );
 
     return userInstance.createUser.mutate({
       ...user,
       connections: [],
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
     });
   }
 
   @Put("users")
   public async putUser(
     @Request() request: RequestWithContext,
-    @Header("tenant-id") tenantId: string,
+    @Header("tenant-id") tenant_id: string,
     @Body()
-    user: Omit<User, "tenantId" | "created_at" | "modified_at"> &
+    user: Omit<User, "tenant_id" | "created_at" | "modified_at"> &
       Partial<Pick<User, "created_at" | "modified_at">>,
   ): Promise<Profile> {
     const { ctx } = request;
 
     const userInstance = ctx.env.userFactory.getInstanceByName(
-      getId(tenantId, user.email),
+      getId(tenant_id, user.email),
     );
 
     // I'm assuming that patchProfile isn't actually tested...
     // is it even what we want here? let's see...
     const result: Profile = await userInstance.patchProfile.mutate({
       ...user,
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
     });
     return result;
   }
@@ -205,7 +205,7 @@ export class UsersMgmtController extends Controller {
   @Post("users/{userId}/identities")
   public async linkUserAccount(
     @Request() request: RequestWithContext,
-    @Header("tenant-id") tenantId: string,
+    @Header("tenant-id") tenant_id: string,
     @Path("userId") userId: string,
     @Body() body: LinkBodyParams,
   ): Promise<Profile> {
@@ -214,7 +214,7 @@ export class UsersMgmtController extends Controller {
     const db = getDb(env);
     const currentDbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", userId)
       .select(["users.email"])
       .executeTakeFirst();
@@ -225,7 +225,7 @@ export class UsersMgmtController extends Controller {
 
     const linkedDbUser = await db
       .selectFrom("users")
-      .where("users.tenant_id", "=", tenantId)
+      .where("users.tenant_id", "=", tenant_id)
       .where("users.id", "=", body.link_with)
       .select(["users.email"])
       .executeTakeFirst();
@@ -235,25 +235,25 @@ export class UsersMgmtController extends Controller {
     }
 
     const currentUser = env.userFactory.getInstanceByName(
-      getId(tenantId, currentDbUser.email),
+      getId(tenant_id, currentDbUser.email),
     );
 
     const linkedUser = env.userFactory.getInstanceByName(
-      getId(tenantId, linkedDbUser.email),
+      getId(tenant_id, linkedDbUser.email),
     );
 
     // Link the child account
     await linkedUser.linkToUser.mutate({
-      tenantId,
+      tenant_id,
       email: linkedDbUser.email,
-      linkWithEmail: currentDbUser.email,
+      link_with_email: currentDbUser.email,
     });
 
     // Link the parent account
     return currentUser.linkWithUser.mutate({
-      tenantId,
+      tenant_id,
       email: currentDbUser.email,
-      linkWithEmail: linkedDbUser.email,
+      link_with_email: linkedDbUser.email,
     });
   }
 }

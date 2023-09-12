@@ -16,7 +16,7 @@ export interface UserMessage {
   event: UserEvent;
 }
 
-export type QueueMessage = { tenantId: string } & UserMessage;
+export type QueueMessage = { tenant_id: string } & UserMessage;
 
 export async function sendUserEvent(
   env: Env,
@@ -24,12 +24,12 @@ export async function sendUserEvent(
   userId: string,
   event: UserEvent,
 ) {
-  const [tenantId, email] = doId.split("|");
+  const [tenant_id, email] = doId.split("|");
 
   if (env.USERS_QUEUE) {
     const message: QueueMessage = {
       email,
-      tenantId,
+      tenant_id,
       userId,
       queueName: "users",
       event,
@@ -37,6 +37,6 @@ export async function sendUserEvent(
 
     await env.USERS_QUEUE.send(message);
   } else {
-    await handleUserEvent(env, tenantId, email, userId, event);
+    await handleUserEvent(env, tenant_id, email, userId, event);
   }
 }

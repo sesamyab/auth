@@ -23,14 +23,14 @@ import { updateClientInKV } from "../../hooks/update-client";
 import { headers } from "../../constants";
 import { executeQuery } from "../../helpers/sql";
 
-@Route("tenants/{tenantId}/applications")
+@Route("tenants/{tenant_id}/applications")
 @Tags("applications")
 export class ApplicationsController extends Controller {
   @Get("")
   @Security("oauth2managementApi", [""])
   public async listApplications(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Header("range") rangeRequest?: string,
   ): Promise<Application[]> {
     const { ctx } = request;
@@ -38,7 +38,7 @@ export class ApplicationsController extends Controller {
     const db = getDb(ctx.env);
     const query = db
       .selectFrom("applications")
-      .where("applications.tenant_id", "=", tenantId);
+      .where("applications.tenant_id", "=", tenant_id);
 
     const { data, range } = await executeQuery(query, rangeRequest);
 
@@ -54,14 +54,14 @@ export class ApplicationsController extends Controller {
   public async getApplication(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<Application | string> {
     const { ctx } = request;
 
     const db = getDb(ctx.env);
     const application = await db
       .selectFrom("applications")
-      .where("applications.tenant_id", "=", tenantId)
+      .where("applications.tenant_id", "=", tenant_id)
       .where("applications.id", "=", id)
       .selectAll()
       .executeTakeFirst();
@@ -79,7 +79,7 @@ export class ApplicationsController extends Controller {
   public async deleteApplication(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
   ): Promise<string> {
     const { env } = request.ctx;
 
@@ -87,7 +87,7 @@ export class ApplicationsController extends Controller {
 
     await db
       .deleteFrom("applications")
-      .where("applications.tenant_id", "=", tenantId)
+      .where("applications.tenant_id", "=", tenant_id)
       .where("applications.id", "=", id)
       .execute();
 
@@ -101,10 +101,10 @@ export class ApplicationsController extends Controller {
   public async patchApplication(
     @Request() request: RequestWithContext,
     @Path("id") id: string,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
     body: Partial<
-      Omit<Application, "id" | "tenantId" | "created_at" | "modified_at">
+      Omit<Application, "id" | "tenant_id" | "created_at" | "modified_at">
     >,
   ) {
     const { env } = request.ctx;
@@ -113,7 +113,7 @@ export class ApplicationsController extends Controller {
 
     const application = {
       ...body,
-      tenantId,
+      tenant_id,
       modified_at: new Date().toISOString(),
     };
 
@@ -133,10 +133,10 @@ export class ApplicationsController extends Controller {
   @SuccessResponse(201, "Created")
   public async postApplications(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Body()
     body: Partial<
-      Omit<Application, "tenantId" | "created_at" | "modified_at">
+      Omit<Application, "tenant_id" | "created_at" | "modified_at">
     > & {
       name: string;
     },
@@ -156,7 +156,7 @@ export class ApplicationsController extends Controller {
       client_secret: nanoid(),
       id: nanoid(),
       ...body,
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
     };
@@ -173,10 +173,10 @@ export class ApplicationsController extends Controller {
   @Security("oauth2managementApi", [""])
   public async putApplication(
     @Request() request: RequestWithContext,
-    @Path("tenantId") tenantId: string,
+    @Path("tenant_id") tenant_id: string,
     @Path("id") id: string,
     @Body()
-    body: Omit<Application, "id" | "tenantId" | "created_at" | "modified_at">,
+    body: Omit<Application, "id" | "tenant_id" | "created_at" | "modified_at">,
   ): Promise<Application> {
     const { ctx } = request;
     const { env } = ctx;
@@ -185,7 +185,7 @@ export class ApplicationsController extends Controller {
 
     const application: Application = {
       ...body,
-      tenant_id: tenantId,
+      tenant_id: tenant_id,
       id,
       created_at: new Date().toISOString(),
       modified_at: new Date().toISOString(),
@@ -205,7 +205,7 @@ export class ApplicationsController extends Controller {
       const {
         id,
         created_at,
-        tenant_id: tenantId,
+        tenant_id: tenant_id,
         ...applicationUpdate
       } = application;
       await db

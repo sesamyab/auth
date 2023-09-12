@@ -112,7 +112,7 @@ export async function socialAuthCallback({
 
   const profile = await user.loginWithConnection.mutate({
     email: oauth2Profile.email,
-    tenantId: client.tenant_id,
+    tenant_id: client.tenant_id,
     connection: { name: connection.name, profile: oauth2Profile },
   });
 

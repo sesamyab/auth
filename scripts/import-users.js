@@ -3,7 +3,7 @@ const readline = require("readline");
 const Papa = require("papaparse");
 
 const token = "add token here...";
-const tenantId = "YH0yxCXqdc-UuPD_1MqSY";
+const tenant_id = "YH0yxCXqdc-UuPD_1MqSY";
 const apiUrl = "https://auth2.sesamy.com";
 
 async function postUser(user) {
@@ -20,7 +20,7 @@ async function postUser(user) {
     modified_at: user.updated_at,
   });
 
-  const response = await fetch(`${apiUrl}/tenants/${tenantId}/users`, {
+  const response = await fetch(`${apiUrl}/tenants/${tenant_id}/users`, {
     method: "POST",
     headers: {
       authorization: `Bearer ${token}`,

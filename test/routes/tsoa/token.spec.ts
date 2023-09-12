@@ -33,7 +33,7 @@ describe("token", () => {
     id: "publisherClientId",
     name: "clientName",
     client_secret: "clientSecret",
-    tenant_id: "tenantId",
+    tenant_id: "tenant_id",
     allowed_callback_urls: ["http://localhost:3000", "https://example.com"],
     allowed_logout_urls: ["http://localhost:3000", "https://example.com"],
     allowed_web_origins: ["http://localhost:3000", "https://example.com"],
