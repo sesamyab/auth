@@ -1,7 +1,11 @@
 import fetchMock from "jest-fetch-mock";
 import { contextFixture, client } from "../../fixtures";
 import { PasswordlessController } from "../../../src/routes/tsoa/passwordless";
-import { Client, AuthorizationResponseType } from "../../../src/types";
+import {
+  Client,
+  AuthorizationResponseType,
+  RequestWithContext,
+} from "../../../src/types";
 import { requestWithContext } from "../../fixtures/requestWithContext";
 import { kvStorageFixture } from "../../fixtures/kv-storage";
 
@@ -154,6 +158,57 @@ describe("Passwordless", () => {
 
       // but should have client logo
       expect(emailBody).toContain(`src="${clientLogoUrl}"`);
+    });
+  });
+
+  describe("verify_redirect", () => {
+    it('should return a token and redirect to "redirect_uri" if code is valid', async () => {
+      const ctx = contextFixture({
+        stateData: {},
+      });
+
+      const controller = new PasswordlessController();
+
+      const result = await controller.verifyRedirect(
+        { ctx } as RequestWithContext,
+        "",
+        AuthorizationResponseType.TOKEN,
+        "https://example.com",
+        "https://example.com",
+        "state",
+        "nonce",
+        "code",
+        "email",
+        "clientId",
+        "email",
+      );
+
+      expect(controller.getStatus()).toBe(302);
+      expect(result).toEqual("Redirecting");
+    });
+
+    it("should return a 403 if code is not valid", async () => {
+      const ctx = contextFixture({
+        stateData: {},
+      });
+
+      const controller = new PasswordlessController();
+
+      await expect(() =>
+        controller.verifyRedirect(
+          { ctx } as RequestWithContext,
+          "",
+          AuthorizationResponseType.TOKEN,
+          "https://example.com",
+          "https://example.com",
+          "state",
+          "nonce",
+          "000000",
+          "email",
+          "clientId",
+          "email",
+        ),
+      ).rejects.toThrow("Invalid code");
     });
   });
 });

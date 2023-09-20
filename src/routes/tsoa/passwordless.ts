@@ -11,11 +11,14 @@ import {
 } from "@tsoa/runtime";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { getClient } from "../../services/clients";
-import { AuthParams } from "../../types/AuthParams";
+import { AuthParams, AuthorizationResponseType } from "../../types/AuthParams";
 import { sendCode } from "../../controllers/email";
 import { generateAuthResponse } from "../../helpers/generate-auth-response";
 import { applyTokenResponse } from "../../helpers/apply-token-response";
 import { base64ToHex } from "../../utils/base64";
+import { nanoid } from "nanoid";
+import { LoginState } from "../../types";
+import { validateRedirectUrl } from "../../utils/validate-redirect-url";
 
 export interface PasswordlessOptions {
   client_id: string;
@@ -55,6 +58,7 @@ export class PasswordlessController extends Controller {
     const user = env.userFactory.getInstanceByName(
       `${client.tenant_id}|${body.email}`,
     );
+
     const { code } = await user.createAuthenticationCode.mutate({
       authParams: {
         ...body.authParams,
@@ -64,27 +68,25 @@ export class PasswordlessController extends Controller {
 
     await sendCode(env, client, body.email, code);
 
-    return "ok";
+    return "OK";
   }
 
-  /*
-          scope: openid profile email
-response_type: token id_token
-redirect_uri: https://login2-4pcueclm6.vercel.sesamy.dev/callback
-audience: https://sesamy.com
-state: ACRvQXbA_AbvXJGiorgmDAjakL3jXjYl
-nonce: oO0sJ_sq127hoMG8pM.5sjgk.IZQ8oc_
-verification_code: 625452
-connection: email
-client_id: 0N0wUHXFl0TMTY2L9aDJYvwX7Xy84HkW
-email: dan+456@sesamy.com
-     */
+  // scope: openid profile email
+  // response_type: token id_token
+  // redirect_uri: https://example.com/callback
+  // audience: https://example.com
+  // state: ACRvQXbA_AbvXJGiorgmDAjakL3jXjYl
+  // nonce: oO0sJ_sq127hoMG8pM.5sjgk.IZQ8oc_
+  // verification_code: 625452
+  // connection: email
+  // client_id: 0N0wUHXFl0TMTY2L9aDJYvwX7Xy84HkW
+  // email: someone@example.com
 
   @Get("verify_redirect")
   public async verifyRedirect(
     @Request() request: RequestWithContext,
     @Query("scope") scope: string,
-    @Query("response_type") response_type: string,
+    @Query("response_type") response_type: AuthorizationResponseType,
     @Query("redirect_uri") redirect_uri: string,
     @Query("audience") audience: string,
     @Query("state") state: string,
@@ -101,27 +103,34 @@ email: dan+456@sesamy.com
       throw new Error("Client not found");
     }
 
-    const stateInstance = env.stateFactory.getInstanceById(base64ToHex(state));
-    const authParams = await stateInstance.getState.query();
-
     const user = env.userFactory.getInstanceByName(
       `${client.tenant_id}|${email}`,
     );
-    await user.validateAuthenticationCode.mutate({
+    const profile = await user.validateAuthenticationCode.mutate({
       code: verification_code,
       email,
       tenantId: client.tenant_id,
     });
 
-    const tokenResponse = generateAuthResponse(env, client, email, {
-      scope,
-      response_type,
+    validateRedirectUrl(client.allowed_callback_urls, redirect_uri);
+
+    const authParams: AuthParams = {
+      client_id,
       redirect_uri,
+      state,
+      scope,
       audience,
+    };
+
+    const tokenResponse = await generateAuthResponse({
+      responseType: response_type,
+      env,
+      userId: profile.id,
+      sid: nanoid(),
       state,
       nonce,
-      connection,
-      client_id,
+      user: profile,
+      authParams,
     });
 
     return applyTokenResponse(this, tokenResponse, authParams);
