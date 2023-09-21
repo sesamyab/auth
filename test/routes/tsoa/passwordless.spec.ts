@@ -25,7 +25,11 @@ const SESAMY_HEADER_LOGO_URL = `https://imgproxy.dev.sesamy.cloud/unsafe/format:
 )}`;
 
 describe("Passwordless", () => {
+  const date = new Date();
   beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(date);
+
     fetchMock.resetMocks();
     fetchMock.mockResponse(JSON.stringify({ message: "Queued. Thank you." }), {
       status: 200,
@@ -185,6 +189,23 @@ describe("Passwordless", () => {
 
       expect(controller.getStatus()).toBe(302);
       expect(result).toEqual("Redirecting");
+
+      const redirectUrl = new URL(controller.getHeader("location") as string);
+
+      expect(redirectUrl.searchParams.get("state")).toBe("state");
+      expect(redirectUrl.searchParams.get("expires_in")).toBe("86400");
+
+      // Dummy token as json
+      const token = JSON.parse(
+        redirectUrl.searchParams.get("access_token") as string,
+      );
+      expect(token).toEqual({
+        aud: "https://example.com",
+        iat: Math.floor(date.getTime() / 1000),
+        exp: Math.floor(date.getTime() / 1000) + 86400,
+        iss: "https://auth.example.com/",
+        scope: "",
+      });
     });
 
     it("should return a 403 if code is not valid", async () => {

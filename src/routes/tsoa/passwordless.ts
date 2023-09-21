@@ -71,17 +71,6 @@ export class PasswordlessController extends Controller {
     return "OK";
   }
 
-  // scope: openid profile email
-  // response_type: token id_token
-  // redirect_uri: https://example.com/callback
-  // audience: https://example.com
-  // state: ACRvQXbA_AbvXJGiorgmDAjakL3jXjYl
-  // nonce: oO0sJ_sq127hoMG8pM.5sjgk.IZQ8oc_
-  // verification_code: 625452
-  // connection: email
-  // client_id: 0N0wUHXFl0TMTY2L9aDJYvwX7Xy84HkW
-  // email: someone@example.com
-
   @Get("verify_redirect")
   public async verifyRedirect(
     @Request() request: RequestWithContext,
