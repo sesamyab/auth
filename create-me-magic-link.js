@@ -19,7 +19,7 @@ const createMeUrl = (email, verificationCode, clientId, redirectUri) => {
 };
 
 console.log(
-  createMeUrl("dan+456@sesamy.com", "811548", "breakit", "https://example.com"),
+  createMeUrl("dan+456@sesamy.com", "196178", "breakit", "https://example.com"),
 );
 
 // https://login2.sesamy.dev/enter-email?client_id=breakit&connection=auth2
