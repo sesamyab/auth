@@ -556,6 +556,7 @@ export const userRouter = router({
       const code = await getAuthenticationCode(ctx.state.storage);
 
       if (!code) {
+        // this is giving us a 500! really should not be this...
         throw new NoCodeError();
       }
 

@@ -89,6 +89,7 @@ export class PasswordlessController extends Controller {
 
     const client = await getClient(env, client_id);
     if (!client) {
+      // this is giving us a 500... really should not be this...
       throw new Error("Client not found");
     }
 
