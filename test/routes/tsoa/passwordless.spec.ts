@@ -192,13 +192,18 @@ describe("Passwordless", () => {
 
       const redirectUrl = new URL(controller.getHeader("location") as string);
 
+      // I think this should be the state passed into the initial call to the login though...
+      // which is different to the state that we put into the magic link
+      // (although i'm not sure why we even care about state in the magic link)
       expect(redirectUrl.searchParams.get("state")).toBe("state");
       expect(redirectUrl.searchParams.get("expires_in")).toBe("86400");
+      expect(redirectUrl.hostname).toBe("example.com");
 
       // Dummy token as json
       const token = JSON.parse(
         redirectUrl.searchParams.get("access_token") as string,
       );
+
       expect(token).toEqual({
         aud: "https://example.com",
         iat: Math.floor(date.getTime() / 1000),
