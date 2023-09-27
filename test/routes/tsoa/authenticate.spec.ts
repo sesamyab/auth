@@ -143,5 +143,38 @@ describe("Authenticated", () => {
         error_description: "Wrong email or verification code.",
       });
     });
+
+    it("should send an error if the code has expired", async () => {
+      const controller = new AuthenticateController();
+
+      const body: CodeAuthenticateParams = {
+        client_id: "clientId",
+        credential_type: "http://auth0.com/oauth/grant-type/passwordless/otp",
+        otp: "000000",
+        realm: "email",
+        username: "test@example.com",
+      };
+
+      const logs = [];
+
+      const ctx = contextFixture({
+        stateData: {},
+        userData: {
+          validatePassword: "AuthenticationCodeExpiredError",
+        },
+        logs,
+      });
+
+      const actual = await controller.authenticate(body, {
+        ctx,
+      } as RequestWithContext);
+
+      expect(controller.getStatus()).toBe(403);
+      expect(actual).toEqual({
+        error: "access_denied",
+        error_description:
+          "The verification code has expired. Please try to login again.",
+      });
+    });
   });
 });
