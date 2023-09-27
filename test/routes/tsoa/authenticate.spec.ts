@@ -137,17 +137,11 @@ describe("Authenticated", () => {
         ctx,
       } as RequestWithContext);
 
-      if (!("error" in actual)) {
-        throw new Error("should return error");
-      }
-
       expect(controller.getStatus()).toBe(403);
-      expect(JSON.stringify(actual)).toBe(
-        JSON.stringify({
-          error: "access_denied",
-          error_description: "Wrong email or verification code.",
-        }),
-      );
+      expect(actual).toEqual({
+        error: "access_denied",
+        error_description: "Wrong email or verification code.",
+      });
     });
   });
 });
