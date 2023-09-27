@@ -128,6 +128,7 @@ export class AuthenticateController extends Controller {
         };
       }
 
+      // this should be beind triggerd though... does instanceOf not work?
       if (err instanceof InvalidCodeError) {
         return {
           error: "access_denied",
@@ -144,6 +145,7 @@ export class AuthenticateController extends Controller {
 
       return {
         error: "access_denied",
+        // this one is always hit... why? surely should be the above one... hmmmm
         error_description: `Server error: ${err.message}`,
       };
     }

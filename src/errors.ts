@@ -93,6 +93,8 @@ export class AuthenticationCodeExpiredError extends Error {
 export class InvalidCodeError extends Error {
   status = 401;
 
+  // this is the only instance of 'Invalid Code" I see in the codebase, so we MUST be on this one...
+  // So how come instanceof isn't matching in the the authenticate route?
   constructor(message = "Invalid code") {
     super();
 
