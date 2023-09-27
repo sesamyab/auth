@@ -122,12 +122,22 @@ export class PasswordlessController extends Controller {
     const user = env.userFactory.getInstanceByName(
       `${client.tenant_id}|${email}`,
     );
+
+    // TODO - we need to put this in a try-catch block right and then catch the AuthenticationCodeExpiredError
+    // IF we get this, then we should redirect to login2.sesamy.com/expired-code
+    // BUT we need to also include all the OAUth params AND the email
+    // ! I am not convinced we're throwing AuthenticationCodeExpiredError here ! - I could write a unit test...
+    // but we should manually QA this by setting the access_token expiration time down to way low
+    // ALSO - should we handle other errors?  The code can be expired, BUT the user could click an expired magic link
+    // AFTER we sent them a new one.  So we should handle that case too.
+    // SHOULD we just redirect them to the above login2 URL on any error?
     const profile = await user.validateAuthenticationCode.mutate({
       code: verification_code,
       email,
       tenantId: client.tenant_id,
     });
 
+    // should we display an error message here?  This is just for us developers really to configure the client correctly
     validateRedirectUrl(client.allowed_callback_urls, redirect_uri);
 
     const authParams: AuthParams = {
