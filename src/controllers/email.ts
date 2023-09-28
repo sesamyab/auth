@@ -101,6 +101,7 @@ export async function sendCode(
         value: codeEmailBody,
       },
     ],
+    // I'm getting breakit emails on dev with a subject in english. Is this correct?
     subject: translate(language, "codeEmailTitle")
       .replace("{{vendorName}}", client.name)
       .replace("{{code}}", code),
