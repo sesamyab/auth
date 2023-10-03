@@ -75,7 +75,7 @@ export class PasswordlessController extends Controller {
 
     let magicLink: URL | undefined;
 
-    if (client.id !== "test-kvartal") {
+    if (client.id !== "test-breakit") {
       magicLink = new URL(env.ISSUER);
       magicLink.pathname = "passwordless/verify_redirect";
       if (body.authParams.scope) {
