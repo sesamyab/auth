@@ -241,18 +241,6 @@ describe("authorize", () => {
     });
 
     it("should use audience from the request for the silent auth", async () => {
-      // https://auth2.sesamy.dev/authorize
-      //     ? client_id = VQy2yYCA9rIBJerZrUN0T
-      //     & scope=openid+profile+email
-      //     & redirect_uri=http://localhost:3000
-      //     & prompt=none
-      //     & response_type=token id_token
-      //     & response_mode=web_message
-      //     & state=state
-      //     & nonce=cUdmMWo1eFgubzdjMU9xSmhiS0pYdmpJME1GbFpJcllyWnBTU1FnWXQzTA % 3D % 3D
-      //     & code_challenge=CA6jwqDHtqZIzs9dcmTNBavFDQHPkfuBIO2Q8XRvWGA
-      //     & code_challenge_method=S256
-      //     & auth0Client=eyJuYW1lIjoiYXV0aDAtcmVhY3QiLCJ2ZXJzaW9uIjoiMi4xLjAifQ % 3D % 3D
       const controller = new AuthorizeController();
 
       const stateData: { [key: string]: any } = {
