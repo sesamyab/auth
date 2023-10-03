@@ -254,7 +254,7 @@ describe("authorize", () => {
               state:
                 "Rk1BbzJYSEFEVU9fTGd4cGdidGh0OHJnRHIwWTFrWFdOYlNySDMuU3YxMw==",
               client_id: "clientId",
-              audidence: "",
+              audience: "",
               nonce:
                 "Y0QuU09HRDB3TGszTX41QmlvM1BVTWRSWDA0WFpJdkZoMUwtNmJqYlFDdg==",
             },
