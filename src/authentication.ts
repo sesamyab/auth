@@ -161,7 +161,7 @@ export async function getUser(
   ctx: Context<Env>,
   securitySchemeName: SecuritySchemeName,
   bearer: string,
-  permissios: string[],
+  permissions: string[],
 ): Promise<any> {
   const token = decodeJwt(bearer);
 
