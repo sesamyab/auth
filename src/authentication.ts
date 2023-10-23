@@ -172,7 +172,7 @@ export async function getUser(
     throw new ExpiredTokenError();
   }
 
-  if (!isValidScopes(token, permissios)) {
+  if (!isValidScopes(token, permissions)) {
     throw new InvalidScopesError();
   }
 
