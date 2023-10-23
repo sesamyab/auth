@@ -115,7 +115,7 @@ async function getJwks(env: Env, securitySchemeName: SecuritySchemeName) {
   return jwksUrls[jwksUrl];
 }
 
-function isValidScopes(token: TokenData, permissions: string[]) {
+function isValidPermissions(token: TokenData, permissions: string[]) {
   if (!permissions.length) {
     return true;
   }
