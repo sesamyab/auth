@@ -107,32 +107,76 @@ export class UsersMgmtController extends Controller {
     };
   }
 
+  // TODO - don't we need correct scopes for this?
   @Delete("{userId}")
   @SuccessResponse(200, "Delete")
   public async deleteUser(
     @Request() request: RequestWithContext,
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
-  ): Promise<Profile> {
+  ): // TODO - are we sure this is the return type from auth0 mgmt? try out!
+  Promise<Profile> {
     const { env } = request.ctx;
+
+    console.log("userId", userId);
+    console.log("tenantId", tenantId);
 
     const db = getDb(env);
     const dbUser = await db
       .selectFrom("users")
       .where("users.tenant_id", "=", tenantId)
       .where("users.id", "=", userId)
-      .select("users.email")
+      .selectAll()
       .executeTakeFirst();
 
+    console.log("dbUser", dbUser);
+
+    // ok, this works until now...
     if (!dbUser) {
+      console.log("no user in SQL...");
       throw new NotFoundError();
     }
 
-    const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
-    );
+    await db
+      .deleteFrom("users")
+      .where("users.tenant_id", "=", tenantId)
+      .where("users.id", "=", userId)
+      .execute();
 
-    return user.delete.mutate();
+    return {
+      ...dbUser,
+      tenant_id: tenantId,
+      // this needs investigation
+      connections: [],
+    };
+
+    // so this must be throwing the error?
+    try {
+      // no way to catch this error? madness. not sure how to code this...
+      // why should the whole route crash?
+      const user = env.userFactory.getInstanceByName(
+        getId(tenantId, dbUser.email),
+      );
+
+      return user.delete.mutate();
+    } catch (error) {
+      console.log("error", error);
+
+      // try nuking in SQL now anyway...
+
+      await db
+        .deleteFrom("users")
+        .where("users.tenant_id", "=", tenantId)
+        .where("users.id", "=", userId)
+        .execute();
+
+      return {
+        ...dbUser,
+        tenant_id: tenantId,
+        // this needs investigation
+        connections: [],
+      };
+    }
   }
 
   @Post("")
