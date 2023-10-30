@@ -192,6 +192,8 @@ export class UsersMgmtController extends Controller {
   ): Promise<UserResponse> {
     const { env } = request.ctx;
 
+    // ahhhhh, need to actually create a DO User here right?
+    // I have done this and not realised... how do I create a user DO model?
     const data = await env.data.users.create(tenantId, user);
 
     this.setStatus(201);
@@ -205,27 +207,46 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Body()
     user: Omit<User, "tenant_id" | "created_at" | "updated_at" | "id">,
-  ): Promise<Profile> {
+  ): Promise<UserResponse> {
+    // what is difference between Profile and UserResponse? why duplicate?
     const { ctx } = request;
 
-    // this is very buggy... it's creating a new user with the same email
-    // if the user doesn't exist in DO  ¯\_(ツ)_/¯
-    // I only just created this though!
-    // why don't we select by user id?
-    const userInstance = ctx.env.userFactory.getInstanceByName(
-      getId(tenantId, user.email),
-    );
+    // update db record with userId and tenantId
+    const db = getDb(ctx.env);
 
-    // const userInstance = ctx.env.userFactory.getInstanceById(
-    //   // what is this helper?
-    //   getId(tenantId, userId),
-    // );
+    const result = await db
+      .updateTable("users")
+      .set(user)
+      .where("id", "=", userId)
+      .where("tenant_id", "=", tenantId)
+      .executeTakeFirst();
 
-    const result: Profile = await userInstance.patchProfile.mutate({
-      ...user,
-      tenant_id: tenantId,
-    });
-    return result;
+    console.log(result);
+
+    const dbUser = await db
+      .selectFrom("users")
+      .where("users.tenant_id", "=", tenantId)
+      .where("users.id", "=", userId)
+      .selectAll()
+      .executeTakeFirst();
+
+    // this should never be so unless there's an issue with the database
+    if (!dbUser) {
+      throw new NotFoundError();
+    }
+
+    const { tags, ...userTrimmed } = dbUser;
+
+    return {
+      ...userTrimmed,
+      // same hacks as getRoutes
+      // need to go through these types, naming doesn't make sense
+      logins_count: 0,
+      last_ip: "",
+      last_login: "",
+      identities: [],
+      user_id: userId,
+    };
   }
 
   @Post("{userId}/identities")
