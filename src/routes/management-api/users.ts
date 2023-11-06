@@ -145,6 +145,18 @@ export class UsersMgmtController extends Controller {
   ): Promise<UserResponse> {
     const { env } = request.ctx;
 
+    // we need to actually create the user model here ELSE on a patch we're ending up with duplicated data...
+    // ideally we could just nuke the User DOs but that's out-of-scope for our current changes
+    const userInstance = env.userFactory.getInstanceByName(
+      getId(tenantId, user.email),
+    );
+
+    const result: Profile = await userInstance.patchProfile.mutate({
+      ...user,
+      tenant_id: tenantId,
+    });
+
+    // is this duplicated code by also writing to SQL?
     const data = await env.data.users.create(tenantId, user);
 
     this.setStatus(201);
