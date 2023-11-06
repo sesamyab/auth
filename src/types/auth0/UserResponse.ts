@@ -4,7 +4,11 @@ import { Totals } from "./Totals";
 import { UserMetadata } from "./UserMetadata";
 
 interface BaseUser {
-  email?: string;
+  // in Auth0 when creating a user EITHER username or email is required
+  // BUT hard to reflect in typescript
+  // we could return a similar error  "Missing username or email is required.",
+  // BUT I think for now we can just make email required as that's how we're using this
+  email: string;
   phone_number?: string;
   user_metadata?: UserMetadata;
   app_metadata?: AppMetadata;
