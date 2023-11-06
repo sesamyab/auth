@@ -125,6 +125,15 @@ export class UsersMgmtController extends Controller {
       throw new NotFoundError();
     }
 
+    // now delete the user from SQL in case the User model doesn't exist...
+    await db
+      .deleteFrom("users")
+      .where("users.tenant_id", "=", tenantId)
+      .where("users.id", "=", userId)
+      .executeTakeFirst();
+
+    // if the user model doesn't exist the endpoint will return a 500 BUT at least the user
+    // will actually be removed from SQL when react-admin refreshes the list 8-)
     const user = env.userFactory.getInstanceByName(
       getId(tenantId, dbUser.email),
     );
