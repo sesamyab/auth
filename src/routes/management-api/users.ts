@@ -165,11 +165,20 @@ export class UsersMgmtController extends Controller {
       tenant_id: tenantId,
     });
 
-    // is this duplicated code by also writing to SQL?
-    const data = await env.data.users.create(tenantId, user);
-
     this.setStatus(201);
-    return data;
+
+    // this is quite a typescript dance but I think it's ok now
+    return {
+      ...result,
+      identities: [],
+      logins_count: 0,
+      user_id: result.id,
+    };
+
+    // TODO - just want to write to SQL here but the User model is already doing this...
+    // const data = await env.data.users.create(tenantId, user);
+
+    // return data;
   }
 
   @Patch("{userId}")
