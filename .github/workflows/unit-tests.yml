@@ -8,13 +8,9 @@ on: pull_request
 jobs:
   node-test:
     runs-on: ubuntu-latest
+    container: node:18.13
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          cache: "yarn"
-          node-version: "18.13"
       - uses: actions/cache@v3
         with:
           path: "**/node_modules"
