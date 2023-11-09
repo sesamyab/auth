@@ -1,6 +1,5 @@
 import { IOAuth2ClientFactory } from "../services/oauth2-client";
 import { StateClient } from "../models";
-import { QueueMessage } from "../services/events";
 import { DataAdapters } from "../adapters/interfaces";
 import { Tenant } from "./sql";
 
