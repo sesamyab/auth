@@ -1,5 +1,5 @@
 import { IOAuth2ClientFactory } from "../services/oauth2-client";
-import { StateClient, UserClient } from "../models";
+import { StateClient } from "../models";
 import { QueueMessage } from "../services/events";
 import { DataAdapters } from "../adapters/interfaces";
 import { Tenant } from "./sql";
@@ -35,7 +35,6 @@ export type Env = {
   DEFAULT_SETTINGS?: string;
   oauth2ClientFactory: IOAuth2ClientFactory;
   stateFactory: ClientFactory<StateClient>;
-  userFactory: ClientFactory<UserClient>;
   data: DataAdapters;
   hooks: {
     tenant?: {

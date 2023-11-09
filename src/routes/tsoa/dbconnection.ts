@@ -12,7 +12,6 @@ import {
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { InvalidRequestError } from "../../errors";
 import { HTTPException } from "hono/http-exception";
-import { getId, User } from "../../models/User";
 import { getClient } from "../../services/clients";
 import sendEmail from "../../services/email";
 

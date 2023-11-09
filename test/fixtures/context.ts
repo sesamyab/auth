@@ -14,7 +14,6 @@ import { mockedR2Bucket } from "./mocked-r2-bucket";
 import { kvStorageFixture } from "./kv-storage";
 import { EmailOptions } from "../../src/services/email/EmailOptions";
 import { InvalidCodeError, UnauthenticatedError } from "../../src/errors";
-import { userRouter } from "../../src/models/User";
 import { Var } from "../../src/types/Var";
 import createAdapters from "../../src/adapters/in-memory";
 import { getCertificate } from "../../integration-test/helpers/token";

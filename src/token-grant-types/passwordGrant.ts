@@ -2,7 +2,6 @@ import { Env } from "../types/Env";
 import { PasswordGrantTypeParams, TokenResponse } from "../types/Token";
 import { getCertificate } from "../models/Certificate";
 import { TokenFactory } from "../services/token-factory";
-import { getId } from "../models";
 
 export async function passwordGrant(
   env: Env,
