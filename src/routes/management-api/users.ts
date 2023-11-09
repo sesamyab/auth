@@ -17,7 +17,6 @@ import {
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { NotFoundError } from "../../errors";
-import { getId } from "../../models";
 import { Profile } from "../../types";
 import {
   UserResponse,
@@ -215,34 +214,47 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Body()
     user: PostUsersBody,
-  ): Promise<Profile> {
+  ): Promise<UserResponse> {
     const { ctx } = request;
 
-    const { email } = user;
+    const db = getDb(ctx.env);
 
-    // this is how our system works... doesn't match auth0 though
-    // but if our Id for the DO requires an email... it is
-    if (!email) {
-      throw new Error("Email is required");
+    const dbUser = await db
+      .selectFrom("users")
+      .where("users.tenant_id", "=", tenantId)
+      .where("users.id", "=", userId)
+      .selectAll()
+      .executeTakeFirst();
+
+    if (!dbUser) {
+      throw new NotFoundError();
     }
 
-    const userInstance = ctx.env.userFactory.getInstanceByName(
-      getId(tenantId, email),
-    );
+    const result = await db
+      .updateTable("users")
+      .set(user)
+      .where("id", "=", userId)
+      .where("tenant_id", "=", tenantId)
+      .executeTakeFirst();
+    // should read this result and throw an error if doesnt have result.numChangedRows or result.numUpdatedRows?
 
-    const result: Profile = await userInstance.patchProfile.mutate({
-      ...user,
-      tenant_id: tenantId,
-      email,
-    });
-    const { tenant_id, id } = result;
     await ctx.env.data.logs.create({
       category: "update",
       message: "User profile",
-      tenant_id,
-      user_id: id,
+      tenant_id: tenantId,
+      user_id: dbUser.id,
     });
-    return result;
+
+    const userResponse: UserResponse = {
+      ...dbUser,
+      user_id: dbUser.id,
+      logins_count: 0,
+      last_ip: "",
+      last_login: "",
+      identities: [],
+    };
+
+    return userResponse;
   }
 
   @Post("{userId}/identities")
