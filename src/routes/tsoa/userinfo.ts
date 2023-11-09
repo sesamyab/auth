@@ -2,7 +2,6 @@ import { Controller, Get, Request, Route, Security, Tags } from "@tsoa/runtime";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { getDb } from "../../services/db";
 import { NotFoundError } from "../../errors";
-import { getId } from "../../models";
 
 @Route("")
 @Tags("userinfo")
@@ -29,11 +28,8 @@ export class UserinfoController extends Controller {
       throw new NotFoundError();
     }
 
-    // Fetch the user from durable object
-    const user = env.userFactory.getInstanceByName(
-      getId(dbUser.tenant_id, dbUser.email),
-    );
-
-    return user.getProfile.query();
+    return {
+      id: dbUser.id,
+    };
   }
 }
