@@ -11,8 +11,7 @@ import {
 import { getDb } from "../../services/db";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { NotFoundError } from "../../errors";
-import { getId } from "../../models";
-import { Profile } from "../../types";
+import { UserResponse } from "../../types/auth0/UserResponse";
 
 export interface LinkBodyParams {
   provider?: string;
@@ -29,25 +28,31 @@ export class UsersByEmailController extends Controller {
     @Request() request: RequestWithContext,
     @Query("email") userEmail: string,
     @Header("tenant-id") tenantId: string,
-  ): Promise<Profile> {
+  ): Promise<UserResponse> {
     const { env } = request.ctx;
 
     const db = getDb(env);
-    const dbUser = await db
+    const user = await db
       .selectFrom("users")
       .where("users.tenant_id", "=", tenantId)
       .where("users.email", "=", userEmail)
-      .select("users.email")
+      .selectAll()
       .executeTakeFirst();
 
-    if (!dbUser) {
+    if (!user) {
       throw new NotFoundError();
     }
 
-    const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
-    );
+    const userResponse: UserResponse = {
+      ...user,
+      user_id: user.id,
+      email_verified: true,
+      logins_count: 0,
+      last_ip: "",
+      last_login: "",
+      identities: [],
+    };
 
-    return user.getProfile.query();
+    return userResponse;
   }
 }
