@@ -10,7 +10,6 @@ import {
 import { headers } from "../constants";
 import { hexToBase64 } from "../utils/base64";
 import { getClient } from "../services/clients";
-import { getId } from "../models";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
 import { parseJwt } from "../utils/parse-jwt";
@@ -111,24 +110,25 @@ export async function socialAuthCallback({
   const oauth2Profile = parseJwt(token.id_token!);
 
   const email = oauth2Profile.email.toLocaleLowerCase();
-  const userId = getId(client.tenant_id, email);
-  ctx.set("email", email);
-  ctx.set("userId", userId);
+  // const userId = getId(client.tenant_id, email);
+  // ctx.set("email", email);
+  // ctx.set("userId", userId);
 
-  const user = env.userFactory.getInstanceByName(userId);
+  // const user = env.userFactory.getInstanceByName(userId);
 
-  const profile = await user.loginWithConnection.mutate({
-    email,
-    tenantId: client.tenant_id,
-    connection: { name: connection.name, profile: oauth2Profile },
-  });
-  const userProfile = await user.getProfile.query();
-  const { tenant_id, id } = userProfile;
+  // so here we do need to write something to the db.  TBD. I need to learn how these connections will work.
+  // const profile = await user.loginWithConnection.mutate({
+  //   email,
+  //   tenantId: client.tenant_id,
+  //   connection: { name: connection.name, profile: oauth2Profile },
+  // });
+  // const userProfile = await user.getProfile.query();
+  // const { tenant_id, id } = userProfile;
   await env.data.logs.create({
     category: "login",
     message: `Login with ${connection.name}`,
-    tenant_id,
-    user_id: id,
+    tenant_id: client.tenant_id,
+    user_id: state.authParams.username || "meh", //is this one right? or should be email... and we give up on id
   });
 
   const sessionId = await setSilentAuthCookies(
@@ -136,7 +136,7 @@ export async function socialAuthCallback({
     controller,
     client.tenant_id,
     client.id,
-    profile,
+    profile, //ah ok. so I need to change this to accept an sqlUser
   );
 
   const tokenResponse = await generateAuthResponse({
@@ -146,7 +146,7 @@ export async function socialAuthCallback({
     state: state.authParams.state,
     nonce: state.authParams.nonce,
     authParams: state.authParams,
-    user: profile,
+    user: profile, // same here. maybe not so difficult...
     responseType:
       state.authParams.response_type || AuthorizationResponseType.TOKEN,
   });
