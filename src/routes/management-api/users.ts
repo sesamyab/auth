@@ -114,17 +114,17 @@ export class UsersMgmtController extends Controller {
       throw new NotFoundError();
     }
 
-    const { tags, ...userTrimmed } = user;
-
-    return {
-      ...userTrimmed,
-      // TODO: add missing properties to conform to auth0
+    const userResponse: UserResponse = {
+      ...user,
+      user_id: user.id,
+      email_verified: true,
       logins_count: 0,
       last_ip: "",
       last_login: "",
       identities: [],
-      user_id: user.id,
     };
+
+    return userResponse;
   }
 
   @Delete("{userId}")
@@ -133,7 +133,9 @@ export class UsersMgmtController extends Controller {
     @Request() request: RequestWithContext,
     @Path("userId") userId: string,
     @Header("tenant-id") tenantId: string,
-  ): Promise<Profile> {
+  ): Promise<UserResponse> {
+    // TODO - are we sure it returns the deleted user? not clear from the docs what is returned
+    // might have to check manually using mgmt-api...
     const { env } = request.ctx;
 
     const db = getDb(env);
@@ -141,18 +143,29 @@ export class UsersMgmtController extends Controller {
       .selectFrom("users")
       .where("users.tenant_id", "=", tenantId)
       .where("users.id", "=", userId)
-      .select("users.email")
+      .selectAll()
       .executeTakeFirst();
 
     if (!dbUser) {
       throw new NotFoundError();
     }
 
-    const user = env.userFactory.getInstanceByName(
-      getId(tenantId, dbUser.email),
-    );
+    await db
+      .deleteFrom("users")
+      .where("users.tenant_id", "=", tenantId)
+      .where("users.id", "=", userId)
+      .execute();
 
-    return user.delete.mutate();
+    return {
+      ...dbUser,
+      tenant_id: tenantId,
+      user_id: dbUser.id,
+      email_verified: true,
+      logins_count: 0,
+      last_ip: "",
+      last_login: "",
+      identities: [],
+    };
   }
 
   @Post("")
