@@ -184,32 +184,31 @@ export class UsersMgmtController extends Controller {
     @Path("userId") userId: string,
     @Body() body: LinkBodyParams,
   ): Promise<Profile> {
-    throw new Error("Not implemented");
+    const { env } = request.ctx;
 
-    // const { env } = request.ctx;
+    const db = getDb(env);
+    // should we be using the adapters here?
+    const currentDbUser = await db
+      .selectFrom("users")
+      .where("users.tenant_id", "=", tenantId)
+      .where("users.id", "=", userId)
+      .select(["users.email"])
+      .executeTakeFirst();
 
-    // const db = getDb(env);
-    // const currentDbUser = await db
-    //   .selectFrom("users")
-    //   .where("users.tenant_id", "=", tenantId)
-    //   .where("users.id", "=", userId)
-    //   .select(["users.email"])
-    //   .executeTakeFirst();
+    if (!currentDbUser) {
+      throw new NotFoundError("Current user not found");
+    }
 
-    // if (!currentDbUser) {
-    //   throw new NotFoundError("Current user not found");
-    // }
+    const linkedDbUser = await db
+      .selectFrom("users")
+      .where("users.tenant_id", "=", tenantId)
+      .where("users.id", "=", body.link_with)
+      .select(["users.email"])
+      .executeTakeFirst();
 
-    // const linkedDbUser = await db
-    //   .selectFrom("users")
-    //   .where("users.tenant_id", "=", tenantId)
-    //   .where("users.id", "=", body.link_with)
-    //   .select(["users.email"])
-    //   .executeTakeFirst();
-
-    // if (!linkedDbUser) {
-    //   throw new NotFoundError("Linked user not found");
-    // }
+    if (!linkedDbUser) {
+      throw new NotFoundError("Linked user not found");
+    }
 
     // const currentUser = env.userFactory.getInstanceByName(
     //   getId(tenantId, currentDbUser.email),
@@ -225,6 +224,15 @@ export class UsersMgmtController extends Controller {
     //   email: linkedDbUser.email,
     //   linkWithEmail: currentDbUser.email,
     // });
+
+    await db
+      .updateTable("users")
+      .set({
+        linked_to: userId,
+      })
+      .where("id", "=", body.link_with)
+      .executeTakeFirst();
+
     // const linkedUserProfile = await linkedUser.getProfile.query();
     // const currentUserProfile = await currentUser.getProfile.query();
 
