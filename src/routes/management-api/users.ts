@@ -210,31 +210,14 @@ export class UsersMgmtController extends Controller {
       throw new NotFoundError("Linked user not found");
     }
 
-    // const currentUser = env.userFactory.getInstanceByName(
-    //   getId(tenantId, currentDbUser.email),
-    // );
-
-    // const linkedUser = env.userFactory.getInstanceByName(
-    //   getId(tenantId, linkedDbUser.email),
-    // );
-
-    // // Link the child account
-    // await linkedUser.linkToUser.mutate({
-    //   tenantId,
-    //   email: linkedDbUser.email,
-    //   linkWithEmail: currentDbUser.email,
-    // });
-
+    // Link the child account
     await db
       .updateTable("users")
       .set({
-        linked_to: userId,
+        linked_to: currentDbUser.email,
       })
       .where("id", "=", body.link_with)
       .executeTakeFirst();
-
-    // const linkedUserProfile = await linkedUser.getProfile.query();
-    // const currentUserProfile = await currentUser.getProfile.query();
 
     // await env.data.logs.create({
     //   category: "link",
@@ -243,18 +226,31 @@ export class UsersMgmtController extends Controller {
     //   user_id: linkedUserProfile.id,
     // });
 
-    // // Link the parent account
-    // const returnUser = currentUser.linkWithUser.mutate({
-    //   tenantId,
-    //   email: currentDbUser.email,
-    //   linkWithEmail: linkedDbUser.email,
-    // });
+    // Link the parent account
+    /* TBD
+    This requires adding a connection like so
+
+   connections: [
+      {
+        name: `linked-user|${input.linkWithEmail}`,
+        profile: {
+          email: input.linkWithEmail,
+        },
+      },
+    ],
+
+    I don't think we've decided on stringifying an array in the tags column
+    AND we need to copy how Auth0 does this...
+
+    */
+
     // await env.data.logs.create({
     //   category: "link",
     //   message: `Added ${linkedUserProfile.email} as linked user`,
     //   tenant_id: currentUserProfile.tenant_id,
     //   user_id: currentUserProfile.id,
     // });
+
     // return returnUser;
   }
 }
