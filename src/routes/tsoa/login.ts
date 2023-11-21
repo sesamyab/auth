@@ -30,6 +30,7 @@ import { applyTokenResponse } from "../../helpers/apply-token-response";
 import { sendLink, sendResetPassword } from "../../controllers/email";
 import { validateCode } from "../../authentication-flows/passwordless";
 import { UniversalLoginSession } from "../../adapters/interfaces/UniversalLoginSession";
+import userIdHash from "../../utils/userIdHash";
 
 // duplicated from /passwordless route
 const CODE_EXPIRATION_TIME = 30 * 60 * 1000;
@@ -364,7 +365,11 @@ export class LoginController extends Controller {
       if (!user) {
         // Create the user if it doesn't exist
         user = await env.data.users.create(client.tenant_id, {
-          id: `email|${nanoid()}`,
+          id: userIdHash({
+            email: loginParams.username,
+            tenantId: client.tenant_id,
+            provider: "email",
+          }),
           tenant_id: client.tenant_id,
           email: loginParams.username,
           name: loginParams.username,

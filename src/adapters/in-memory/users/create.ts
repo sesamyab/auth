@@ -7,7 +7,9 @@ export function createUser(users: SqlUser[]) {
       ...user,
       email: user.email || "",
       tenant_id: tenantId,
-      id: user.id || nanoid(),
+      // this is always called with an id now though
+      // id: user.id || nanoid(),
+      id: user.id,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

@@ -11,6 +11,7 @@ import {
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { HTTPException } from "hono/http-exception";
 import { nanoid } from "nanoid";
+import userIdHash from "../../utils/userIdHash";
 
 export interface RegisterUserParams {
   client_id: string;
@@ -62,7 +63,11 @@ export class DbConnectionController extends Controller {
     );
     if (!user) {
       user = await ctx.env.data.users.create(client.tenant_id, {
-        id: `email|${nanoid()}`,
+        id: userIdHash({
+          email: body.email,
+          tenantId: client.tenant_id,
+          provider: "email",
+        }),
         email: body.email,
         tenant_id: client.tenant_id,
         created_at: new Date().toISOString(),

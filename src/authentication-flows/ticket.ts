@@ -6,6 +6,7 @@ import { generateAuthResponse } from "../helpers/generate-auth-response";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
 import { applyTokenResponse } from "../helpers/apply-token-response";
 import { HTTPException } from "hono/http-exception";
+import userIdHash from "../utils/userIdHash";
 
 export async function ticketAuth(
   env: Env,
@@ -23,7 +24,11 @@ export async function ticketAuth(
 
   if (!user) {
     user = await env.data.users.create(tenant_id, {
-      id: `email|${nanoid()}`,
+      id: userIdHash({
+        email: ticket.email,
+        tenantId: tenant_id,
+        provider,
+      }),
       email: ticket.email,
       name: ticket.email,
       tenant_id,

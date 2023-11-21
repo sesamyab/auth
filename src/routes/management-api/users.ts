@@ -23,6 +23,7 @@ import {
 } from "../../types/auth0/UserResponse";
 import { HTTPException } from "hono/http-exception";
 import { nanoid } from "nanoid";
+import userIdHash from "../../utils/userIdHash";
 
 export interface LinkBodyParams {
   provider?: string;
@@ -160,7 +161,11 @@ export class UsersMgmtController extends Controller {
       // and the ID generation function will be called in six places
       // I really think we should move all this into the adapter
       // and pass the bare miniimum in.
-      id: `email|${nanoid()}`,
+      id: userIdHash({
+        email,
+        tenantId,
+        provider: "email",
+      }),
       tenant_id: tenantId,
       name: email,
       provider: "email",
