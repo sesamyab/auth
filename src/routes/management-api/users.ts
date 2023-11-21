@@ -156,6 +156,10 @@ export class UsersMgmtController extends Controller {
 
     const data = await env.data.users.create(tenantId, {
       email,
+      // env.data.users.create is called  in six places
+      // and the ID generation function will be called in six places
+      // I really think we should move all this into the adapter
+      // and pass the bare miniimum in.
       id: `email|${nanoid()}`,
       tenant_id: tenantId,
       name: email,
