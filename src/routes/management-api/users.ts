@@ -210,11 +210,29 @@ export class UsersMgmtController extends Controller {
     this.setStatus(201);
     const userResponse: UserResponse = {
       ...data,
-      user_id: data.id,
+      user_id: `${data.provider}|${data.id}`,
       logins_count: 0,
       last_ip: "",
       last_login: "",
-      identities: [],
+      identities: [
+        {
+          connection: data.connection,
+          provider: data.provider,
+          //
+          user_id: data.id,
+          isSocial: false,
+          profileData: {
+            email: data.email,
+            email_verified: true,
+            name: data.name,
+            username: data.email,
+            given_name: "",
+            phone_number: "",
+            phone_verified: false,
+            family_name: "",
+          },
+        },
+      ],
     };
 
     return userResponse;
