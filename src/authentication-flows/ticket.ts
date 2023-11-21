@@ -27,7 +27,7 @@ export async function ticketAuth(
       id: userIdHash({
         email: ticket.email,
         tenantId: tenant_id,
-        provider,
+        provider: "email",
       }),
       email: ticket.email,
       name: ticket.email,
