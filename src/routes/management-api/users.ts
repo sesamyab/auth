@@ -61,21 +61,39 @@ export class UsersMgmtController extends Controller {
     });
 
     const users: UserResponse[] = result.users.map((user) => {
-      const identities = [];
-
       return {
         ...user,
-        user_id: user.id,
+        // this matches the auth0 spec for the top level user_id - BUT we need to remove the provider prefix in the database
+        user_id: `${user.provider}|${user.id}`,
         logins_count: 0,
         last_ip: "",
         last_login: "",
-        identities,
         // some fields copied from previous adapter/planetscale/list mapping
         // TODO: store this field in sql
         email_verified: true,
         username: user.email,
         phone_number: "",
         phone_verified: false,
+        identities: [
+          {
+            connection: user.connection,
+            provider: user.provider,
+            //
+            user_id: user.id,
+            isSocial: false,
+            profileData: {
+              email: user.email,
+              email_verified: true,
+              name: user.name,
+              username: user.email,
+              given_name: "",
+              phone_number: "",
+              phone_verified: false,
+              family_name: "",
+            },
+          },
+          // TODO - get other identies from db
+        ],
       };
     });
 
@@ -113,8 +131,27 @@ export class UsersMgmtController extends Controller {
       // TODO: Default value. Patch all users to have this value
       logins_count: 0,
       ...userWithoutId,
-      identities: [],
       user_id: user.id,
+      identities: [
+        {
+          // duplicated from GET above
+          connection: user.connection,
+          provider: user.provider,
+          //
+          user_id: user.id,
+          isSocial: false,
+          profileData: {
+            email: user.email,
+            email_verified: true,
+            name: user.name,
+            username: user.email,
+            given_name: "",
+            phone_number: "",
+            phone_verified: false,
+            family_name: "",
+          },
+        },
+      ],
     };
   }
 
