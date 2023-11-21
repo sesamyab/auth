@@ -12,7 +12,11 @@ It seems that auth0 uses the social login id directly. Confirm this.
 User ids's in general seems to be 24 character hex (except apple...)
 */
 
-function userIdHash({ tenantId, provider, email }: userIdHashArgs): string {
+export default function userIdHash({
+  tenantId,
+  provider,
+  email,
+}: userIdHashArgs): string {
   const hash = crypto.createHash("sha256");
   hash.update(tenantId);
   hash.update(provider);
