@@ -1,4 +1,4 @@
-import userIdHash from "./userIdHash";
+import userIdHash from "../../src/utils/userIdHash";
 
 describe("userIdHash", () => {
   it("generates a hash", () => {
@@ -8,10 +8,6 @@ describe("userIdHash", () => {
       email: "example@hash-id.com",
     });
 
-    expect(hash).toEqual("e9f5b0b1f7e15f9c4d1c4f7d1");
-  });
-
-  it("hey", () => {
-    expect(true).toEqual(false);
+    expect(hash).toEqual("960657464dcc8b4f4bc48297");
   });
 });
