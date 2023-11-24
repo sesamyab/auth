@@ -113,42 +113,6 @@ export async function socialAuthCallback({
 
   const token = await oauth2Client.exchangeCodeForTokenResponse(code);
 
-  const oauth2Profile = parseJwt(token.id_token!);
-
-  const email = oauth2Profile.email.toLocaleLowerCase();
-
-  // TODO - this should actually be id! the social id pulled out before
-  // we can fix once we've done account linking
-  let user = await env.data.users.getByEmail(client.tenant_id, email);
-
-  if (!state.connection) {
-    throw new HTTPException(403, { message: "Connection not found" });
-  }
-
-  // for now just create a new user with the correct structure IF does not already existing
-  // TODO - intelligent account linking!
-  if (!user) {
-    user = await env.data.users.create(client.tenant_id, {
-      email,
-      tenant_id: client.tenant_id,
-      // this works for Google! but not sure about others  8-)
-      id: oauth2Profile.sub,
-      name: email,
-      provider: state.connection,
-      connection: state.connection,
-      email_verified: false,
-      last_ip: "",
-      login_count: 0,
-      is_social: false,
-      last_login: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-  }
-
-  ctx.set("email", email);
-  ctx.set("userId", user.id);
-
   const idToken = parseJwt(token.id_token!);
 
   const {
@@ -164,6 +128,48 @@ export async function socialAuthCallback({
     nonce,
     ...profileData
   } = idToken;
+
+  const email = idToken.email.toLocaleLowerCase();
+
+  // this is an interesting change! We're assuming now that all SSO accounts are stored with the id as the SSO sub
+  // BUT we already have existing users... so do we need something defensive here?
+  // e.g. get by email AND if have same provider? e.g. this SSO provider, then we change the id? TBD with Markus
+  // TODO - make another ticket if so
+  let user = await env.data.users.get(client.tenant_id, sub);
+
+  if (!state.connection) {
+    throw new HTTPException(403, { message: "Connection not found" });
+  }
+
+  if (!user) {
+    const existingEmailUser = await env.data.users.getByEmail(
+      client.tenant_id,
+      email,
+    );
+
+    if (existingEmailUser) {
+      // wahey! now we do the linking!
+    }
+
+    user = await env.data.users.create(client.tenant_id, {
+      email,
+      tenant_id: client.tenant_id,
+      id: sub,
+      name: email,
+      provider: state.connection,
+      connection: state.connection,
+      email_verified: false,
+      last_ip: "",
+      login_count: 0,
+      is_social: false,
+      last_login: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+  }
+
+  ctx.set("email", email);
+  ctx.set("userId", user.id);
 
   await env.data.users.update(client.tenant_id, ctx.get("userId"), {
     profileData: JSON.stringify(profileData),
