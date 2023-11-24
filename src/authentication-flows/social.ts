@@ -142,6 +142,8 @@ export async function socialAuthCallback({
   }
 
   if (!user) {
+    // TODO - need to filter and only get users without linked_to populated...
+    // this helper just returns the first?
     const existingEmailUser = await env.data.users.getByEmail(
       client.tenant_id,
       email,
