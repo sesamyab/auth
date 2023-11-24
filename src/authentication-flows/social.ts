@@ -147,8 +147,23 @@ export async function socialAuthCallback({
       email,
     );
 
+    // this code is all hacky and imperative... once everything merged would be great to add tests and rewrite using functions
+    let mainUserProfileId: string | undefined = undefined;
+
     if (existingEmailUser) {
-      // wahey! now we do the linking!
+      // this is a backwards compatible fix... hmmmm... can we just nuke all existing SSO accounts? seeing as Auth0 is the source of truth?
+      if (existingEmailUser.provider === state.connection) {
+        // we should just update this user!
+        // await env.data.users.update(client.tenant_id, existingEmailUser.id, {
+        // so we cannot actually update the id... according to these types... TBD
+        // id: sub,
+        // });
+        // no delete... should we have one?
+        // await env.data.users.delete(client.tenant_id, existingEmailUser.id);
+      } else {
+        // wahey! now we do the linking!
+        mainUserProfileId = existingEmailUser.id;
+      }
     }
 
     user = await env.data.users.create(client.tenant_id, {
@@ -165,12 +180,14 @@ export async function socialAuthCallback({
       last_login: new Date().toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      linked_to: mainUserProfileId, // "Main"? what should the correct terminology be here?
     });
   }
 
   ctx.set("email", email);
   ctx.set("userId", user.id);
 
+  // once everything merged we could combine these so not so many writes... but functionality is the most important
   await env.data.users.update(client.tenant_id, ctx.get("userId"), {
     profileData: JSON.stringify(profileData),
   });
