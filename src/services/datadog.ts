@@ -17,6 +17,11 @@ async function log(
   response: Response,
   message?: string,
 ) {
+  // we know we're in a test environment if we have this
+  if (ctx.env.ISSUER.includes("example.com")) {
+    return;
+  }
+
   const ddApiKey = ctx.env.DD_API_KEY;
 
   if (!ddApiKey?.length) {
