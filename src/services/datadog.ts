@@ -17,8 +17,11 @@ async function log(
   response: Response,
   message?: string,
 ) {
-  // we know we're in a test environment if we have this
-  if (ctx.env.ISSUER.includes("example.com")) {
+  const { req } = ctx;
+  const hostname = req.header("host") || "";
+
+  // on integration tests I see the host as the loopback address witha  different port everytime
+  if (hostname.includes("127.0.0.1")) {
     return;
   }
 
@@ -31,9 +34,6 @@ async function log(
 
   // Get our key from secrets
   const dd_logsEndpoint = "https://http-intake.logs.datadoghq.eu/api/v2/logs";
-
-  const { req } = ctx;
-  const hostname = req.header("host") || "";
   const headers = instanceToJson(ctx.req.raw.headers);
 
   if (headers.cookie) {
