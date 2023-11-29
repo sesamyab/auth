@@ -8,10 +8,10 @@ export interface LoginParams {
 }
 
 export async function validateCode(env: Env, params: LoginParams) {
-  const client = await env.data.clients.get(params.client_id);
-  if (!client) {
-    throw new HTTPException(400, { message: "Client not found" });
-  }
+  // const client = await env.data.clients.get(params.client_id);
+  // if (!client) {
+  //   throw new HTTPException(400, { message: "Client not found" });
+  // }
 
   const otps = await env.data.OTP.list(client.tenant_id, params.email);
   const otp = otps.find((otp) => otp.code === params.verification_code);
