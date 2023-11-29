@@ -104,15 +104,7 @@ This entity is used to specify any permissions that a user has on a tenant.
 
 The certificates are stored in KV storage and are used to sign the tokens. They are rotated once per day and the last two certificates are kept in storage.
 
-### Clients
-
-The clients are stored in KV storage and contain the client id and the client secret. They are stored as snapshots together with the tenant data.
-
 ## Durable Objects Entities
-
-### Users
-
-The users are stored in durable objects and contain the user profile and the login methods. When a user is updated it sends a message to the user queue to sync the user data to the SQLite database.
 
 # Linking accounts
 
