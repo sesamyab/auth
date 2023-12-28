@@ -164,41 +164,51 @@ describe("users", () => {
   //   expect(body[0].email_verified).toBe(true);
   // });
 
-  // describe("search for user", () => {
-  //   it("should search for a user with wildcard search", async () => {
-  //     const token = await getAdminToken();
+  describe("search for user", () => {
+    it("should search for a user with wildcard search", async () => {
+      const token = await getAdminToken();
 
-  //     const createUserResponse = await worker.fetch("/api/v2/users", {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         email: "test@example.com",
-  //         connection: "email",
-  //       }),
-  //       headers: {
-  //         authorization: `Bearer ${token}`,
-  //         "tenant-id": "test",
-  //         "content-type": "application/json",
-  //       },
-  //     });
+      const env = await getEnv();
+      const client = testClient(tsoaApp, env);
 
-  //     expect(createUserResponse.status).toBe(201);
+      const createUserResponse = await client.api.v2.users.$post(
+        {
+          json: {
+            email: "test@example.com",
+            connection: "email",
+          },
+        },
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+            "tenant-id": "tenantId",
+            "content-type": "application/json",
+          },
+        },
+      );
 
-  //     const usersResponse = await worker.fetch(
-  //       "/api/v2/users?page=0&per_page=2&q=example",
-  //       {
-  //         headers: {
-  //           authorization: `Bearer ${token}`,
-  //           "tenant-id": "test",
-  //         },
-  //       },
-  //     );
+      expect(createUserResponse.status).toBe(201);
 
-  //     expect(usersResponse.status).toBe(200);
+      const usersResponse = await client.api.v2.users.$get(
+        // how to pass in wildcard params?
+        // "/api/v2/users?page=0&per_page=2&q=example",
+        {},
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+            "tenant-id": "tenantId",
+          },
+        },
+      );
 
-  //     const body = (await usersResponse.json()) as UserResponse[];
-  //     expect(body.length).toBe(1);
-  //   });
-  // });
+      expect(usersResponse.status).toBe(200);
+
+      const body = (await usersResponse.json()) as UserResponse[];
+      // this test has false positives because we're not populating users...
+      // I think we need to add some base fixtures so we don't get false positives everywhere...
+      expect(body.length).toBe(1);
+    });
+  });
 
   // describe("link user", () => {
   //   it("should link two users using link_to parameter", async () => {
