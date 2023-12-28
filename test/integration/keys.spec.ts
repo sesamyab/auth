@@ -33,12 +33,17 @@ describe("keys", () => {
       ISSUER: "https://example.com/",
       READ_PERMISSION: "auth:read",
       WRITE_PERMISSION: "auth:write",
-    }).api.v2.keys.signing.$get(
-      {},
-      {
-        headers: { authorization: `Bearer ${token}`, "tenant-id": "tenantId" },
-      },
-    );
+    })
+      // keys here is failing on types for me
+      .api.v2.keys.signing.$get(
+        {},
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+            "tenant-id": "tenantId",
+          },
+        },
+      );
 
     const body = await response.text();
     expect(response.status).toBe(200);
