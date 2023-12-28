@@ -252,7 +252,7 @@ export class UsersMgmtController extends Controller {
       page: 0,
       per_page: 10,
       include_totals: false,
-      q: `linked_to:${link_with}`,
+      q: `linked_to_id:${link_with}`,
     });
 
     const identities = [user, ...linkedusers.users].map((u) => ({
