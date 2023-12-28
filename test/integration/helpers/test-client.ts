@@ -6,15 +6,13 @@ import { getCertificate } from "../../../integration-test/helpers/token";
 import { Database } from "../../../src/types";
 
 export async function getEnv() {
-  console.log("start", Date.now());
-
   const dialect = new SqliteDialect({
     database: new SQLite(":memory:"),
   });
   // Don't use getDb here as it will reuse the connection
   const db = new Kysely<Database>({ dialect: dialect });
 
-  await migrateToLatest(dialect, true, db);
+  await migrateToLatest(dialect, false, db);
 
   const data = createAdapters(db);
   await data.keys.create(getCertificate());
