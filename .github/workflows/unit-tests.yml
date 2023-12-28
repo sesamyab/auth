@@ -26,8 +26,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_READ_TOKEN }}
 
       - run: yarn lint
+      - run: yarn type-check
       - run: yarn format:ci-cd
       - run: yarn build
       - run: yarn test
       - run: yarn integration
-      - run: yarn type-check
