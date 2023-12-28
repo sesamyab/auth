@@ -38,9 +38,14 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("modified_at", "varchar(255)")
     .addPrimaryKeyConstraint("users_tenants", ["id", "tenant_id"])
     // Added in later migration
-    .addColumn("linked_to", "varchar(255)", (col) =>
-      col.references("users.id").onDelete("cascade"),
-    )
+    // sanity check that this is actually the issue...
+    // YES - with this everything seems to work...
+    // SO what is the problem with SQLite here? That can't be null?
+    .addColumn("linked_to", "varchar(255)")
+    // .addColumn("linked_to", "varchar(255)", (col) =>
+    //   // where is this actually set as a foreign key?? are we sure this is even what is going wrong?
+    //   col.references("users.id").onDelete("cascade"),
+    // )
     .addColumn("last_ip", "varchar(255)")
     .addColumn("login_count", "integer")
     .addColumn("last_login", "varchar(255)")
