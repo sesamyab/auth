@@ -41,7 +41,14 @@ export async function up(db: Kysely<Database>): Promise<void> {
     // sanity check that this is actually the issue...
     // YES - with this everything seems to work...
     // SO what is the problem with SQLite here? That can't be null?
-    .addColumn("linked_to", "varchar(255)")
+    .addColumn("linked_to_id", "varchar(255)")
+    .addColumn("linked_to_tenant", "varchar(255)")
+    .addForeignKeyConstraint(
+      "linked_to_constraint",
+      ["linked_to_id", "linked_to_tenant"],
+      "users",
+      ["id", "tenant_id"],
+    )
     // .addColumn("linked_to", "varchar(255)", (col) =>
     //   // where is this actually set as a foreign key?? are we sure this is even what is going wrong?
     //   col.references("users.id").onDelete("cascade"),

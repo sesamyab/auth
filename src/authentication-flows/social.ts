@@ -140,8 +140,10 @@ export async function socialAuthCallback({
     throw new HTTPException(403, { message: "Connection not found" });
   }
 
-  if (user?.linked_to) {
-    user = await env.data.users.get(client.tenant_id, user.linked_to);
+  if (user?.linked_to_id) {
+    // do we just assume here the tenant will be the same?...
+    // the linked_to tenant id is kind of superflous but ah well
+    user = await env.data.users.get(client.tenant_id, user.linked_to_id);
   }
 
   if (!user) {
@@ -175,7 +177,8 @@ export async function socialAuthCallback({
 
       // link user with existing user
       await env.data.users.update(client.tenant_id, newSocialUser.id, {
-        linked_to: sameEmailUser.id,
+        linked_to_id: sameEmailUser.id,
+        linked_to_tenant: sameEmailUser.tenant_id,
       });
     } else {
       // here we are using the new user as the primary ccount
