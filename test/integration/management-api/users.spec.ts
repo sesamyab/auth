@@ -51,65 +51,64 @@ describe("users", () => {
     expect(createUserResponse.status).toBe(400);
   });
 
-  // it("should create a new user for a tenant", async () => {
-  //   const token = await getAdminToken();
+  it("should create a new user for a tenant", async () => {
+    const token = await getAdminToken();
 
-  //   const env = await getEnv();
-  //   const client = testClient(tsoaApp, env);
+    const env = await getEnv();
+    const client = testClient(tsoaApp, env);
 
-  //   const createUserResponse = await client.api.v2.users.$post(
-  //     {
-  //       json: {
-  //         email: "test@example.com",
-  //         connection: "email",
-  //       },
-  //     },
-  //     {
-  //       headers: {
-  //         authorization: `Bearer ${token}`,
-  //         "tenant-id": "tenantId",
-  //         "content-type": "application/json",
-  //       },
-  //     },
-  //   );
+    const createUserResponse = await client.api.v2.users.$post(
+      {
+        json: {
+          email: "test@example.com",
+          connection: "email",
+        },
+      },
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "tenant-id": "tenantId",
+          "content-type": "application/json",
+        },
+      },
+    );
 
-  //   const tmp = await createUserResponse.text();
-  //   expect(createUserResponse.status).toBe(201);
+    expect(createUserResponse.status).toBe(201);
 
-  //   const newUser = (await createUserResponse.json()) as UserResponse;
-  //   expect(newUser.email).toBe("test@example.com");
-  //   expect(newUser.user_id).toContain("|");
+    const newUser = (await createUserResponse.json()) as UserResponse;
+    expect(newUser.email).toBe("test@example.com");
+    expect(newUser.user_id).toContain("|");
 
-  //   const [provider, id] = newUser.user_id.split("|");
+    const [provider, id] = newUser.user_id.split("|");
 
-  //   expect(provider).toBe("email");
-  //   expect(id.length).toBe(6);
+    expect(provider).toBe("email");
+    expect(id.length).toBe(6);
 
-  //   const usersResponse = await client.api.v2.users.$get(
-  //     {},
-  //     {
-  //       headers: {
-  //         authorization: `Bearer ${token}`,
-  //         "tenant-id": "tenantId",
-  //       },
-  //     },
-  //   );
+    const usersResponse = await client.api.v2.users.$get(
+      {},
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "tenant-id": "tenantId",
+        },
+      },
+    );
 
-  //   expect(usersResponse.status).toBe(200);
+    expect(usersResponse.status).toBe(200);
 
-  //   const body = (await usersResponse.json()) as UserResponse[];
-  //   expect(body.length).toBe(1);
-  //   expect(body[0].user_id).toBe(newUser.user_id);
-  //   expect(body[0].identities).toEqual([
-  //     {
-  //       connection: "email",
-  //       // inside the identity the user_id isn't prefixed with the provider
-  //       user_id: id,
-  //       provider: "email",
-  //       isSocial: false,
-  //     },
-  //   ]);
-  // });
+    const body = (await usersResponse.json()) as UserResponse[];
+    expect(body.length).toBe(1);
+    expect(body[0].user_id).toBe(newUser.user_id);
+    expect(body[0].identities).toEqual([
+      {
+        connection: "email",
+        // inside the identity the user_id isn't prefixed with the provider
+        user_id: id,
+        provider: "email",
+        isSocial: false,
+      },
+    ]);
+  });
 
   // it("should update a user", async () => {
   //   const token = await getAdminToken();
