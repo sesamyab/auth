@@ -110,59 +110,71 @@ describe("users", () => {
     ]);
   });
 
-  // it("should update a user", async () => {
-  //   const token = await getAdminToken();
+  it("should update a user", async () => {
+    const token = await getAdminToken();
 
-  //   const createUserResponse = await worker.fetch("/api/v2/users", {
-  //     method: "POST",
-  //     body: JSON.stringify({
-  //       email: "test@example.com",
-  //       connection: "email",
-  //     }),
-  //     headers: {
-  //       authorization: `Bearer ${token}`,
-  //       "tenant-id": "test",
-  //       "content-type": "application/json",
-  //     },
-  //   });
+    const env = await getEnv();
+    const client = testClient(tsoaApp, env);
 
-  //   expect(createUserResponse.status).toBe(201);
+    const createUserResponse = await client.api.v2.users.$post(
+      {
+        json: {
+          email: "test@example.com",
+          connection: "email",
+        },
+      },
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "tenant-id": "tenantId",
+          "content-type": "application/json",
+        },
+      },
+    );
 
-  //   const newUser = (await createUserResponse.json()) as UserResponse;
-  //   const [provider, id] = newUser.user_id.split("|");
+    expect(createUserResponse.status).toBe(201);
 
-  //   const updateUserResponse = await worker.fetch(
-  //     `/api/v2/users/${provider}|${id}`,
-  //     {
-  //       method: "PATCH",
-  //       body: JSON.stringify({
-  //         email_verified: true,
-  //       }),
-  //       headers: {
-  //         authorization: `Bearer ${token}`,
-  //         "content-type": "application/json",
-  //         "tenant-id": "test",
-  //       },
-  //     },
-  //   );
+    const newUser = (await createUserResponse.json()) as UserResponse;
+    const [provider, id] = newUser.user_id.split("|");
 
-  //   if (updateUserResponse.status !== 200) {
-  //     console.log(await updateUserResponse.text());
-  //   }
+    const updateUserResponse = await client.api.v2.users[":user_id"].$patch(
+      {
+        param: { user_id: id },
+        // how to actually pass up the new data we want to patch in?
+        // where is this object coming from? doesn't look like hono/testing at all...  much more magic
+        // json: {
+        //   email_verified: true,
+        // },
+      },
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+          "tenant-id": "tenantId",
+        },
+      },
+    );
 
-  //   expect(updateUserResponse.status).toBe(200);
+    if (updateUserResponse.status !== 200) {
+      console.log(await updateUserResponse.text());
+    }
 
-  //   const usersResponse = await worker.fetch("/api/v2/users", {
-  //     headers: {
-  //       authorization: `Bearer ${token}`,
-  //       "tenant-id": "test",
-  //     },
-  //   });
+    expect(updateUserResponse.status).toBe(200);
 
-  //   const body = (await usersResponse.json()) as UserResponse[];
-  //   expect(body.length).toBe(1);
-  //   expect(body[0].email_verified).toBe(true);
-  // });
+    const usersResponse = await client.api.v2.users.$get(
+      {},
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "tenant-id": "tenantId",
+        },
+      },
+    );
+
+    const body = (await usersResponse.json()) as UserResponse[];
+    expect(body.length).toBe(1);
+    expect(body[0].email_verified).toBe(true);
+  });
 
   // describe("search for user", () => {
   //   it("should search for a user with wildcard search", async () => {
