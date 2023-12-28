@@ -59,7 +59,7 @@ export class UsersMgmtController extends Controller {
     const { env } = request.ctx;
 
     // Filter out linked users
-    const query: string[] = ["-_exists_:linked_to"];
+    const query: string[] = ["-_exists_:linked_to_id"];
     if (q) {
       query.push(q);
     }
