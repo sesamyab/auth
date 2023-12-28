@@ -6,9 +6,7 @@ import { getEnv } from "../helpers/test-client";
 
 describe("users", () => {
   it("should return an empty list of users for a tenant", async () => {
-    console.log("start");
     const env = await getEnv();
-    console.log("got env");
     const client = testClient(tsoaApp, env);
 
     const token = await getAdminToken();
@@ -26,14 +24,11 @@ describe("users", () => {
 
     const body = (await response.json()) as UserResponse[];
     expect(body.length).toBe(0);
-    console.log("done");
   });
 
   // this is different to Auth0 where user_id OR email is required
   it("should return a 400 if try and create a new user for a tenant without an email", async () => {
-    console.log("start");
     const env = await getEnv();
-    console.log("got env");
     const client = testClient(tsoaApp, env);
 
     const token = await getAdminToken();
@@ -54,7 +49,6 @@ describe("users", () => {
     );
 
     expect(createUserResponse.status).toBe(400);
-    console.log("done");
   });
 
   // it("should create a new user for a tenant", async () => {
