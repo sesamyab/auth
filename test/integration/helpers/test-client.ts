@@ -174,6 +174,11 @@ export async function getEnv() {
     updated_at: new Date().toISOString(),
   });
 
+  data.passwords.create("tenantId", {
+    user_id: "auth2|userId",
+    password: "Test!",
+  });
+
   return {
     data,
     JWKS_URL: "https://example.com/.well-known/jwks.json",
