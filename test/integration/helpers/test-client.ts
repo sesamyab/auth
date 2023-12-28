@@ -156,6 +156,24 @@ export async function getEnv() {
   data.connections.create("tenantId", testConnection1);
   data.connections.create("tenantId", testConnection2);
 
+  // these fixtures copied from integration-test/test-server.ts
+  data.users.create("tenantId", {
+    id: "auth2|userId",
+    email: "foo@example.com",
+    email_verified: true,
+    name: "Åkesson Þorsteinsson",
+    // use a norse nickname here? more realistic
+    nickname: "Åkesson Þorsteinsson",
+    picture: "https://example.com/foo.png",
+    tenant_id: "tenantId",
+    login_count: 0,
+    provider: "auth2",
+    connection: "Username-Password-Authentication",
+    is_social: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
+
   return {
     data,
     JWKS_URL: "https://example.com/.well-known/jwks.json",

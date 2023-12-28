@@ -5,7 +5,7 @@ import { getAdminToken } from "../../../integration-test/helpers/token";
 import { getEnv } from "../helpers/test-client";
 
 describe("users", () => {
-  it("should return an empty list of users for a tenant", async () => {
+  it("should return an empty list of users for a tenant with no users", async () => {
     const env = await getEnv();
     const client = testClient(tsoaApp, env);
 
@@ -15,7 +15,7 @@ describe("users", () => {
       {
         headers: {
           authorization: `Bearer ${token}`,
-          "tenant-id": "tenantId",
+          "tenant-id": "otherTenant",
         },
       },
     );
@@ -67,7 +67,7 @@ describe("users", () => {
       {
         headers: {
           authorization: `Bearer ${token}`,
-          "tenant-id": "tenantId",
+          "tenant-id": "otherTenant",
           "content-type": "application/json",
         },
       },
@@ -89,7 +89,7 @@ describe("users", () => {
       {
         headers: {
           authorization: `Bearer ${token}`,
-          "tenant-id": "tenantId",
+          "tenant-id": "otherTenant",
         },
       },
     );
