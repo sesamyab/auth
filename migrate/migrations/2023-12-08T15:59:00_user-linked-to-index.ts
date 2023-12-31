@@ -6,6 +6,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .createIndex("users_linked_to_index")
     .on("users")
     .column("linked_to_id")
+    .column("linked_to_tenant")
     .execute();
 }
 
