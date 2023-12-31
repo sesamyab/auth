@@ -141,8 +141,6 @@ export async function socialAuthCallback({
   }
 
   if (user?.linked_to_id) {
-    // do we just assume here the tenant will be the same?...
-    // the linked_to tenant id is kind of superflous but ah well
     user = await env.data.users.get(client.tenant_id, user.linked_to_id);
   }
 
