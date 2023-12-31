@@ -37,15 +37,10 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("created_at", "varchar(255)")
     .addColumn("modified_at", "varchar(255)")
     .addPrimaryKeyConstraint("users_tenants", ["id", "tenant_id"])
-    // Added in later migration
-    // sanity check that this is actually the issue...
-    // YES - with this everything seems to work...
-    // SO what is the problem with SQLite here? That can't be null?
     .addColumn("linked_to_id", "varchar(255)")
-    .addColumn("linked_to_tenant", "varchar(255)")
     .addForeignKeyConstraint(
       "linked_to_constraint",
-      ["linked_to_id", "linked_to_tenant"],
+      ["linked_to_id", "tenant_id"],
       "users",
       ["id", "tenant_id"],
     )

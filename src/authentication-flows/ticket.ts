@@ -72,7 +72,6 @@ export async function ticketAuth(
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       linked_to_id: linkedTo,
-      linked_to_tenant: linkedTo ? tenant_id : undefined,
     });
 
     if (primaryUser) {
