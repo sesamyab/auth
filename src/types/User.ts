@@ -8,7 +8,6 @@ export interface BaseUser {
   picture?: string;
   locale?: string;
   linked_to_id?: string;
-  tenant_id?: string;
   profileData?: string;
   // TBD - adding this here as optional for when destructing id_token and updating
   email_verified?: boolean;
