@@ -245,7 +245,6 @@ export class UsersMgmtController extends Controller {
 
     await env.data.users.update(tenantId, userId, {
       linked_to_id: link_with,
-      tenant_id: tenantId,
     });
 
     const linkedusers = await env.data.users.list(tenantId, {
@@ -276,7 +275,6 @@ export class UsersMgmtController extends Controller {
 
     await env.data.users.update(tenantId, userId, {
       linked_to_id: undefined,
-      tenant_id: undefined,
     });
 
     this.setStatus(200);
