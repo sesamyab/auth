@@ -37,17 +37,15 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("created_at", "varchar(255)")
     .addColumn("modified_at", "varchar(255)")
     .addPrimaryKeyConstraint("users_tenants", ["id", "tenant_id"])
-    .addColumn("linked_to", "varchar(255)")
+    .addColumn("linked_to", "varchar(255)", (col) =>
+      col.references("users.id").onDelete("cascade"),
+    )
     .addForeignKeyConstraint(
       "linked_to_constraint",
       ["linked_to", "tenant_id"],
       "users",
       ["id", "tenant_id"],
     )
-    // .addColumn("linked_to", "varchar(255)", (col) =>
-    //   // where is this actually set as a foreign key?? are we sure this is even what is going wrong?
-    //   col.references("users.id").onDelete("cascade"),
-    // )
     .addColumn("last_ip", "varchar(255)")
     .addColumn("login_count", "integer")
     .addColumn("last_login", "varchar(255)")
