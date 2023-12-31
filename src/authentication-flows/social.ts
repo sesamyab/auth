@@ -176,7 +176,6 @@ export async function socialAuthCallback({
       // link user with existing user
       await env.data.users.update(client.tenant_id, newSocialUser.id, {
         linked_to_id: sameEmailUser.id,
-        tenant_id: sameEmailUser.tenant_id,
       });
     } else {
       // here we are using the new user as the primary ccount
