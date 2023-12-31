@@ -15,8 +15,6 @@ export function create(db: Kysely<Database>) {
       if (typeof data[key] === "boolean") {
         data[key] = data[key] ? 1 : 0;
       }
-      data.linked_to_id = undefined;
-      data.linked_to_tenant = undefined;
     });
 
     await db.insertInto("users").values(sqlUser).execute();
