@@ -7,7 +7,7 @@ export interface BaseUser {
   name?: string;
   picture?: string;
   locale?: string;
-  linked_to_id?: string;
+  linked_to?: string;
   profileData?: string;
   // TBD - adding this here as optional for when destructing id_token and updating
   email_verified?: boolean;

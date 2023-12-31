@@ -36,7 +36,7 @@ export class UsersByEmailController extends Controller {
       throw new HTTPException(404, { message: "User not found" });
     }
 
-    const primarySqlUsers = users.filter((user) => !user.linked_to_id);
+    const primarySqlUsers = users.filter((user) => !user.linked_to);
 
     if (primarySqlUsers.length === 0) {
       this.setStatus(404);

@@ -42,8 +42,8 @@ export async function ticketAuth(
 
   let user = usersWithSameEmail.find((u) => u.provider === provider) || null;
 
-  if (user?.linked_to_id) {
-    user = await env.data.users.get(tenant_id, user.linked_to_id);
+  if (user?.linked_to) {
+    user = await env.data.users.get(tenant_id, user.linked_to);
   }
 
   if (!user) {
@@ -53,7 +53,7 @@ export async function ticketAuth(
       );
     }
 
-    const primaryUser = usersWithSameEmail.find((u) => !u.linked_to_id);
+    const primaryUser = usersWithSameEmail.find((u) => !u.linked_to);
 
     const linkedTo = primaryUser?.id;
 
@@ -71,7 +71,7 @@ export async function ticketAuth(
       last_login: new Date().toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      linked_to_id: linkedTo,
+      linked_to: linkedTo,
     });
 
     if (primaryUser) {

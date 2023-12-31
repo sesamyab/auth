@@ -12,7 +12,7 @@ export async function enrichUser(
     page: 0,
     per_page: 10,
     include_totals: false,
-    q: `linked_to_id:${primaryUser.id}`,
+    q: `linked_to:${primaryUser.id}`,
   });
 
   const primaryUserIdentity: Identity = {

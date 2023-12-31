@@ -59,7 +59,7 @@ export class UsersMgmtController extends Controller {
     const { env } = request.ctx;
 
     // Filter out linked users
-    const query: string[] = ["-_exists_:linked_to_id"];
+    const query: string[] = ["-_exists_:linked_to"];
     if (q) {
       query.push(q);
     }
@@ -244,14 +244,14 @@ export class UsersMgmtController extends Controller {
     }
 
     await env.data.users.update(tenantId, userId, {
-      linked_to_id: link_with,
+      linked_to: link_with,
     });
 
     const linkedusers = await env.data.users.list(tenantId, {
       page: 0,
       per_page: 10,
       include_totals: false,
-      q: `linked_to_id:${link_with}`,
+      q: `linked_to:${link_with}`,
     });
 
     const identities = [user, ...linkedusers.users].map((u) => ({
@@ -274,7 +274,7 @@ export class UsersMgmtController extends Controller {
     const { env } = request.ctx;
 
     await env.data.users.update(tenantId, userId, {
-      linked_to_id: undefined,
+      linked_to: undefined,
     });
 
     this.setStatus(200);

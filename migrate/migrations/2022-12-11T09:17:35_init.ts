@@ -37,10 +37,10 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("created_at", "varchar(255)")
     .addColumn("modified_at", "varchar(255)")
     .addPrimaryKeyConstraint("users_tenants", ["id", "tenant_id"])
-    .addColumn("linked_to_id", "varchar(255)")
+    .addColumn("linked_to", "varchar(255)")
     .addForeignKeyConstraint(
       "linked_to_constraint",
-      ["linked_to_id", "tenant_id"],
+      ["linked_to", "tenant_id"],
       "users",
       ["id", "tenant_id"],
     )
