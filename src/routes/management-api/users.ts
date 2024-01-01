@@ -228,30 +228,30 @@ export class UsersMgmtController extends Controller {
   @Post("{user_id}/identities")
   public async linkUserAccount(
     @Request() request: RequestWithContext,
-    @Header("tenant-id") tenantId: string,
-    @Path("user_id") userId: string,
+    @Header() tenant_id: string,
+    @Path() user_id: string,
     @Body() body: LinkWithBodyParams | LinkUserIdBodyParams,
   ): Promise<Identity[]> {
     const { env } = request.ctx;
 
     const link_with = "link_with" in body ? body.link_with : body.user_id;
 
-    const user = await env.data.users.get(tenantId, link_with);
+    const user = await env.data.users.get(tenant_id, link_with);
     if (!user) {
       throw new HTTPException(400, {
         message: "Linking to an inexistent identity is not allowed.",
       });
     }
 
-    await env.data.users.update(tenantId, userId, {
-      linked_to: link_with,
+    await env.data.users.update(tenant_id, link_with, {
+      linked_to: user_id,
     });
 
-    const linkedusers = await env.data.users.list(tenantId, {
+    const linkedusers = await env.data.users.list(tenant_id, {
       page: 0,
       per_page: 10,
       include_totals: false,
-      q: `linked_to:${link_with}`,
+      q: `linked_to:${user_id}`,
     });
 
     const identities = [user, ...linkedusers.users].map((u) => ({

@@ -9,9 +9,12 @@ export function update(db: Kysely<Database>) {
   ): Promise<boolean> => {
     const booleans: any = {};
 
-    if (user.email_verified !== undefined) {
-      booleans.email_verified = user.email_verified ? 1 : 0;
-    }
+    Object.keys(user).forEach((key) => {
+      const data = user as any;
+      if (typeof data[key] === "boolean") {
+        data[key] = data[key] ? 1 : 0;
+      }
+    });
 
     const results = await db
       .updateTable("users")
