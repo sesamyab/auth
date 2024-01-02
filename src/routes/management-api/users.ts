@@ -228,8 +228,8 @@ export class UsersMgmtController extends Controller {
   @Post("{user_id}/identities")
   public async linkUserAccount(
     @Request() request: RequestWithContext,
-    @Header() tenant_id: string,
-    @Path() user_id: string,
+    @Header("tenant-id") tenant_id: string,
+    @Path("user_id") user_id: string,
     @Body() body: LinkWithBodyParams | LinkUserIdBodyParams,
   ): Promise<Identity[]> {
     const { env } = request.ctx;
