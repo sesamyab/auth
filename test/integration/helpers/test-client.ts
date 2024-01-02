@@ -12,7 +12,8 @@ export async function getEnv() {
   // Don't use getDb here as it will reuse the connection
   const db = new Kysely<Database>({ dialect: dialect });
 
-  await migrateToLatest(dialect, true, db);
+  const VERBOSE_LOGGING = false;
+  await migrateToLatest(dialect, VERBOSE_LOGGING, db);
 
   const data = createAdapters(db);
   await data.keys.create(getCertificate());
