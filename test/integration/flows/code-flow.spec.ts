@@ -302,8 +302,7 @@ describe("code-flow", () => {
       iss: "https://example.com/",
     });
   });
-  // no idea why this doesn't work WHEN ran with the previous test
-  it.skip("should return existing primary account when logging in with new code sign on with same email address", async () => {
+  it("should return existing primary account when logging in with new code sign on with same email address", async () => {
     const token = await getAdminToken();
     const env = (await getEnv()) as any;
     env.data.email = email;
