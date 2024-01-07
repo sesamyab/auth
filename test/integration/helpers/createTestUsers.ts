@@ -1,10 +1,10 @@
 import { testClient } from "hono/testing";
 import { getAdminToken } from "../../../integration-test/helpers/token";
 import { UserResponse } from "../../../src/types/auth0";
-import { EnvType } from "./test-client";
+import { Env } from "../../../src/types";
 import { tsoaApp } from "../../../src/app";
 
-export default async function createTestUsers(env: EnvType, tenantId: string) {
+export default async function createTestUsers(env: Env, tenantId: string) {
   const token = await getAdminToken();
   const client = testClient(tsoaApp, env);
 

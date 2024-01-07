@@ -13,8 +13,10 @@ import {
 } from "../../../src/types";
 import { EmailAdapter } from "../../../src/adapters/interfaces/Email";
 import type { Email } from "../../../src/types/Email";
+import { Env } from "../../../src/types";
+import { DataAdapters } from "../../../src/adapters/interfaces";
 
-export async function getEnv() {
+export async function getEnv(): Promise<Env> {
   const dialect = new SqliteDialect({
     database: new SQLite(":memory:"),
   });
@@ -201,18 +203,20 @@ export async function getEnv() {
     password: "Test!",
   });
 
+  // missing templates & domains
+  const dataAdapter: DataAdapters = {
+    ...data,
+    email: emailAdapter,
+  };
+
   return {
-    data: {
-      ...data,
-      email: emailAdapter,
-    },
+    data: dataAdapter,
     JWKS_URL: "https://example.com/.well-known/jwks.json",
     ISSUER: "https://example.com/",
     READ_PERMISSION: "auth:read",
     WRITE_PERMISSION: "auth:write",
     LOGIN2_URL: "https://login2.sesamy.dev",
+    // this is not in prod env
     db,
   };
 }
-
-export type EnvType = Awaited<ReturnType<typeof getEnv>>;
