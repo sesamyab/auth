@@ -10,14 +10,14 @@ export const SqlConnectionSchema = z.object({
   tenant_id: z.string(),
   client_id: z.string().optional(),
   client_secret: z.string().optional(),
-  authorization_endpoint: z.string().optional(),
+  authorization_endpoint: z.string(),
   response_type: z.custom<AuthorizationResponseType>().optional(),
   response_mode: z.custom<AuthorizationResponseMode>().optional(),
   private_key: z.string().optional(),
   kid: z.string().optional(),
   team_id: z.string().optional(),
-  token_endpoint: z.string().optional(),
-  scope: z.string().optional(),
+  token_endpoint: z.string(),
+  scope: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -26,16 +26,16 @@ export interface SqlConnection {
   id: string;
   name: string;
   tenant_id: string;
-  client_id?: string;
+  client_id: string;
   client_secret?: string;
-  authorization_endpoint?: string;
-  response_type?: string;
-  response_mode?: string;
+  authorization_endpoint: string;
+  response_type?: AuthorizationResponseType;
+  response_mode?: AuthorizationResponseMode;
   private_key?: string;
   kid?: string;
   team_id?: string;
-  token_endpoint?: string;
-  scope?: string;
+  token_endpoint: string;
+  scope: string;
   created_at: string;
   updated_at: string;
 }

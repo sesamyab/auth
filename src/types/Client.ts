@@ -49,6 +49,7 @@ export const ConnectionSchema = z.object({
   created_at: z.string(),
   updated_at: z.string(),
 });
+export type Connection = z.infer<typeof ConnectionSchema>;
 
 export const BaseClientSchema = z.object({
   id: z.string(),
