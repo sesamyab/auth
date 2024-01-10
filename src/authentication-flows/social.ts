@@ -92,11 +92,11 @@ async function getProfile(token: TokenResponse) {
 
     if (emailRaw) {
       const email = emailRaw.toLocaleLowerCase();
-      return { sub, email, email_verified, profileData };
+      return { email, email_verified, ...profileData };
     }
   }
 
-  const { iss, sub } = parseJwt(token.access_token);
+  const { iss } = parseJwt(token.access_token);
   const userinfoResponse = await fetch(`${iss}/userinfo`, {
     headers: {
       Authorization: `Bearer ${token.access_token}`,
@@ -111,10 +111,9 @@ async function getProfile(token: TokenResponse) {
     await userinfoResponse.json();
 
   return {
-    sub,
     email: userinfo.email,
     email_verified: userinfo.email_verified,
-    getProfile: userinfo,
+    profileData: userinfo,
   };
 }
 
@@ -163,10 +162,11 @@ export async function socialAuthCallback({
   );
 
   const profile = await getProfile(token);
+  const { sub } = parseJwt(token.access_token);
 
   const strictEmailVerified = !!profile.email_verified;
 
-  const ssoId = `${state.connection}|${profile.sub}`;
+  const ssoId = `${state.connection}|${sub}`;
   let user = await env.data.users.get(client.tenant_id, ssoId);
 
   if (!state.connection) {
