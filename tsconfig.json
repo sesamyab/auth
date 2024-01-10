@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "lib": ["es2020", "DOM"],
+    "lib": [
+      "es2020",
+      "DOM"
+    ],
     "module": "CommonJS",
     "target": "ES6",
     "strict": true,
@@ -21,11 +24,19 @@
     "types": [
       "@cloudflare/workers-types",
       "@types/jest",
-      "@types/service-worker-mock"
+      "@types/service-worker-mock",
+      "bun-types"
     ],
     "paths": {
-      "*": ["node_modules/*"]
+      "*": [
+        "node_modules/*"
+      ]
     }
   },
-  "include": ["src/**/*", "test/**/*", "integration-test/**/*", "scripts/**/*"]
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "integration-test/**/*",
+    "scripts/**/*"
+  ]
 }

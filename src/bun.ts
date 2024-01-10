@@ -1,5 +1,4 @@
 import { BunSqliteDialect } from "kysely-bun-sqlite";
-// @ts-ignore
 import * as bunSqlite from "bun:sqlite";
 import app from "../src/app";
 import { oAuth2ClientFactory } from "../src/services/oauth2-client";
