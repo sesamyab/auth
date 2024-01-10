@@ -29,8 +29,8 @@ export interface SqlConnection {
   client_id?: string;
   client_secret?: string;
   authorization_endpoint?: string;
-  response_type?: string;
-  response_mode?: string;
+  response_type?: AuthorizationResponseType;
+  response_mode?: AuthorizationResponseMode;
   private_key?: string;
   kid?: string;
   team_id?: string;

@@ -5,6 +5,7 @@ import {
   Tenant,
   SqlConnection,
   SqlDomain,
+  Client,
 } from "../../src/types";
 
 export const APPLICATION_FIXTURE: Application = {
@@ -72,3 +73,25 @@ export const DOMAINS_FIXTURE: SqlDomain[] = [
     updated_at: "updated_at",
   },
 ];
+
+export const CLIENT_FIXTURE: Client = {
+  id: "clientId",
+  name: "clientName",
+  tenant_id: "tenantId",
+  email_validation: "enabled",
+  client_secret: "clientSecret",
+  domains: DOMAINS_FIXTURE,
+  connections: CONNECTIONS_FIXTURE.map((c) => ({
+    ...c,
+    client_id: c.client_id || "",
+    scope: c.scope || "",
+    authorization_endpoint: c.authorization_endpoint || "",
+    token_endpoint: c.token_endpoint || "",
+    response_mode: c.response_mode || AuthorizationResponseMode.QUERY,
+    response_type: c.response_type || AuthorizationResponseType.CODE,
+  })),
+  allowed_callback_urls: ["http://localhost:3000", "https://example.com"],
+  allowed_logout_urls: ["http://localhost:3000", "https://example.com"],
+  allowed_web_origins: ["http://localhost:3000", "https://example.com"],
+  tenant: TENANT_FIXTURE,
+};

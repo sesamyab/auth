@@ -6,6 +6,7 @@ import {
   Client,
   Env,
   LoginState,
+  TokenResponse,
 } from "../types";
 import { headers } from "../constants";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
@@ -69,6 +70,54 @@ export interface socialAuthCallbackParams {
   code: string;
 }
 
+async function getProfile(token: TokenResponse) {
+  if (token.id_token) {
+    const {
+      iss,
+      azp,
+      aud,
+      at_hash,
+      iat,
+      exp,
+      sub,
+      hd,
+      jti,
+      nonce,
+      email: emailRaw,
+      email_verified,
+      auth_time,
+      nonce_supported,
+      ...profileData
+    } = parseJwt(token.id_token);
+
+    if (emailRaw) {
+      const email = emailRaw.toLocaleLowerCase();
+      return { sub, email, email_verified, profileData };
+    }
+  }
+
+  const { iss, sub } = parseJwt(token.access_token);
+  const userinfoResponse = await fetch(`${iss}/userinfo`, {
+    headers: {
+      Authorization: `Bearer ${token.access_token}`,
+    },
+  });
+
+  if (!userinfoResponse.ok) {
+    throw new Error("Error fetching userinfo");
+  }
+
+  const userinfo: { email: string; [key: string]: any } =
+    await userinfoResponse.json();
+
+  return {
+    sub,
+    email: userinfo.email,
+    email_verified: userinfo.email_verified,
+    getProfile: userinfo,
+  };
+}
+
 export async function socialAuthCallback({
   ctx,
   controller,
@@ -113,30 +162,11 @@ export async function socialAuthCallback({
     connection.token_exchange_basic_auth,
   );
 
-  const idToken = parseJwt(token.id_token!);
+  const profile = await getProfile(token);
 
-  const {
-    iss,
-    azp,
-    aud,
-    at_hash,
-    iat,
-    exp,
-    sub,
-    hd,
-    jti,
-    nonce,
-    email: emailRaw,
-    email_verified,
-    auth_time,
-    nonce_supported,
-    ...profileData
-  } = idToken;
+  const strictEmailVerified = !!profile.email_verified;
 
-  const email = emailRaw.toLocaleLowerCase();
-  const strictEmailVerified = !!email_verified;
-
-  const ssoId = `${state.connection}|${sub}`;
+  const ssoId = `${state.connection}|${profile.sub}`;
   let user = await env.data.users.get(client.tenant_id, ssoId);
 
   if (!state.connection) {
@@ -152,14 +182,14 @@ export async function socialAuthCallback({
     const [sameEmailUser] = await env.data.users.getByEmail(
       client.tenant_id,
       // TODO - this needs to ONLY fetch primary users e.g. where linked_to is null
-      email,
+      profile.email,
     );
 
     const newSocialUser = await env.data.users.create(client.tenant_id, {
-      id: `${state.connection}|${sub}`,
-      email,
+      id: `${state.connection}|${profile.sub}`,
+      email: profile.email,
       tenant_id: client.tenant_id,
-      name: email,
+      name: profile.email,
       provider: state.connection,
       connection: state.connection,
       email_verified: strictEmailVerified,
@@ -169,7 +199,7 @@ export async function socialAuthCallback({
       last_login: new Date().toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      profileData: JSON.stringify(profileData),
+      profileData: JSON.stringify(profile),
     });
 
     // this means we have a primary account
@@ -186,7 +216,7 @@ export async function socialAuthCallback({
     }
   }
 
-  ctx.set("email", email);
+  ctx.set("email", profile.email);
   ctx.set("userId", user.id);
 
   const sessionId = await setSilentAuthCookies(
