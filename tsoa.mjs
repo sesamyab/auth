@@ -7,7 +7,7 @@ import { readFile, writeFile } from "fs/promises";
     entryFile: "./src/server.ts",
     basePath: "/",
     specVersion: 3,
-    outputDirectory: "./build/public",
+    outputDirectory: "./build/",
     controllerPathGlobs: ["src/routes/tsoa/*.ts"],
     securityDefinitions: {
       oauth2: {
@@ -35,7 +35,7 @@ import { readFile, writeFile } from "fs/promises";
     entryFile: "./src/server.ts",
     basePath: "/",
     specVersion: 3,
-    outputDirectory: "./build/mgmt-api",
+    outputDirectory: "./build-mgmt-api/",
     controllerPathGlobs: ["src/routes/management-api/*.ts"],
     securityDefinitions: {
       oauth2managementApi: {
@@ -70,8 +70,9 @@ import { readFile, writeFile } from "fs/promises";
   const routeMgmtApiOptions = {
     noImplicitAdditionalProperties: "throw-on-extras",
     entryFile: "./src/server.ts",
-    routesDir: "./build",
+    routesDir: "./build-mgmt-api",
     controllerPathGlobs: ["src/routes/management-api/*.ts"],
+    authenticationModule: "./src/authentication.ts",
     middlewareTemplate: "node_modules/tsoa-hono/hono-router.hbs",
   };
 

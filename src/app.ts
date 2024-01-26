@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { Env } from "./types/Env";
 import { RegisterRoutes } from "../build/routes";
+import { RegisterRoutes as RegisterRoutesMgmtApi } from "../build-mgmt-api/routes";
 import swagger from "../build/public/swagger.json";
 import swaggerMgmtApi from "../build/mgmt-api/swagger.json";
 import packageJson from "../package.json";
@@ -108,5 +109,6 @@ app.get("/test", async (ctx: Context<{ Bindings: Env }>) => {
 });
 
 export const tsoaApp = RegisterRoutes(app as unknown as Hono);
+export const tsoaAppMgmtApi = RegisterRoutesMgmtApi(app as unknown as Hono);
 
 export default app;

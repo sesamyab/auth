@@ -6,6 +6,7 @@ wasm-pack.log
 worker/
 node_modules/
 build/
+build-mgmt-api/
 lib/
 data/
 coverage/

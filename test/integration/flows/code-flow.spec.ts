@@ -3,7 +3,7 @@ import type { LoginTicket } from "../../../src/routes/tsoa/authenticate";
 import { UserResponse } from "../../../src/types/auth0";
 import { doSilentAuthRequestAndReturnTokens } from "../helpers/silent-auth";
 import { testClient } from "hono/testing";
-import { tsoaApp } from "../../../src/app";
+import { tsoaApp, tsoaAppMgmtApi } from "../../../src/app";
 import { getAdminToken } from "../helpers/token";
 import { getEnv } from "../helpers/test-client";
 
@@ -12,6 +12,7 @@ describe("code-flow", () => {
     const token = await getAdminToken();
     const env = await getEnv();
     const client = testClient(tsoaApp, env);
+    const mgmtApi = testClient(tsoaAppMgmtApi, env);
 
     const AUTH_PARAMS = {
       nonce: "ehiIoMV7yJCNbSEpRq513IQgSX7XvvBM",
@@ -24,7 +25,7 @@ describe("code-flow", () => {
     // -----------------
     // Doing a new signup here, so expect this email not to exist
     // -----------------
-    const resInitialQuery = await client.api.v2["users-by-email"].$get(
+    const resInitialQuery = await mgmtApi.api.v2["users-by-email"].$get(
       {
         query: {
           email: "test@example.com",
@@ -260,6 +261,7 @@ describe("code-flow", () => {
     const token = await getAdminToken();
     const env = await getEnv();
     const client = testClient(tsoaApp, env);
+    const mgmtApi = testClient(tsoaAppMgmtApi, env);
 
     const nonce = "ehiIoMV7yJCNbSEpRq513IQgSX7XvvBM";
     const redirect_uri = "https://login.example.com/sv/callback";
@@ -344,7 +346,7 @@ describe("code-flow", () => {
     // ----------------------------
     // now check the primary user has a new 'email' connection identity
     // ----------------------------
-    const primaryUserRes = await client.api.v2.users[":user_id"].$get(
+    const primaryUserRes = await mgmtApi.api.v2.users[":user_id"].$get(
       {
         param: {
           user_id: "userId",
