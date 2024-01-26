@@ -3,9 +3,11 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { Env } from "./types/Env";
 import { RegisterRoutes } from "../build/routes";
-import swagger from "../build/swagger.json";
+import swagger from "../build/public/swagger.json";
+import swaggerMgmtApi from "../build/mgmt-api/swagger.json";
 import packageJson from "../package.json";
 import swaggerUi from "./routes/swagger-ui";
+import swaggerUiMgmtApi from "./routes/swagger-ui-mgmt-api";
 import { serve } from "./routes/login";
 import loggerMiddleware from "./middlewares/logger";
 import renderOauthRedirectHtml from "./routes/oauth2-redirect";
@@ -72,7 +74,13 @@ app.get("/spec", async () => {
   return new Response(JSON.stringify(swagger));
 });
 
+app.get("/spec-mgmt-api", async () => {
+  return new Response(JSON.stringify(swaggerMgmtApi));
+});
+
 app.get("/docs", swaggerUi);
+app.get("/docs-mgmtapi", swaggerUiMgmtApi);
+
 app.get("/oauth2-redirect.html", renderOauthRedirectHtml);
 app.get("/static/:file{.*}", serve);
 

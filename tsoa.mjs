@@ -7,7 +7,7 @@ import { readFile, writeFile } from "fs/promises";
     entryFile: "./src/server.ts",
     basePath: "/",
     specVersion: 3,
-    outputDirectory: "./build",
+    outputDirectory: "./build/public",
     controllerPathGlobs: ["src/routes/tsoa/*.ts"],
     securityDefinitions: {
       oauth2: {
@@ -35,7 +35,7 @@ import { readFile, writeFile } from "fs/promises";
     entryFile: "./src/server.ts",
     basePath: "/",
     specVersion: 3,
-    outputDirectory: "./build",
+    outputDirectory: "./build/mgmt-api",
     controllerPathGlobs: ["src/routes/management-api/*.ts"],
     securityDefinitions: {
       oauth2managementApi: {
