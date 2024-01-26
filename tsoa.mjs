@@ -8,12 +8,9 @@ import { readFile, writeFile } from "fs/promises";
     basePath: "/",
     specVersion: 3,
     outputDirectory: "./build",
-    controllerPathGlobs: [
-      "src/routes/tsoa/*.ts",
-      "src/routes/management-api/*.ts",
-    ],
+    controllerPathGlobs: ["src/routes/tsoa/*.ts"],
     securityDefinitions: {
-      oauth2managementApi: {
+      oauth2: {
         type: "oauth2",
         description: "This API uses OAuth 2 with the implicit flow",
         flows: {
@@ -30,7 +27,18 @@ import { readFile, writeFile } from "fs/promises";
           },
         },
       },
-      oauth2: {
+    },
+  };
+
+  const spectMgmtApiOptions = {
+    noImplicitAdditionalProperties: "throw-on-extras",
+    entryFile: "./src/server.ts",
+    basePath: "/",
+    specVersion: 3,
+    outputDirectory: "./build",
+    controllerPathGlobs: ["src/routes/management-api/*.ts"],
+    securityDefinitions: {
+      oauth2managementApi: {
         type: "oauth2",
         description: "This API uses OAuth 2 with the implicit flow",
         flows: {
@@ -54,11 +62,16 @@ import { readFile, writeFile } from "fs/promises";
     noImplicitAdditionalProperties: "throw-on-extras",
     entryFile: "./src/server.ts",
     routesDir: "./build",
-    controllerPathGlobs: [
-      "src/routes/tsoa/*.ts",
-      "src/routes/management-api/*.ts",
-    ],
+    controllerPathGlobs: ["src/routes/tsoa/*.ts"],
     authenticationModule: "./src/authentication.ts",
+    middlewareTemplate: "node_modules/tsoa-hono/hono-router.hbs",
+  };
+
+  const routeMgmtApiOptions = {
+    noImplicitAdditionalProperties: "throw-on-extras",
+    entryFile: "./src/server.ts",
+    routesDir: "./build",
+    controllerPathGlobs: ["src/routes/management-api/*.ts"],
     middlewareTemplate: "node_modules/tsoa-hono/hono-router.hbs",
   };
 
@@ -76,4 +89,13 @@ import { readFile, writeFile } from "fs/promises";
     tokenContent["application/json"];
 
   await writeFile(swaggerPath, JSON.stringify(spec, null, 2));
+
+  await generateSpec(spectMgmtApiOptions);
+  await generateRoutes(routeMgmtApiOptions);
+
+  const swaggerMgmtApiPath = `${spectMgmtApiOptions.outputDirectory}/swagger.json`;
+  const specMgmtApiFile = await readFile(swaggerMgmtApiPath);
+  const specMgmtApi = JSON.parse(specMgmtApiFile.toString());
+
+  await writeFile(swaggerMgmtApiPath, JSON.stringify(specMgmtApi, null, 2));
 })();
