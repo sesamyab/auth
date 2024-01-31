@@ -23,7 +23,7 @@ export enum LogTypes {
   FAILED_CROSS_ORIGIN_AUTHENTICATION = "fcoa",
 }
 
-export function loggerMiddleware(logType: string, description?: string) {
+export function loggerMiddleware() {
   return async (
     ctx: Context<{ Bindings: Env; Variables: Var }>,
     next: Next,
@@ -45,14 +45,16 @@ export function loggerMiddleware(logType: string, description?: string) {
 
     if (response.ok) {
       try {
+        // typescript thinks these params are always defined... I think we should change these types
         if (!ctx.var.tenantId) throw new Error("No tenant id");
+        if (!ctx.var.logType) throw new Error("No log type");
         await env.data.logs.create({
           tenant_id: ctx.var.tenantId,
-          user_id: ctx.var.userId,
-          description: description || ctx.var.description || "",
+          user_id: ctx.var.userId || "",
+          description: ctx.var.description || "",
           ip: ctx.req.header("x-real-ip") || "",
-          type: ctx.var.logType || logType,
-          client_id: ctx.var.client_id,
+          type: ctx.var.logType,
+          client_id: ctx.var.client_id || "",
           client_name: "",
           user_agent: ctx.req.header("user-agent"),
           date: new Date().toISOString(),
