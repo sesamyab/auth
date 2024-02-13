@@ -32,6 +32,15 @@ export type Auth0Client = {
   };
 };
 
+// this should never be used...
+export const DEFAULT_AUTH0_CLIENT = {
+  name: "error",
+  version: "error",
+  env: {
+    node: "error",
+  },
+};
+
 export interface LogCommonFields {
   type: LogType;
   date: string;

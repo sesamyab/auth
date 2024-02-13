@@ -26,7 +26,7 @@ import { validateRedirectUrl } from "../../utils/validate-redirect-url";
 import { HTTPException } from "hono/http-exception";
 import { getClient } from "../../services/clients";
 import { loggerMiddleware } from "../../tsoa-middlewares/logger";
-import { LogTypes } from "../../types";
+import { LogTypes, DEFAULT_AUTH0_CLIENT, Auth0Client } from "../../types";
 
 interface AuthorizeParams {
   request: RequestWithContext;
@@ -101,6 +101,8 @@ export class AuthorizeController extends Controller {
     @Query("code_challenge_method") code_challenge_method?: CodeChallengeMethod,
     @Query("code_challenge") code_challenge?: string,
     @Query("realm") realm?: string,
+    // do we make this required? Should be sent up...
+    @Query("auth0client") auth0client?: string,
     @Header("referer") referer?: string,
     @Header("cookie") cookie?: string,
   ): Promise<string> {
@@ -115,6 +117,17 @@ export class AuthorizeController extends Controller {
     }
     request.ctx.set("client_id", client.id);
     request.ctx.set("tenantId", client.tenant_id);
+
+    try {
+      if (auth0client) {
+        const auth0ClientObj: Auth0Client = JSON.parse(auth0client);
+        ctx.set("auth0_client", auth0ClientObj);
+      } else {
+        ctx.set("auth0_client", DEFAULT_AUTH0_CLIENT);
+      }
+    } catch (error) {
+      ctx.set("auth0_client", DEFAULT_AUTH0_CLIENT);
+    }
 
     const authParams: AuthParams = {
       redirect_uri,
