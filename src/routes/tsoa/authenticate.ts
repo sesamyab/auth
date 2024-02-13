@@ -1,20 +1,10 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Request,
-  Route,
-  Tags,
-  Middlewares,
-} from "@tsoa/runtime";
+import { Body, Controller, Post, Request, Route, Tags } from "@tsoa/runtime";
 import { RequestWithContext } from "../../types/RequestWithContext";
 import { nanoid } from "nanoid";
 import randomString from "../../utils/random-string";
 import { Ticket } from "../../types";
 import { HTTPException } from "hono/http-exception";
 import { getClient } from "../../services/clients";
-import { loggerMiddleware } from "../../tsoa-middlewares/logger";
-import { LogTypes } from "../../types";
 
 const TICKET_EXPIRATION_TIME = 30 * 60 * 1000;
 
@@ -56,7 +46,6 @@ export class AuthenticateController extends Controller {
    * @returns
    */
   @Post("authenticate")
-  @Middlewares(loggerMiddleware(LogTypes.SUCCESS_CROSS_ORIGIN_AUTHENTICATION))
   public async authenticate(
     @Body() body: CodeAuthenticateParams | PasswordAuthenticateParams,
     @Request() request: RequestWithContext,
@@ -93,7 +82,6 @@ export class AuthenticateController extends Controller {
       }
 
       if (!otp) {
-        request.ctx.set("logType", LogTypes.FAILED_CROSS_ORIGIN_AUTHENTICATION);
         throw new HTTPException(403, {
           res: new Response(
             JSON.stringify({
@@ -118,7 +106,6 @@ export class AuthenticateController extends Controller {
       const [user] = await env.data.users.getByEmail(client.tenant_id, email);
 
       if (!user) {
-        request.ctx.set("logType", LogTypes.FAILED_CROSS_ORIGIN_AUTHENTICATION);
         throw new HTTPException(403);
       }
 
