@@ -64,8 +64,8 @@ function createTypeLog(
       };
       return successApiOperation;
     case "scoa":
-      if (!ctx.var.auth0_client)
-        throw new Error("auth0_client is required for logging");
+      // if (!ctx.var.auth0_client)
+      //   throw new Error("auth0_client is required for logging");
 
       const successCrossOriginAuthentication: SuccessCrossOriginAuthentication =
         {
@@ -207,8 +207,8 @@ function createTypeLog(
   }
 }
 
-const DEBUG_LOG_TYPES = true;
-// const DEBUG_LOG_TYPES = false;
+// const DEBUG_LOG_TYPES = true;
+const DEBUG_LOG_TYPES = false;
 
 export function loggerMiddleware(
   logTypeInitial: LogType,
