@@ -19,6 +19,7 @@ import {
   SuccessSignup,
   FailedLogin,
   LogCommonFields,
+  DEFAULT_AUTH0_CLIENT,
 } from "../types";
 
 function createCommonLogFields(
@@ -47,15 +48,6 @@ function createCommonLogFields(
   return logCommonFields;
 }
 
-// this should never be reached...
-const DEFAULT_AUTH0_CLIENT = {
-  name: "error",
-  version: "error",
-  env: {
-    node: "error",
-  },
-};
-
 function createTypeLog(
   logType: LogType,
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -72,6 +64,9 @@ function createTypeLog(
       };
       return successApiOperation;
     case "scoa":
+      if (!ctx.var.auth0_client)
+        throw new Error("auth0_client is required for logging");
+
       const successCrossOriginAuthentication: SuccessCrossOriginAuthentication =
         {
           ...createCommonLogFields(ctx, body, description),
@@ -87,6 +82,9 @@ function createTypeLog(
         };
       return successCrossOriginAuthentication;
     case "fcoa":
+      // if (!ctx.var.auth0_client)
+      //   throw new Error("auth0_client is required for logging");
+
       const failedCrossOriginAuthentication: FailedCrossOriginAuthentication = {
         ...createCommonLogFields(ctx, body, description),
         type: "fcoa",
@@ -124,6 +122,9 @@ function createTypeLog(
       };
       return codeLinkSent;
     case "fsa":
+      // if (!ctx.var.auth0_client)
+      //   throw new Error("auth0_client is required for logging");
+
       const failedSilentAuth: FailedSilentAuth = {
         ...createCommonLogFields(ctx, body, description),
         type: "fsa",
@@ -164,6 +165,9 @@ function createTypeLog(
       };
       return successLogin;
     case "ssa":
+      // if (!ctx.var.auth0_client)
+      //   throw new Error("auth0_client is required for logging");
+
       const successSilentAuth: SuccessSilentAuth = {
         ...createCommonLogFields(ctx, body, description),
         type: "ssa",
@@ -203,8 +207,8 @@ function createTypeLog(
   }
 }
 
-// const DEBUG_LOG_TYPES = true;
-const DEBUG_LOG_TYPES = false;
+const DEBUG_LOG_TYPES = true;
+// const DEBUG_LOG_TYPES = false;
 
 export function loggerMiddleware(
   logTypeInitial: LogType,
