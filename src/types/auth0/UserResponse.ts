@@ -27,3 +27,10 @@ export interface UserResponse extends BaseUser {
 export interface GetUserResponseWithTotals extends Totals {
   users: UserResponse[];
 }
+
+// I'll duplicate everything for now and we can de-dupe common types after...
+// this might be a lot simpler than I'm expecting
+// how to do validation though? Zod right? 8-)
+export interface CreateEmailUserParas {}
+
+// hmmmm. I'll come back to this PR
