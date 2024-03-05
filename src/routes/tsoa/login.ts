@@ -98,6 +98,50 @@ export class LoginController extends Controller {
     return renderLogin(env, this, session, state);
   }
 
+  @Post("login")
+  public async postLogin(
+    @Request() request: RequestWithContext,
+    @Body() loginParams: LoginParams,
+    @Query("state") state: string,
+  ): Promise<string> {
+    const { env } = request.ctx;
+    const session = await env.data.universalLoginSessions.get(state);
+    if (!session) {
+      throw new HTTPException(400, { message: "Session not found" });
+    }
+
+    const client = await getClient(env, session.authParams.client_id);
+
+    if (!client) {
+      throw new HTTPException(400, { message: "Client not found" });
+    }
+
+    // TODO - wait, each of these is different! need to search by  email AND provider, and then return the primary user...
+    const [user] = await env.data.users.getByEmail(
+      client.tenant_id,
+      loginParams.username,
+    );
+
+    if (!user) {
+      throw new HTTPException(400, { message: "User not found" });
+    }
+
+    try {
+      const { valid } = await env.data.passwords.validate(client.tenant_id, {
+        user_id: user.id,
+        password: loginParams.password,
+      });
+
+      if (!valid) {
+        return renderLogin(env, this, session, state, "Invalid password");
+      }
+
+      return handleLogin(env, this, user, session);
+    } catch (err: any) {
+      return renderLogin(env, this, session, err.message);
+    }
+  }
+
   /**
    * Renders a code login form
    * @param request
@@ -576,50 +620,6 @@ export class LoginController extends Controller {
       page_title: "Password reset",
       message: "The password has been reset",
     });
-  }
-
-  @Post("login")
-  public async postLogin(
-    @Request() request: RequestWithContext,
-    @Body() loginParams: LoginParams,
-    @Query("state") state: string,
-  ): Promise<string> {
-    const { env } = request.ctx;
-    const session = await env.data.universalLoginSessions.get(state);
-    if (!session) {
-      throw new HTTPException(400, { message: "Session not found" });
-    }
-
-    const client = await getClient(env, session.authParams.client_id);
-
-    if (!client) {
-      throw new HTTPException(400, { message: "Client not found" });
-    }
-
-    // TODO - wait, each of these is different! need to search by  email AND provider, and then return the primary user...
-    const [user] = await env.data.users.getByEmail(
-      client.tenant_id,
-      loginParams.username,
-    );
-
-    if (!user) {
-      throw new HTTPException(400, { message: "User not found" });
-    }
-
-    try {
-      const { valid } = await env.data.passwords.validate(client.tenant_id, {
-        user_id: user.id,
-        password: loginParams.password,
-      });
-
-      if (!valid) {
-        return renderLogin(env, this, session, state, "Invalid password");
-      }
-
-      return handleLogin(env, this, user, session);
-    } catch (err: any) {
-      return renderLogin(env, this, session, err.message);
-    }
   }
 
   /**
