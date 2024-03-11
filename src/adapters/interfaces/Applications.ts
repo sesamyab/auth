@@ -17,14 +17,8 @@ export interface ApplicationsAdapter {
     tenant_id: string,
     params: CreateApplicationParams,
   ): Promise<Application>;
-  // get(tenant_id: string, id: string): Promise<Application | undefined>;
   list(
     tenant_id: string,
     params: ListParams,
   ): Promise<{ applications: Application[]; totals?: Totals }>;
-  // update(
-  //   tenant_id: string,
-  //   id: string,
-  //   application: Partial<Application>,
-  // ): Promise<void>;
 }

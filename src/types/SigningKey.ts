@@ -1,3 +1,13 @@
+import { z } from "zod";
+
+export const certificateSchema = z.object({
+  private_key: z.string(),
+  public_key: z.string(),
+  kid: z.string(),
+  created_at: z.string(),
+  revoked_at: z.string().optional(),
+});
+
 export interface Certificate {
   private_key: string;
   public_key: string;
