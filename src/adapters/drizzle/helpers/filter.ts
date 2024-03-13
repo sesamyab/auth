@@ -1,18 +1,8 @@
-import { SelectQueryBuilder } from "kysely";
-import { Database } from "../../../types";
-import { DrizzleDatabase } from "../../../services/drizzle";
-import { like } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
-// TODO: This needs to be rewritten to use the new query builder
-export function luceneFilter<TB extends keyof Database>(
-  db: DrizzleDatabase,
-  qb: SelectQueryBuilder<Database, TB, {}>,
-  query: string,
-  searchableColumns: string[],
-) {
+function luceneFilterToSQL(query: string, searchableColumns: string[]): string {
   const filters = query
     .split(/\s+/)
-    // TODO - no .replaceAll? is this our typing rather than reality? Is this hack safe?
     .map((q) => q.replace("=", ":"))
     .map((filter) => {
       let isNegation = filter.startsWith("-");
@@ -27,13 +17,12 @@ export function luceneFilter<TB extends keyof Database>(
         isExistsQuery = true;
         isNegation = false;
       } else if (filter.includes(":")) {
-        isNegation = filter.startsWith("-");
-        [key, value] = isNegation
-          ? filter.substring(1).split(":")
-          : filter.split(":");
+        [key, value] = filter.split(":").map((part) => part.trim());
+        if (isNegation) {
+          key = key.substring(1); // Remove '-' prefix
+        }
         isExistsQuery = false;
       } else {
-        // Single word search case
         key = null;
         value = filter;
         isExistsQuery = false;
@@ -42,32 +31,36 @@ export function luceneFilter<TB extends keyof Database>(
       return { key, value, isNegation, isExistsQuery };
     });
 
-  // Apply filters to the query builder
-  filters.forEach(({ key, value, isNegation, isExistsQuery }) => {
+  let sqlQuery = "";
+  const whereConditions: string[] = [];
+
+  filters.forEach(({ key, value, isNegation, isExistsQuery }, index) => {
     if (key) {
       if (isExistsQuery) {
-        if (isNegation) {
-          // I'm not following how this ever worked...
-          qb = qb.where(key as any, "is", null);
-        } else {
-          qb = qb.where(key as any, "is not", null);
-        }
+        const condition = isNegation
+          ? `(${key} IS NULL)`
+          : `(${key} IS NOT NULL)`;
+        whereConditions.push(condition);
       } else {
-        if (isNegation) {
-          qb = qb.where(key as any, "!=", value);
-        } else {
-          qb = qb.where(key as any, "=", value);
-        }
+        const condition = isNegation
+          ? `(${key} != '${value}')`
+          : `(${key} = '${value}')`;
+        whereConditions.push(condition);
       }
     } else {
-      // TODO: Generic single-word search across specified columns
-      // qb = qb.where((eb) =>
-      //   eb.or(
-      //     searchableColumns.map((col) => eb(like(col, value)),
-      //   ),
-      // )
+      // Generic single-word search across specified columns
+      const likeConditions = searchableColumns
+        .map((col) => `${col} LIKE '%${value}%'`)
+        .join(" OR ");
+      whereConditions.push(`(${likeConditions})`);
     }
   });
 
-  return qb;
+  sqlQuery += whereConditions.join(" AND ");
+
+  return sqlQuery;
+}
+
+export function luceneFilter(query: string, searchableColumns: string[]) {
+  return sql`${luceneFilterToSQL(query, searchableColumns)}`;
 }

@@ -1,24 +1,25 @@
-import { Database, LogsResponse } from "../../../types";
-import { Kysely } from "kysely";
+import { LogsResponse, SqlLog } from "../../../types";
 import { getLogResponse } from "../../../utils/logs";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { logs } from "../../../../drizzle/schema";
+import { eq, and } from "drizzle-orm";
 
-export function getLogs(db: Kysely<Database>) {
+export function getLogs(db: DrizzleDatabase) {
   return async (
     tenantId: string,
     logId: string,
   ): Promise<LogsResponse | null> => {
-    const log = await db
-      .selectFrom("logs")
-      .where("logs.tenant_id", "=", tenantId)
-      .where("logs.id", "=", logId)
-      .selectAll()
-      .executeTakeFirst();
+    const [log] = await db
+      .select()
+      .from(logs)
+      .where(and(eq(logs.tenant_id, tenantId), eq(logs.id, logId)));
 
     if (!log) {
       return null;
     }
 
-    const logResponse = getLogResponse(log);
+    // TODO: Use types from drizzle-orm
+    const logResponse = getLogResponse(log as SqlLog);
 
     return logResponse;
   };

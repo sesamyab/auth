@@ -1,6 +1,7 @@
-import { Kysely } from "kysely";
 import { nanoid } from "nanoid";
-import { Database, SqlLog, Log } from "../../../types";
+import { SqlLog, Log } from "../../../types";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { logs } from "../../../../drizzle/schema";
 
 function stringifyIfTruthy<T>(value: T | undefined): string | undefined {
   return value ? JSON.stringify(value) : undefined;
@@ -17,11 +18,7 @@ function flattenScopesIfArray(
 }
 
 function getAuth0ClientValue(log: Log): string | undefined {
-  // seems very arbitrary... but it's what auth0 does
-  const AUTH0_CLIENT_LOG_TYPES = ["seccft", "scoa", "fcoa", "fsa", "ssa"];
   if (
-    // typescript cannot handle this syntax
-    // AUTH0_CLIENT_LOG_TYPES.includes(log.type) &&
     log.type === "seccft" ||
     log.type === "scoa" ||
     log.type === "fcoa" ||
@@ -46,7 +43,7 @@ function getScopeValue(log: Log): string | undefined {
   return undefined;
 }
 
-export function createLog(db: Kysely<Database>) {
+export function createLog(db: DrizzleDatabase) {
   return async (tenant_id: string, params: Log): Promise<SqlLog> => {
     const { details } = params;
 
@@ -58,8 +55,14 @@ export function createLog(db: Kysely<Database>) {
       details: stringifyIfTruthy(details),
       scope: getScopeValue(params),
       isMobile: params.isMobile ? 1 : 0,
+      type: params.type,
     };
-    await db.insertInto("logs").values(log).execute();
+
+    await db
+      .insert(logs)
+      // TODO: sort out the type here
+      .values(log as any)
+      .execute();
     return log;
   };
 }

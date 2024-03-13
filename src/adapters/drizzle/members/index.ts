@@ -1,9 +1,8 @@
 import { MembersDataAdapter } from "../../interfaces/Members";
-import { Database } from "../../../types";
 import { listMembers } from "./list";
-import { Kysely } from "kysely";
+import { DrizzleDatabase } from "../../../services/drizzle";
 
-export function createMembersAdapter(db: Kysely<Database>): MembersDataAdapter {
+export function createMembersAdapter(db: DrizzleDatabase): MembersDataAdapter {
   return {
     list: listMembers(db),
   };
