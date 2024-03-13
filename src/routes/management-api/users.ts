@@ -28,6 +28,7 @@ import { Identity } from "../../types/auth0/Identity";
 import { enrichUser } from "../../utils/enrichUser";
 import { loggerMiddleware } from "../../tsoa-middlewares/logger";
 import { LogTypes } from "../../types";
+import { getUsersByEmail } from "../../utils/users";
 
 interface LinkWithBodyParams {
   link_with: string;
@@ -169,7 +170,7 @@ export class UsersMgmtController extends Controller {
       throw new HTTPException(400, { message: "Email is required" });
     }
 
-    if (user.connection !== "email") {
+    if (user?.connection !== "email") {
       throw new HTTPException(400, {
         message: "Only email connections are supported",
       });
@@ -182,7 +183,7 @@ export class UsersMgmtController extends Controller {
       id: `email|${userIdGenerate()}`,
       name: user.name || email,
       provider: "email",
-      connection: "email",
+      connection: user.connection || "email",
       // we need to be careful with this as the profile service was setting this true in places where I don't think it's correct
       // AND when does the account linking happen then? here? first login?
       email_verified: user.email_verified || false,
@@ -231,7 +232,8 @@ export class UsersMgmtController extends Controller {
     const { verify_email, ...userFields } = user;
 
     if (userFields.email) {
-      const existingUser = await env.data.users.getByEmail(
+      const existingUser = await getUsersByEmail(
+        env.data.users,
         tenant_id,
         userFields.email,
       );

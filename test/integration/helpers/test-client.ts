@@ -44,8 +44,16 @@ export async function getEnv() {
       emails.push({
         to,
         code,
-        // TODO - support this once test this
-        // state,
+        state,
+      });
+      return Promise.resolve();
+    },
+    //@ts-ignore
+    sendValidateEmailAddress: (env, client, to, code, state) => {
+      emails.push({
+        to,
+        code,
+        state,
       });
       return Promise.resolve();
     },

@@ -8,14 +8,9 @@ export interface ListUsersResponse extends Totals {
 
 export interface UserDataAdapter {
   get(tenant_id: string, id: string): Promise<User | null>;
-  getByEmail(tenant_id: string, email: string): Promise<User[]>;
   create(tenantId: string, user: User): Promise<User>;
   remove(tenantId: string, id: string): Promise<boolean>;
   list(tenantId: string, params: ListParams): Promise<ListUsersResponse>;
-  update(
-    tenantId: string,
-    id: string,
-    user: Partial<BaseUser>,
-  ): Promise<boolean>;
+  update(tenantId: string, id: string, user: Partial<User>): Promise<boolean>;
   unlink(tenantId: string, id: string): Promise<boolean>;
 }

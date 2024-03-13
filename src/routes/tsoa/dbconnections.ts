@@ -12,26 +12,14 @@ import { RequestWithContext } from "../../types/RequestWithContext";
 import { HTTPException } from "hono/http-exception";
 import userIdGenerate from "../../utils/userIdGenerate";
 import { getClient } from "../../services/clients";
-import {
-  getPrimaryUserByEmailAndProvider,
-  getPrimaryUserByEmail,
-} from "../../utils/users";
+import { getPrimaryUserByEmailAndProvider } from "../../utils/users";
 import { UniversalLoginSession } from "../../adapters/interfaces/UniversalLoginSession";
-import {
-  UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
-  headers,
-} from "../../constants";
+import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
 import { nanoid } from "nanoid";
-import {
-  AuthorizationResponseMode,
-  AuthorizationResponseType,
-  AuthParams,
-  CodeChallengeMethod,
-} from "../../types";
+import { AuthParams } from "../../types";
 import generateOTP from "../../utils/otp";
 
-// duplicated from /passwordless route - EXTRACT THIS OUT!
-const CODE_EXPIRATION_TIME = 30 * 60 * 1000;
+const CODE_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 
 interface SignupParams {
   client_id: string;
@@ -47,13 +35,6 @@ interface SignupResponse {
   app_metadata: {};
   user_metadata: {};
 }
-
-/*
-    Auth0 sends this:
-    client_id: "0N0wUHXFl0TMTY2L9aDJYvwX7Xy84HkW"
-    connection: "Username-Password-Authentication"
-    email: "dan+456@sesamy.com"
-  */
 
 interface ChangePasswordParams {
   client_id: string;
@@ -88,7 +69,6 @@ export class DbConnectionsController extends Controller {
       userAdapter: env.data.users,
       tenant_id: client.tenant_id,
       email,
-      // we are only allowing this on this route
       provider: "auth2",
     });
 
@@ -114,6 +94,46 @@ export class DbConnectionsController extends Controller {
       user_id: newUser.id,
       password: body.password,
     });
+
+    const authParams: AuthParams = {
+      client_id: body.client_id,
+      username: email,
+    };
+
+    const session: UniversalLoginSession = {
+      id: nanoid(),
+      client_id: client.id,
+      tenant_id: client.tenant_id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      expires_at: new Date(
+        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+      ).toISOString(),
+      authParams,
+    };
+
+    await env.data.universalLoginSessions.create(session);
+
+    const state = session.id;
+
+    const code = generateOTP();
+
+    await env.data.codes.create(client.tenant_id, {
+      id: nanoid(),
+      code,
+      type: "validation",
+      user_id: newUser.id,
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
+    });
+
+    await env.data.email.sendValidateEmailAddress(
+      env,
+      client,
+      email,
+      code,
+      state,
+    );
 
     return {
       _id: newUser.id,
@@ -148,7 +168,6 @@ export class DbConnectionsController extends Controller {
       userAdapter: env.data.users,
       tenant_id: client.tenant_id,
       email,
-      // we are only allowing this on this route...
       provider: "auth2",
     });
 
@@ -157,7 +176,6 @@ export class DbConnectionsController extends Controller {
       return "We've just sent you an email to reset your password.";
     }
 
-    // I hadn't considered these... what do we actually need?
     const authParams: AuthParams = {
       client_id: body.client_id,
       username: email,
