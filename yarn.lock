@@ -4421,10 +4421,10 @@ he@^1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-hono@^3.9.0:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/hono/-/hono-3.9.0.tgz#615c602115663186ae912c48c5b02d448002df89"
-  integrity sha512-MSGmerYD69jwDkBa631lY7y3xtEwbKFg2huFZ0TruzCdfJlmPd/rFzyvmMheePKsiA7CZp/KqL3mflBOzEmjLA==
+hono@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/hono/-/hono-4.1.0.tgz#62cef81df0dbf731643155e1e5c1b9dffb230dc4"
+  integrity sha512-9no6DCHb4ijB1tWdFXU6JnrnFgzwVZ1cnIcS1BjAFnMcjbtBTOMsQrDrPH3GXbkNEEEkj8kWqcYBy8Qc0bBkJQ==
 
 hook-std@^3.0.0:
   version "3.0.0"
