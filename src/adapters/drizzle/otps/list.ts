@@ -1,23 +1,23 @@
-import { Database, OTP } from "../../../types";
-import { Kysely } from "kysely";
+import { and, eq, gt, isNotNull } from "drizzle-orm";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { OTP, otpSchema } from "../../../types";
+import { otps } from "../../../../drizzle/schema";
 
-export function list(db: Kysely<Database>) {
+export function list(db: DrizzleDatabase) {
   return async (tenant_id: string, email: string): Promise<OTP[]> => {
     const now = new Date().toISOString();
 
-    const otps = await db
-      .selectFrom("otps")
-      .where("otps.tenant_id", "=", tenant_id)
-      .where("otps.email", "=", email)
-      .where("otps.used_at", "is", null)
-      .where("otps.expires_at", ">", now)
-      .selectAll()
-      .execute();
+    const result = await db.query.otps.findMany({
+      where: and(
+        and(eq(otps.tenant_id, tenant_id), eq(otps.email, email)),
+        and(isNotNull(otps.tenant_id), gt(otps.expires_at, now)),
+      ),
+    });
 
-    return otps.map((otp) => {
+    return result.map((otp) => {
       const { nonce, state, scope, response_type, redirect_uri, ...rest } = otp;
 
-      return {
+      return otpSchema.parse({
         ...rest,
         authParams: {
           nonce,
@@ -28,7 +28,7 @@ export function list(db: Kysely<Database>) {
         },
         created_at: new Date(otp.created_at),
         expires_at: new Date(otp.expires_at),
-      };
+      });
     });
   };
 }

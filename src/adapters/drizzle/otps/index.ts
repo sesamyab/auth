@@ -1,10 +1,9 @@
 import { OTPAdapter } from "../../interfaces/OTP";
-import { Database } from "../../../types";
 import { list } from "./list";
 import { create } from "./create";
-import { Kysely } from "kysely";
+import { DrizzleDatabase } from "../../../services/drizzle";
 
-export function createOTPAdapter(db: Kysely<Database>): OTPAdapter {
+export function createOTPAdapter(db: DrizzleDatabase): OTPAdapter {
   return {
     create: create(db),
     list: list(db),

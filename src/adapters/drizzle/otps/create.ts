@@ -1,12 +1,13 @@
-import { Database, OTP } from "../../../types";
-import { Kysely } from "kysely";
+import { otps } from "../../../../drizzle/schema";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { OTP } from "../../../types";
 
-export function create(db: Kysely<Database>) {
+export function create(db: DrizzleDatabase) {
   return async (otp: OTP) => {
     const { authParams, ...rest } = otp;
 
     await db
-      .insertInto("otps")
+      .insert(otps)
       .values({
         ...rest,
         ...authParams,
