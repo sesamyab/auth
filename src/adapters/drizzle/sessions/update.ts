@@ -1,20 +1,24 @@
-import { Database } from "../../../types";
-import { Kysely } from "kysely";
+import { and, eq, isNull } from "drizzle-orm";
+import { sessions } from "../../../../drizzle/schema";
+import { DrizzleDatabase } from "../../../services/drizzle";
 
-export function update(db: Kysely<Database>) {
+export function update(db: DrizzleDatabase) {
   return async (
     tenant_id: string,
     id: string,
     session: { used_at: string },
   ) => {
     const results = await db
-      .updateTable("sessions")
+      .update(sessions)
       .set(session)
-      .where("tenant_id", "=", tenant_id)
-      .where("sessions.id", "=", id)
-      .where("sessions.deleted_at", "is", null)
+      .where(
+        and(
+          eq(sessions.tenant_id, tenant_id),
+          and(eq(sessions.id, id), isNull(sessions.deleted_at)),
+        ),
+      )
       .execute();
 
-    return !!results.length;
+    return !!results.rowsAffected;
   };
 }

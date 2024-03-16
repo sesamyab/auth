@@ -1,17 +1,19 @@
-import { Database, Ticket, SqlTicket } from "../../../types";
-import { Kysely } from "kysely";
+import { tickets } from "../../../../drizzle/schema";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { Ticket } from "../../../types";
 
-export function create(db: Kysely<Database>) {
+export function create(db: DrizzleDatabase) {
   return async (ticket: Ticket) => {
     const { authParams, ...rest } = ticket;
 
-    const sqlTicket: SqlTicket = {
+    const sqlTicket = {
       ...rest,
       ...authParams,
       created_at: ticket.created_at.toISOString(),
       expires_at: ticket.expires_at.toISOString(),
+      used_at: null,
     };
 
-    await db.insertInto("tickets").values(sqlTicket).execute();
+    await db.insert(tickets).values(sqlTicket).execute();
   };
 }

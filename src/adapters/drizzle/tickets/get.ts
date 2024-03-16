@@ -1,14 +1,13 @@
-import { Database, Ticket } from "../../../types";
-import { Kysely } from "kysely";
+import { and, eq } from "drizzle-orm";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { Ticket, ticketSchema } from "../../../types";
+import { tickets } from "../../../../drizzle/schema";
 
-export function get(db: Kysely<Database>) {
+export function get(db: DrizzleDatabase) {
   return async (tenant_id: string, id: string): Promise<Ticket | null> => {
-    const ticket = await db
-      .selectFrom("tickets")
-      .where("tickets.tenant_id", "=", tenant_id)
-      .where("tickets.id", "=", id)
-      .selectAll()
-      .executeTakeFirst();
+    const ticket = await db.query.tickets.findFirst({
+      where: and(eq(tickets.tenant_id, tenant_id), eq(tickets.id, id)),
+    });
 
     if (!ticket) {
       return null;
@@ -24,7 +23,7 @@ export function get(db: Kysely<Database>) {
       ...rest
     } = ticket;
 
-    return {
+    return ticketSchema.parse({
       ...rest,
       authParams: {
         nonce,
@@ -36,6 +35,6 @@ export function get(db: Kysely<Database>) {
       },
       created_at: new Date(ticket.created_at),
       expires_at: new Date(ticket.expires_at),
-    };
+    });
   };
 }

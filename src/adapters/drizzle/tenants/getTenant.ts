@@ -1,12 +1,16 @@
-import { Database, Tenant } from "../../../types";
-import { Kysely } from "kysely";
+import { eq } from "drizzle-orm";
+import { tenants } from "../../../../drizzle/schema";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { Tenant, tenantSchema } from "../../../types";
 
-export function getTenant(db: Kysely<Database>) {
+export function getTenant(db: DrizzleDatabase) {
   return async (id: string): Promise<Tenant | undefined> => {
-    return db
-      .selectFrom("tenants")
-      .where("tenants.id", "=", id)
-      .selectAll()
-      .executeTakeFirst();
+    const result = db.query.tenants.findFirst({
+      where: eq(tenants.id, id),
+    });
+
+    if (!result) return undefined;
+
+    return tenantSchema.parse(result);
   };
 }

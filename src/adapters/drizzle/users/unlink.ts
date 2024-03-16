@@ -1,17 +1,17 @@
-import { Kysely } from "kysely";
-import { Database, SqlUser, PostUsersBody } from "../../../types";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { users } from "../../../../drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
-export function unlink(db: Kysely<Database>) {
+export function unlink(db: DrizzleDatabase) {
   return async (tenant_id: string, id: string): Promise<boolean> => {
     const unsafeTypeUser: any = { linked_to: null };
 
     const results = await db
-      .updateTable("users")
+      .update(users)
       .set(unsafeTypeUser)
-      .where("users.tenant_id", "=", tenant_id)
-      .where("users.id", "=", id)
+      .where(and(eq(users.tenant_id, tenant_id), eq(users.linked_to, id)))
       .execute();
 
-    return results.length === 1;
+    return results.rowsAffected === 1;
   };
 }

@@ -1,17 +1,21 @@
-import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
-import { Database } from "../../../types";
-import { Kysely } from "kysely";
+import {
+  UniversalLoginSession,
+  universalLoginSessionSchema,
+} from "../../interfaces/UniversalLoginSession";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { and, eq, gt } from "drizzle-orm";
+import { universal_login_sessions } from "../../../../drizzle/schema";
 
-export function get(db: Kysely<Database>) {
+export function get(db: DrizzleDatabase) {
   return async (id: string): Promise<UniversalLoginSession | null> => {
     const now = new Date().toISOString();
 
-    const session = await db
-      .selectFrom("universal_login_sessions")
-      .where("universal_login_sessions.expires_at", ">", now)
-      .where("universal_login_sessions.id", "=", id)
-      .selectAll()
-      .executeTakeFirst();
+    const session = await db.query.universal_login_sessions.findFirst({
+      where: and(
+        eq(universal_login_sessions.id, id),
+        gt(universal_login_sessions.expires_at, now),
+      ),
+    });
 
     if (!session) return null;
 
@@ -29,7 +33,7 @@ export function get(db: Kysely<Database>) {
       ...rest
     } = session;
 
-    return {
+    return universalLoginSessionSchema.parse({
       ...rest,
       authParams: {
         client_id: rest.client_id,
@@ -44,6 +48,6 @@ export function get(db: Kysely<Database>) {
         code_challenge,
         username,
       },
-    };
+    });
   };
 }

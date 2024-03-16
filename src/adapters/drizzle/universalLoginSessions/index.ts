@@ -1,12 +1,11 @@
 import { UniversalLoginSessionsAdapter } from "../../interfaces/UniversalLoginSession";
-import { Database } from "../../../types";
 import { get } from "./get";
 import { create } from "./create";
 import { update } from "./update";
-import { Kysely } from "kysely";
+import { DrizzleDatabase } from "../../../services/drizzle";
 
 export function createUniversalLoginSessionAdapter(
-  db: Kysely<Database>,
+  db: DrizzleDatabase,
 ): UniversalLoginSessionsAdapter {
   return {
     create: create(db),

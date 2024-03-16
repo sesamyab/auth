@@ -1,18 +1,20 @@
-import { Kysely } from "kysely";
 import bcrypt from "bcryptjs";
-import { Database, PasswordParams, PasswordResponse } from "../../../types";
+import { PasswordParams, PasswordResponse } from "../../../types";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { passwords } from "../../../../drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
-export function validate(db: Kysely<Database>) {
+export function validate(db: DrizzleDatabase) {
   return async (
     tenant_id: string,
     params: PasswordParams,
   ): Promise<PasswordResponse> => {
-    const password = await db
-      .selectFrom("passwords")
-      .where("passwords.tenant_id", "=", tenant_id)
-      .where("passwords.user_id", "=", params.user_id)
-      .selectAll()
-      .executeTakeFirst();
+    const password = await db.query.passwords.findFirst({
+      where: and(
+        eq(passwords.tenant_id, tenant_id),
+        eq(passwords.user_id, params.user_id),
+      ),
+    });
 
     if (!password) {
       return {

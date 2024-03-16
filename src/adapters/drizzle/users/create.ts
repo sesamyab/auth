@@ -1,8 +1,9 @@
-import { Kysely } from "kysely";
-import { Database, SqlUser, User } from "../../../types";
+import { SqlUser, User } from "../../../types";
 import { HTTPException } from "hono/http-exception";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { users } from "../../../../drizzle/schema";
 
-export function create(db: Kysely<Database>) {
+export function create(db: DrizzleDatabase) {
   return async (tenantId: string, user: User): Promise<User> => {
     const sqlUser: SqlUser = {
       ...user,
@@ -14,7 +15,7 @@ export function create(db: Kysely<Database>) {
     };
 
     try {
-      await db.insertInto("users").values(sqlUser).execute();
+      await db.insert(users).values(sqlUser).execute();
     } catch (err: any) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
         throw new HTTPException(409, { message: "User already exists" });

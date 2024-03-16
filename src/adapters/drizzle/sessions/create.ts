@@ -1,7 +1,8 @@
-import { Database, Session, SqlSession } from "../../../types";
-import { Kysely } from "kysely";
+import { sessions } from "../../../../drizzle/schema";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { Session, SqlSession } from "../../../types";
 
-export function create(db: Kysely<Database>) {
+export function create(db: DrizzleDatabase) {
   return async (session: Session) => {
     const sqlSession: SqlSession = {
       id: session.id,
@@ -13,6 +14,6 @@ export function create(db: Kysely<Database>) {
       used_at: session.used_at.toISOString(),
     };
 
-    await db.insertInto("sessions").values(sqlSession).execute();
+    await db.insert(sessions).values(sqlSession).execute();
   };
 }

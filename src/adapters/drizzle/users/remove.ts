@@ -1,22 +1,21 @@
-import { Kysely } from "kysely";
-import { Database } from "../../../types";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { users } from "../../../../drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
-export function remove(db: Kysely<Database>) {
+export function remove(db: DrizzleDatabase) {
   return async (tenant_id: string, id: string): Promise<boolean> => {
     // Planetscale has no cascading delete as it has no FK
     // so we manually remove any users first that have linked_to set to this id!
     await db
-      .deleteFrom("users")
-      .where("users.tenant_id", "=", tenant_id)
-      .where("users.linked_to", "=", id)
+      .delete(users)
+      .where(and(eq(users.tenant_id, tenant_id), eq(users.linked_to, id)))
       .execute();
 
     const results = await db
-      .deleteFrom("users")
-      .where("users.tenant_id", "=", tenant_id)
-      .where("users.id", "=", id)
+      .delete(users)
+      .where(and(eq(users.tenant_id, tenant_id), eq(users.id, id)))
       .execute();
 
-    return results.length === 1;
+    return results.rowsAffected === 1;
   };
 }

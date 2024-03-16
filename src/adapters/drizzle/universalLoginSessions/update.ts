@@ -1,16 +1,17 @@
 import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
-import { Database } from "../../../types";
-import { Kysely } from "kysely";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { universal_login_sessions } from "../../../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
-export function update(db: Kysely<Database>) {
+export function update(db: DrizzleDatabase) {
   return async (id: string, session: UniversalLoginSession) => {
     const { authParams, ...rest } = session;
     const results = await db
-      .updateTable("universal_login_sessions")
+      .update(universal_login_sessions)
       .set({ ...authParams, ...rest })
-      .where("id", "=", id)
+      .where(eq(universal_login_sessions.id, id))
       .execute();
 
-    return results.length === 1;
+    return results.rowsAffected === 1;
   };
 }

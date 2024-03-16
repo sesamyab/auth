@@ -1,21 +1,27 @@
-import { Database, PasswordParams } from "../../../types";
-import { Kysely } from "kysely";
+import { PasswordParams } from "../../../types";
 import bcrypt from "bcryptjs";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { passwords } from "../../../../drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
-export function update(db: Kysely<Database>) {
+export function update(db: DrizzleDatabase) {
   return async (tenant_id: string, params: PasswordParams) => {
     const passwordHash = bcrypt.hashSync(params.password, 10);
 
     const results = await db
-      .updateTable("passwords")
+      .update(passwords)
       .set({
         password: passwordHash,
         updated_at: new Date().toISOString(),
       })
-      .where("tenant_id", "=", tenant_id)
-      .where("user_id", "=", params.user_id)
+      .where(
+        and(
+          eq(passwords.tenant_id, tenant_id),
+          eq(passwords.user_id, params.user_id),
+        ),
+      )
       .execute();
 
-    return results.length === 1;
+    return results.rowsAffected === 1;
   };
 }

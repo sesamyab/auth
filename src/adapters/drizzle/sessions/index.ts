@@ -1,12 +1,11 @@
 import { SessionsAdapter } from "../../interfaces/Sessions";
-import { Database } from "../../../types";
 import { get } from "./get";
 import { create } from "./create";
-import { Kysely } from "kysely";
 import { remove } from "./remove";
 import { update } from "./update";
+import { DrizzleDatabase } from "../../../services/drizzle";
 
-export function createSessionsAdapter(db: Kysely<Database>): SessionsAdapter {
+export function createSessionsAdapter(db: DrizzleDatabase): SessionsAdapter {
   return {
     create: create(db),
     get: get(db),

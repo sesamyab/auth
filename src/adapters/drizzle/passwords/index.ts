@@ -1,11 +1,10 @@
 import { PasswordsAdapter } from "../../interfaces/Passwords";
-import { Database } from "../../../types";
 import { validate } from "./validate";
 import { create } from "./create";
 import { update } from "./update";
-import { Kysely } from "kysely";
+import { DrizzleDatabase } from "../../../services/drizzle";
 
-export function createPasswordAdapter(db: Kysely<Database>): PasswordsAdapter {
+export function createPasswordAdapter(db: DrizzleDatabase): PasswordsAdapter {
   return {
     create: create(db),
     update: update(db),

@@ -1,7 +1,9 @@
-import { Database, Tenant } from "../../../types";
-import { Kysely } from "kysely";
+import { eq } from "drizzle-orm";
+import { tenants } from "../../../../drizzle/schema";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { Tenant } from "../../../types";
 
-export function updateTenant(db: Kysely<Database>) {
+export function updateTenant(db: DrizzleDatabase) {
   return async (id: string, tenant: Partial<Tenant>): Promise<void> => {
     const tenantWithModified = {
       ...tenant,
@@ -10,9 +12,9 @@ export function updateTenant(db: Kysely<Database>) {
     };
 
     await db
-      .updateTable("tenants")
+      .update(tenants)
       .set(tenantWithModified)
-      .where("id", "=", id)
+      .where(eq(tenants.id, id))
       .execute();
   };
 }

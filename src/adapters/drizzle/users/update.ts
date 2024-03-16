@@ -1,5 +1,7 @@
-import { Kysely } from "kysely";
-import { Database, SqlUser, PostUsersBody } from "../../../types";
+import { SqlUser, PostUsersBody } from "../../../types";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { users } from "../../../../drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
 function getEmailVerified(user: Partial<PostUsersBody>): number | undefined {
   if (user.email_verified === undefined) {
@@ -9,7 +11,7 @@ function getEmailVerified(user: Partial<PostUsersBody>): number | undefined {
   return user.email_verified ? 1 : 0;
 }
 
-export function update(db: Kysely<Database>) {
+export function update(db: DrizzleDatabase) {
   return async (
     tenant_id: string,
     id: string,
@@ -22,12 +24,11 @@ export function update(db: Kysely<Database>) {
     };
 
     const results = await db
-      .updateTable("users")
+      .update(users)
       .set(sqlUser)
-      .where("users.tenant_id", "=", tenant_id)
-      .where("users.id", "=", id)
+      .where(and(eq(users.tenant_id, tenant_id), eq(users.id, id)))
       .execute();
 
-    return results.length === 1;
+    return results.rowsAffected === 1;
   };
 }

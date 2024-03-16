@@ -8,8 +8,9 @@ import { listUsers } from "./list";
 import { remove } from "./remove";
 import { update } from "./update";
 import { unlink } from "./unlink";
+import { DrizzleDatabase } from "../../../services/drizzle";
 
-export function createUsersAdapter(db: Kysely<Database>): UserDataAdapter {
+export function createUsersAdapter(db: DrizzleDatabase): UserDataAdapter {
   return {
     create: create(db),
     remove: remove(db),

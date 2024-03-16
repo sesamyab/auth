@@ -1,13 +1,13 @@
 import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
-import { Database } from "../../../types";
-import { Kysely } from "kysely";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { universal_login_sessions } from "../../../../drizzle/schema";
 
-export function create(db: Kysely<Database>) {
+export function create(db: DrizzleDatabase) {
   return async (session: UniversalLoginSession) => {
     const { authParams, ...rest } = session;
 
     await db
-      .insertInto("universal_login_sessions")
+      .insert(universal_login_sessions)
       .values({ ...authParams, ...rest })
       .execute();
   };

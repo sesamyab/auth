@@ -1,9 +1,10 @@
-import { Kysely } from "kysely";
 import { nanoid } from "nanoid";
-import { Database, Tenant } from "../../../types";
+import { Tenant } from "../../../types";
 import { CreateTenantParams } from "../../interfaces/Tenants";
+import { DrizzleDatabase } from "../../../services/drizzle";
+import { tenants } from "../../../../drizzle/schema";
 
-export function createTenant(db: Kysely<Database>) {
+export function createTenant(db: DrizzleDatabase) {
   return async (params: CreateTenantParams): Promise<Tenant> => {
     const tenant: Tenant = {
       id: params.id || nanoid(),
@@ -12,7 +13,7 @@ export function createTenant(db: Kysely<Database>) {
       ...params,
     };
 
-    await db.insertInto("tenants").values(tenant).execute();
+    await db.insert(tenants).values(tenant).execute();
 
     return tenant;
   };
