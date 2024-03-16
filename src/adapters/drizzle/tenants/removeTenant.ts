@@ -1,5 +1,3 @@
-import { Kysely } from "kysely";
-import { Database } from "../../../types";
 import { DrizzleDatabase } from "../../../services/drizzle";
 import { tenants } from "../../../../drizzle/schema";
 import { eq } from "drizzle-orm";

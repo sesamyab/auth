@@ -1,6 +1,6 @@
 import { serveStatic } from "hono/bun";
 // @ts-ignore
-import * as bunSqlite from "bun:sqlite";
+// import * as bunSqlite from "bun:sqlite";
 import app from "../src/app";
 import { oAuth2ClientFactory } from "../src/services/oauth2-client";
 import createAdapters from "./adapters/drizzle";

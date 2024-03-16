@@ -3,6 +3,7 @@ import getCountAsInt from "../../../utils/getCountAsInt";
 import { DrizzleDatabase } from "../../../services/drizzle";
 import { z } from "zod";
 import { tenantSchema } from "../../../types";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function listTenants(db: DrizzleDatabase) {
   return async (params: ListParams) => {
@@ -36,7 +37,9 @@ export function listTenants(db: DrizzleDatabase) {
     // const countInt = getCountAsInt(count);
 
     return {
-      tenants: z.array(tenantSchema).parse(result),
+      tenants: z
+        .array(tenantSchema)
+        .parse(result.map(transformNullsToUndefined)),
       start: (params.page - 1) * params.per_page,
       limit: params.per_page,
       length: 10,
