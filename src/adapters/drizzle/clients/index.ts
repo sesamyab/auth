@@ -8,6 +8,8 @@ import {
   domains,
 } from "../../../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+import { selectFrom } from "../helpers/select";
 
 function removeNullProperties<T = any>(obj: Record<string, any>) {
   const clone = { ...obj };
@@ -28,52 +30,55 @@ function splitUrls(value?: string) {
   return value.split(",").map((key) => key.trim());
 }
 
-export function createClientsAdapter(db: DrizzleDatabase) {
+export function createClientsAdapter(
+  db: DrizzleDatabase | DrizzleSQLiteDatabase,
+) {
   return {
     get: async (applicationId: string) => {
-      const [application] = await db
-        .select()
-        .from(applications)
-        .where(eq(applications.id, applicationId));
+      const [application] = await selectFrom(db, applications).where(
+        eq(applications.id, applicationId),
+      );
 
       if (!application) {
         throw new HTTPException(404, { message: "Client not found" });
       }
 
-      const [tenant] = await db
-        .select()
-        .from(tenants)
-        .where(eq(tenants.id, application.tenant_id));
+      const [tenant] = await selectFrom(db, tenants).where(
+        // TODO: check why tenant_id is unkown
+        eq(tenants.id, application.tenant_id as string),
+      );
 
       if (!tenant) {
         throw new HTTPException(404, { message: "Tenant not found" });
       }
 
-      const connectionsResults = await db
-        .select()
-        .from(connections)
-        .where(eq(connections.tenant_id, application.tenant_id));
+      const connectionsResults = await selectFrom(db, connections).where(
+        eq(connections.tenant_id, application.tenant_id as string),
+      );
 
-      const domainsResults = await db
-        .select()
-        .from(domains)
-        .where(eq(domains.tenant_id, application.tenant_id));
+      const domainsResults = await selectFrom(db, domains).where(
+        eq(domains.tenant_id, application.tenant_id as string),
+      );
 
       const client: PartialClient = {
-        id: application.id,
-        name: application.name,
+        id: application.id as string,
+        name: application.name as string,
         connections: connectionsResults.map((connection) =>
           SqlConnectionSchema.parse(removeNullProperties(connection)),
         ),
         domains: removeNullProperties(domainsResults),
-        tenant_id: tenant.id,
+        tenant_id: tenant.id as string,
         allowed_callback_urls: splitUrls(
-          application.allowed_callback_urls || "",
+          (application.allowed_callback_urls as string) || "",
         ),
-        allowed_logout_urls: splitUrls(application.allowed_logout_urls || ""),
-        allowed_web_origins: splitUrls(application.allowed_web_origins || ""),
-        email_validation: application.email_validation || "",
-        client_secret: application.client_secret || "",
+        allowed_logout_urls: splitUrls(
+          (application.allowed_logout_urls as string) || "",
+        ),
+        allowed_web_origins: splitUrls(
+          (application.allowed_web_origins as string) || "",
+        ),
+        email_validation: (application.email_validation as string) || "",
+        client_secret: (application.client_secret as string) || "",
         tenant: removeNullProperties({
           audience: tenant.audience,
           logo: tenant.logo,

@@ -5,7 +5,7 @@ import app from "../src/app";
 import { oAuth2ClientFactory } from "../src/services/oauth2-client";
 import createAdapters from "./adapters/drizzle";
 import createEmailAdapter from "./adapters/email";
-import { db } from "./services/drizzle";
+import { db } from "./services/drizzle-sqlite";
 
 app.use("/static/*", serveStatic({ root: "./" }));
 

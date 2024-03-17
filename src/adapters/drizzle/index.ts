@@ -15,8 +15,11 @@ import { createClientsAdapter } from "./clients";
 import { createKeysAdapter } from "./keys";
 import { createDomainsAdapter } from "./domains";
 import { DrizzleDatabase } from "../../services/drizzle";
+import { DrizzleSQLiteDatabase } from "../../services/drizzle-sqlite";
 
-export default function createAdapters(db: DrizzleDatabase) {
+export default function createAdapters(
+  db: DrizzleDatabase | DrizzleSQLiteDatabase,
+) {
   return {
     applications: createApplicationsAdapter(db),
     clients: createClientsAdapter(db),
