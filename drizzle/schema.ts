@@ -8,6 +8,7 @@ import {
   int,
   tinyint,
   unique,
+  boolean,
 } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
 
@@ -398,8 +399,8 @@ export const users = mysqlTable(
     last_login: varchar("last_login", { length: 255 }),
     provider: varchar("provider", { length: 255 }),
     connection: varchar("connection", { length: 255 }),
-    email_verified: tinyint("email_verified"),
-    is_social: tinyint("is_social"),
+    email_verified: boolean("email_verified"),
+    is_social: boolean("is_social"),
     app_metadata: varchar("app_metadata", { length: 8092 }),
     profileData: varchar("profileData", { length: 2048 }),
     locale: varchar("locale", { length: 255 }),
