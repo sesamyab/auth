@@ -7,31 +7,21 @@ import { eq } from "drizzle-orm";
 import { users } from "../../../../drizzle/schema";
 import { userSchema } from "../../../types";
 import { z } from "zod";
+import { withParams } from "../helpers/params";
 
 export function listUsers(db: DrizzleDatabase) {
   return async (
     tenantId: string,
     params: ListParams,
   ): Promise<ListUsersResponse> => {
-    const result = await db.query.users.findMany({
-      where: eq(users.tenant_id, tenantId),
-      limit: params.per_page,
-    });
+    const query = db.select().from(users).where(eq(users.tenant_id, tenantId));
+    const result = withParams(query.$dynamic(), params);
 
     // .selectFrom("users").where("users.tenant_id", "=", tenantId);
     if (params.q) {
       // NOTE - this isn't faithful to Auth0 as Auth0 does this in the dashboard - we can filter by any field on the Auth0 mgmt api
       // query = luceneFilter(db, query, params.q, ["email", "name"]);
     }
-
-    // if (params.sort && params.sort.sort_by) {
-    //   const { ref } = db.dynamic;
-    //   query = query.orderBy(ref(params.sort.sort_by), params.sort.sort_order);
-    // }
-
-    // const filteredQuery = query
-    //   .offset(params.page * params.per_page)
-    //   .limit(params.per_page);
 
     // const [{ count }] = await query
     //   .select((eb) => eb.fn.countAll().as("count"))

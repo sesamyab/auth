@@ -4,25 +4,13 @@ import { DrizzleDatabase } from "../../../services/drizzle";
 import { z } from "zod";
 import { tenantSchema } from "../../../types";
 import { transformNullsToUndefined } from "../null-to-undefined";
+import { tenants } from "../../../../drizzle/schema";
+import { withParams } from "../helpers/params";
 
 export function listTenants(db: DrizzleDatabase) {
   return async (params: ListParams) => {
-    const result = await db.query.tenants.findMany();
-
-    // if (params.sort && params.sort.sort_by) {
-    //   const { ref } = db.dynamic;
-    //   query = query.orderBy(ref(params.sort.sort_by), params.sort.sort_order);
-    // }
-
-    // if (params.q) {
-    //   query = query.where((eb) => eb.or([eb("name", "like", `%${params.q}%`)]));
-    // }
-
-    // const filteredQuery = query
-    //   .offset(params.page * params.per_page)
-    //   .limit(params.per_page);
-
-    // const tenants = await filteredQuery.selectAll().execute();
+    const query = db.select().from(tenants);
+    const result = await withParams(query.$dynamic(), params);
 
     // if (!params.include_totals) {
     //   return {
