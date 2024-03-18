@@ -6,7 +6,6 @@ import { RegisterRoutes } from "../build/routes";
 import swagger from "../build/swagger.json";
 import packageJson from "../package.json";
 import swaggerUi from "./routes/swagger-ui";
-import { serve } from "./routes/login";
 import loggerMiddleware from "./middlewares/logger";
 import renderOauthRedirectHtml from "./routes/oauth2-redirect";
 import { validateUrl } from "./utils/validate-redirect-url";

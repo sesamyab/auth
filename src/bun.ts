@@ -1,9 +1,7 @@
 import { serveStatic } from "hono/bun";
-// @ts-ignore
-// import * as bunSqlite from "bun:sqlite";
 import app from "../src/app";
 import { oAuth2ClientFactory } from "../src/services/oauth2-client";
-import createAdapters from "./adapters/drizzle";
+import createAdapters from "./adapters/drizzle-mysql";
 import createEmailAdapter from "./adapters/email";
 import { db } from "./services/drizzle-sqlite";
 
