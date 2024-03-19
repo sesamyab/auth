@@ -50,7 +50,7 @@ export const codes = sqliteTable(
   },
   (table) => {
     return {
-      expires_at_idx: index("expires_at").on(table.expires_at),
+      expires_at_idx: index("codes_expires_at_index").on(table.expires_at),
       codes_id: primaryKey({ columns: [table.id], name: "codes_id" }),
     };
   },
@@ -183,9 +183,9 @@ export const logs = sqliteTable(
   },
   (table) => {
     return {
-      user_id: index("logs_user_id").on(table.user_id),
-      tenant_id: index("logs_tenant_id").on(table.tenant_id),
-      date: index("logs_date").on(table.date),
+      user_id: index("logs_user_id_index").on(table.user_id),
+      tenant_id: index("logs_tenant_id_index").on(table.tenant_id),
+      date: index("logs_date_index").on(table.date),
       logs_id: primaryKey({ columns: [table.id], name: "logs_id" }),
     };
   },
@@ -254,8 +254,8 @@ export const otps = sqliteTable(
   },
   (table) => {
     return {
-      email_idx: index("email").on(table.email),
-      expires_at_idx: index("expires_at").on(table.expires_at),
+      email_idx: index("otps_email_index").on(table.email),
+      expires_at_idx: index("otps_expires_at_index").on(table.expires_at),
       otps_id: primaryKey({ columns: [table.id], name: "otps_id" }),
     };
   },
@@ -403,9 +403,9 @@ export const users = sqliteTable(
   },
   (table) => {
     return {
-      email_idx: index("email").on(table.email),
-      linked_to_idx: index("linked_to").on(table.linked_to),
-      name_idx: index("name").on(table.name),
+      email_idx: index("users_email_index").on(table.email),
+      linked_to_idx: index("users_linked_to_index").on(table.linked_to),
+      name_idx: index("users_name_index").on(table.name),
       users_id_tenant_id: primaryKey({
         columns: [table.id, table.tenant_id],
         name: "users_id_tenant_id",

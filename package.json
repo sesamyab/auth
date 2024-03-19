@@ -5,10 +5,9 @@
   "main": "build/src/server.js",
   "scripts": {
     "build": "node tsoa.mjs",
-    "dev": "bun tsoa.mjs && bun run src/bun.ts --watch",
+    "dev": "bun run src/bun.ts --watch",
     "dev:wrangler": "node tsoa.mjs && wrangler dev --remote",
     "dev:https": "node tsoa.mjs && wrangler dev --remote --local-protocol=https",
-    "mf": "node tsoa.mjs && tsc & miniflare",
     "format": "prettier --write '**/*.{ts,css,json,md}'",
     "format:ci-cd": "prettier --check '**/*.{ts,css,json,md}'",
     "lint": "eslint",
@@ -18,7 +17,8 @@
     "prepare": "husky install",
     "type-check": "tsc",
     "pull-translations": "i18nexus pull -k EWI52U0e8j13AX31kLcS-A --path ./src/locales && prettier --write ./src/locales/**/*.json",
-    "knip": "knip"
+    "knip": "knip",
+    "drizzle:migrate": "bunx drizzle-kit generate:sqlite --schema ./drizzle-sqlite/schema.ts --out ./drizzle-sqlite"
   },
   "author": "",
   "license": "MIT",
