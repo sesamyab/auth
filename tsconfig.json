@@ -29,5 +29,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src/**/*", "test/**/*", "integration-test/**/*", "scripts/**/*"]
+  "include": ["src/**/*", "test/**/*", "integration-test/**/*", "scripts/**/*"],
+  "exclude": ["node_modules/bun-types/globals.d.ts"]
 }

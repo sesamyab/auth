@@ -2,7 +2,6 @@ import { PasswordsAdapter } from "../../interfaces/Passwords";
 import { validate } from "./validate";
 import { create } from "./create";
 import { update } from "./update";
-import { DrizzleDatabase } from "../../../services/drizzle";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 
 export function createPasswordAdapter(

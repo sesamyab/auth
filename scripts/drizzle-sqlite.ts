@@ -1,10 +1,11 @@
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import createAdapters from "../src/adapters/drizzle-sqlite";
 import { create } from "../src/services/rsa-key";
 import { nanoid } from "nanoid";
 
-import { db } from "../src/services/drizzle-sqlite";
+import { getDb } from "../src/services/drizzle-sqlite";
 
+const db = getDb(":memory:");
 const data = createAdapters(db);
 (async () => {
   await migrate(db, { migrationsFolder: "./drizzle-sqlite" });

@@ -1,10 +1,11 @@
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
+import SQLite from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "../../drizzle-sqlite/schema";
 
-const sqlite = new Database("db.sqlite");
+export function getDb(path: ":db.sqlite:" | ":memory:") {
+  const db = drizzle(new SQLite(path), { schema });
 
-const db = drizzle(sqlite, { schema });
+  return db;
+}
 
-export { db };
-export type DrizzleSQLiteDatabase = typeof db;
+export type DrizzleSQLiteDatabase = ReturnType<typeof getDb>;
