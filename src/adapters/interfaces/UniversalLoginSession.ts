@@ -9,13 +9,12 @@ export const universalLoginSessionSchema = z.object({
   updated_at: z.string(),
   expires_at: z.string(),
   authParams: authParamsSchema,
-  username: z.string().optional(),
+  username: z.string(),
 });
 
 export interface UniversalLoginSession {
   id: string;
   tenant_id: string;
-  client_id: string;
   created_at: string;
   updated_at: string;
   expires_at: string;

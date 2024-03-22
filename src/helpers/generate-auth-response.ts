@@ -85,7 +85,7 @@ export async function generateTokens(
 
     tokenResponse.id_token = await tokenFactory.createIDToken({
       ...user,
-      clientId: authParams.client_id,
+      clientId: authParams.client_id!,
       userId: userId,
       iss: env.ISSUER,
       sid,

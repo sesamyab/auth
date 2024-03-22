@@ -8,7 +8,7 @@ export function create(db: DrizzleSQLiteDatabase) {
 
     await db
       .insert(universal_login_sessions)
-      .values({ ...authParams, ...rest })
+      .values({ ...authParams, ...rest, client_id: authParams.client_id! })
       .execute();
   };
 }

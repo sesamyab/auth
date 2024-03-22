@@ -5,6 +5,7 @@ import {
 import { and, eq, gt } from "drizzle-orm";
 import { universal_login_sessions } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function get(db: DrizzleSQLiteDatabase) {
   return async (id: string): Promise<UniversalLoginSession | null> => {
@@ -33,7 +34,7 @@ export function get(db: DrizzleSQLiteDatabase) {
       ...rest
     } = session;
 
-    return universalLoginSessionSchema.parse({
+    const universalLoginSessionWithoutNulls = transformNullsToUndefined({
       ...rest,
       authParams: {
         client_id: rest.client_id,
@@ -49,5 +50,7 @@ export function get(db: DrizzleSQLiteDatabase) {
         username,
       },
     });
+
+    return universalLoginSessionSchema.parse(universalLoginSessionWithoutNulls);
   };
 }

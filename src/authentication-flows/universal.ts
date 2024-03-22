@@ -19,7 +19,7 @@ export async function universalAuth({
   controller,
   authParams,
 }: UniversalAuthParams) {
-  const client = await getClient(env, authParams.client_id);
+  const client = await getClient(env, authParams.client_id!);
 
   if (!client) {
     throw new Error("Client not found");
@@ -27,7 +27,6 @@ export async function universalAuth({
 
   const session: UniversalLoginSession = {
     id: nanoid(),
-    client_id: client.id,
     tenant_id: client.tenant_id,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

@@ -30,7 +30,7 @@ export async function authorizeCodeGrant(
     throw new HTTPException(403, { message: "Invalid Client" });
   }
 
-  const client = await getClient(env, state.authParams.client_id);
+  const client = await getClient(env, state.authParams.client_id!);
   if (!client) {
     throw new HTTPException(400, { message: "Client not found" });
   }
