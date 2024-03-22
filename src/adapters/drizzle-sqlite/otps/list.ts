@@ -2,6 +2,7 @@ import { and, eq, gt, isNotNull } from "drizzle-orm";
 import { OTP, otpSchema } from "../../../types";
 import { otps } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function list(db: DrizzleSQLiteDatabase) {
   return async (tenant_id: string, email: string): Promise<OTP[]> => {
@@ -15,10 +16,18 @@ export function list(db: DrizzleSQLiteDatabase) {
     });
 
     return result.map((otp) => {
-      const { nonce, state, scope, response_type, redirect_uri, ...rest } = otp;
+      const {
+        nonce,
+        state,
+        scope,
+        response_type,
+        redirect_uri,
+        response_mode,
+        ...rest
+      } = otp;
 
       return otpSchema.parse({
-        ...rest,
+        ...transformNullsToUndefined(rest),
         authParams: {
           nonce,
           state,

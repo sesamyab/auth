@@ -29,7 +29,7 @@ export const authParamsSchema = z.object({
   code_challenge_method: z.nativeEnum(CodeChallengeMethod).optional(),
   code_challenge: z.string().optional(),
   username: z.string().optional(),
-  client_id: z.string(),
+  client_id: z.string().optional(),
 });
 
 export interface AuthParams {

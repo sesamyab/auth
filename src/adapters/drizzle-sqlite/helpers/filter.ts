@@ -1,6 +1,7 @@
-import { sql } from "drizzle-orm";
-
-function luceneFilterToSQL(query: string, searchableColumns: string[]): string {
+export function luceneFilterToSQL(
+  query: string,
+  searchableColumns: string[],
+): string {
   const filters = query
     .split(/\s+/)
     .map((q) => q.replace("=", ":"))
@@ -59,8 +60,4 @@ function luceneFilterToSQL(query: string, searchableColumns: string[]): string {
   sqlQuery += whereConditions.join(" AND ");
 
   return sqlQuery;
-}
-
-export function luceneFilter(query: string, searchableColumns: string[]) {
-  return sql`${luceneFilterToSQL(query, searchableColumns)}`;
 }

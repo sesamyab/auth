@@ -14,7 +14,10 @@ export function list(db: DrizzleSQLiteDatabase) {
     return result.map((key) => {
       const { tenant_id, ...rest } = key;
 
-      const certificate = certificateSchema.parse(rest);
+      const certificate = certificateSchema.parse({
+        ...rest,
+        revoked_at: key.revoked_at ?? undefined,
+      });
 
       return certificate;
     });

@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { Ticket, ticketSchema } from "../../../types";
 import { tickets } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function get(db: DrizzleSQLiteDatabase) {
   return async (tenant_id: string, id: string): Promise<Ticket | null> => {
@@ -23,7 +24,7 @@ export function get(db: DrizzleSQLiteDatabase) {
       ...rest
     } = ticket;
 
-    return ticketSchema.parse({
+    const ticketWithoutNulls = transformNullsToUndefined({
       ...rest,
       authParams: {
         nonce,
@@ -36,5 +37,7 @@ export function get(db: DrizzleSQLiteDatabase) {
       created_at: new Date(ticket.created_at),
       expires_at: new Date(ticket.expires_at),
     });
+
+    return ticketSchema.parse(ticketWithoutNulls);
   };
 }

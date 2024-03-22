@@ -65,7 +65,7 @@ export function createClientsAdapter(db: DrizzleSQLiteDatabase) {
         connections: connectionsResults.map((connection) =>
           SqlConnectionSchema.parse(removeNullProperties(connection)),
         ),
-        domains: removeNullProperties(domainsResults),
+        domains: domainsResults.map(removeNullProperties),
         tenant_id: tenant.id,
         allowed_callback_urls: splitUrls(
           application.allowed_callback_urls || "",
