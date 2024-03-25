@@ -1,4 +1,4 @@
-import { BaseUser, User } from "../../types";
+import { User } from "../../types";
 import { Totals } from "../../types/auth0/Totals";
 import { ListParams } from "./ListParams";
 

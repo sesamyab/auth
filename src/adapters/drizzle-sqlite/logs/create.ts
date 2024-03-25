@@ -47,22 +47,23 @@ export function createLog(db: DrizzleSQLiteDatabase) {
   return async (tenant_id: string, params: Log): Promise<SqlLog> => {
     const { details } = params;
 
-    const log: SqlLog = {
+    const log = {
       id: nanoid(),
       tenant_id,
       ...params,
       auth0_client: stringifyIfTruthy(getAuth0ClientValue(params)),
       details: stringifyIfTruthy(details),
       scope: getScopeValue(params),
-      isMobile: params.isMobile ? 1 : 0,
       type: params.type,
+      user_id: "user_id" in params ? params.user_id : "",
     };
 
-    await db
-      .insert(logs)
-      // TODO: sort out the type here
-      .values(log as any)
-      .execute();
-    return log;
+    await db.insert(logs).values(log).execute();
+
+    return {
+      ...log,
+      // TODO: this is just to keep compatibility with the SqlLog type for now.
+      isMobile: params.isMobile ? 1 : 0,
+    };
   };
 }

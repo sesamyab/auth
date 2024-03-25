@@ -4,12 +4,11 @@ import { AuthParams, authParamsSchema } from "../../types";
 export const universalLoginSessionSchema = z.object({
   id: z.string(),
   tenant_id: z.string(),
-  client_id: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
   expires_at: z.string(),
   authParams: authParamsSchema,
-  username: z.string(),
+  username: z.string().optional(),
 });
 
 export interface UniversalLoginSession {

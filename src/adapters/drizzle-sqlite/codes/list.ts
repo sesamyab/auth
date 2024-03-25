@@ -2,6 +2,7 @@ import { and, eq, gt, isNull } from "drizzle-orm";
 import { Code, codeSchema } from "../../../types";
 import { codes } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function list(db: DrizzleSQLiteDatabase) {
   return async (tenant_id: string, user_id: string): Promise<Code[]> => {
@@ -19,7 +20,7 @@ export function list(db: DrizzleSQLiteDatabase) {
 
     return result.map((code) => {
       const { tenant_id, ...rest } = code;
-      return codeSchema.parse(rest);
+      return codeSchema.parse(transformNullsToUndefined(rest));
     });
   };
 }

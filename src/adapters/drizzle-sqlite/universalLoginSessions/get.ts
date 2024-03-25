@@ -21,6 +21,7 @@ export function get(db: DrizzleSQLiteDatabase) {
     if (!session) return null;
 
     const {
+      client_id,
       response_type,
       response_mode,
       redirect_uri,
@@ -37,7 +38,7 @@ export function get(db: DrizzleSQLiteDatabase) {
     const universalLoginSessionWithoutNulls = transformNullsToUndefined({
       ...rest,
       authParams: {
-        client_id: rest.client_id,
+        client_id,
         response_type,
         response_mode,
         redirect_uri,

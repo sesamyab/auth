@@ -1,5 +1,5 @@
 import { PostUsersBody } from "../../../types";
-import { users } from "../../../../drizzle-mysql/schema";
+import { users } from "../../../../drizzle-sqlite/schema";
 import { and, eq } from "drizzle-orm";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 

@@ -26,18 +26,20 @@ export function list(db: DrizzleSQLiteDatabase) {
         ...rest
       } = otp;
 
-      return otpSchema.parse({
-        ...transformNullsToUndefined(rest),
-        authParams: {
-          nonce,
-          state,
-          scope,
-          response_type,
-          redirect_uri,
-        },
-        created_at: new Date(otp.created_at),
-        expires_at: new Date(otp.expires_at),
-      });
+      return otpSchema.parse(
+        transformNullsToUndefined({
+          ...rest,
+          authParams: {
+            nonce,
+            state,
+            scope,
+            response_type,
+            redirect_uri,
+          },
+          created_at: new Date(otp.created_at),
+          expires_at: new Date(otp.expires_at),
+        }),
+      );
     });
   };
 }

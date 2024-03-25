@@ -12,7 +12,16 @@ export function listLogs(db: DrizzleSQLiteDatabase) {
     const results = await withParams(query.$dynamic(), params);
 
     return {
-      logs: results.map(transformNullsToUndefined),
+      logs: results
+        .map(transformNullsToUndefined)
+        // TODO: A fix to make it compatible with kysely
+        .map((log) => ({
+          ...log,
+          client_id: log.client_id || null,
+          log_id: log.id,
+          _id: log.id,
+          details: log.details ? JSON.parse(log.details) : null,
+        })),
       start: (params.page - 1) * params.per_page,
       limit: params.per_page,
       length: 0,

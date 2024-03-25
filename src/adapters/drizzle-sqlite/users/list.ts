@@ -1,5 +1,5 @@
 import { ListParams } from "../../interfaces/ListParams";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { users } from "../../../../drizzle-sqlite/schema";
 import { userSchema } from "../../../types";
 import { z } from "zod";
@@ -10,8 +10,11 @@ import { ListUsersResponse } from "../../interfaces/Users";
 
 export function listUsers(db: DrizzleSQLiteDatabase) {
   return async (tenantId: string, params: ListParams) => {
-    const query = db.select().from(users).where(eq(users.tenant_id, tenantId));
-    const result = await withParams(query.$dynamic(), params);
+    const query = db.select().from(users);
+    const result = await withParams(query.$dynamic(), {
+      ...params,
+      q: `tenant_id:${tenantId} ${params.q || ""}`,
+    });
 
     const parsedResults = z
       .array(userSchema)
