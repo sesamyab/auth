@@ -64,16 +64,6 @@ CREATE TABLE `keys` (
 	`revoked_at` text(255)
 );
 --> statement-breakpoint
-CREATE TABLE `kysely_migration` (
-	`name` text(255) PRIMARY KEY NOT NULL,
-	`timestamp` text(255) NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE `kysely_migration_lock` (
-	`id` text(255) PRIMARY KEY NOT NULL,
-	`is_locked` integer DEFAULT 0 NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE `logs` (
 	`id` text(255) PRIMARY KEY NOT NULL,
 	`tenant_id` text(255) NOT NULL,
@@ -96,7 +86,8 @@ CREATE TABLE `logs` (
 	`strategy` text(255),
 	`strategy_type` text(255),
 	`hostname` text(255),
-	`session_connection` text(255)
+	`session_connection` text(255),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `members` (
@@ -109,7 +100,8 @@ CREATE TABLE `members` (
 	`role` text(255),
 	`picture` text(255),
 	`created_at` text(255),
-	`updated_at` text(255)
+	`updated_at` text(255),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `migrations` (
@@ -120,7 +112,8 @@ CREATE TABLE `migrations` (
 	`origin` text(255),
 	`domain` text(255),
 	`created_at` text(255),
-	`updated_at` text(255)
+	`updated_at` text(255),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `otps` (
@@ -140,7 +133,8 @@ CREATE TABLE `otps` (
 	`created_at` text(255) NOT NULL,
 	`expires_at` text(255) NOT NULL,
 	`used_at` text(255),
-	`audience` text(255)
+	`audience` text(255),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `passwords` (
@@ -148,7 +142,8 @@ CREATE TABLE `passwords` (
 	`user_id` text(255) PRIMARY KEY NOT NULL,
 	`created_at` text(255),
 	`updated_at` text(255),
-	`password` text(255) NOT NULL
+	`password` text(255) NOT NULL,
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `sessions` (
@@ -159,7 +154,8 @@ CREATE TABLE `sessions` (
 	`created_at` text(255),
 	`expires_at` text(255),
 	`used_at` text(255),
-	`deleted_at` text(255)
+	`deleted_at` text(255),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `tenants` (
@@ -190,7 +186,8 @@ CREATE TABLE `tickets` (
 	`redirect_uri` text(1024),
 	`created_at` text(255) NOT NULL,
 	`expires_at` text(255) NOT NULL,
-	`used_at` text(255)
+	`used_at` text(255),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `universal_login_sessions` (
@@ -209,7 +206,8 @@ CREATE TABLE `universal_login_sessions` (
 	`created_at` text(255) NOT NULL,
 	`updated_at` text(255) NOT NULL,
 	`expires_at` text(255) NOT NULL,
-	`nonce` text(255)
+	`nonce` text(255),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `users` (
@@ -234,7 +232,9 @@ CREATE TABLE `users` (
 	`app_metadata` text(8092),
 	`profileData` text(2048),
 	`locale` text(255),
-	PRIMARY KEY(`id`, `tenant_id`)
+	PRIMARY KEY(`id`, `tenant_id`),
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`linked_to`,`tenant_id`) REFERENCES `users`(`id`,`tenant_id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE INDEX `codes_expires_at_index` ON `codes` (`expires_at`);--> statement-breakpoint

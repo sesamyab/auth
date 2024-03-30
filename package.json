@@ -18,7 +18,7 @@
     "type-check": "tsc",
     "pull-translations": "i18nexus pull -k EWI52U0e8j13AX31kLcS-A --path ./src/locales && prettier --write ./src/locales/**/*.json",
     "knip": "knip",
-    "drizzle:migrate": "bunx drizzle-kit generate:sqlite --schema ./drizzle-sqlite/schema.ts --out ./drizzle-sqlite"
+    "drizzle:generate:sqlite": "drizzle-kit generate:sqlite --schema ./drizzle-sqlite/schema.ts"
   },
   "author": "",
   "license": "MIT",
