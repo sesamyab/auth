@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { PasswordParams, PasswordResponse } from "../../../types";
-import { passwords } from "../../../../drizzle-mysql/schema";
+import { passwords } from "../../../../drizzle-sqlite/schema";
 import { and, eq } from "drizzle-orm";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 

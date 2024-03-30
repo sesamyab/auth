@@ -1,6 +1,6 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { PartialClient, SqlConnectionSchema } from "../../../types";
 import { HTTPException } from "hono/http-exception";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import {
   applications,
   tenants,
@@ -8,8 +8,7 @@ import {
   domains,
 } from "../../../../drizzle-mysql/schema";
 import { eq } from "drizzle-orm";
-import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
-import { selectFrom } from "../helpers/select";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 function removeNullProperties<T = any>(obj: Record<string, any>) {
   const clone = { ...obj };
@@ -30,55 +29,52 @@ function splitUrls(value?: string) {
   return value.split(",").map((key) => key.trim());
 }
 
-export function createClientsAdapter(
-  db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase,
-) {
+export function createClientsAdapter(db: DrizzleMysqlDatabase) {
   return {
     get: async (applicationId: string) => {
-      const [application] = await selectFrom(db, applications).where(
-        eq(applications.id, applicationId),
-      );
+      const [application] = await db
+        .select()
+        .from(applications)
+        .where(eq(applications.id, applicationId));
 
       if (!application) {
         throw new HTTPException(404, { message: "Client not found" });
       }
 
-      const [tenant] = await selectFrom(db, tenants).where(
-        // TODO: check why tenant_id is unkown
-        eq(tenants.id, application.tenant_id as string),
-      );
+      const [tenant] = await db
+        .select()
+        .from(tenants)
+        .where(eq(tenants.id, application.tenant_id));
 
       if (!tenant) {
         throw new HTTPException(404, { message: "Tenant not found" });
       }
 
-      const connectionsResults = await selectFrom(db, connections).where(
-        eq(connections.tenant_id, application.tenant_id as string),
-      );
+      const connectionsResults = await db
+        .select()
+        .from(connections)
+        .where(eq(connections.tenant_id, application.tenant_id));
 
-      const domainsResults = await selectFrom(db, domains).where(
-        eq(domains.tenant_id, application.tenant_id as string),
-      );
+      const domainsResults = await db
+        .select()
+        .from(domains)
+        .where(eq(domains.tenant_id, application.tenant_id));
 
       const client: PartialClient = {
-        id: application.id as string,
-        name: application.name as string,
+        id: application.id,
+        name: application.name,
         connections: connectionsResults.map((connection) =>
           SqlConnectionSchema.parse(removeNullProperties(connection)),
         ),
-        domains: removeNullProperties(domainsResults),
-        tenant_id: tenant.id as string,
+        domains: domainsResults.map(removeNullProperties),
+        tenant_id: tenant.id,
         allowed_callback_urls: splitUrls(
-          (application.allowed_callback_urls as string) || "",
+          application.allowed_callback_urls || "",
         ),
-        allowed_logout_urls: splitUrls(
-          (application.allowed_logout_urls as string) || "",
-        ),
-        allowed_web_origins: splitUrls(
-          (application.allowed_web_origins as string) || "",
-        ),
-        email_validation: (application.email_validation as string) || "",
-        client_secret: (application.client_secret as string) || "",
+        allowed_logout_urls: splitUrls(application.allowed_logout_urls || ""),
+        allowed_web_origins: splitUrls(application.allowed_web_origins || ""),
+        email_validation: application.email_validation || "",
+        client_secret: application.client_secret || "",
         tenant: removeNullProperties({
           audience: tenant.audience,
           logo: tenant.logo,

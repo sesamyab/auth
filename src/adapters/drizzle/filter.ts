@@ -1,8 +1,6 @@
-// WARNING - this file is generated from the SQLite adapter. Do not edit!
-export function luceneFilterToSQL(
-  query: string,
-  searchableColumns: string[],
-): string {
+import { sql } from "drizzle-orm";
+
+function luceneFilterToSQL(query: string, searchableColumns: string[]): string {
   const filters = query
     .split(/\s+/)
     .map((q) => q.replace("=", ":"))
@@ -61,4 +59,8 @@ export function luceneFilterToSQL(
   sqlQuery += whereConditions.join(" AND ");
 
   return sqlQuery;
+}
+
+export function luceneFilter(query: string, searchableColumns: string[]) {
+  return sql`${luceneFilterToSQL(query, searchableColumns)}`;
 }

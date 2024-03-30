@@ -1,10 +1,11 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { and, eq, isNull } from "drizzle-orm";
 import { sessions } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function remove(db: DrizzleMysqlDatabase) {
   return async (tenant_id: string, id: string): Promise<boolean> => {
-    const results = await db
+    await db
       .update(sessions)
       .set({ deleted_at: new Date().toISOString() })
       .where(
@@ -15,6 +16,6 @@ export function remove(db: DrizzleMysqlDatabase) {
       )
       .execute();
 
-    return !!results.rowsAffected;
+    return true;
   };
 }

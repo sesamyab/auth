@@ -1,8 +1,9 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import bcrypt from "bcryptjs";
 import { PasswordParams, PasswordResponse } from "../../../types";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { passwords } from "../../../../drizzle-mysql/schema";
 import { and, eq } from "drizzle-orm";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function validate(db: DrizzleMysqlDatabase) {
   return async (

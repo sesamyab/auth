@@ -1,12 +1,11 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { nanoid } from "nanoid";
 import { Tenant } from "../../../types";
 import { CreateTenantParams } from "../../interfaces/Tenants";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { tenants } from "../../../../drizzle-mysql/schema";
-import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
-import { insertInto } from "../helpers/insert";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createTenant(db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase) {
+export function createTenant(db: DrizzleMysqlDatabase) {
   return async (params: CreateTenantParams): Promise<Tenant> => {
     const tenant: Tenant = {
       id: params.id || nanoid(),
@@ -15,7 +14,7 @@ export function createTenant(db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase) {
       ...params,
     };
 
-    await insertInto(db, tenants).values(tenant).execute();
+    await db.insert(tenants).values(tenant).execute();
 
     return tenant;
   };

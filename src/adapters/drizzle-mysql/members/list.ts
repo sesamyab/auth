@@ -1,7 +1,8 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { eq } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { members } from "../../../../drizzle-mysql/schema";
-import { Member } from "../../../types";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function listMembers(db: DrizzleMysqlDatabase) {
   return async (tenantId: string) => {
@@ -10,7 +11,7 @@ export function listMembers(db: DrizzleMysqlDatabase) {
     });
 
     return {
-      members: result as Member[],
+      members: result.map(transformNullsToUndefined),
     };
   };
 }

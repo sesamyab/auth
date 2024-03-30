@@ -1,15 +1,8 @@
-import { SqlUser, PostUsersBody } from "../../../types";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
+import { PostUsersBody } from "../../../types";
 import { users } from "../../../../drizzle-mysql/schema";
 import { and, eq } from "drizzle-orm";
-
-function getEmailVerified(user: Partial<PostUsersBody>): number | undefined {
-  if (user.email_verified === undefined) {
-    return undefined;
-  }
-
-  return user.email_verified ? 1 : 0;
-}
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function update(db: DrizzleMysqlDatabase) {
   return async (
@@ -17,18 +10,17 @@ export function update(db: DrizzleMysqlDatabase) {
     id: string,
     user: Partial<PostUsersBody>,
   ): Promise<boolean> => {
-    const sqlUser: Partial<SqlUser> = {
+    const sqlUser = {
       ...user,
-      email_verified: getEmailVerified(user),
       updated_at: new Date().toISOString(),
     };
 
-    const results = await db
+    await db
       .update(users)
       .set(sqlUser)
       .where(and(eq(users.tenant_id, tenant_id), eq(users.id, id)))
       .execute();
 
-    return results.rowsAffected === 1;
+    return true;
   };
 }

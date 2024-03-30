@@ -1,8 +1,9 @@
-import { LogsResponse, SqlLog } from "../../../types";
+import { LogsResponse } from "../../../types";
 import { getLogResponse } from "../../../utils/logs";
-import { logs } from "../../../../drizzle-mysql/schema";
+import { logs } from "../../../../drizzle-sqlite/schema";
 import { eq, and } from "drizzle-orm";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function getLogs(db: DrizzleSQLiteDatabase) {
   return async (
@@ -18,8 +19,7 @@ export function getLogs(db: DrizzleSQLiteDatabase) {
       return null;
     }
 
-    // TODO: Use types from drizzle-orm
-    const logResponse = getLogResponse(log as SqlLog);
+    const logResponse = getLogResponse(transformNullsToUndefined(log));
 
     return logResponse;
   };

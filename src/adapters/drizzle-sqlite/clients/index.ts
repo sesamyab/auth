@@ -5,7 +5,7 @@ import {
   tenants,
   connections,
   domains,
-} from "../../../../drizzle-mysql/schema";
+} from "../../../../drizzle-sqlite/schema";
 import { eq } from "drizzle-orm";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 

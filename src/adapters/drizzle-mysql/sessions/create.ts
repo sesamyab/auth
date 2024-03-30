@@ -1,5 +1,6 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 import { sessions } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { Session, SqlSession } from "../../../types";
 
 export function create(db: DrizzleMysqlDatabase) {

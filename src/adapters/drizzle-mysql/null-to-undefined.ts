@@ -1,3 +1,4 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 export function transformNullsToUndefined(value: any): any {
   if (value === null) {
     return undefined;

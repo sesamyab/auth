@@ -1,8 +1,8 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { and, eq, isNull } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
-import { Database, Session } from "../../../types";
-import { Kysely } from "kysely";
+import { Session } from "../../../types";
 import { sessions } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function get(db: DrizzleMysqlDatabase) {
   return async (tenant_id: string, id: string): Promise<Session | null> => {

@@ -1,8 +1,8 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { createUsersAdapter } from "./users";
 import { createMembersAdapter } from "./members";
 import { createTenantsAdapter } from "./tenants";
 import { createLogsAdapter } from "./logs";
-import { Database } from "../../types";
 import { createSessionsAdapter } from "./sessions";
 import { createTicketsAdapter } from "./tickets";
 import { createOTPAdapter } from "./otps";
@@ -14,12 +14,9 @@ import { createConnectionsAdapter } from "./connections";
 import { createClientsAdapter } from "./clients";
 import { createKeysAdapter } from "./keys";
 import { createDomainsAdapter } from "./domains";
-import { DrizzleMysqlDatabase } from "../../services/drizzle";
-import { DrizzleSQLiteDatabase } from "../../services/drizzle-sqlite";
+import { DrizzleMysqlDatabase } from "../../services/drizzle-mysql";
 
-export default function createAdapters(
-  db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase,
-) {
+export default function createAdapters(db: DrizzleMysqlDatabase) {
   return {
     applications: createApplicationsAdapter(db),
     clients: createClientsAdapter(db),

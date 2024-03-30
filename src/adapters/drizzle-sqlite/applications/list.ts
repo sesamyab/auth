@@ -1,4 +1,4 @@
-import { applications } from "../../../../drizzle-mysql/schema";
+import { applications } from "../../../../drizzle-sqlite/schema";
 import { eq } from "drizzle-orm";
 import { applicationSchema } from "../../../types";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";

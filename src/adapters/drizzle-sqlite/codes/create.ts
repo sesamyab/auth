@@ -1,5 +1,5 @@
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
-import { codes } from "../../../../drizzle-mysql/schema";
+import { codes } from "../../../../drizzle-sqlite/schema";
 import { Code } from "../../../types";
 
 export function create(db: DrizzleSQLiteDatabase) {

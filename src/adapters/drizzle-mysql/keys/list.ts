@@ -1,7 +1,8 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { isNull } from "drizzle-orm";
 import { keys } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { certificateSchema } from "../../../types";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function list(db: DrizzleMysqlDatabase) {
   return async () => {
@@ -14,7 +15,10 @@ export function list(db: DrizzleMysqlDatabase) {
     return result.map((key) => {
       const { tenant_id, ...rest } = key;
 
-      const certificate = certificateSchema.parse(rest);
+      const certificate = certificateSchema.parse({
+        ...rest,
+        revoked_at: key.revoked_at ?? undefined,
+      });
 
       return certificate;
     });

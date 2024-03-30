@@ -1,14 +1,12 @@
-import { Kysely } from "kysely";
-import { Database } from "../../../types";
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { UserDataAdapter } from "../../interfaces/Users";
 import { create } from "./create";
 import { get } from "./get";
-import { getByEmail } from "./getByEmail";
 import { listUsers } from "./list";
 import { remove } from "./remove";
 import { update } from "./update";
 import { unlink } from "./unlink";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function createUsersAdapter(db: DrizzleMysqlDatabase): UserDataAdapter {
   return {

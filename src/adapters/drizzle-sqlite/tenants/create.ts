@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { Tenant } from "../../../types";
 import { CreateTenantParams } from "../../interfaces/Tenants";
-import { tenants } from "../../../../drizzle-mysql/schema";
+import { tenants } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 
 export function createTenant(db: DrizzleSQLiteDatabase) {

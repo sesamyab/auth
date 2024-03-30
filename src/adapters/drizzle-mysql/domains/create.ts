@@ -1,7 +1,8 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { CreateDomainParams } from "../../interfaces/Domains";
 import { SqlDomain } from "../../../types";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { domains } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function create(db: DrizzleMysqlDatabase) {
   return async (

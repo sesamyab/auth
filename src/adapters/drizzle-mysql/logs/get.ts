@@ -1,8 +1,10 @@
-import { LogsResponse, SqlLog } from "../../../types";
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
+import { LogsResponse } from "../../../types";
 import { getLogResponse } from "../../../utils/logs";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { logs } from "../../../../drizzle-mysql/schema";
 import { eq, and } from "drizzle-orm";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function getLogs(db: DrizzleMysqlDatabase) {
   return async (
@@ -18,8 +20,7 @@ export function getLogs(db: DrizzleMysqlDatabase) {
       return null;
     }
 
-    // TODO: Use types from drizzle-orm
-    const logResponse = getLogResponse(log as SqlLog);
+    const logResponse = getLogResponse(transformNullsToUndefined(log));
 
     return logResponse;
   };

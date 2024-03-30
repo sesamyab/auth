@@ -1,6 +1,7 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { universal_login_sessions } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function create(db: DrizzleMysqlDatabase) {
   return async (session: UniversalLoginSession) => {
@@ -8,7 +9,7 @@ export function create(db: DrizzleMysqlDatabase) {
 
     await db
       .insert(universal_login_sessions)
-      .values({ ...authParams, ...rest })
+      .values({ ...authParams, ...rest, client_id: authParams.client_id! })
       .execute();
   };
 }

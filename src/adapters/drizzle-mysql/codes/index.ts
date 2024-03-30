@@ -1,12 +1,10 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { CodesAdapter } from "../../interfaces/Codes";
 import { list } from "./list";
 import { create } from "./create";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
-import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createCodesAdapter(
-  db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase,
-): CodesAdapter {
+export function createCodesAdapter(db: DrizzleMysqlDatabase): CodesAdapter {
   return {
     create: create(db),
     list: list(db),

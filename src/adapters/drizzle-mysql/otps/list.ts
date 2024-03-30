@@ -1,7 +1,9 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { and, eq, gt, isNotNull } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { OTP, otpSchema } from "../../../types";
 import { otps } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function list(db: DrizzleMysqlDatabase) {
   return async (tenant_id: string, email: string): Promise<OTP[]> => {
@@ -15,20 +17,30 @@ export function list(db: DrizzleMysqlDatabase) {
     });
 
     return result.map((otp) => {
-      const { nonce, state, scope, response_type, redirect_uri, ...rest } = otp;
+      const {
+        nonce,
+        state,
+        scope,
+        response_type,
+        redirect_uri,
+        response_mode,
+        ...rest
+      } = otp;
 
-      return otpSchema.parse({
-        ...rest,
-        authParams: {
-          nonce,
-          state,
-          scope,
-          response_type,
-          redirect_uri,
-        },
-        created_at: new Date(otp.created_at),
-        expires_at: new Date(otp.expires_at),
-      });
+      return otpSchema.parse(
+        transformNullsToUndefined({
+          ...rest,
+          authParams: {
+            nonce,
+            state,
+            scope,
+            response_type,
+            redirect_uri,
+          },
+          created_at: new Date(otp.created_at),
+          expires_at: new Date(otp.expires_at),
+        }),
+      );
     });
   };
 }

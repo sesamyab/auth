@@ -1,5 +1,5 @@
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
-import { sessions } from "../../../../drizzle-mysql/schema";
+import { sessions } from "../../../../drizzle-sqlite/schema";
 import { Session, SqlSession } from "../../../types";
 
 export function create(db: DrizzleSQLiteDatabase) {

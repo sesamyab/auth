@@ -1,6 +1,7 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { eq } from "drizzle-orm";
 import { keys } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function revoke(db: DrizzleMysqlDatabase) {
   return async (kid: string, revoke_at: Date) => {
@@ -10,6 +11,6 @@ export function revoke(db: DrizzleMysqlDatabase) {
       .where(eq(keys.kid, kid))
       .execute();
 
-    return !!results.rowsAffected;
+    return true;
   };
 }

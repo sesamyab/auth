@@ -1,12 +1,12 @@
-import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 import { codes } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { Code } from "../../../types";
-import { insertInto } from "../helpers/insert";
 
-export function create(db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase) {
+export function create(db: DrizzleMysqlDatabase) {
   return async (tenant_id: string, code: Code) => {
-    await insertInto(db, codes)
+    await db
+      .insert(codes)
       .values({
         ...code,
         tenant_id,

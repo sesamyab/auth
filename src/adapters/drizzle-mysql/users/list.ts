@@ -1,16 +1,21 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { ListParams } from "../../interfaces/ListParams";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { users } from "../../../../drizzle-mysql/schema";
 import { userSchema } from "../../../types";
 import { z } from "zod";
 import { withParams } from "../helpers/params";
 import { transformNullsToUndefined } from "../null-to-undefined";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { ListUsersResponse } from "../../interfaces/Users";
 
 export function listUsers(db: DrizzleMysqlDatabase) {
   return async (tenantId: string, params: ListParams) => {
-    const query = db.select().from(users).where(eq(users.tenant_id, tenantId));
-    const result = await withParams(query.$dynamic(), params);
+    const query = db.select().from(users);
+    const result = await withParams(query.$dynamic(), {
+      ...params,
+      q: `tenant_id:${tenantId} ${params.q || ""}`,
+    });
 
     const parsedResults = z
       .array(userSchema)
@@ -19,7 +24,7 @@ export function listUsers(db: DrizzleMysqlDatabase) {
     if (!params.include_totals) {
       return {
         users: parsedResults,
-      };
+      } as ListUsersResponse;
     }
 
     const [totals] = await db
@@ -31,6 +36,6 @@ export function listUsers(db: DrizzleMysqlDatabase) {
       start: (params.page - 1) * params.per_page,
       limit: params.per_page,
       length: totals.count,
-    };
+    } as ListUsersResponse;
   };
 }

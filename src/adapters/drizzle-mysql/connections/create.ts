@@ -1,7 +1,8 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { CreateConnectionParams } from "../../interfaces/Connections";
 import { SqlConnection } from "../../../types";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { connections } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function create(db: DrizzleMysqlDatabase) {
   return async (

@@ -1,8 +1,9 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { eq } from "drizzle-orm";
 import { tenants } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { Tenant, tenantSchema } from "../../../types";
 import { transformNullsToUndefined } from "../null-to-undefined";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function get(db: DrizzleMysqlDatabase) {
   return async (id: string): Promise<Tenant | undefined> => {

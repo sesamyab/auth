@@ -1,6 +1,6 @@
 import { CreateDomainParams } from "../../interfaces/Domains";
 import { SqlDomain } from "../../../types";
-import { domains } from "../../../../drizzle-mysql/schema";
+import { domains } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 
 export function create(db: DrizzleSQLiteDatabase) {

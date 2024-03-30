@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { members } from "../../../../drizzle-mysql/schema";
+import { members } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 import { transformNullsToUndefined } from "../null-to-undefined";
 

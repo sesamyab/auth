@@ -1,6 +1,6 @@
 import { Application } from "../../../types";
 import { CreateApplicationParams } from "../../interfaces/Applications";
-import { applications } from "../../../../drizzle-mysql/schema";
+import { applications } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 
 export function create(db: DrizzleSQLiteDatabase) {

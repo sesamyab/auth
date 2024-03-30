@@ -1,22 +1,18 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { ListParams } from "../../interfaces/ListParams";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { z } from "zod";
 import { tenantSchema } from "../../../types";
 import { transformNullsToUndefined } from "../null-to-undefined";
 import { tenants } from "../../../../drizzle-mysql/schema";
 import { withParams } from "../helpers/params";
-import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
-import { selectCountFrom, selectFrom } from "../helpers/select";
-import { MySqlSelectBase } from "drizzle-orm/mysql-core";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { count } from "drizzle-orm";
 
-export function listTenants(db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase) {
+export function listTenants(db: DrizzleMysqlDatabase) {
   return async (params: ListParams) => {
-    const query = selectFrom(db, tenants);
+    const query = db.select().from(tenants);
 
-    const result =
-      query instanceof MySqlSelectBase
-        ? await withParams(query.$dynamic(), params)
-        : await query;
+    const result = await withParams(query.$dynamic(), params);
 
     const parsedResults = z
       .array(tenantSchema)
@@ -28,7 +24,7 @@ export function listTenants(db: DrizzleMysqlDatabase | DrizzleSQLiteDatabase) {
       };
     }
 
-    const [totals] = await selectCountFrom(db, tenants);
+    const [totals] = await db.select({ count: count() }).from(tenants);
 
     return {
       tenants: parsedResults,

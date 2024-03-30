@@ -1,17 +1,16 @@
-import { SqlUser, User } from "../../../types";
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
+import { User } from "../../../types";
 import { HTTPException } from "hono/http-exception";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { users } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function create(db: DrizzleMysqlDatabase) {
   return async (tenantId: string, user: User): Promise<User> => {
-    const sqlUser: SqlUser = {
+    const sqlUser = {
       ...user,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       tenant_id: tenantId,
-      email_verified: user.email_verified ? 1 : 0,
-      is_social: user.is_social ? 1 : 0,
     };
 
     try {
@@ -23,10 +22,6 @@ export function create(db: DrizzleMysqlDatabase) {
       throw new HTTPException(500, { message: err.code });
     }
 
-    return {
-      ...sqlUser,
-      email_verified: sqlUser.email_verified === 1,
-      is_social: sqlUser.is_social === 1,
-    };
+    return sqlUser;
   };
 }

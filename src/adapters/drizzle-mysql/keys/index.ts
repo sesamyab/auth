@@ -1,8 +1,9 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { list } from "./list";
 import { KeysAdapter } from "../../interfaces/Keys";
 import { create } from "./create";
 import { revoke } from "./revoke";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function createKeysAdapter(db: DrizzleMysqlDatabase): KeysAdapter {
   return {

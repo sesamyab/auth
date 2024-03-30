@@ -1,6 +1,7 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { and, eq, isNull } from "drizzle-orm";
 import { sessions } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function update(db: DrizzleMysqlDatabase) {
   return async (
@@ -8,7 +9,7 @@ export function update(db: DrizzleMysqlDatabase) {
     id: string,
     session: { used_at: string },
   ) => {
-    const results = await db
+    await db
       .update(sessions)
       .set(session)
       .where(
@@ -19,6 +20,6 @@ export function update(db: DrizzleMysqlDatabase) {
       )
       .execute();
 
-    return !!results.rowsAffected;
+    return true;
   };
 }

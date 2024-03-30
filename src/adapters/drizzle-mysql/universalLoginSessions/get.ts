@@ -1,10 +1,12 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import {
   UniversalLoginSession,
   universalLoginSessionSchema,
 } from "../../interfaces/UniversalLoginSession";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { and, eq, gt } from "drizzle-orm";
 import { universal_login_sessions } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function get(db: DrizzleMysqlDatabase) {
   return async (id: string): Promise<UniversalLoginSession | null> => {
@@ -20,6 +22,7 @@ export function get(db: DrizzleMysqlDatabase) {
     if (!session) return null;
 
     const {
+      client_id,
       response_type,
       response_mode,
       redirect_uri,
@@ -33,10 +36,10 @@ export function get(db: DrizzleMysqlDatabase) {
       ...rest
     } = session;
 
-    return universalLoginSessionSchema.parse({
+    const universalLoginSessionWithoutNulls = transformNullsToUndefined({
       ...rest,
       authParams: {
-        client_id: rest.client_id,
+        client_id,
         response_type,
         response_mode,
         redirect_uri,
@@ -49,5 +52,7 @@ export function get(db: DrizzleMysqlDatabase) {
         username,
       },
     });
+
+    return universalLoginSessionSchema.parse(universalLoginSessionWithoutNulls);
   };
 }

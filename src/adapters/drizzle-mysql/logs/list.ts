@@ -1,10 +1,10 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { ListParams } from "../../interfaces/ListParams";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { logs } from "../../../../drizzle-mysql/schema";
 import { eq } from "drizzle-orm";
-import { ListLogsResponse } from "../../interfaces/Logs";
 import { withParams } from "../helpers/params";
 import { transformNullsToUndefined } from "../null-to-undefined";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function listLogs(db: DrizzleMysqlDatabase) {
   return async (tenantId: string, params: ListParams) => {
@@ -13,10 +13,19 @@ export function listLogs(db: DrizzleMysqlDatabase) {
     const results = await withParams(query.$dynamic(), params);
 
     return {
-      logs: results.map(transformNullsToUndefined),
+      logs: results
+        .map(transformNullsToUndefined)
+        // TODO: A fix to make it compatible with kysely
+        .map((log) => ({
+          ...log,
+          client_id: log.client_id || null,
+          log_id: log.id,
+          _id: log.id,
+          details: log.details ? JSON.parse(log.details) : null,
+        })),
       start: (params.page - 1) * params.per_page,
       limit: params.per_page,
       length: 0,
-    } as unknown as ListLogsResponse;
+    };
   };
 }

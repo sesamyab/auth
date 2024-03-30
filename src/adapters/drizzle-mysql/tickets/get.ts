@@ -1,7 +1,9 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { and, eq } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { Ticket, ticketSchema } from "../../../types";
 import { tickets } from "../../../../drizzle-mysql/schema";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { transformNullsToUndefined } from "../null-to-undefined";
 
 export function get(db: DrizzleMysqlDatabase) {
   return async (tenant_id: string, id: string): Promise<Ticket | null> => {
@@ -23,7 +25,7 @@ export function get(db: DrizzleMysqlDatabase) {
       ...rest
     } = ticket;
 
-    return ticketSchema.parse({
+    const ticketWithoutNulls = transformNullsToUndefined({
       ...rest,
       authParams: {
         nonce,
@@ -36,5 +38,7 @@ export function get(db: DrizzleMysqlDatabase) {
       created_at: new Date(ticket.created_at),
       expires_at: new Date(ticket.expires_at),
     });
+
+    return ticketSchema.parse(ticketWithoutNulls);
   };
 }

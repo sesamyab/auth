@@ -1,8 +1,9 @@
+// WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { PasswordParams } from "../../../types";
 import bcrypt from "bcryptjs";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle";
 import { passwords } from "../../../../drizzle-mysql/schema";
 import { and, eq } from "drizzle-orm";
+import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
 
 export function update(db: DrizzleMysqlDatabase) {
   return async (tenant_id: string, params: PasswordParams) => {
@@ -22,6 +23,6 @@ export function update(db: DrizzleMysqlDatabase) {
       )
       .execute();
 
-    return results.rowsAffected === 1;
+    return true;
   };
 }
