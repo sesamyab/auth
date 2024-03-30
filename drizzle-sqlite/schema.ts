@@ -1,12 +1,37 @@
 import {
   primaryKey,
+  foreignKey,
   index,
   int,
   unique,
   sqliteTable,
   text,
   integer,
+  AnySQLiteColumn,
 } from "drizzle-orm/sqlite-core";
+
+export const tenants = sqliteTable(
+  "tenants",
+  {
+    id: text("id", { length: 255 }).notNull(),
+    name: text("name", { length: 255 }),
+    audience: text("audience", { length: 255 }),
+    sender_email: text("sender_email", { length: 255 }),
+    sender_name: text("sender_name", { length: 255 }),
+    language: text("language", { length: 255 }),
+    logo: text("logo", { length: 255 }),
+    primary_color: text("primary_color", { length: 255 }),
+    secondary_color: text("secondary_color", { length: 255 }),
+    created_at: text("created_at", { length: 255 }),
+    updated_at: text("updated_at", { length: 255 }),
+    support_url: text("support_url", { length: 255 }),
+  },
+  (table) => {
+    return {
+      tenants_id: primaryKey({ columns: [table.id], name: "tenants_id" }),
+    };
+  },
+);
 
 export const applications = sqliteTable(
   "applications",
@@ -123,43 +148,13 @@ export const keys = sqliteTable(
   },
 );
 
-export const kysely_migration = sqliteTable(
-  "kysely_migration",
-  {
-    name: text("name", { length: 255 }).notNull(),
-    timestamp: text("timestamp", { length: 255 }).notNull(),
-  },
-  (table) => {
-    return {
-      kysely_migration_name: primaryKey({
-        columns: [table.name],
-        name: "kysely_migration_name",
-      }),
-    };
-  },
-);
-
-export const kysely_migration_lock = sqliteTable(
-  "kysely_migration_lock",
-  {
-    id: text("id", { length: 255 }).notNull(),
-    is_locked: int("is_locked").default(0).notNull(),
-  },
-  (table) => {
-    return {
-      kysely_migration_lock_id: primaryKey({
-        columns: [table.id],
-        name: "kysely_migration_lock_id",
-      }),
-    };
-  },
-);
-
 export const logs = sqliteTable(
   "logs",
   {
     id: text("id", { length: 255 }).notNull(),
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     user_id: text("user_id", { length: 255 }).notNull(),
     ip: text("ip", { length: 255 }),
     type: text("type", { length: 255 }),
@@ -195,7 +190,9 @@ export const members = sqliteTable(
   "members",
   {
     id: text("id", { length: 255 }).notNull(),
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     sub: text("sub", { length: 255 }),
     email: text("email", { length: 255 }),
     name: text("name", { length: 255 }),
@@ -216,7 +213,9 @@ export const migrations = sqliteTable(
   "migrations",
   {
     id: text("id", { length: 255 }).notNull(),
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     provider: text("provider", { length: 255 }),
     client_id: text("client_id", { length: 255 }),
     origin: text("origin", { length: 255 }),
@@ -234,7 +233,9 @@ export const migrations = sqliteTable(
 export const otps = sqliteTable(
   "otps",
   {
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     id: text("id", { length: 255 }).notNull(),
     client_id: text("client_id", { length: 255 }).notNull(),
     code: text("code", { length: 255 }).notNull(),
@@ -264,7 +265,9 @@ export const otps = sqliteTable(
 export const passwords = sqliteTable(
   "passwords",
   {
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     user_id: text("user_id", { length: 255 }).notNull(),
     created_at: text("created_at", { length: 255 }),
     updated_at: text("updated_at", { length: 255 }),
@@ -283,7 +286,9 @@ export const passwords = sqliteTable(
 export const sessions = sqliteTable(
   "sessions",
   {
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     id: text("id", { length: 255 }).notNull(),
     client_id: text("client_id", { length: 255 }).notNull(),
     user_id: text("user_id", { length: 255 }).notNull(),
@@ -299,33 +304,12 @@ export const sessions = sqliteTable(
   },
 );
 
-export const tenants = sqliteTable(
-  "tenants",
-  {
-    id: text("id", { length: 255 }).notNull(),
-    name: text("name", { length: 255 }),
-    audience: text("audience", { length: 255 }),
-    sender_email: text("sender_email", { length: 255 }),
-    sender_name: text("sender_name", { length: 255 }),
-    language: text("language", { length: 255 }),
-    logo: text("logo", { length: 255 }),
-    primary_color: text("primary_color", { length: 255 }),
-    secondary_color: text("secondary_color", { length: 255 }),
-    created_at: text("created_at", { length: 255 }),
-    updated_at: text("updated_at", { length: 255 }),
-    support_url: text("support_url", { length: 255 }),
-  },
-  (table) => {
-    return {
-      tenants_id: primaryKey({ columns: [table.id], name: "tenants_id" }),
-    };
-  },
-);
-
 export const tickets = sqliteTable(
   "tickets",
   {
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     id: text("id", { length: 255 }).notNull(),
     client_id: text("client_id", { length: 255 }).notNull(),
     email: text("email", { length: 255 }).notNull(),
@@ -350,7 +334,9 @@ export const universal_login_sessions = sqliteTable(
   "universal_login_sessions",
   {
     id: text("id", { length: 255 }).notNull(),
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     client_id: text("client_id", { length: 255 }).notNull(),
     username: text("username", { length: 255 }),
     response_type: text("response_type", { length: 255 }),
@@ -380,7 +366,9 @@ export const users = sqliteTable(
   "users",
   {
     id: text("id", { length: 255 }).notNull(),
-    tenant_id: text("tenant_id", { length: 255 }).notNull(),
+    tenant_id: text("tenant_id", { length: 255 })
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     email: text("email", { length: 255 }).notNull(),
     given_name: text("given_name", { length: 255 }),
     family_name: text("family_name", { length: 255 }),
@@ -410,6 +398,10 @@ export const users = sqliteTable(
         columns: [table.id, table.tenant_id],
         name: "users_id_tenant_id",
       }),
+      users_linked_to: foreignKey({
+        columns: [table.linked_to, table.tenant_id],
+        foreignColumns: [table.id, table.tenant_id],
+      }).onDelete("cascade"),
       unique_email_provider: unique("unique_email_provider").on(
         table.email,
         table.provider,

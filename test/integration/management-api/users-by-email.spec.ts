@@ -62,7 +62,6 @@ describe("users by email", () => {
       name: "Åkesson Þorsteinsson",
       nickname: "Åkesson Þorsteinsson",
       picture: "https://example.com/foo.png",
-      tenant_id: "tenantId",
       login_count: 0,
       connection: "Username-Password-Authentication",
       provider: "auth2",
@@ -135,7 +134,6 @@ describe("users by email", () => {
       name: "Åkesson Þorsteinsson",
       nickname: "Åkesson Þorsteinsson",
       picture: "https://example.com/foo.png",
-      tenant_id: "tenantId",
       login_count: 0,
       connection: "Username-Password-Authentication",
       provider: "auth2",
@@ -152,7 +150,6 @@ describe("users by email", () => {
     ]);
     expect(users[1]).toMatchObject({
       email: "foo@example.com",
-      tenant_id: "tenantId",
       name: "Åkesson Þorsteinsson",
       provider: "email",
       connection: "email",
