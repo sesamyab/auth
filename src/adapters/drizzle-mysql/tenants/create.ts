@@ -3,9 +3,9 @@ import { nanoid } from "nanoid";
 import { Tenant } from "../../../types";
 import { CreateTenantParams } from "../../interfaces/Tenants";
 import { tenants } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createTenant(db: DrizzleMysqlDatabase) {
+export function createTenant(db: DrizzleMySqlDatabase) {
   return async (params: CreateTenantParams): Promise<Tenant> => {
     const tenant: Tenant = {
       id: params.id || nanoid(),

@@ -5,10 +5,10 @@ import {
 } from "../../interfaces/UniversalLoginSession";
 import { and, eq, gt } from "drizzle-orm";
 import { universal_login_sessions } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { transformNullsToUndefined } from "../null-to-undefined";
 
-export function get(db: DrizzleMysqlDatabase) {
+export function get(db: DrizzleMySqlDatabase) {
   return async (id: string): Promise<UniversalLoginSession | null> => {
     const now = new Date().toISOString();
 

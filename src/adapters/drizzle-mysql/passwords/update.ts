@@ -3,9 +3,9 @@ import { PasswordParams } from "../../../types";
 import bcrypt from "bcryptjs";
 import { passwords } from "../../../../drizzle-mysql/schema";
 import { and, eq } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function update(db: DrizzleMysqlDatabase) {
+export function update(db: DrizzleMySqlDatabase) {
   return async (tenant_id: string, params: PasswordParams) => {
     const passwordHash = bcrypt.hashSync(params.password, 10);
 

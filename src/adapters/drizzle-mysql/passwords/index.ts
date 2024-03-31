@@ -3,10 +3,10 @@ import { PasswordsAdapter } from "../../interfaces/Passwords";
 import { validate } from "./validate";
 import { create } from "./create";
 import { update } from "./update";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
 export function createPasswordAdapter(
-  db: DrizzleMysqlDatabase,
+  db: DrizzleMySqlDatabase,
 ): PasswordsAdapter {
   return {
     create: create(db),

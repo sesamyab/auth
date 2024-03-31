@@ -2,9 +2,9 @@
 import { CreateDomainParams } from "../../interfaces/Domains";
 import { SqlDomain } from "../../../types";
 import { domains } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function create(db: DrizzleMysqlDatabase) {
+export function create(db: DrizzleMySqlDatabase) {
   return async (
     tenant_id: string,
     params: CreateDomainParams,

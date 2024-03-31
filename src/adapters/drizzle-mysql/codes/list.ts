@@ -2,10 +2,10 @@
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { Code, codeSchema } from "../../../types";
 import { codes } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { transformNullsToUndefined } from "../null-to-undefined";
 
-export function list(db: DrizzleMysqlDatabase) {
+export function list(db: DrizzleMySqlDatabase) {
   return async (tenant_id: string, user_id: string): Promise<Code[]> => {
     const now = new Date().toISOString();
 

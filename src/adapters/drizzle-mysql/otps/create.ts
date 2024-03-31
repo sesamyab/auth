@@ -1,9 +1,9 @@
 // WARNING - this file is generated from the SQLite adapter. Do not edit!
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { otps } from "../../../../drizzle-mysql/schema";
 import { OTP } from "../../../types";
 
-export function create(db: DrizzleMysqlDatabase) {
+export function create(db: DrizzleMySqlDatabase) {
   return async (otp: OTP) => {
     const { authParams, ...rest } = otp;
 

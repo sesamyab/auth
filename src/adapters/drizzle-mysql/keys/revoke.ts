@@ -1,9 +1,9 @@
 // WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { eq } from "drizzle-orm";
 import { keys } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function revoke(db: DrizzleMysqlDatabase) {
+export function revoke(db: DrizzleMySqlDatabase) {
   return async (kid: string, revoke_at: Date) => {
     const results = await db
       .update(keys)

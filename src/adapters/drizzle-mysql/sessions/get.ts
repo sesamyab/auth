@@ -2,9 +2,9 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { Session } from "../../../types";
 import { sessions } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function get(db: DrizzleMysqlDatabase) {
+export function get(db: DrizzleMySqlDatabase) {
   return async (tenant_id: string, id: string): Promise<Session | null> => {
     const sqlSession = await db.query.sessions.findFirst({
       where: and(

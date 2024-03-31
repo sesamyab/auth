@@ -2,10 +2,10 @@
 import { and, eq } from "drizzle-orm";
 import { Ticket, ticketSchema } from "../../../types";
 import { tickets } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { transformNullsToUndefined } from "../null-to-undefined";
 
-export function get(db: DrizzleMysqlDatabase) {
+export function get(db: DrizzleMySqlDatabase) {
   return async (tenant_id: string, id: string): Promise<Ticket | null> => {
     const ticket = await db.query.tickets.findFirst({
       where: and(eq(tickets.tenant_id, tenant_id), eq(tickets.id, id)),

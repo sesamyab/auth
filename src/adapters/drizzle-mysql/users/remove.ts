@@ -1,9 +1,9 @@
 // WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { users } from "../../../../drizzle-mysql/schema";
 import { and, eq } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function remove(db: DrizzleMysqlDatabase) {
+export function remove(db: DrizzleMySqlDatabase) {
   return async (tenant_id: string, id: string): Promise<boolean> => {
     await db
       .delete(users)

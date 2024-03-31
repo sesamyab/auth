@@ -2,10 +2,10 @@
 import { and, eq, gt, isNotNull } from "drizzle-orm";
 import { OTP, otpSchema } from "../../../types";
 import { otps } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { transformNullsToUndefined } from "../null-to-undefined";
 
-export function list(db: DrizzleMysqlDatabase) {
+export function list(db: DrizzleMySqlDatabase) {
   return async (tenant_id: string, email: string): Promise<OTP[]> => {
     const now = new Date().toISOString();
 

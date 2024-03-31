@@ -2,9 +2,9 @@
 import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
 import { universal_login_sessions } from "../../../../drizzle-mysql/schema";
 import { eq } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function update(db: DrizzleMysqlDatabase) {
+export function update(db: DrizzleMySqlDatabase) {
   return async (id: string, session: UniversalLoginSession) => {
     const { authParams, ...rest } = session;
     await db

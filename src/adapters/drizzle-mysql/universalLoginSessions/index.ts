@@ -3,10 +3,10 @@ import { UniversalLoginSessionsAdapter } from "../../interfaces/UniversalLoginSe
 import { get } from "./get";
 import { create } from "./create";
 import { update } from "./update";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
 export function createUniversalLoginSessionAdapter(
-  db: DrizzleMysqlDatabase,
+  db: DrizzleMySqlDatabase,
 ): UniversalLoginSessionsAdapter {
   return {
     create: create(db),

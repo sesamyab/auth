@@ -4,9 +4,9 @@ import { logs } from "../../../../drizzle-mysql/schema";
 import { eq } from "drizzle-orm";
 import { withParams } from "../helpers/params";
 import { transformNullsToUndefined } from "../null-to-undefined";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function listLogs(db: DrizzleMysqlDatabase) {
+export function listLogs(db: DrizzleMySqlDatabase) {
   return async (tenantId: string, params: ListParams) => {
     const query = db.select().from(logs).where(eq(logs.tenant_id, tenantId));
 

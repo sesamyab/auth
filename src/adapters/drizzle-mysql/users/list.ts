@@ -6,10 +6,10 @@ import { userSchema } from "../../../types";
 import { z } from "zod";
 import { withParams } from "../helpers/params";
 import { transformNullsToUndefined } from "../null-to-undefined";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { ListUsersResponse } from "../../interfaces/Users";
 
-export function listUsers(db: DrizzleMysqlDatabase) {
+export function listUsers(db: DrizzleMySqlDatabase) {
   return async (tenantId: string, params: ListParams) => {
     const query = db.select().from(users);
     const result = await withParams(query.$dynamic(), {

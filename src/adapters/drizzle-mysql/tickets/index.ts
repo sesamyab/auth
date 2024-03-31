@@ -2,9 +2,9 @@
 import { TicketsAdapter } from "../../interfaces/Tickets";
 import { get } from "./get";
 import { create } from "./create";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createTicketsAdapter(db: DrizzleMysqlDatabase): TicketsAdapter {
+export function createTicketsAdapter(db: DrizzleMySqlDatabase): TicketsAdapter {
   return {
     create: create(db),
     get: get(db),

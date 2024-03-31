@@ -1,9 +1,9 @@
 // WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
 import { universal_login_sessions } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function create(db: DrizzleMysqlDatabase) {
+export function create(db: DrizzleMySqlDatabase) {
   return async (session: UniversalLoginSession) => {
     const { authParams, ...rest } = session;
 

@@ -2,10 +2,10 @@
 import { ApplicationsAdapter } from "../../interfaces/Applications";
 import { create } from "./create";
 import { list } from "./list";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
 export function createApplicationsAdapter(
-  db: DrizzleMysqlDatabase,
+  db: DrizzleMySqlDatabase,
 ): ApplicationsAdapter {
   return {
     create: create(db),

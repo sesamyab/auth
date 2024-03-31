@@ -2,7 +2,7 @@
 import { nanoid } from "nanoid";
 import { SqlLog, Log } from "../../../types";
 import { logs } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
 function stringifyIfTruthy<T>(value: T | undefined): string | undefined {
   return value ? JSON.stringify(value) : undefined;
@@ -44,7 +44,7 @@ function getScopeValue(log: Log): string | undefined {
   return undefined;
 }
 
-export function createLog(db: DrizzleMysqlDatabase) {
+export function createLog(db: DrizzleMySqlDatabase) {
   return async (tenant_id: string, params: Log): Promise<SqlLog> => {
     const { details } = params;
 

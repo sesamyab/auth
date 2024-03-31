@@ -2,9 +2,9 @@
 import { applications } from "../../../../drizzle-mysql/schema";
 import { eq } from "drizzle-orm";
 import { applicationSchema } from "../../../types";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function list(db: DrizzleMysqlDatabase) {
+export function list(db: DrizzleMySqlDatabase) {
   return async (tenantId: string) => {
     const result = await db
       .select()

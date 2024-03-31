@@ -1,9 +1,9 @@
 // WARNING - this file is generated from the SQLite adapter. Do not edit!
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { sessions } from "../../../../drizzle-mysql/schema";
 import { Session, SqlSession } from "../../../types";
 
-export function create(db: DrizzleMysqlDatabase) {
+export function create(db: DrizzleMySqlDatabase) {
   return async (session: Session) => {
     const sqlSession: SqlSession = {
       id: session.id,

@@ -2,9 +2,9 @@
 import { User } from "../../../types";
 import { HTTPException } from "hono/http-exception";
 import { users } from "../../../../drizzle-mysql/schema";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function create(db: DrizzleMysqlDatabase) {
+export function create(db: DrizzleMySqlDatabase) {
   return async (tenantId: string, user: User): Promise<User> => {
     const sqlUser = {
       ...user,

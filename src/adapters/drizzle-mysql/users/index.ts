@@ -6,9 +6,9 @@ import { listUsers } from "./list";
 import { remove } from "./remove";
 import { update } from "./update";
 import { unlink } from "./unlink";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createUsersAdapter(db: DrizzleMysqlDatabase): UserDataAdapter {
+export function createUsersAdapter(db: DrizzleMySqlDatabase): UserDataAdapter {
   return {
     create: create(db),
     remove: remove(db),

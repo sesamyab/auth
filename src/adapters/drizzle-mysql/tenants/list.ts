@@ -5,10 +5,10 @@ import { tenantSchema } from "../../../types";
 import { transformNullsToUndefined } from "../null-to-undefined";
 import { tenants } from "../../../../drizzle-mysql/schema";
 import { withParams } from "../helpers/params";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { count } from "drizzle-orm";
 
-export function listTenants(db: DrizzleMysqlDatabase) {
+export function listTenants(db: DrizzleMySqlDatabase) {
   return async (params: ListParams) => {
     const query = db.select().from(tenants);
 

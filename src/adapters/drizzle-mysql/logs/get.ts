@@ -3,10 +3,10 @@ import { LogsResponse } from "../../../types";
 import { getLogResponse } from "../../../utils/logs";
 import { logs } from "../../../../drizzle-mysql/schema";
 import { eq, and } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 import { transformNullsToUndefined } from "../null-to-undefined";
 
-export function getLogs(db: DrizzleMysqlDatabase) {
+export function getLogs(db: DrizzleMySqlDatabase) {
   return async (
     tenantId: string,
     logId: string,

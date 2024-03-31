@@ -8,7 +8,7 @@ import {
   domains,
 } from "../../../../drizzle-mysql/schema";
 import { eq } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
 function removeNullProperties<T = any>(obj: Record<string, any>) {
   const clone = { ...obj };
@@ -29,7 +29,7 @@ function splitUrls(value?: string) {
   return value.split(",").map((key) => key.trim());
 }
 
-export function createClientsAdapter(db: DrizzleMysqlDatabase) {
+export function createClientsAdapter(db: DrizzleMySqlDatabase) {
   return {
     get: async (applicationId: string) => {
       const [application] = await db

@@ -14,9 +14,9 @@ import { createConnectionsAdapter } from "./connections";
 import { createClientsAdapter } from "./clients";
 import { createKeysAdapter } from "./keys";
 import { createDomainsAdapter } from "./domains";
-import { DrizzleMysqlDatabase } from "../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../services/drizzle-mysql";
 
-export default function createAdapters(db: DrizzleMysqlDatabase) {
+export default function createAdapters(db: DrizzleMySqlDatabase) {
   return {
     applications: createApplicationsAdapter(db),
     clients: createClientsAdapter(db),

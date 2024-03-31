@@ -2,9 +2,9 @@
 import { eq } from "drizzle-orm";
 import { tenants } from "../../../../drizzle-mysql/schema";
 import { Tenant } from "../../../types";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function updateTenant(db: DrizzleMysqlDatabase) {
+export function updateTenant(db: DrizzleMySqlDatabase) {
   return async (id: string, tenant: Partial<Tenant>): Promise<void> => {
     const tenantWithModified = {
       ...tenant,

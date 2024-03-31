@@ -2,9 +2,9 @@
 import { CodesAdapter } from "../../interfaces/Codes";
 import { list } from "./list";
 import { create } from "./create";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createCodesAdapter(db: DrizzleMysqlDatabase): CodesAdapter {
+export function createCodesAdapter(db: DrizzleMySqlDatabase): CodesAdapter {
   return {
     create: create(db),
     list: list(db),

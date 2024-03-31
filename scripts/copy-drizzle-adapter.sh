@@ -8,7 +8,7 @@ DESTINATION_DIR="src/adapters/drizzle-mysql"
 SQLITE_STRING="sqlite"
 MYSQL_STRING="mysql"
 SQLITE_CAP_STRING="SQLite"
-MYSQL_CAP_STRING="Mysql"
+MYSQL_CAP_STRING="MySql"
 
 # Warning message to be added at the top of each file
 WARNING_MESSAGE="// WARNING - this file is generated from the SQLite adapter. Do not edit!"

@@ -2,9 +2,9 @@
 import { isNull } from "drizzle-orm";
 import { keys } from "../../../../drizzle-mysql/schema";
 import { certificateSchema } from "../../../types";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function list(db: DrizzleMysqlDatabase) {
+export function list(db: DrizzleMySqlDatabase) {
   return async () => {
     const result = await db
       .select()

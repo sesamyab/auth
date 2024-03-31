@@ -1,10 +1,10 @@
 // WARNING - this file is generated from the SQLite adapter. Do not edit!
 import { sql } from "drizzle-orm";
 import { ListParams } from "../../interfaces/ListParams";
-import { MysqlSelect } from "drizzle-orm/mysql-core";
+import { MySqlSelect } from "drizzle-orm/mysql-core";
 import { luceneFilterToSQL } from "./filter";
 
-export function withParams<T extends MysqlSelect>(qb: T, params: ListParams) {
+export function withParams<T extends MySqlSelect>(qb: T, params: ListParams) {
   let _qb = qb;
 
   if (params.sort) {

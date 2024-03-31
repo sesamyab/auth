@@ -4,10 +4,10 @@ import { get } from "./get";
 import { create } from "./create";
 import { remove } from "./remove";
 import { update } from "./update";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
 export function createSessionsAdapter(
-  db: DrizzleMysqlDatabase,
+  db: DrizzleMySqlDatabase,
 ): SessionsAdapter {
   return {
     create: create(db),

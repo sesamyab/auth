@@ -5,10 +5,10 @@ import { get } from "./get";
 import { listTenants } from "./list";
 import { updateTenant } from "./updateTenant";
 import { removeTenant } from "./removeTenant";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
 export function createTenantsAdapter(
-  db: DrizzleMysqlDatabase,
+  db: DrizzleMySqlDatabase,
 ): TenantsDataAdapter {
   return {
     create: createTenant(db),

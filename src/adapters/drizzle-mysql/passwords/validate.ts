@@ -3,9 +3,9 @@ import bcrypt from "bcryptjs";
 import { PasswordParams, PasswordResponse } from "../../../types";
 import { passwords } from "../../../../drizzle-mysql/schema";
 import { and, eq } from "drizzle-orm";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function validate(db: DrizzleMysqlDatabase) {
+export function validate(db: DrizzleMySqlDatabase) {
   return async (
     tenant_id: string,
     params: PasswordParams,

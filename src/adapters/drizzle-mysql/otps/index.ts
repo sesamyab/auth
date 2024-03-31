@@ -2,9 +2,9 @@
 import { OTPAdapter } from "../../interfaces/OTP";
 import { list } from "./list";
 import { create } from "./create";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createOTPAdapter(db: DrizzleMysqlDatabase): OTPAdapter {
+export function createOTPAdapter(db: DrizzleMySqlDatabase): OTPAdapter {
   return {
     create: create(db),
     list: list(db),

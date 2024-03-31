@@ -3,9 +3,9 @@ import { LogsDataAdapter } from "../../interfaces/Logs";
 import { createLog } from "./create";
 import { listLogs } from "./list";
 import { getLogs } from "./get";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createLogsAdapter(db: DrizzleMysqlDatabase): LogsDataAdapter {
+export function createLogsAdapter(db: DrizzleMySqlDatabase): LogsDataAdapter {
   return {
     create: createLog(db),
     list: listLogs(db),

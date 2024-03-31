@@ -3,9 +3,9 @@ import { list } from "./list";
 import { KeysAdapter } from "../../interfaces/Keys";
 import { create } from "./create";
 import { revoke } from "./revoke";
-import { DrizzleMysqlDatabase } from "../../../services/drizzle-mysql";
+import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
 
-export function createKeysAdapter(db: DrizzleMysqlDatabase): KeysAdapter {
+export function createKeysAdapter(db: DrizzleMySqlDatabase): KeysAdapter {
   return {
     create: create(db),
     list: list(db),

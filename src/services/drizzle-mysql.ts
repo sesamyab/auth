@@ -9,4 +9,4 @@ const client = new Client({
 const db = drizzle(client, { schema });
 
 export { db };
-export type DrizzleMysqlDatabase = typeof db;
+export type DrizzleMySqlDatabase = typeof db;
