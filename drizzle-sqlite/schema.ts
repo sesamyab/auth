@@ -7,7 +7,6 @@ import {
   sqliteTable,
   text,
   integer,
-  AnySQLiteColumn,
 } from "drizzle-orm/sqlite-core";
 
 export const tenants = sqliteTable(

@@ -1,16 +1,12 @@
 import {
   mysqlTable,
-  mysqlSchema,
-  AnyMySqlColumn,
   primaryKey,
   varchar,
   index,
   int,
-  tinyint,
   unique,
   boolean,
 } from "drizzle-orm/mysql-core";
-import { sql } from "drizzle-orm";
 
 export const applications = mysqlTable(
   "applications",
@@ -175,7 +171,7 @@ export const logs = mysqlTable(
     details: varchar("details", { length: 8192 }),
     user_name: varchar("user_name", { length: 255 }),
     auth0_client: varchar("auth0_client", { length: 255 }),
-    isMobile: tinyint("isMobile"),
+    isMobile: boolean("isMobile"),
     connection: varchar("connection", { length: 255 }),
     connection_id: varchar("connection_id", { length: 255 }),
     audience: varchar("audience", { length: 255 }),
