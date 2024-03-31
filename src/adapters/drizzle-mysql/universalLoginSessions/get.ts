@@ -1,8 +1,5 @@
 // WARNING - this file is generated from the SQLite adapter. Do not edit!
-import {
-  UniversalLoginSession,
-  universalLoginSessionSchema,
-} from "../../interfaces/UniversalLoginSession";
+import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
 import { and, eq, gt } from "drizzle-orm";
 import { universal_login_sessions } from "../../../../drizzle-mysql/schema";
 import { DrizzleMySqlDatabase } from "../../../services/drizzle-mysql";
@@ -53,6 +50,6 @@ export function get(db: DrizzleMySqlDatabase) {
       },
     });
 
-    return universalLoginSessionSchema.parse(universalLoginSessionWithoutNulls);
+    return universalLoginSessionWithoutNulls;
   };
 }
