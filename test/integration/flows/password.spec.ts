@@ -18,7 +18,7 @@ describe("password-flow", () => {
           client_id: "invalidClientId",
           connection: "Username-Password-Authentication",
           email: "test@example.com",
-          password: "password",
+          password: "Password1234!",
         },
       };
       const response = await client.dbconnections.signup.$post(
@@ -35,7 +35,7 @@ describe("password-flow", () => {
     });
 
     it("should create a new user with a password and only allow login after email validation", async () => {
-      const password = "password";
+      const password = "Password1234!";
       const env = await getEnv();
       const client = testClient(tsoaApp, env);
 
@@ -160,7 +160,7 @@ describe("password-flow", () => {
     // maybe this test should be broken up into login tests below... maybe we want more flows like this!
     // still more to test e.g. resent email validation email after failed login (here we are just testing the verify email email which is only sent once)
     it("should create a new user with a password, only allow login after email validation AND link this to an existing code user with the same email", async () => {
-      const password = "password";
+      const password = "Password1234!";
       const env = await getEnv();
       const client = testClient(tsoaApp, env);
       const token = await getAdminToken();
@@ -335,7 +335,7 @@ describe("password-flow", () => {
     });
 
     it("should resend email validation email after login attempts, and this should work", async () => {
-      const password = "password";
+      const password = "Password1234!";
       const env = await getEnv();
       const client = testClient(tsoaApp, env);
 
@@ -418,7 +418,7 @@ describe("password-flow", () => {
     it("should not allow a new sign up to overwrite the password of an existing signup", async () => {
       const env = await getEnv();
       const client = testClient(tsoaApp, env);
-      const aNewPassword = "a new password";
+      const aNewPassword = "A-new-valid-password-1234!";
 
       const typesDoNotWorkWithThisSetup___PARAMS = {
         json: {
@@ -460,6 +460,29 @@ describe("password-flow", () => {
       );
       expect(loginResponse.status).toBe(403);
     });
+    it("should reject signups for weak passwords", async () => {
+      const env = await getEnv();
+      const client = testClient(tsoaApp, env);
+
+      const typesDoNotWorkWithThisSetup___PARAMS = {
+        json: {
+          client_id: "clientId",
+          connection: "Username-Password-Authentication",
+          email: "weak-password@example.com",
+          password: "password",
+        },
+      };
+      const createUserResponse = await client.dbconnections.signup.$post(
+        typesDoNotWorkWithThisSetup___PARAMS,
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      );
+
+      expect(createUserResponse.status).toBe(400);
+    });
     // TO TEST--------------------------------------------------------
     // should do what with registration signup for existing email (code) user?
     // --- we don't have account linking implemented on this flow
@@ -477,7 +500,7 @@ describe("password-flow", () => {
             client_id: "clientId",
             credential_type: "http://auth0.com/oauth/grant-type/password-realm",
             realm: "Username-Password-Authentication",
-            password: "Test!",
+            password: "Test1234!",
             username: "foo@example.com",
           },
         },
@@ -582,7 +605,7 @@ describe("password-flow", () => {
           client_id: "clientId",
           connection: "Username-Password-Authentication",
           email: "new-username-password-user@example.com",
-          password: "password",
+          password: "Password1234!",
         },
       };
 
@@ -602,7 +625,7 @@ describe("password-flow", () => {
             client_id: "clientId",
             credential_type: "http://auth0.com/oauth/grant-type/password-realm",
             realm: "Username-Password-Authentication",
-            password: "password",
+            password: "Password1234!",
             username: "new-username-password-user@example.com",
           },
         },
@@ -630,7 +653,7 @@ describe("password-flow", () => {
             credential_type: "http://auth0.com/oauth/grant-type/password-realm",
             realm: "Username-Password-Authentication",
             // this is the password of foo@example.com
-            password: "Test!",
+            password: "Test1234!",
             username: "new-username-password-user@example.com",
           },
         },
@@ -675,7 +698,7 @@ describe("password-flow", () => {
             client_id: "otherClientIdOnOtherTenant",
             credential_type: "http://auth0.com/oauth/grant-type/password-realm",
             realm: "Username-Password-Authentication",
-            password: "Test!",
+            password: "Test1234!",
             username: "foo@example.com",
           },
         },
@@ -734,10 +757,13 @@ describe("password-flow", () => {
       // reset password
       //-------------------
 
+      const anyClient = client as any;
+
       // NOTE - I'm not testing the GET that loads the webform here... we don't have a browser to interact with here
-      const resetPassword = await client.u["reset-password"].$post({
+      const resetPassword = await anyClient.u["reset-password"].$post({
         json: {
-          password: "new-password-1234!",
+          password: "New-password-1234!",
+          "re-enter-password": "New-password-1234!",
         },
         query: {
           state,
@@ -757,7 +783,7 @@ describe("password-flow", () => {
             client_id: "clientId",
             credential_type: "http://auth0.com/oauth/grant-type/password-realm",
             realm: "Username-Password-Authentication",
-            password: "new-password-1234!",
+            password: "New-password-1234!",
             username: "foo@example.com",
           },
         },
@@ -794,6 +820,205 @@ describe("password-flow", () => {
       const idTokenPayload = parseJwt(idToken!);
       expect(idTokenPayload.email).toBe("foo@example.com");
       expect(idTokenPayload.aud).toBe("clientId");
+    });
+    it("should reject weak passwords", async () => {
+      const env = await getEnv();
+      const client = testClient(tsoaApp, env);
+
+      // foo@example.com is an existing username-password user
+      // with password - Test!
+
+      //-------------------
+      // get code to call password reset endpoint
+      //-------------------
+      await client.dbconnections.change_password.$post(
+        {
+          json: {
+            client_id: "clientId",
+            email: "foo@example.com",
+            connection: "Username-Password-Authentication",
+          },
+        },
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      );
+      const [{ code, state }] = await env.data.email.list!();
+
+      //-------------------
+      // reject when try to set weak password
+      //-------------------
+      const anyClient = client as any;
+
+      const resetPassword = await anyClient.u["reset-password"].$post({
+        json: {
+          // we have unit tests for the util function we use so just doing one unhappy path
+          password: "weak-password",
+          "re-enter-password": "weak-password",
+        },
+        query: {
+          state,
+          code,
+        },
+      });
+
+      expect(resetPassword.status).toBe(400);
+    });
+    it("should reject non-matching confirmation password", async () => {
+      const env = await getEnv();
+      const client = testClient(tsoaApp, env);
+
+      // foo@example.com is an existing username-password user
+      // with password - Test!
+
+      //-------------------
+      // get code to call password reset endpoint
+      //-------------------
+      await client.dbconnections.change_password.$post(
+        {
+          json: {
+            client_id: "clientId",
+            email: "foo@example.com",
+            connection: "Username-Password-Authentication",
+          },
+        },
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      );
+      const [{ code, state }] = await env.data.email.list!();
+
+      //-------------------
+      // reject when confrimation password does not match!
+      //-------------------
+      const anyClient = client as any;
+
+      const resetPassword = await anyClient.u["reset-password"].$post({
+        json: {
+          password: "StrongPassword1234!",
+          // this is also strong but does match the previous line
+          "re-enter-password": "AnotherStrongPassword1234!",
+        },
+        query: {
+          state,
+          code,
+        },
+      });
+
+      expect(resetPassword.status).toBe(400);
+    });
+    it("should send password reset email for new unvalidated signup AND set email_verified to true", async () => {
+      const env = await getEnv();
+      const client = testClient(tsoaApp, env);
+
+      const typesDoNotWorkWithThisSetup___PARAMS = {
+        json: {
+          client_id: "clientId",
+          connection: "Username-Password-Authentication",
+          email: "reset-new-user@example.com",
+          password: "Password1234!",
+        },
+      };
+      const createUserResponse = await client.dbconnections.signup.$post(
+        typesDoNotWorkWithThisSetup___PARAMS,
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      );
+      expect(createUserResponse.status).toBe(200);
+
+      //-------------------
+      // send password reset email even though have never logged in
+      //-------------------
+      const passwordResetSendResponse =
+        await client.dbconnections.change_password.$post(
+          {
+            json: {
+              client_id: "clientId",
+              email: "reset-new-user@example.com",
+              connection: "Username-Password-Authentication",
+            },
+          },
+          {
+            headers: {
+              "content-type": "application/json",
+            },
+          },
+        );
+      expect(passwordResetSendResponse.status).toBe(200);
+      expect(await passwordResetSendResponse.text()).toBe(
+        "We've just sent you an email to reset your password.",
+      );
+      const [{ to, code, state }] = await env.data.email.list!();
+      expect(to).toBe("reset-new-user@example.com");
+      expect(code).toBeDefined();
+      expect(state).toBeDefined();
+      //-------------------
+      // reset password
+      //-------------------
+      const anyClient = client as any;
+      const resetPassword = await anyClient.u["reset-password"].$post({
+        json: {
+          password: "New-password-1234!",
+          "re-enter-password": "New-password-1234!",
+        },
+        query: {
+          state,
+          code,
+        },
+      });
+      expect(resetPassword.status).toBe(200);
+
+      // ------------------
+      // now check we can login with the new password, and we are not told to verify our email
+      // ------------------
+      const loginResponse = await client.co.authenticate.$post(
+        {
+          json: {
+            client_id: "clientId",
+            credential_type: "http://auth0.com/oauth/grant-type/password-realm",
+            realm: "Username-Password-Authentication",
+            password: "New-password-1234!",
+            username: "reset-new-user@example.com",
+          },
+        },
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      );
+      expect(loginResponse.status).toBe(200);
+      const { login_ticket } = (await loginResponse.json()) as LoginTicket;
+      const query = {
+        auth0client: "eyJuYW1lIjoiYXV0aDAuanMiLCJ2ZXJzaW9uIjoiOS4yMy4wIn0=",
+        client_id: "clientId",
+        login_ticket,
+        referrer: "https://login.example.com",
+        response_type: "token id_token",
+        redirect_uri: "http://login.example.com",
+        state: "state",
+        realm: "Username-Password-Authentication",
+      };
+      const tokenResponse = await client.authorize.$get({ query });
+
+      // this proves that email_verified is set to true, and the new password has been set
+      expect(tokenResponse.status).toBe(302);
+      const redirectUri = new URL(tokenResponse.headers.get("location")!);
+      const searchParams = new URLSearchParams(redirectUri.hash.slice(1));
+      const accessToken = searchParams.get("access_token");
+      expect(accessToken).toBeDefined();
+
+      const idToken = searchParams.get("id_token");
+      const idTokenPayload = parseJwt(idToken!);
+      expect(idTokenPayload.email).toBe("reset-new-user@example.com");
+      expect(idTokenPayload.email_verified).toBe(true);
     });
   });
 

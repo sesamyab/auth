@@ -33,7 +33,7 @@ export const authParamsSchema = z.object({
 });
 
 export interface AuthParams {
-  client_id?: string;
+  client_id: string;
   response_type?: AuthorizationResponseType;
   response_mode?: AuthorizationResponseMode;
   redirect_uri?: string;

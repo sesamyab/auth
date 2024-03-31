@@ -1,5 +1,6 @@
 import createAdapters from "../../../src/adapters/drizzle-sqlite";
 import { getCertificate } from "./token";
+import { VendorSettings } from "../../../src/types";
 import {
   AuthorizationResponseMode,
   AuthorizationResponseType,
@@ -209,7 +210,7 @@ export async function getEnv() {
 
   data.passwords.create("tenantId", {
     user_id: "userId",
-    password: "Test!",
+    password: "Test1234!",
   });
 
   return {
@@ -228,6 +229,23 @@ export async function getEnv() {
     LOGIN2_URL: "https://login2.sesamy.dev",
     db,
     oauth2ClientFactory: mockOAuth2ClientFactory,
+    fetchVendorSettings: async (tenantName: string) => {
+      const mockVendorSettings: VendorSettings = {
+        name: "sesamy",
+        logoUrl: `https://assets.sesamy.com/static/images/email/sesamy-logo.png`,
+        style: {
+          primaryColor: "#7D68F4",
+          buttonTextColor: "#7D68F4",
+          primaryHoverColor: "#7D68F4",
+        },
+        loginBackgroundImage: "",
+        supportEmail: "support@sesamy.com",
+        supportUrl: "https://support.sesamy.com",
+        termsAndConditionsUrl:
+          "https://store.sesamy.com/pages/terms-of-service",
+      };
+      return mockVendorSettings;
+    },
   };
 }
 

@@ -10,6 +10,7 @@ import loggerMiddleware from "./middlewares/logger";
 import renderOauthRedirectHtml from "./routes/oauth2-redirect";
 import { validateUrl } from "./utils/validate-redirect-url";
 import { Var } from "./types/Var";
+import { getResetPassword, postResetPassword } from "./routes/tsx/routes";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -70,6 +71,29 @@ const app = new Hono<{ Bindings: Env }>()
 app.get("/spec", async () => {
   return new Response(JSON.stringify(swagger));
 });
+
+app.get("/u/reset-password", getResetPassword);
+
+app.post("/u/reset-password", postResetPassword);
+
+app.get(
+  "/css/tailwind.css",
+  async (ctx: Context<{ Bindings: Env; Variables: Var }>) => {
+    const response = await ctx.env.AUTH_TEMPLATES.get(
+      "templates/static/stylesheets/tailwind.css",
+    );
+
+    if (!response) {
+      throw new Error("Template not found");
+    }
+
+    const templateString = await response.text();
+
+    return ctx.text(templateString, 200, {
+      "content-type": "text/css",
+    });
+  },
+);
 
 app.get("/docs", swaggerUi);
 app.get("/oauth2-redirect.html", renderOauthRedirectHtml);
