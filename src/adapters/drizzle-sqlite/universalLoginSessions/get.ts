@@ -1,7 +1,4 @@
-import {
-  UniversalLoginSession,
-  universalLoginSessionSchema,
-} from "../../interfaces/UniversalLoginSession";
+import { UniversalLoginSession } from "../../interfaces/UniversalLoginSession";
 import { and, eq, gt } from "drizzle-orm";
 import { universal_login_sessions } from "../../../../drizzle-sqlite/schema";
 import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
@@ -52,6 +49,6 @@ export function get(db: DrizzleSQLiteDatabase) {
       },
     });
 
-    return universalLoginSessionSchema.parse(universalLoginSessionWithoutNulls);
+    return universalLoginSessionWithoutNulls;
   };
 }
