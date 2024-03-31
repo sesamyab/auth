@@ -95,9 +95,7 @@
       "compositePrimaryKeys": {
         "applications_id": {
           "name": "applications_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -167,17 +165,13 @@
       "compositePrimaryKeys": {
         "codes_id": {
           "name": "codes_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {
         "codes_expires_at_index": {
           "name": "codes_expires_at_index",
-          "columns": [
-            "expires_at"
-          ],
+          "columns": ["expires_at"],
           "isUnique": false
         }
       },
@@ -303,9 +297,7 @@
       "compositePrimaryKeys": {
         "connections_id": {
           "name": "connections_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -382,9 +374,7 @@
       "compositePrimaryKeys": {
         "domains_id": {
           "name": "domains_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -440,9 +430,7 @@
       "compositePrimaryKeys": {
         "keys_kid": {
           "name": "keys_kid",
-          "columns": [
-            "kid"
-          ]
+          "columns": ["kid"]
         }
       },
       "indexes": {},
@@ -470,9 +458,7 @@
       "compositePrimaryKeys": {
         "kysely_migration_name": {
           "name": "kysely_migration_name",
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       },
       "indexes": {},
@@ -501,9 +487,7 @@
       "compositePrimaryKeys": {
         "kysely_migration_lock_id": {
           "name": "kysely_migration_lock_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -671,31 +655,23 @@
       "compositePrimaryKeys": {
         "logs_id": {
           "name": "logs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {
         "logs_user_id": {
           "name": "logs_user_id",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         },
         "logs_tenant_id": {
           "name": "logs_tenant_id",
-          "columns": [
-            "tenant_id"
-          ],
+          "columns": ["tenant_id"],
           "isUnique": false
         },
         "logs_date": {
           "name": "logs_date",
-          "columns": [
-            "date"
-          ],
+          "columns": ["date"],
           "isUnique": false
         }
       },
@@ -779,9 +755,7 @@
       "compositePrimaryKeys": {
         "members_id": {
           "name": "members_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -851,9 +825,7 @@
       "compositePrimaryKeys": {
         "migrations_id": {
           "name": "migrations_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -986,24 +958,18 @@
       "compositePrimaryKeys": {
         "otps_id": {
           "name": "otps_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {
         "otps_email_index": {
           "name": "otps_email_index",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         },
         "otps_expires_at_index": {
           "name": "otps_expires_at_index",
-          "columns": [
-            "expires_at"
-          ],
+          "columns": ["expires_at"],
           "isUnique": false
         }
       },
@@ -1052,9 +1018,7 @@
       "compositePrimaryKeys": {
         "passwords_user_id": {
           "name": "passwords_user_id",
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "indexes": {},
@@ -1124,9 +1088,7 @@
       "compositePrimaryKeys": {
         "sessions_id": {
           "name": "sessions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -1224,9 +1186,7 @@
       "compositePrimaryKeys": {
         "tenants_id": {
           "name": "tenants_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -1331,9 +1291,7 @@
       "compositePrimaryKeys": {
         "tickets_id": {
           "name": "tickets_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -1459,9 +1417,7 @@
       "compositePrimaryKeys": {
         "universal_login_sessions_id": {
           "name": "universal_login_sessions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "indexes": {},
@@ -1622,32 +1578,23 @@
       "compositePrimaryKeys": {
         "users_id_tenant_id": {
           "name": "users_id_tenant_id",
-          "columns": [
-            "id",
-            "tenant_id"
-          ]
+          "columns": ["id", "tenant_id"]
         }
       },
       "indexes": {
         "users_email_index": {
           "name": "users_email_index",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         },
         "users_linked_to_index": {
           "name": "users_linked_to_index",
-          "columns": [
-            "linked_to"
-          ],
+          "columns": ["linked_to"],
           "isUnique": false
         },
         "users_name_index": {
           "name": "users_name_index",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": false
         }
       },
@@ -1655,11 +1602,7 @@
       "uniqueConstraints": {
         "unique_email_provider": {
           "name": "unique_email_provider",
-          "columns": [
-            "email",
-            "provider",
-            "tenant_id"
-          ]
+          "columns": ["email", "provider", "tenant_id"]
         }
       }
     }

@@ -160,9 +160,7 @@
       "indexes": {
         "codes_expires_at_index": {
           "name": "codes_expires_at_index",
-          "columns": [
-            "expires_at"
-          ],
+          "columns": ["expires_at"],
           "isUnique": false
         }
       },
@@ -575,23 +573,17 @@
       "indexes": {
         "logs_user_id_index": {
           "name": "logs_user_id_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         },
         "logs_tenant_id_index": {
           "name": "logs_tenant_id_index",
-          "columns": [
-            "tenant_id"
-          ],
+          "columns": ["tenant_id"],
           "isUnique": false
         },
         "logs_date_index": {
           "name": "logs_date_index",
-          "columns": [
-            "date"
-          ],
+          "columns": ["date"],
           "isUnique": false
         }
       },
@@ -600,12 +592,8 @@
           "name": "logs_tenant_id_tenants_id_fk",
           "tableFrom": "logs",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -693,12 +681,8 @@
           "name": "members_tenant_id_tenants_id_fk",
           "tableFrom": "members",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -772,12 +756,8 @@
           "name": "migrations_tenant_id_tenants_id_fk",
           "tableFrom": "migrations",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -911,16 +891,12 @@
       "indexes": {
         "otps_email_index": {
           "name": "otps_email_index",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         },
         "otps_expires_at_index": {
           "name": "otps_expires_at_index",
-          "columns": [
-            "expires_at"
-          ],
+          "columns": ["expires_at"],
           "isUnique": false
         }
       },
@@ -929,12 +905,8 @@
           "name": "otps_tenant_id_tenants_id_fk",
           "tableFrom": "otps",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -987,12 +959,8 @@
           "name": "passwords_tenant_id_tenants_id_fk",
           "tableFrom": "passwords",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1066,12 +1034,8 @@
           "name": "sessions_tenant_id_tenants_id_fk",
           "tableFrom": "sessions",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1273,12 +1237,8 @@
           "name": "tickets_tenant_id_tenants_id_fk",
           "tableFrom": "tickets",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1408,12 +1368,8 @@
           "name": "universal_login_sessions_tenant_id_tenants_id_fk",
           "tableFrom": "universal_login_sessions",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1575,32 +1531,22 @@
       "indexes": {
         "users_email_index": {
           "name": "users_email_index",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": false
         },
         "users_linked_to_index": {
           "name": "users_linked_to_index",
-          "columns": [
-            "linked_to"
-          ],
+          "columns": ["linked_to"],
           "isUnique": false
         },
         "users_name_index": {
           "name": "users_name_index",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": false
         },
         "unique_email_provider": {
           "name": "unique_email_provider",
-          "columns": [
-            "email",
-            "provider",
-            "tenant_id"
-          ],
+          "columns": ["email", "provider", "tenant_id"],
           "isUnique": true
         }
       },
@@ -1609,12 +1555,8 @@
           "name": "users_tenant_id_tenants_id_fk",
           "tableFrom": "users",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1622,24 +1564,15 @@
           "name": "users_linked_to_tenant_id_users_id_tenant_id_fk",
           "tableFrom": "users",
           "tableTo": "users",
-          "columnsFrom": [
-            "linked_to",
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id",
-            "tenant_id"
-          ],
+          "columnsFrom": ["linked_to", "tenant_id"],
+          "columnsTo": ["id", "tenant_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "users_id_tenant_id": {
-          "columns": [
-            "id",
-            "tenant_id"
-          ],
+          "columns": ["id", "tenant_id"],
           "name": "users_id_tenant_id"
         }
       },
