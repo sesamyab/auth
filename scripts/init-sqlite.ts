@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Database } from "bun:sqlite";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { nanoid } from "nanoid";
