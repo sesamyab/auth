@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 function luceneFilterToSQL(query: string, searchableColumns: string[]): string {
   const filters = query
     .split(/\s+/)
-    .map((q) => q.replace("=", ":"))
+    .map((q) => q.replace(/=/g, ":"))
     .map((filter) => {
       let isNegation = filter.startsWith("-");
       let key, value, isExistsQuery;
