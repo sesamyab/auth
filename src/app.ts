@@ -14,6 +14,7 @@ import { applications } from "./routes/management-api/applications";
 import { connections } from "./routes/management-api/connections";
 import { domains } from "./routes/management-api/domains";
 import { registerComponent } from "./middlewares/register-component";
+import { tenants } from "./routes/management-api/tenants";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -122,6 +123,7 @@ app.get(
 export const tsoaApp = app
   .route("/applications", applications)
   .route("/connections", connections)
-  .route("/domains", domains);
+  .route("/domains", domains)
+  .route("/tenants", tenants);
 
 export default app;

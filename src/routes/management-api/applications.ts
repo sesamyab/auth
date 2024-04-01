@@ -262,7 +262,7 @@ export const applications = new OpenAPIHono<{ Bindings: Env }>()
   .openapi(
     createRoute({
       tags: ["applications"],
-      method: "post",
+      method: "put",
       path: "/{:id}",
       request: {
         body: {

@@ -260,7 +260,7 @@ export const domains = new OpenAPIHono<{ Bindings: Env }>()
   .openapi(
     createRoute({
       tags: ["domains"],
-      method: "post",
+      method: "put",
       path: "/{:id}",
       request: {
         body: {

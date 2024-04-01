@@ -6,9 +6,12 @@ import { DrizzleSQLiteDatabase } from "../../../services/drizzle-sqlite";
 
 export function get(db: DrizzleSQLiteDatabase) {
   return async (id: string): Promise<Tenant | undefined> => {
-    const result = await db.query.tenants.findFirst({
-      where: eq(tenants.id, id),
-    });
+    const [result] = await db
+      .select()
+      .from(tenants)
+      .where(eq(tenants.id, id))
+      .limit(1)
+      .execute();
 
     if (!result) {
       return undefined;

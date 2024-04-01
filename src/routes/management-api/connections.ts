@@ -260,7 +260,7 @@ export const connections = new OpenAPIHono<{ Bindings: Env }>()
   .openapi(
     createRoute({
       tags: ["connections"],
-      method: "post",
+      method: "put",
       path: "/{:id}",
       request: {
         body: {
