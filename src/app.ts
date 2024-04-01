@@ -15,6 +15,7 @@ import { connections } from "./routes/management-api/connections";
 import { domains } from "./routes/management-api/domains";
 import { registerComponent } from "./middlewares/register-component";
 import { tenants } from "./routes/management-api/tenants";
+import { wellKnown } from "./routes/tsoa/well-known";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -64,17 +65,7 @@ app
       credentials: true,
     }),
   )
-  .use(loggerMiddleware)
-  .get("/", async (ctx: Context<{ Bindings: Env; Variables: Var }>) => {
-    const url = new URL(ctx.req.url);
-    const tenantId = url.hostname.split(".")[0];
-    return ctx.json({
-      name: tenantId,
-      version: packageJson.version,
-    });
-  })
-  .get("/docs", swaggerUi)
-  .get("/oauth2-redirect.html", renderOauthRedirectHtml);
+  .use(loggerMiddleware);
 
 registerComponent(app);
 
@@ -121,9 +112,20 @@ app.get(
 );
 
 export const tsoaApp = app
+  .get("/", async (ctx: Context<{ Bindings: Env; Variables: Var }>) => {
+    const url = new URL(ctx.req.url);
+    const tenantId = url.hostname.split(".")[0];
+    return ctx.json({
+      name: tenantId,
+      version: packageJson.version,
+    });
+  })
+  .get("/docs", swaggerUi)
+  .get("/oauth2-redirect.html", renderOauthRedirectHtml)
   .route("/applications", applications)
   .route("/connections", connections)
   .route("/domains", domains)
-  .route("/tenants", tenants);
+  .route("/.well-known", wellKnown)
+  .route("/api/v2/tenants", tenants);
 
 export default app;

@@ -11,7 +11,9 @@ describe("tenants", () => {
 
     const token = await getAdminToken();
     const tenantsResponse1 = await client.api.v2.tenants.$get(
-      {},
+      {
+        query: {},
+      },
       {
         headers: {
           authorization: `Bearer ${token}`,
@@ -48,7 +50,9 @@ describe("tenants", () => {
 
     // now fetch list of tenants again to assert tenant deleted
     const tenantsResponse2 = await client.api.v2.tenants.$get(
-      {},
+      {
+        query: {},
+      },
       {
         headers: {
           authorization: `Bearer ${token}`,
@@ -67,7 +71,9 @@ describe("tenants", () => {
 
     const token = await getAdminToken();
     const tenantsResponse1 = await client.api.v2.tenants.$get(
-      {},
+      {
+        query: {},
+      },
       {
         headers: {
           authorization: `Bearer ${token}`,
@@ -97,7 +103,9 @@ describe("tenants", () => {
 
     // fetch list of tenants again - assert we are one down
     const tenantsResponse2 = await client.api.v2.tenants.$get(
-      {},
+      {
+        query: {},
+      },
       {
         headers: {
           authorization: `Bearer ${token}`,
