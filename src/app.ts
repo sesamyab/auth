@@ -1,9 +1,7 @@
-import { Context, Hono } from "hono";
+import { Context } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { Env } from "./types/Env";
-import { RegisterRoutes } from "../build/routes";
-import swagger from "../build/swagger.json";
 import packageJson from "../package.json";
 import swaggerUi from "./routes/swagger-ui";
 import loggerMiddleware from "./middlewares/logger";
@@ -13,6 +11,7 @@ import { Var } from "./types/Var";
 import { getResetPassword, postResetPassword } from "./routes/tsx/routes";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { applications } from "./routes/management-api/applications";
+import { connections } from "./routes/management-api/connections";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -26,7 +25,9 @@ const ALLOWED_ORIGINS = [
   "https://auth-admin.sesamy.com",
 ];
 
-const app = new OpenAPIHono<{ Bindings: Env }>()
+const app = new OpenAPIHono<{ Bindings: Env }>();
+
+app
   .onError((err, ctx) => {
     if (err instanceof HTTPException) {
       // Get the custom response
@@ -68,11 +69,28 @@ const app = new OpenAPIHono<{ Bindings: Env }>()
       name: tenantId,
       version: packageJson.version,
     });
-  });
+  })
+  .get("/docs", swaggerUi)
+  .get("/oauth2-redirect.html", renderOauthRedirectHtml);
 
-app.get("/spec", async () => {
-  return new Response(JSON.stringify(swagger));
-});
+app.doc("/spec", (c) => ({
+  openapi: "3.0.0",
+  info: {
+    version: "1.0.0",
+    title: "API",
+  },
+  servers: [
+    {
+      url: new URL(c.req.url).origin,
+      description: "Current environment",
+    },
+  ],
+  security: [
+    {
+      oauth2: ["openid", "email", "profile"],
+    },
+  ],
+}));
 
 app.get("/u/reset-password", getResetPassword);
 
@@ -97,35 +115,8 @@ app.get(
   },
 );
 
-app.get("/docs", swaggerUi);
-app.get("/oauth2-redirect.html", renderOauthRedirectHtml);
-
-app.get("/test", async (ctx: Context<{ Bindings: Env }>) => {
-  const response = await ctx.env.data.applications.list(
-    // This is the tenant id in dev
-    "VpE9qtb4Gt_iCahTM0FYg",
-    {
-      per_page: 1,
-      page: 1,
-      include_totals: true,
-    },
-  );
-
-  const [application] = response.applications;
-
-  const url = new URL(ctx.req.url);
-
-  return new Response("Test redirect", {
-    status: 302,
-    headers: {
-      location: `/authorize?client_id=${application?.id}&redirect_uri=${url.protocol}//${url.host}/u/info&scope=profile%20email%20openid&state=1234&response_type=code`,
-    },
-  });
-});
-
-export const tsoaApp = RegisterRoutes(app as unknown as Hono).route(
-  "/applications",
-  applications,
-);
+export const tsoaApp = app
+  .route("/applications", applications)
+  .route("/connections", connections);
 
 export default app;

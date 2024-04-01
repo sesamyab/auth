@@ -33,8 +33,7 @@ const PartialConnectionSchema = z.object({
   updated_at: z.string(),
 });
 
-export const ConnectionSchema = z.object({
-  id: z.string(),
+export const connectionInsertSchema = z.object({
   name: z.string(),
   client_id: z.string(),
   client_secret: z.string().optional(),
@@ -48,9 +47,15 @@ export const ConnectionSchema = z.object({
   token_exchange_basic_auth: z.boolean().optional(),
   response_type: z.custom<AuthorizationResponseType>().optional(),
   response_mode: z.custom<AuthorizationResponseMode>().optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
 });
+
+export const ConnectionSchema = z
+  .object({
+    id: z.string(),
+    created_at: z.string(),
+    updated_at: z.string(),
+  })
+  .extend(connectionInsertSchema.shape);
 
 const BaseClientSchema = z.object({
   id: z.string(),
