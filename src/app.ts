@@ -12,6 +12,8 @@ import { getResetPassword, postResetPassword } from "./routes/tsx/routes";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { applications } from "./routes/management-api/applications";
 import { connections } from "./routes/management-api/connections";
+import { domains } from "./routes/management-api/domains";
+import { registerComponent } from "./middlewares/register-component";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -73,6 +75,8 @@ app
   .get("/docs", swaggerUi)
   .get("/oauth2-redirect.html", renderOauthRedirectHtml);
 
+registerComponent(app);
+
 app.doc("/spec", (c) => ({
   openapi: "3.0.0",
   info: {
@@ -117,6 +121,7 @@ app.get(
 
 export const tsoaApp = app
   .route("/applications", applications)
-  .route("/connections", connections);
+  .route("/connections", connections)
+  .route("/domains", domains);
 
 export default app;

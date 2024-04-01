@@ -13,6 +13,7 @@ export type Env = {
   DATABASE_USERNAME: string;
   TOKEN_SERVICE: Fetcher;
   AUTH_TEMPLATES: R2Bucket;
+  AUTH_URL: string;
   EMAIL_TEMPLATES: R2Bucket;
   READ_PERMISSION?: string;
   WRITE_PERMISSION?: string;
