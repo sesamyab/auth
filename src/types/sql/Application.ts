@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from "@hono/zod-openapi";
 
-export const applicationSchema = z.object({
+export const applicationInsertSchema = z.object({
   id: z.string(),
   name: z.string(),
   tenant_id: z.string(),
@@ -11,9 +11,14 @@ export const applicationSchema = z.object({
   allowed_logout_urls: z.string().transform((val) => (val === null ? "" : val)),
   email_validation: z.enum(["enabled", "disabled", "enforced"]),
   client_secret: z.string(),
-  created_at: z.string().transform((val) => (val === null ? "" : val)),
-  updated_at: z.string().transform((val) => (val === null ? "" : val)),
 });
+
+export const applicationSchema = z
+  .object({
+    created_at: z.string().transform((val) => (val === null ? "" : val)),
+    updated_at: z.string().transform((val) => (val === null ? "" : val)),
+  })
+  .extend(applicationInsertSchema.shape);
 
 export interface Application {
   id: string;

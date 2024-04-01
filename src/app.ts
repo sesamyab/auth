@@ -11,6 +11,8 @@ import renderOauthRedirectHtml from "./routes/oauth2-redirect";
 import { validateUrl } from "./utils/validate-redirect-url";
 import { Var } from "./types/Var";
 import { getResetPassword, postResetPassword } from "./routes/tsx/routes";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { applications } from "./routes/management-api/applications";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -24,7 +26,7 @@ const ALLOWED_ORIGINS = [
   "https://auth-admin.sesamy.com",
 ];
 
-const app = new Hono<{ Bindings: Env }>()
+const app = new OpenAPIHono<{ Bindings: Env }>()
   .onError((err, ctx) => {
     if (err instanceof HTTPException) {
       // Get the custom response
@@ -121,6 +123,9 @@ app.get("/test", async (ctx: Context<{ Bindings: Env }>) => {
   });
 });
 
-export const tsoaApp = RegisterRoutes(app as unknown as Hono);
+export const tsoaApp = RegisterRoutes(app as unknown as Hono).route(
+  "/applications",
+  applications,
+);
 
 export default app;
