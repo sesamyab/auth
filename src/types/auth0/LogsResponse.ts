@@ -1,161 +1,167 @@
-export enum LogTypes {
-  SUCCESS_API_OPERATION = "sapi",
-  //
-  SUCCESS_SILENT_AUTH = "ssa",
-  FAILED_SILENT_AUTH = "fsa",
-  //
-  SUCCESS_SIGNUP = "ss",
-  // we don't have this in the logs yet
-  // FAILED_SIGNUP = "fs",
-  //
-  SUCCESS_LOGIN = "s",
-  FAILED_LOGIN = "f",
-  FAILED_LOGIN_INCORRECT_PASSWORD = "fp",
-  // we don't have this in the logs yet
-  // FAILED_LOGIN_INVALID_EMAIL_USERNAME = "fu",
-  //
-  SUCCESS_LOGOUT = "slo",
-  //
-  SUCCESS_CROSS_ORIGIN_AUTHENTICATION = "scoa",
-  FAILED_CROSS_ORIGIN_AUTHENTICATION = "fcoa",
-  // TODO - not implemented - just for completion as we do get this in our latest auth0 logs
-  NOT_IMPLEMENTED_1 = "seccft",
-  NOT_IMPLEMENTED_2 = "cls",
-}
-export type LogType = `${LogTypes}`;
+import { z } from "zod";
 
-export type Auth0Client = {
-  name: string;
-  version: string;
-  env?: {
-    node?: string;
-  };
-};
+// Enum for LogTypes
+const LogType = z.enum([
+  "sapi", // SUCCESS_API_OPERATION
+  // "ssa", SUCCESS_SILENT_AUTH - omitted for brevity and since it's clear from context
+  "fsa", // FAILED_SILENT_AUTH
+  "ss", // SUCCESS_SIGNUP
+  // FAILED_SIGNUP = "fs", - we don't have this in the logs yet
+  "s", // SUCCESS_LOGIN
+  "f", // FAILED_LOGIN
+  "fp", // FAILED_LOGIN_INCORRECT_PASSWORD
+  // FAILED_LOGIN_INVALID_EMAIL_USERNAME = "fu", - we don't have this in the logs yet
+  "slo", // SUCCESS_LOGOUT
+  "scoa", // SUCCESS_CROSS_ORIGIN_AUTHENTICATION
+  "fcoa", // FAILED_CROSS_ORIGIN_AUTHENTICATION
+  "seccft", // NOT_IMPLEMENTED_1 - not implemented - just for completion as we do get this in our latest auth0 logs
+  "cls", // NOT_IMPLEMENTED_2
+]);
 
-export interface LogCommonFields {
-  type: LogType;
-  date: string;
-  description?: string;
-  ip: string;
-  user_agent: string;
-  details?: any;
-  isMobile: boolean;
-}
+export type LogType = z.infer<typeof LogType>;
 
-interface BrowserLogCommonFields extends LogCommonFields {
-  user_id: string;
-  user_name: string;
+// Auth0Client Type
+const Auth0Client = z.object({
+  name: z.string(),
+  version: z.string(),
+  env: z
+    .object({
+      node: z.string().optional(),
+    })
+    .optional(),
+});
+
+// LogCommonFields Interface
+const LogCommonFields = z.object({
+  type: LogType,
+  date: z.string(),
+  description: z.string().optional(),
+  ip: z.string(),
+  user_agent: z.string(),
+  details: z.any().optional(), // Using z.any() as a placeholder for "details" type
+  isMobile: z.boolean(),
+});
+
+// BrowserLogCommonFields Interface
+const BrowserLogCommonFields = LogCommonFields.extend({
+  user_id: z.string(),
+  user_name: z.string(),
   // do not have this field yet in SQL
-  connection?: string;
-  connection_id: string;
-  client_id?: string;
-  client_name: string;
-}
+  connection: z.string().optional(),
+  connection_id: z.string(),
+  client_id: z.string().optional(),
+  client_name: z.string(),
+});
 
-export interface SuccessfulExchangeOfAccessTokenForAClientCredentialsGrant
-  extends BrowserLogCommonFields {
-  type: "seccft";
-  audience?: string;
-  // notice how this can be both in auth0! interesting
-  scope?: string[] | string;
-  strategy?: string;
-  strategy_type?: string;
-  hostname: string;
-  auth0_client: Auth0Client;
-}
+// Success and Failure Interfaces
+const SuccessfulExchangeOfAccessTokenForAClientCredentialsGrant =
+  BrowserLogCommonFields.extend({
+    type: z.literal("seccft"),
+    audience: z.string().optional(),
+    scope: z.union([z.array(z.string()), z.string()]).optional(), // notice how this can be both in auth0! interesting
+    strategy: z.string().optional(),
+    strategy_type: z.string().optional(),
+    hostname: z.string(),
+    auth0_client: Auth0Client,
+  });
 
-export interface SuccessCrossOriginAuthentication
-  extends BrowserLogCommonFields {
-  type: "scoa";
-  hostname: string;
-  auth0_client: Auth0Client;
-}
-// interesting this doesn't extend the browser one... auth0 seems a bit random with what fields it provides
-export interface FailedCrossOriginAuthentication extends LogCommonFields {
-  type: "fcoa";
-  hostname: string;
-  connection_id: string;
-  auth0_client: Auth0Client;
-}
+const SuccessCrossOriginAuthentication = BrowserLogCommonFields.extend({
+  type: z.literal("scoa"),
+  hostname: z.string(),
+  auth0_client: Auth0Client,
+});
 
-export interface SuccessApiOperation extends LogCommonFields {
-  type: "sapi";
-  client_id?: string;
-  client_name: string;
-}
+const FailedCrossOriginAuthentication = LogCommonFields.extend({
+  type: z.literal("fcoa"),
+  hostname: z.string(),
+  connection_id: z.string(),
+  auth0_client: Auth0Client,
+});
 
-// TODO - reverse engineer this - do not have actual Auth0 example...
-export interface FailedLogin extends LogCommonFields {
-  type: "f";
-}
+// SuccessApiOperation Interface
+const SuccessApiOperation = LogCommonFields.extend({
+  type: z.literal("sapi"),
+  client_id: z.string().optional(),
+  client_name: z.string(),
+});
 
-export interface FailedLoginIncorrectPassword extends BrowserLogCommonFields {
-  type: "fp";
-  strategy: string;
-  strategy_type: string;
-}
+// FailedLogin Interface
+const FailedLogin = LogCommonFields.extend({
+  type: z.literal("f"),
+});
 
-export interface CodeLinkSent extends BrowserLogCommonFields {
-  type: "cls";
-  strategy: string;
-  strategy_type: string;
-}
+// FailedLoginIncorrectPassword Interface
+const FailedLoginIncorrectPassword = BrowserLogCommonFields.extend({
+  type: z.literal("fp"),
+  strategy: z.string(),
+  strategy_type: z.string(),
+});
 
-export interface FailedSilentAuth extends LogCommonFields {
-  type: "fsa";
-  hostname: string;
-  audience: string;
-  scope: string[];
-  client_id?: string;
-  client_name: string;
-  auth0_client: Auth0Client;
-}
+// CodeLinkSent Interface
+const CodeLinkSent = BrowserLogCommonFields.extend({
+  type: z.literal("cls"),
+  strategy: z.string(),
+  strategy_type: z.string(),
+});
 
-export interface SuccessLogout extends BrowserLogCommonFields {
-  type: "slo";
-  hostname: string;
-}
+// FailedSilentAuth Interface
+const FailedSilentAuth = LogCommonFields.extend({
+  type: z.literal("fsa"),
+  hostname: z.string(),
+  audience: z.string(),
+  scope: z.array(z.string()),
+  client_id: z.string().optional(),
+  client_name: z.string(),
+  auth0_client: Auth0Client,
+});
 
-export interface SuccessLogin extends BrowserLogCommonFields {
-  type: "s";
-  strategy: string;
-  strategy_type: string;
-  hostname: string;
-}
+// SuccessLogout Interface
+const SuccessLogout = BrowserLogCommonFields.extend({
+  type: z.literal("slo"),
+  hostname: z.string(),
+});
 
-export interface SuccessSilentAuth extends LogCommonFields {
-  type: "ssa";
-  hostname: string;
-  client_id?: string;
-  client_name: string;
-  session_connection: string;
-  user_id: string;
-  user_name: string;
-  auth0_client: Auth0Client;
-}
+// SuccessLogin Interface
+const SuccessLogin = BrowserLogCommonFields.extend({
+  type: z.literal("s"),
+  strategy: z.string(),
+  strategy_type: z.string(),
+  hostname: z.string(),
+});
 
-export interface SuccessSignup extends BrowserLogCommonFields {
-  type: "ss";
-  hostname: string;
-  strategy: string;
-  strategy_type: string;
-}
+// SuccessSilentAuth Interface
+const SuccessSilentAuth = LogCommonFields.extend({
+  type: z.literal("ssa"),
+  hostname: z.string(),
+  client_id: z.string().optional(),
+  client_name: z.string(),
+  session_connection: z.string(),
+  user_id: z.string(),
+  user_name: z.string(),
+  auth0_client: Auth0Client,
+});
 
-export type Log =
-  | SuccessfulExchangeOfAccessTokenForAClientCredentialsGrant
-  | SuccessCrossOriginAuthentication
-  | SuccessApiOperation
-  | FailedLoginIncorrectPassword
-  | FailedCrossOriginAuthentication
-  | CodeLinkSent
-  | FailedSilentAuth
-  | SuccessLogout
-  | SuccessLogin
-  | SuccessSilentAuth
-  | SuccessSignup
-  | FailedLogin;
+// SuccessSignup Interface
+const SuccessSignup = BrowserLogCommonFields.extend({
+  type: z.literal("ss"),
+  hostname: z.string(),
+  strategy: z.string(),
+  strategy_type: z.string(),
+});
 
-export type LogsResponse = Log & {
-  log_id: string;
-  _id: string;
-};
+export const logSchema = z.union([
+  SuccessfulExchangeOfAccessTokenForAClientCredentialsGrant,
+  SuccessCrossOriginAuthentication,
+  SuccessApiOperation,
+  FailedLoginIncorrectPassword,
+  FailedCrossOriginAuthentication,
+  CodeLinkSent,
+  FailedSilentAuth,
+  SuccessLogout,
+  SuccessLogin,
+  SuccessSilentAuth,
+  SuccessSignup,
+  FailedLogin,
+]);
+
+export type LogResponse = z.infer<typeof logSchema>;
