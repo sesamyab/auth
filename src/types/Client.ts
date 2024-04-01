@@ -59,11 +59,7 @@ const BaseClientSchema = z.object({
   allowed_callback_urls: z.array(z.string()),
   allowed_logout_urls: z.array(z.string()),
   allowed_web_origins: z.array(z.string()),
-  email_validation: z.union([
-    z.literal("enabled"),
-    z.literal("disabled"),
-    z.literal("enforced"),
-  ]),
+  email_validation: z.string(),
   tenant_id: z.string(),
   client_secret: z.string(),
   tenant: z.object({

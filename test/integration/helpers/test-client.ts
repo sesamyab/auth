@@ -1,9 +1,6 @@
-import { Kysely, SqliteDialect } from "kysely";
-import SQLite from "better-sqlite3";
-import { migrateToLatest } from "../../../migrate/migrate";
-import createAdapters from "../../../src/adapters/kysely";
+import createAdapters from "../../../src/adapters/drizzle-sqlite";
 import { getCertificate } from "./token";
-import { Database, VendorSettings } from "../../../src/types";
+import { VendorSettings } from "../../../src/types";
 import {
   AuthorizationResponseMode,
   AuthorizationResponseType,
@@ -14,11 +11,11 @@ import {
 import { EmailAdapter } from "../../../src/adapters/interfaces/Email";
 import type { Email } from "../../../src/types/Email";
 import { mockOAuth2ClientFactory } from "../mockOauth2Client";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { getDb } from "../../../src/services/drizzle-sqlite";
 
 export async function getEnv() {
-  const dialect = new SqliteDialect({
-    database: new SQLite(":memory:"),
-  });
+  const db = getDb(":memory:");
 
   const emails: Email[] = [];
   const emailAdapter: EmailAdapter = {
@@ -63,10 +60,7 @@ export async function getEnv() {
   };
 
   // Don't use getDb here as it will reuse the connection
-  const db = new Kysely<Database>({ dialect: dialect });
-
-  await migrateToLatest(dialect, false, db);
-
+  await migrate(db, { migrationsFolder: "./drizzle-sqlite" });
   const data = createAdapters(db);
   await data.keys.create(getCertificate());
 

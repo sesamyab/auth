@@ -97,7 +97,7 @@ export async function socialAuthCallback({
   code,
 }: socialAuthCallbackParams) {
   const { env } = ctx;
-  const client = await getClient(env, state.authParams.client_id);
+  const client = await getClient(env, state.authParams.client_id!);
 
   if (!client) {
     // I'm not sure if these are correct as need to reverse engineer what Auth0 does

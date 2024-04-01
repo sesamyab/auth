@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1711791486966,
+      "tag": "0000_stiff_lady_ursula",
+      "breakpoints": true
+    }
+  ]
+}

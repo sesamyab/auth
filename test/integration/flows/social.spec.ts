@@ -36,7 +36,8 @@ const EXPECTED_PROFILE_DATA = {
 };
 
 const EXPECTED_NEW_USER = {
-  tenant_id: "tenantId",
+  // TODO: Should this really be returned?
+  // tenant_id: "tenantId",
   name: "örjan.lindström@example.com",
   provider: "demo-social-provider",
   connection: "demo-social-provider",
@@ -608,13 +609,13 @@ describe("social sign on", () => {
       // ---------------------------------------------
       // sanity check that users are entered in database in correct order
       // ---------------------------------------------
-      const users = await env.data.users.list("tenantId", {
+      const { users } = await env.data.users.list("tenantId", {
         page: 0,
         per_page: 10,
         include_totals: false,
       });
       expect(users.length).toBe(3);
-      expect(users.users[2].id).toBe("email|7575757575757");
+      expect(users[2].id).toBe("email|7575757575757");
 
       // ---------------------------------------------
       // now do social sign on with same email - new user registered

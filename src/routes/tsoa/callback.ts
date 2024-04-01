@@ -49,7 +49,7 @@ export class CallbackController extends Controller {
     request.ctx.set("client_id", loginState.authParams.client_id);
     const client = await getClient(
       request.ctx.env,
-      loginState.authParams.client_id,
+      loginState.authParams.client_id!,
     );
     if (!client) {
       throw new HTTPException(400, { message: "Client not found" });
@@ -117,7 +117,7 @@ export class CallbackController extends Controller {
     request.ctx.set("client_id", loginState.authParams.client_id);
     const client = await getClient(
       request.ctx.env,
-      loginState.authParams.client_id,
+      loginState.authParams.client_id!,
     );
     if (!client) {
       throw new HTTPException(400, { message: "Client not found" });

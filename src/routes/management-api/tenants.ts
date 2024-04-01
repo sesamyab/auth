@@ -35,12 +35,15 @@ function parseSort(sort?: string):
     return undefined;
   }
 
-  const [sort_by, orderString] = sort.split(":");
-  const sort_order = orderString === "1" ? "asc" : "desc";
-
+  if (sort.startsWith("-")) {
+    return {
+      sort_by: sort.slice(1),
+      sort_order: "desc",
+    };
+  }
   return {
-    sort_by,
-    sort_order,
+    sort_by: sort,
+    sort_order: "asc",
   };
 }
 

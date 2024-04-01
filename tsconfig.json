@@ -31,5 +31,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
   },
-  "include": ["src/**/*", "test/**/*", "integration-test/**/*", "scripts/**/*"]
+  "include": ["src/**/*", "test/**/*", "integration-test/**/*", "scripts/**/*"],
+  "exclude": ["node_modules/bun-types/globals.d.ts"]
 }

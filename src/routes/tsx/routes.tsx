@@ -6,7 +6,6 @@ import validatePassword from "../../utils/validatePassword";
 import { getUserByEmailAndProvider } from "../../utils/users";
 import { getClient } from "../../services/clients";
 import { HTTPException } from "hono/http-exception";
-import { VendorSettings } from "../../types";
 
 export async function getResetPassword(
   ctx: Context<{ Bindings: Env; Variables: Var }>,

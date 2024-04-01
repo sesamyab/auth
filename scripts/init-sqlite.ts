@@ -1,20 +1,19 @@
-import { BunSqliteDialect } from "kysely-bun-sqlite";
 // @ts-ignore
-import * as bunSqlite from "bun:sqlite";
-import { getDb } from "../src/services/db";
-import { migrateToLatest } from "../migrate/migrate";
-import createAdapters from "../src/adapters/kysely";
-import { create } from "../src/services/rsa-key";
+import { Database } from "bun:sqlite";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 import { nanoid } from "nanoid";
+import { create } from "../src/services/rsa-key";
+import * as schema from "../drizzle-sqlite/schema";
+import { DrizzleSQLiteDatabase } from "../src/services/drizzle-sqlite";
+import createAdapters from "../src/adapters/drizzle-sqlite";
+import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 
-const dialect = new BunSqliteDialect({
-  database: new bunSqlite.Database("db.sqlite"),
-});
+const sqlite = new Database("db.sqlite");
+const db = drizzle(sqlite, { schema });
 
-const db = getDb(dialect);
-const data = createAdapters(db);
+const data = createAdapters(db as unknown as DrizzleSQLiteDatabase);
 (async () => {
-  await migrateToLatest(dialect);
+  await migrate(db, { migrationsFolder: "./drizzle-sqlite" });
 
   const tenant = await data.tenants.create({
     name: "Default",
