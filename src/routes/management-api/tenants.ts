@@ -1,33 +1,9 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { nanoid } from "nanoid";
-import { getDbFromEnv } from "../../services/db";
-import { executeQuery } from "../../helpers/sql";
 import { Env, tenantInsertSchema, totalsSchema } from "../../types";
 import { tenantSchema } from "../../types";
 import { HTTPException } from "hono/http-exception";
 import { auth0QuerySchema } from "../../types/auth0/Query";
-
-function parseSort(sort?: string):
-  | undefined
-  | {
-      sort_by: string;
-      sort_order: "asc" | "desc";
-    } {
-  if (!sort) {
-    return undefined;
-  }
-
-  if (sort.startsWith("-")) {
-    return {
-      sort_by: sort.slice(1),
-      sort_order: "desc",
-    };
-  }
-  return {
-    sort_by: sort,
-    sort_order: "asc",
-  };
-}
+import { parseSort } from "../../utils/sort";
 
 export const tenantsWithTotalsSchema = totalsSchema.extend({
   tenants: z.array(tenantSchema),

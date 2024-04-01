@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { baseEntitySchema } from "./BaseEntity";
 
 export const baseUserSchema = z.object({
   email: z.string(),
@@ -12,8 +13,7 @@ export const baseUserSchema = z.object({
   profileData: z.string().optional(),
 });
 
-export const userSchema = baseUserSchema.extend({
-  id: z.string(),
+export const userInsertSchema = baseUserSchema.extend({
   email_verified: z.boolean(),
   last_ip: z.string().optional(),
   last_login: z.string().optional(),
@@ -21,9 +21,9 @@ export const userSchema = baseUserSchema.extend({
   provider: z.string(),
   connection: z.string(),
   is_social: z.boolean(),
-  created_at: z.string(),
-  updated_at: z.string(),
 });
+
+export const userSchema = userInsertSchema.extend(baseEntitySchema.shape);
 
 export interface BaseUser {
   // TODO - Auth0 requires the id OR the email but for our current usage with durable objects and Sesamy's architecture, we need email!
