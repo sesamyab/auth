@@ -1,9 +1,10 @@
+import { describe, it, expect } from "vitest";
+import { testClient } from "hono/testing";
 import { OpenIDConfiguration } from "../../src/routes/tsoa/jwks";
 import { Jwks, JwksKeys } from "../../src/types/jwks";
 import { getAdminToken } from "./helpers/token";
 import { getEnv } from "./helpers/test-client";
 import { tsoaApp } from "../../src/app";
-import { testClient } from "hono/testing";
 
 describe("jwks", () => {
   it("should return a list with the test certificate", async () => {
