@@ -65,15 +65,4 @@ import { readFile, writeFile } from "fs/promises";
   await generateSpec(specOptions);
 
   await generateRoutes(routeOptions);
-
-  // Add support for x-www-form-urlencoded content. Currently not supported in tsoa
-  const swaggerPath = `${specOptions.outputDirectory}/swagger.json`;
-  const specFile = await readFile(swaggerPath);
-  const spec = JSON.parse(specFile.toString());
-
-  const tokenContent = spec.paths["/oauth/token"].post.requestBody.content;
-  tokenContent["application/x-www-form-urlencoded"] =
-    tokenContent["application/json"];
-
-  await writeFile(swaggerPath, JSON.stringify(spec, null, 2));
 })();

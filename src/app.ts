@@ -20,6 +20,7 @@ import { tenants } from "./routes/management-api/tenants";
 import { logs } from "./routes/management-api/logs";
 import { applications } from "./routes/management-api/applications";
 import { callback } from "./routes/tsoa/callback";
+import { token } from "./routes/tsoa/token";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -85,6 +86,7 @@ export const loginApp = rootApp
   .route("/u", login)
   .route("/.well-known", wellKnown)
   .route("/callback", callback)
+  .route("/oauth2/token", token)
   .route("/api/v2/users", users)
   .route("/api/v2/users-by-email", usersByEmail)
   .route("/api/v2/applications", applications)

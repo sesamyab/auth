@@ -1,3 +1,6 @@
+import { z } from "zod";
+
+// TypeScript enum is directly used in Zod
 export enum GrantType {
   RefreshToken = "refresh_token",
   AuthorizationCode = "authorization_code",
@@ -6,62 +9,94 @@ export enum GrantType {
   Password = "password",
 }
 
-export type TokenParams =
-  | RefreshTokenGrantTypeParams
-  | AuthorizationCodeGrantTypeParams
-  | PKCEAuthorizationCodeGrantTypeParams
-  | ClientCredentialGrantTypeParams
-  | PasswordGrantTypeParams;
+export const grantType = z.nativeEnum(GrantType);
 
-interface RefreshTokenGrantTypeParams {
-  grant_type: GrantType.RefreshToken;
-  refresh_token: string;
-  client_id: string;
-}
+// Interface schemas
+export const refreshTokenGrantTypeParams = z.object({
+  grant_type: z.literal(GrantType.RefreshToken),
+  refresh_token: z.string(),
+  client_id: z.string(),
+});
 
-export interface AuthorizationCodeGrantTypeParams {
-  grant_type: GrantType.AuthorizationCode;
-  code: string;
-  client_secret: string;
-  client_id: string;
-}
+export const authorizationCodeGrantTypeParams = z.object({
+  grant_type: z.literal(GrantType.AuthorizationCode),
+  code: z.string(),
+  client_secret: z.string(),
+  client_id: z.string(),
+});
 
-export interface PKCEAuthorizationCodeGrantTypeParams {
-  grant_type: GrantType.AuthorizationCode;
-  code: string;
-  code_verifier: string;
-  client_id?: string;
-  redirect_uri: string;
-}
+export const pkceAuthorizationCodeGrantTypeParams = z.object({
+  grant_type: z.literal(GrantType.AuthorizationCode),
+  code: z.string(),
+  code_verifier: z.string(),
+  client_id: z.string().optional(),
+  redirect_uri: z.string(),
+});
 
-export interface ClientCredentialGrantTypeParams {
-  grant_type: GrantType.ClientCredential;
-  scope?: string;
-  client_secret: string;
-  client_id: string;
-  audience?: string;
-}
+export const clientCredentialGrantTypeParams = z.object({
+  grant_type: z.literal(GrantType.ClientCredential),
+  scope: z.string().optional(),
+  client_secret: z.string(),
+  client_id: z.string(),
+  audience: z.string().optional(),
+});
 
-export interface PasswordGrantTypeParams {
-  grant_type: GrantType.Password;
-  username: string;
-  password: string;
-  client_id: string;
-  audience?: string;
-  scope?: string;
-}
+export const passwordGrantTypeParams = z.object({
+  grant_type: z.literal(GrantType.Password),
+  username: z.string(),
+  password: z.string(),
+  client_id: z.string(),
+  audience: z.string().optional(),
+  scope: z.string().optional(),
+});
 
-export interface TokenResponse {
-  access_token: string;
-  id_token?: string;
-  scope?: string;
-  state?: string;
-  refresh_token?: string;
-  token_type: string;
-  expires_in: number;
-}
+// Union of all grant type params
+export const tokenParamsUnion = z.union([
+  refreshTokenGrantTypeParams,
+  authorizationCodeGrantTypeParams,
+  pkceAuthorizationCodeGrantTypeParams,
+  clientCredentialGrantTypeParams,
+  passwordGrantTypeParams,
+]);
 
-export interface CodeResponse {
-  code: string;
-  state?: string;
-}
+// Partial of all grant type params for open api
+export const tokenParams = refreshTokenGrantTypeParams
+  .extend(authorizationCodeGrantTypeParams.shape)
+  .extend(pkceAuthorizationCodeGrantTypeParams.shape)
+  .extend(clientCredentialGrantTypeParams.shape)
+  .extend(passwordGrantTypeParams.shape)
+  .partial();
+
+// TokenResponse and CodeResponse schemas
+export const tokenResponse = z.object({
+  access_token: z.string(),
+  id_token: z.string().optional(),
+  scope: z.string().optional(),
+  state: z.string().optional(),
+  refresh_token: z.string().optional(),
+  token_type: z.string(),
+  expires_in: z.number(),
+});
+
+export const codeResponse = z.object({
+  code: z.string(),
+  state: z.string().optional(),
+});
+
+// Exporting inferred types
+export type RefreshTokenGrantTypeParams = z.infer<
+  typeof refreshTokenGrantTypeParams
+>;
+export type AuthorizationCodeGrantTypeParams = z.infer<
+  typeof authorizationCodeGrantTypeParams
+>;
+export type PKCEAuthorizationCodeGrantTypeParams = z.infer<
+  typeof pkceAuthorizationCodeGrantTypeParams
+>;
+export type ClientCredentialGrantTypeParams = z.infer<
+  typeof clientCredentialGrantTypeParams
+>;
+export type PasswordGrantTypeParams = z.infer<typeof passwordGrantTypeParams>;
+export type TokenParams = z.infer<typeof tokenParams>;
+export type TokenResponse = z.infer<typeof tokenResponse>;
+export type CodeResponse = z.infer<typeof codeResponse>;

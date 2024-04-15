@@ -14,11 +14,13 @@ import hash from "../utils/hash";
 import { nanoid } from "nanoid";
 import { stateDecode } from "../utils/stateEncode";
 import { HTTPException } from "hono/http-exception";
+import { Context } from "hono";
+import { Var } from "../types/Var";
 
 export async function authorizeCodeGrant(
-  env: Env,
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
   params: AuthorizationCodeGrantTypeParams,
-): Promise<TokenResponse | CodeResponse> {
+) {
   const state: {
     userId: string;
     authParams: AuthParams;
@@ -30,7 +32,7 @@ export async function authorizeCodeGrant(
     throw new HTTPException(403, { message: "Invalid Client" });
   }
 
-  const client = await getClient(env, state.authParams.client_id);
+  const client = await getClient(ctx.env, state.authParams.client_id);
   if (!client) {
     throw new HTTPException(400, { message: "Client not found" });
   }
@@ -41,18 +43,20 @@ export async function authorizeCodeGrant(
     throw new HTTPException(403, { message: "Invalid Secret" });
   }
 
-  return generateAuthResponse({
-    env,
+  const token = generateAuthResponse({
+    env: ctx.env,
     ...state,
     responseType: AuthorizationResponseType.TOKEN_ID_TOKEN,
   });
+
+  return ctx.json(token);
 }
 
 export async function clientCredentialsGrant(
-  env: Env,
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
   params: ClientCredentialGrantTypeParams,
-): Promise<TokenResponse | CodeResponse> {
-  const client = await getClient(env, params.client_id);
+) {
+  const client = await getClient(ctx.env, params.client_id);
   if (!client) {
     throw new HTTPException(400, { message: "Client not found" });
   }
@@ -67,11 +71,13 @@ export async function clientCredentialsGrant(
     redirect_uri: "",
   };
 
-  return generateAuthResponse({
-    env,
+  const tokens = await generateAuthResponse({
+    env: ctx.env,
     responseType: AuthorizationResponseType.TOKEN,
     userId: client.id,
     sid: nanoid(),
     authParams,
   });
+
+  return ctx.json(tokens);
 }

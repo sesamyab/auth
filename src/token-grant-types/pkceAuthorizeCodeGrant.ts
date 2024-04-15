@@ -1,25 +1,23 @@
 import {
   AuthorizationResponseType,
   AuthParams,
-  CodeResponse,
   Env,
   PKCEAuthorizationCodeGrantTypeParams,
-  TokenResponse,
   User,
 } from "../types";
-import { Controller } from "tsoa";
 import { getClient } from "../services/clients";
 import { computeCodeChallenge } from "../helpers/pkce";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
-import { setSilentAuthCookies } from "../helpers/silent-auth-cookie";
+import { setSilentAuthCookies } from "../helpers/silent-auth-cookie-new";
 import { stateDecode } from "../utils/stateEncode";
 import { HTTPException } from "hono/http-exception";
+import { Context } from "hono";
+import { Var } from "../types/Var";
 
 export async function pkceAuthorizeCodeGrant(
-  env: Env,
-  controller: Controller,
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
   params: PKCEAuthorizationCodeGrantTypeParams,
-): Promise<TokenResponse | CodeResponse> {
+) {
   const state: {
     userId: string;
     authParams: AuthParams;
@@ -31,7 +29,7 @@ export async function pkceAuthorizeCodeGrant(
     throw new HTTPException(403, { message: "Invalid Client" });
   }
 
-  const client = await getClient(env, state.authParams.client_id);
+  const client = await getClient(ctx.env, state.authParams.client_id);
   if (!client) {
     throw new HTTPException(400, { message: "Client not found" });
   }
@@ -52,17 +50,22 @@ export async function pkceAuthorizeCodeGrant(
     throw new HTTPException(403, { message: "Invalid Code Challange" });
   }
 
-  await setSilentAuthCookies(
-    env,
-    controller,
+  const sessionId = await setSilentAuthCookies(
+    ctx.env,
     client.tenant_id,
     client.id,
     state.user,
   );
 
-  return generateAuthResponse({
-    env,
+  const tokens = generateAuthResponse({
+    env: ctx.env,
     ...state,
     responseType: AuthorizationResponseType.TOKEN_ID_TOKEN,
+  });
+
+  return ctx.json(tokens, {
+    headers: {
+      "set-cookie": `sid=${sessionId}; Path=/; HttpOnly; Secure; SameSite=None`,
+    },
   });
 }
