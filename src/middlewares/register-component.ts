@@ -26,11 +26,6 @@ export function registerComponent(app: OpenAPIHono<{ Bindings: Env }>) {
         },
       });
 
-      app.openAPIRegistry.registerComponent("securitySchemes", "Basic", {
-        type: "http",
-        scheme: "basic",
-      });
-
       inititated = true;
     }
 

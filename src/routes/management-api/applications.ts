@@ -72,7 +72,7 @@ export const applications = new OpenAPIHono<{ Bindings: Env }>()
       },
       security: [
         {
-          Bearer: [],
+          Bearer: ["auth:read"],
         },
       ],
       responses: {
