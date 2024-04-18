@@ -256,8 +256,6 @@ export function authenticationHandler(
     ctx: Context<{ Bindings: Env; Variables: Var }>,
     next: Next,
   ) {
-    console.log("got here");
-
     const authHeader = ctx.req.header("authorization");
     if (!authHeader || !authHeader.toLowerCase().startsWith("bearer")) {
       throw new HTTPException(403, { message: "Unauthorized" });

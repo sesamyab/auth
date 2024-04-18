@@ -41,8 +41,6 @@ export const userinfo = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx.var.user.sub,
       );
 
-      console.log("user", user);
-
       if (!user) {
         throw new HTTPException(403, { message: "Unauthorized" });
       }
