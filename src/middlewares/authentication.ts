@@ -132,15 +132,26 @@ export default async function authenticationMiddleware(
   if (authHeader?.toLowerCase().startsWith("bearer")) {
     const [, bearer] = authHeader.split(" ");
     const token = decodeJwt(bearer);
+
     if (!(await isValidJwtSignature(ctx, token))) {
       throw new HTTPException(403, { message: "Invalid JWT signature" });
     }
 
-    ctx.set("user", {
-      sub: token.payload.sub,
-      azp: token.payload.azp || "sesamy",
-      permissions: token.payload.permissions || [],
-    });
+    const permissions = token.payload.permissions || [];
+
+    if (
+      !permissions.includes("auth:read") &&
+      (!permissions.includes("auth:write") || ctx.req.method !== "POST")
+    ) {
+      throw new HTTPException(403, { message: "Unauthorized" });
+    }
+
+    if (ctx.req.method)
+      ctx.set("user", {
+        sub: token.payload.sub,
+        azp: token.payload.azp || "sesamy",
+        permissions,
+      });
     ctx.set("vendorId", token.payload.azp || "sesamy");
   } else {
     throw new HTTPException(403, { message: "Unauthorized" });

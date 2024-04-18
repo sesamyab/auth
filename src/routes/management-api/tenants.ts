@@ -71,7 +71,7 @@ export const tenants = new OpenAPIHono<{ Bindings: Env }>()
       },
       security: [
         {
-          Bearer: [],
+          Bearer: ["auth:read"],
         },
       ],
       responses: {
