@@ -1097,7 +1097,7 @@ describe("password-flow", () => {
       expect(await passwordResetSendResponse.text()).toBe(
         "We've just sent you an email to reset your password.",
       );
-      const { to, code, state } = getCodeStateTo(env.data.emails[0]);
+      const { to, code, state } = getCodeStateTo(env.data.emails[1]);
 
       expect(to).toBe("reset-new-user@example.com");
       expect(code).toBeDefined();
@@ -1105,6 +1105,9 @@ describe("password-flow", () => {
       //-------------------
       // reset password
       //-------------------
+
+      console.log("code", code);
+      console.log("state", state);
 
       const resetPassword = await loginClient.u["reset-password"].$post({
         form: {
@@ -1116,6 +1119,10 @@ describe("password-flow", () => {
           code,
         },
       });
+      console.log(await resetPassword.text());
+
+      // this is failing because it's saying "Content-Type must be application/json or application/x-www-form-urlencoded"
+      // not sure what to do here... on the callback tests this isn't needed... is it because we are passing up a query as well?
       expect(resetPassword.status).toBe(200);
 
       // ------------------
