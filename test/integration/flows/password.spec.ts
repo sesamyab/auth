@@ -837,6 +837,7 @@ describe("password-flow", () => {
         testTenantLanguage: "sv",
       });
       const client = testClient(tsoaApp, env);
+      const loginClient = testClient(loginApp, env);
 
       // foo@example.com is an existing username-password user
       // with password - Test!
@@ -889,8 +890,8 @@ describe("password-flow", () => {
       await snapshotResponse(resetPasswordForm);
 
       // NOTE - I'm not testing the GET that loads the webform here... we don't have a browser to interact with here
-      const resetPassword = await anyClient.u["reset-password"].$post({
-        json: {
+      const resetPassword = await loginClient.u["reset-password"].$post({
+        form: {
           password: "New-password-1234!",
           "re-enter-password": "New-password-1234!",
         },
@@ -958,6 +959,7 @@ describe("password-flow", () => {
         testTenantLanguage: "nb",
       });
       const client = testClient(tsoaApp, env);
+      const loginClient = testClient(loginApp, env);
 
       // foo@example.com is an existing username-password user
       // with password - Test!
@@ -984,10 +986,8 @@ describe("password-flow", () => {
       //-------------------
       // reject when try to set weak password
       //-------------------
-      const anyClient = client as any;
-
-      const resetPassword = await anyClient.u["reset-password"].$post({
-        json: {
+      const resetPassword = await loginClient.u["reset-password"].$post({
+        form: {
           // we have unit tests for the util function we use so just doing one unhappy path
           password: "weak-password",
           "re-enter-password": "weak-password",
@@ -1008,6 +1008,7 @@ describe("password-flow", () => {
         testTenantLanguage: "it",
       });
       const client = testClient(tsoaApp, env);
+      const loginClient = testClient(loginApp, env);
 
       // foo@example.com is an existing username-password user
       // with password - Test!
@@ -1034,10 +1035,9 @@ describe("password-flow", () => {
       //-------------------
       // reject when confrimation password does not match!
       //-------------------
-      const anyClient = client as any;
 
-      const resetPassword = await anyClient.u["reset-password"].$post({
-        json: {
+      const resetPassword = await loginClient.u["reset-password"].$post({
+        form: {
           password: "StrongPassword1234!",
           // this is also strong but does match the previous line
           "re-enter-password": "AnotherStrongPassword1234!",
@@ -1055,6 +1055,7 @@ describe("password-flow", () => {
     it("should send password reset email for new unvalidated signup AND set email_verified to true", async () => {
       const env = await getEnv();
       const client = testClient(tsoaApp, env);
+      const loginClient = testClient(loginApp, env);
 
       const typesDoNotWorkWithThisSetup___PARAMS = {
         json: {
@@ -1104,9 +1105,9 @@ describe("password-flow", () => {
       //-------------------
       // reset password
       //-------------------
-      const anyClient = client as any;
-      const resetPassword = await anyClient.u["reset-password"].$post({
-        json: {
+
+      const resetPassword = await loginClient.u["reset-password"].$post({
+        form: {
           password: "New-password-1234!",
           "re-enter-password": "New-password-1234!",
         },
