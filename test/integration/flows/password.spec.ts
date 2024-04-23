@@ -60,22 +60,15 @@ describe("password-flow", () => {
       });
       expect(createUserResponse.status).toBe(200);
 
-      const loginResponse = await client.co.authenticate.$post(
-        {
-          json: {
-            client_id: "clientId",
-            credential_type: "http://auth0.com/oauth/grant-type/password-realm",
-            realm: "Username-Password-Authentication",
-            password,
-            username: "password-login-test@example.com",
-          },
+      const loginResponse = await client.co.authenticate.$post({
+        json: {
+          client_id: "clientId",
+          credential_type: "http://auth0.com/oauth/grant-type/password-realm",
+          realm: "Username-Password-Authentication",
+          password,
+          username: "password-login-test@example.com",
         },
-        {
-          headers: {
-            "content-type": "application/json",
-          },
-        },
-      );
+      });
 
       // this will not work! need to validate the email before allowing a login
       const { login_ticket } = (await loginResponse.json()) as LoginTicket;
@@ -806,27 +799,23 @@ describe("password-flow", () => {
       //-------------------
       // reset password
       //-------------------
-
-      const anyClient = client as any;
-
-      const resetPasswordForm = await anyClient.u["reset-password"].$get({
+      const resetPasswordForm = await loginClient.u["reset-password"].$get({
         query: {
           state,
-          code,
         },
       });
 
       await snapshotResponse(resetPasswordForm);
 
       // NOTE - I'm not testing the GET that loads the webform here... we don't have a browser to interact with here
-      const resetPassword = await anyClient.u["reset-password"].$post({
-        json: {
+      const resetPassword = await loginClient.u["reset-password"].$post({
+        form: {
           password: "New-password-1234!",
           "re-enter-password": "New-password-1234!",
+          code,
         },
         query: {
           state,
-          code,
         },
       });
 
@@ -836,22 +825,15 @@ describe("password-flow", () => {
       // now check we can login with the new password
       // ------------------
 
-      const loginResponse = await client.co.authenticate.$post(
-        {
-          json: {
-            client_id: "clientId",
-            credential_type: "http://auth0.com/oauth/grant-type/password-realm",
-            realm: "Username-Password-Authentication",
-            password: "New-password-1234!",
-            username: "foo@example.com",
-          },
+      const loginResponse = await client.co.authenticate.$post({
+        json: {
+          client_id: "clientId",
+          credential_type: "http://auth0.com/oauth/grant-type/password-realm",
+          realm: "Username-Password-Authentication",
+          password: "New-password-1234!",
+          username: "foo@example.com",
         },
-        {
-          headers: {
-            "content-type": "application/json",
-          },
-        },
-      );
+      });
 
       expect(loginResponse.status).toBe(200);
       const { login_ticket } = (await loginResponse.json()) as LoginTicket;
@@ -882,8 +864,7 @@ describe("password-flow", () => {
     });
     it("should reject weak passwords", async () => {
       const env = await getEnv();
-      const client = testClient(tsoaApp, env);
-      const loginClient = testClient(loginApp, env);
+      const client = testClient(loginApp, env);
 
       // foo@example.com is an existing username-password user
       // with password - Test!
@@ -891,34 +872,27 @@ describe("password-flow", () => {
       //-------------------
       // get code to call password reset endpoint
       //-------------------
-      await loginClient.dbconnections.change_password.$post(
-        {
-          json: {
-            client_id: "clientId",
-            email: "foo@example.com",
-            connection: "Username-Password-Authentication",
-          },
+      await client.dbconnections.change_password.$post({
+        json: {
+          client_id: "clientId",
+          email: "foo@example.com",
+          connection: "Username-Password-Authentication",
         },
-        {
-          headers: {
-            "content-type": "application/json",
-          },
-        },
-      );
-      const { to, code, state } = getCodeStateTo(env.data.emails[0]);
+      });
+      const { state, code } = getCodeStateTo(env.data.emails[0]);
 
       //-------------------
       // reject when try to set weak password
       //-------------------
-      const resetPassword = await loginClient.u["reset-password"].$post({
+      const resetPassword = await client.u["reset-password"].$post({
         form: {
           // we have unit tests for the util function we use so just doing one unhappy path
           password: "weak-password",
           "re-enter-password": "weak-password",
+          code,
         },
         query: {
           state,
-          // code,
         },
       });
 
@@ -936,36 +910,27 @@ describe("password-flow", () => {
       //-------------------
       // get code to call password reset endpoint
       //-------------------
-      await loginClient.dbconnections.change_password.$post(
-        {
-          json: {
-            client_id: "clientId",
-            email: "foo@example.com",
-            connection: "Username-Password-Authentication",
-          },
+      await loginClient.dbconnections.change_password.$post({
+        json: {
+          client_id: "clientId",
+          email: "foo@example.com",
+          connection: "Username-Password-Authentication",
         },
-        {
-          headers: {
-            "content-type": "application/json",
-          },
-        },
-      );
-      const { to, code, state } = getCodeStateTo(env.data.emails[0]);
+      });
+      const { code, state } = getCodeStateTo(env.data.emails[0]);
 
       //-------------------
       // reject when confrimation password does not match!
       //-------------------
-      const anyClient = client as any;
-
-      const resetPassword = await anyClient.u["reset-password"].$post({
-        json: {
+      const resetPassword = await loginClient.u["reset-password"].$post({
+        form: {
           password: "StrongPassword1234!",
           // this is also strong but does match the previous line
           "re-enter-password": "AnotherStrongPassword1234!",
+          code,
         },
         query: {
           state,
-          code,
         },
       });
 
@@ -990,20 +955,13 @@ describe("password-flow", () => {
       // send password reset email even though have never logged in
       //-------------------
       const passwordResetSendResponse =
-        await loginClient.dbconnections.change_password.$post(
-          {
-            json: {
-              client_id: "clientId",
-              email: "reset-new-user@example.com",
-              connection: "Username-Password-Authentication",
-            },
+        await loginClient.dbconnections.change_password.$post({
+          json: {
+            client_id: "clientId",
+            email: "reset-new-user@example.com",
+            connection: "Username-Password-Authentication",
           },
-          {
-            headers: {
-              "content-type": "application/json",
-            },
-          },
-        );
+        });
       expect(passwordResetSendResponse.status).toBe(200);
       expect(await passwordResetSendResponse.text()).toBe(
         "We've just sent you an email to reset your password.",
@@ -1016,15 +974,14 @@ describe("password-flow", () => {
       //-------------------
       // reset password
       //-------------------
-      const anyClient = client as any;
-      const resetPassword = await anyClient.u["reset-password"].$post({
-        json: {
+      const resetPassword = await loginClient.u["reset-password"].$post({
+        form: {
           password: "New-password-1234!",
           "re-enter-password": "New-password-1234!",
+          code,
         },
         query: {
           state,
-          code,
         },
       });
       expect(resetPassword.status).toBe(200);

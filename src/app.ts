@@ -26,7 +26,7 @@ import { keys } from "./routes/management-api/keys";
 import { tailwindCss } from "./styles/tailwind";
 import authenticationMiddleware from "./middlewares/authentication";
 import { logoutRoutes } from "./routes/oauth2/logout";
-import { dbConnectionRoutes } from "./routes/tsoa/dbconnections";
+import { dbConnectionRoutes } from "./routes/oauth2/dbconnections";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
