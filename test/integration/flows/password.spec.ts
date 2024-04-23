@@ -831,16 +831,11 @@ describe("password-flow", () => {
     // - username-password user existing on two different tenants, but with different passwords... then check each doesn't work on the other
   });
   describe("Password reset", () => {
-<<<<<<< HEAD
     it("should send password reset email for existing user, and allow password to be changed", async () => {
       const env = await getEnv({
         vendorSettings: FOKUS_VENDOR_SETTINGS,
         testTenantLanguage: "sv",
       });
-=======
-    it.only("should send password reset email for existing user, and allow password to be changed", async () => {
-      const env = await getEnv();
->>>>>>> a94cf468 (test: annotate steps for failing test)
       const client = testClient(tsoaApp, env);
       const loginClient = testClient(loginApp, env);
 
@@ -919,7 +914,7 @@ describe("password-flow", () => {
         "{"success":false,"error":{"issues":[{"code":"invalid_type","expected":"string","received":"undefined","path":["password"],"message":"Required"},{"code":"invalid_type","expected":"string","received":"undefined","path":["re-enter-password"],"message":"Required"}],"name":"ZodError"}}"
 
         Something seems wrong here!
-        */
+      */
 
       console.log(await resetPassword.text());
 
