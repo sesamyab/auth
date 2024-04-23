@@ -165,6 +165,16 @@ export const login = new OpenAPIHono<{ Bindings: Env }>()
             description: "The state parameter from the authorization request",
           }),
         }),
+        body: {
+          content: {
+            "application/x-www-form-urlencoded": {
+              schema: z.object({
+                password: z.string(),
+                "re-enter-password": z.string(),
+              }),
+            },
+          },
+        },
       },
       security: [
         {
