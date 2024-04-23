@@ -11,7 +11,6 @@ import {
   enterCode,
   signup,
   message,
-  resetPassword,
 } from "./universal";
 
 const engine = new Liquid();
@@ -169,11 +168,10 @@ export async function renderSignup(
   controller.setHeader("content-type", "text/html");
   controller.setStatus(200);
 
-  const content = await engine.render(template, { ...context, state });
+  const content = await engine.render(template, { ...context, errorMessage });
   return engine.render(layoutTemplate, {
     ...context,
     content,
-    errorMessage,
   });
 }
 
@@ -194,25 +192,6 @@ export async function renderMessageInner(
   const layoutTemplate = engine.parse(layout);
 
   const template = engine.parse(message);
-
-  const content = await engine.render(template, context);
-  return engine.render(layoutTemplate, {
-    ...context,
-    content,
-  });
-}
-
-export async function renderResetPassword(
-  env: Env,
-  controller: Controller,
-  context: UniversalLoginSession,
-) {
-  const layoutTemplate = engine.parse(layout);
-
-  const template = engine.parse(resetPassword);
-
-  controller.setHeader("content-type", "text/html");
-  controller.setStatus(200);
 
   const content = await engine.render(template, context);
   return engine.render(layoutTemplate, {
