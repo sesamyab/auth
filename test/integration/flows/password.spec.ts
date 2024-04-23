@@ -831,11 +831,16 @@ describe("password-flow", () => {
     // - username-password user existing on two different tenants, but with different passwords... then check each doesn't work on the other
   });
   describe("Password reset", () => {
+<<<<<<< HEAD
     it("should send password reset email for existing user, and allow password to be changed", async () => {
       const env = await getEnv({
         vendorSettings: FOKUS_VENDOR_SETTINGS,
         testTenantLanguage: "sv",
       });
+=======
+    it.only("should send password reset email for existing user, and allow password to be changed", async () => {
+      const env = await getEnv();
+>>>>>>> a94cf468 (test: annotate steps for failing test)
       const client = testClient(tsoaApp, env);
       const loginClient = testClient(loginApp, env);
 
@@ -880,26 +885,43 @@ describe("password-flow", () => {
 
       const anyClient = client as any;
 
-      const resetPasswordForm = await anyClient.u["reset-password"].$get({
+      const resetPasswordForm = await loginClient.u["reset-password"].$get({
         query: {
           state,
           code,
         },
       });
 
+      expect(resetPasswordForm.status).toBe(200);
       await snapshotResponse(resetPasswordForm);
 
-      // NOTE - I'm not testing the GET that loads the webform here... we don't have a browser to interact with here
-      const resetPassword = await loginClient.u["reset-password"].$post({
-        form: {
-          password: "New-password-1234!",
-          "re-enter-password": "New-password-1234!",
+      const resetPassword = await loginClient.u["reset-password"].$post(
+        {
+          form: {
+            password: "New-password-1234!",
+            "re-enter-password": "New-password-1234!",
+          },
+          query: {
+            state,
+            code,
+          },
         },
-        query: {
-          state,
-          code,
+
+        {
+          headers: {
+            "content-type": "application/x-www-form-urlencoded",
+          },
         },
-      });
+      );
+
+      /*
+        We're getting back an error from Zod
+        "{"success":false,"error":{"issues":[{"code":"invalid_type","expected":"string","received":"undefined","path":["password"],"message":"Required"},{"code":"invalid_type","expected":"string","received":"undefined","path":["re-enter-password"],"message":"Required"}],"name":"ZodError"}}"
+
+        Something seems wrong here!
+        */
+
+      console.log(await resetPassword.text());
 
       expect(resetPassword.status).toBe(200);
 
