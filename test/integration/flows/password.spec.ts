@@ -1130,10 +1130,10 @@ describe("password-flow", () => {
         form: {
           password: "New-password-1234!",
           "re-enter-password": "New-password-1234!",
+          code,
         },
         query: {
           state,
-          code,
         },
       });
       console.log(await resetPassword.text());
