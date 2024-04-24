@@ -888,6 +888,7 @@ describe("password-flow", () => {
         query: {
           code,
           state,
+          code,
         },
       });
 
@@ -941,6 +942,7 @@ describe("password-flow", () => {
         query: {
           code,
           state,
+          code,
         },
       });
       console.log(await resetPassword.text());
