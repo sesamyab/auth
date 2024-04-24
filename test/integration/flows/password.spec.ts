@@ -8,8 +8,15 @@ import { tsoaApp, loginApp } from "../../../src/app";
 import { getAdminToken } from "../helpers/token";
 import { UserResponse } from "../../../src/types";
 import type { EmailOptions } from "../../../src/services/email/EmailOptions";
-import { snapshotEmail } from "../helpers/snapshotEmailsPlaywright";
-import { snapshotResponse } from "../helpers/playwrightSnapshots";
+import {
+  snapshotResponse,
+  snapshotEmail,
+} from "../helpers/playwrightSnapshots";
+import {
+  FOKUS_VENDOR_SETTINGS,
+  KVARTAL_VENDOR_SETTINGS,
+  BREAKIT_VENDOR_SETTINGS,
+} from "../../fixtures/vendorSettings";
 
 function getCodeStateTo(email: EmailOptions) {
   const verifyEmailBody = email.content[0].value;
@@ -30,9 +37,9 @@ describe("password-flow", () => {
   describe("Register password", () => {
     it("should return a 400 if an invalid client is passed", async () => {
       const env = await getEnv();
-      const client = testClient(loginApp, env);
+      const loginClient = testClient(loginApp, env);
 
-      const response = await client.dbconnections.signup.$post({
+      const response = await loginClient.dbconnections.signup.$post({
         json: {
           client_id: "invalidClientId",
           connection: "Username-Password-Authentication",
@@ -488,8 +495,8 @@ describe("password-flow", () => {
     it("should not allow a new sign up to overwrite the password of an existing signup", async () => {
       const env = await getEnv();
       const client = testClient(tsoaApp, env);
-      const loginClient = testClient(loginApp, env);
       const aNewPassword = "A-new-valid-password-1234!";
+      const loginClient = testClient(loginApp, env);
 
       const createUserResponse = await loginClient.dbconnections.signup.$post({
         json: {
@@ -527,7 +534,9 @@ describe("password-flow", () => {
       const env = await getEnv();
       const client = testClient(loginApp, env);
 
-      const createUserResponse = await client.dbconnections.signup.$post({
+      const loginClient = testClient(loginApp, env);
+
+      const createUserResponse = await loginClient.dbconnections.signup.$post({
         json: {
           client_id: "clientId",
           connection: "Username-Password-Authentication",
@@ -764,7 +773,10 @@ describe("password-flow", () => {
   });
   describe("Password reset", () => {
     it("should send password reset email for existing user, and allow password to be changed", async () => {
-      const env = await getEnv();
+      const env = await getEnv({
+        vendorSettings: FOKUS_VENDOR_SETTINGS,
+        testTenantLanguage: "sv",
+      });
       const client = testClient(tsoaApp, env);
       const loginClient = testClient(loginApp, env);
 
@@ -799,9 +811,11 @@ describe("password-flow", () => {
       //-------------------
       // reset password
       //-------------------
+
       const resetPasswordForm = await loginClient.u["reset-password"].$get({
         query: {
           state,
+          // code,
         },
       });
 
@@ -865,8 +879,12 @@ describe("password-flow", () => {
       expect(idTokenPayload.aud).toBe("clientId");
     });
     it("should reject weak passwords", async () => {
-      const env = await getEnv();
-      const client = testClient(loginApp, env);
+      const env = await getEnv({
+        vendorSettings: KVARTAL_VENDOR_SETTINGS,
+        testTenantLanguage: "nb",
+      });
+      const client = testClient(tsoaApp, env);
+      const loginClient = testClient(loginApp, env);
 
       // foo@example.com is an existing username-password user
       // with password - Test!
@@ -874,19 +892,19 @@ describe("password-flow", () => {
       //-------------------
       // get code to call password reset endpoint
       //-------------------
-      await client.dbconnections.change_password.$post({
+      await loginClient.dbconnections.change_password.$post({
         json: {
           client_id: "clientId",
           email: "foo@example.com",
           connection: "Username-Password-Authentication",
         },
       });
-      const { state, code } = getCodeStateTo(env.data.emails[0]);
+      const { to, code, state } = getCodeStateTo(env.data.emails[0]);
 
       //-------------------
       // reject when try to set weak password
       //-------------------
-      const resetPassword = await client.u["reset-password"].$post({
+      const resetPassword = await loginClient.u["reset-password"].$post({
         form: {
           // we have unit tests for the util function we use so just doing one unhappy path
           password: "weak-password",
@@ -904,7 +922,10 @@ describe("password-flow", () => {
     });
 
     it("should reject non-matching confirmation password", async () => {
-      const env = await getEnv();
+      const env = await getEnv({
+        vendorSettings: BREAKIT_VENDOR_SETTINGS,
+        testTenantLanguage: "it",
+      });
       const client = testClient(tsoaApp, env);
       const loginClient = testClient(loginApp, env);
 
@@ -921,7 +942,7 @@ describe("password-flow", () => {
           connection: "Username-Password-Authentication",
         },
       });
-      const { code, state } = getCodeStateTo(env.data.emails[0]);
+      const { to, code, state } = getCodeStateTo(env.data.emails[0]);
 
       //-------------------
       // reject when confrimation password does not match!
