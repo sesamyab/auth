@@ -83,7 +83,7 @@
     "@types/node": "20.12.7",
     "@types/service-worker-mock": "2.0.4",
     "@types/validator": "13.11.9",
-    "better-sqlite3": "9.4.5",
+    "better-sqlite3": "9.6.0",
     "dotenv": "16.4.5",
     "eslint": "8.57.0",
     "husky": "9.0.11",
