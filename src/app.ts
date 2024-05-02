@@ -11,7 +11,7 @@ import loggerMiddleware from "./middlewares/logger";
 import renderOauthRedirectHtml from "./routes/oauth2-redirect";
 import { validateUrl } from "./utils/validate-redirect-url";
 import { Var } from "./types/Var";
-import { login } from "./routes/tsx/routes";
+import { login } from "./routes/oauth2/login";
 import { wellKnown } from "./routes/oauth2/well-known";
 import { users } from "./routes/management-api/users";
 import { registerComponent } from "./middlewares/register-component";
