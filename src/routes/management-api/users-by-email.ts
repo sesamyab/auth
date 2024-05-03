@@ -1,8 +1,7 @@
-import { UserResponse } from "../../types/auth0/UserResponse";
 import { enrichUser } from "../../utils/enrichUser";
 import { getUsersByEmail } from "../../utils/users";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { Env, userSchema } from "../../types";
+import { Env, auth0UserResponseSchema } from "../../types";
 import { Var } from "../../types/Var";
 import authenticationMiddleware from "../../middlewares/authentication";
 
@@ -32,8 +31,8 @@ export const usersByEmail = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       responses: {
         200: {
           content: {
-            "tenant/json": {
-              schema: z.array(userSchema),
+            "application/json": {
+              schema: z.array(auth0UserResponseSchema),
             },
           },
           description: "List of users",
@@ -47,9 +46,9 @@ export const usersByEmail = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const primarySqlUsers = users.filter((user) => !user.linked_to);
 
-      const response: UserResponse[] = await Promise.all(
-        primarySqlUsers.map(async (primarySqlUser) => {
-          return await enrichUser(ctx.env, tenant_id, primarySqlUser);
+      const response = await Promise.all(
+        primarySqlUsers.map((primarySqlUser) => {
+          return enrichUser(ctx.env, tenant_id, primarySqlUser);
         }),
       );
       return ctx.json(response);

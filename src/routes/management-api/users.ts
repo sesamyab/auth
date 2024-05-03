@@ -102,9 +102,7 @@ export const users = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           primaryAccount,
         );
 
-        return ctx.json([
-          auth0UserResponseSchema.parse(primaryAccountEnriched),
-        ]);
+        return ctx.json([primaryAccountEnriched]);
       }
 
       // Filter out linked users
@@ -130,17 +128,15 @@ export const users = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       );
 
       if (include_totals) {
-        return ctx.json(
-          usersWithTotalsSchema.parse({
-            users: users,
-            length: result.length,
-            start: result.start,
-            limit: result.limit,
-          }),
-        );
+        return ctx.json({
+          users: users,
+          length: result.length,
+          start: result.start,
+          limit: result.limit,
+        });
       }
 
-      return ctx.json(z.array(auth0UserResponseSchema).parse(users));
+      return ctx.json(users);
     },
   )
   // --------------------------------
@@ -194,7 +190,7 @@ export const users = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const userResponse = await enrichUser(ctx.env, tenant_id, user);
 
-      return ctx.json(auth0UserResponseSchema.parse(userResponse));
+      return ctx.json(userResponse);
     },
   )
   // --------------------------------
@@ -323,7 +319,7 @@ export const users = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ],
       };
 
-      return ctx.json(auth0UserResponseSchema.parse(userResponse), {
+      return ctx.json(userResponse, {
         status: 201,
       });
     },
@@ -566,6 +562,6 @@ export const users = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const userResponse = await enrichUser(ctx.env, tenant_id, user);
 
-      return ctx.json([auth0UserResponseSchema.parse(userResponse)]);
+      return ctx.json([userResponse]);
     },
   );

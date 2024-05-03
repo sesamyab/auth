@@ -1,15 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { testClient } from "hono/testing";
-import { managementApp, oauthApp } from "../../../src/app";
+import { managementApp } from "../../../src/app";
 import { getAdminToken } from "../helpers/token";
 import { getEnv } from "../helpers/test-client";
-import { UserResponse } from "../../../src/types/auth0";
-import { Identity } from "../../../src/types/auth0/Identity";
 
 describe("users by email", () => {
   it("should return empty list if there are no users with queried email address", async () => {
     const env = await getEnv();
-    const client = testClient(oauthApp, env);
     const managementClient = testClient(managementApp, env);
 
     const token = await getAdminToken();
@@ -29,7 +26,7 @@ describe("users by email", () => {
       },
     );
 
-    const users = (await response.json()) as UserResponse[];
+    const users = await response.json();
 
     expect(users).toHaveLength(0);
   });
@@ -58,7 +55,7 @@ describe("users by email", () => {
 
     expect(response.status).toBe(200);
 
-    const users = (await response.json()) as UserResponse[];
+    const users = await response.json();
 
     expect(users.length).toBe(1);
 
@@ -68,7 +65,6 @@ describe("users by email", () => {
       name: "Åkesson Þorsteinsson",
       nickname: "Åkesson Þorsteinsson",
       picture: "https://example.com/foo.png",
-      tenant_id: "tenantId",
       login_count: 0,
       connection: "Username-Password-Authentication",
       provider: "auth2",
@@ -88,7 +84,6 @@ describe("users by email", () => {
 
   it("should return multiple users for a simple get by email - no linked accounts", async () => {
     const env = await getEnv();
-    const oauthClient = testClient(oauthApp, env);
     const managementClient = testClient(managementApp, env);
 
     const token = await getAdminToken();
@@ -136,7 +131,7 @@ describe("users by email", () => {
       },
     );
 
-    const users = (await response.json()) as UserResponse[];
+    const users = await response.json();
 
     expect(users.length).toBe(2);
 
@@ -146,7 +141,6 @@ describe("users by email", () => {
       name: "Åkesson Þorsteinsson",
       nickname: "Åkesson Þorsteinsson",
       picture: "https://example.com/foo.png",
-      tenant_id: "tenantId",
       login_count: 0,
       connection: "Username-Password-Authentication",
       provider: "auth2",
@@ -163,7 +157,6 @@ describe("users by email", () => {
     ]);
     expect(users[1]).toMatchObject({
       email: "foo@example.com",
-      tenant_id: "tenantId",
       name: "Åkesson Þorsteinsson",
       provider: "email",
       connection: "email",
@@ -174,7 +167,6 @@ describe("users by email", () => {
 
   it("should return a single user when multiple accounts, with different email addresses, are linked to one primary account", async () => {
     const env = await getEnv();
-    const client = testClient(oauthApp, env);
     const managementClient = testClient(managementApp, env);
 
     const token = await getAdminToken();
@@ -214,7 +206,7 @@ describe("users by email", () => {
       },
     );
 
-    const fooEmailUsers = (await fooEmail.json()) as UserResponse[];
+    const fooEmailUsers = await fooEmail.json();
     expect(fooEmailUsers).toHaveLength(1);
     const fooEmailId = fooEmailUsers[0].user_id;
 
@@ -233,7 +225,7 @@ describe("users by email", () => {
         },
       },
     );
-    const barEmailUsers = (await barEmail.json()) as UserResponse[];
+    const barEmailUsers = await barEmail.json();
     expect(barEmailUsers).toHaveLength(1);
     const barEmailId = barEmailUsers[0].user_id;
 
@@ -258,7 +250,7 @@ describe("users by email", () => {
       },
     );
     expect(linkResponse.status).toBe(201);
-    const linkResponseData = (await linkResponse.json()) as Identity[];
+    const linkResponseData = await linkResponse.json();
     expect(linkResponseData).toHaveLength(2);
 
     expect(linkResponseData[0]).toEqual({
@@ -295,8 +287,7 @@ describe("users by email", () => {
         },
       },
     );
-    const fooEmailAfterLinkUsers =
-      (await fooEmailAfterLink.json()) as UserResponse[];
+    const fooEmailAfterLinkUsers = await fooEmailAfterLink.json();
     expect(fooEmailAfterLinkUsers).toHaveLength(1);
 
     expect(fooEmailAfterLinkUsers[0].identities).toEqual([
@@ -337,8 +328,7 @@ describe("users by email", () => {
         },
       },
     );
-    const barEmailAfterLinkUsers =
-      (await barEmailAfterLink.json()) as UserResponse[];
+    const barEmailAfterLinkUsers = await barEmailAfterLink.json();
     expect(barEmailAfterLinkUsers).toHaveLength(0);
 
     // ALSO TO TEST
