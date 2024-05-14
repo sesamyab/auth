@@ -171,12 +171,6 @@ export async function socialAuthCallback({
   if (!user) {
     ctx.set("logType", LogTypes.SUCCESS_SIGNUP);
 
-    const primaryUser = await getPrimaryUserByEmail({
-      userAdapter: env.data.users,
-      tenant_id: client.tenant_id,
-      email: email,
-    });
-
     const newSocialUser = await env.data.users.create(client.tenant_id, {
       id: `${state.connection}|${sub}`,
       email,
@@ -193,18 +187,8 @@ export async function socialAuthCallback({
       profileData: JSON.stringify(profileData),
     });
 
-    // this means we have a primary account
-    if (primaryUser) {
-      user = primaryUser;
-
-      // link user with existing user
-      await env.data.users.update(client.tenant_id, newSocialUser.id, {
-        linked_to: primaryUser.id,
-      });
-    } else {
-      // here we are using the new user as the primary ccount
-      user = newSocialUser;
-    }
+    // here we are using the new user as the primary ccount
+    user = newSocialUser;
   }
 
   const sessionId = await setSilentAuthCookies(

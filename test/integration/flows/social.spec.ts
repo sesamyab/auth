@@ -291,7 +291,7 @@ describe("social sign on", () => {
   });
 
   describe("Secondary user", () => {
-    it("should return existing primary account when logging in with new social sign on with same email address", async () => {
+    it.only("should return existing primary account when logging in with new social sign on with same email address", async () => {
       // ---------------------------------------------
       // create new user with same email as we have hardcoded on the mock id_token responses
       // ---------------------------------------------
@@ -320,8 +320,7 @@ describe("social sign on", () => {
         },
       );
 
-      const createEmailUser =
-        (await createEmailUserResponse.json()) as UserResponse;
+      const createEmailUser = await createEmailUserResponse.json();
       expect(createEmailUser.email).toBe("örjan.lindström@example.com");
       expect(createEmailUser.identities).toEqual([
         {

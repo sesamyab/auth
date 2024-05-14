@@ -7,6 +7,8 @@ import { PlanetScaleDialect } from "kysely-planetscale";
 import { getDb } from "./services/db";
 import { VendorSettings } from "./types";
 import sendEmail from "./services/email";
+import { addDataHooks } from "./hooks";
+import { DataAdapters } from "./adapters/interfaces";
 
 const server = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
@@ -25,10 +27,10 @@ const server = {
       {
         ...env,
         oauth2ClientFactory: { create: oAuth2ClientFactory },
-        data: {
+        data: addDataHooks({
           ...createAdapters(db),
           ...createR2Adapter(env),
-        },
+        } as DataAdapters),
         sendEmail,
         fetchVendorSettings: async (tenantName: string) => {
           const vendorSettingsRes = await fetch(

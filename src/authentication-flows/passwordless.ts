@@ -51,12 +51,6 @@ export async function validateCode(
     return emailUser;
   }
 
-  const primaryUser = await getPrimaryUserByEmail({
-    userAdapter: env.data.users,
-    tenant_id: client.tenant_id,
-    email: params.email,
-  });
-
   const newUser = await env.data.users.create(client.tenant_id, {
     id: `email|${userIdGenerate()}`,
     email: params.email,
@@ -70,10 +64,9 @@ export async function validateCode(
     is_social: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    linked_to: primaryUser?.id,
   });
 
-  return primaryUser || newUser;
+  return newUser;
 }
 
 // this is not inside src/controllers/email/sendValidateEmailAddress
