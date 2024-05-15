@@ -32,7 +32,7 @@ export async function snapshotResponse(
     // CSS hack - we are not serving the CSS on this PR though
     const responseBody = responseText.replace(
       "/css/tailwind.css",
-      "http://auth2.sesamy.dev/css/tailwind.css",
+      "http://localhost:48484/tailwind.css",
     );
     const browser = await chromium.launch();
     const page = await browser.newPage({
