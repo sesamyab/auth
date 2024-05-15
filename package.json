@@ -13,7 +13,7 @@
     "test": "vitest --pool=forks",
     "serve-css": "serve src/styles -l 48484",
     "test:snapshots--inner": "TEST_SNAPSHOTS=true vitest --pool=forks",
-    "test:snapshots": "concurrently \"yarn serve-css\" \"yarn test:snapshots--inner\"",
+    "test:snapshots": "concurrently \"yarn serve-css\" \"yarn test:snapshots--inner\" --kill-others",
     "test:update-snapshots": "concurrently \"yarn serve-css\" \"yarn test:snapshots--inner -u\"",
     "semantic-release": "semantic-release",
     "prepare": "husky install",
