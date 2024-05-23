@@ -4,7 +4,6 @@ import AppLogo from "./AppLogo";
 import i18next from "i18next";
 import Footer from "./Footer";
 import Icon from "./Icon";
-import { html } from "hono/html";
 
 type LayoutProps = {
   title: string;
@@ -131,24 +130,6 @@ const Layout: FC<LayoutProps> = ({ title, children, vendorSettings }) => {
           </div>
         </div>
       </body>
-      {html`
-        <script>
-          const initialBtn = document.getElementById("initial-btn");
-
-          if (initialBtn) {
-            document.getElementById("initial-btn").onclick = function () {
-              const code = document.getElementById("code-input").value;
-
-              if (code.length >= 6) {
-                document.getElementById("initial-btn").classList.add("hidden");
-                document
-                  .getElementById("loading-btn")
-                  .classList.remove("hidden");
-              }
-            };
-          }
-        </script>
-      `}
     </html>
   );
 };
