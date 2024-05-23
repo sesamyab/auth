@@ -15,6 +15,7 @@ type Props = {
   disabled?: boolean;
   isLoading?: boolean;
   id?: string;
+  onClick?: (e: Event) => void;
 };
 
 const Button: FC<Props> = ({
@@ -26,6 +27,7 @@ const Button: FC<Props> = ({
   disabled,
   isLoading,
   id,
+  onClick,
 }) => {
   const hrefProps = Component === "a" ? { href } : {};
   return (
@@ -39,6 +41,7 @@ const Button: FC<Props> = ({
       type="submit"
       disabled={disabled}
       id={id}
+      onClick={onClick}
       {...hrefProps}
     >
       <span
