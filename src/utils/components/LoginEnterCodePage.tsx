@@ -6,6 +6,8 @@ import i18next from "i18next";
 import cn from "classnames";
 import Icon from "./Icon";
 import ErrorMessage from "./ErrorMessage";
+import { useState } from "hono/jsx";
+import { render } from "hono/jsx/dom";
 
 type Props = {
   error?: string;
@@ -31,6 +33,7 @@ const LoginEnterCodePage: FC<Props> = ({
   const i18nText = i18next.t("we_sent_a_code_to", { email });
   const startText = i18nText.slice(0, i18nText.indexOf("<0>"));
   const endText = i18nText.slice(i18nText.indexOf("</0>") + 4);
+  const [isLoading, setIsLoading] = useState(false);
 
   const passwordLoginFeatureyFlag =
     env.ENVIRONMENT === "dev" || client.id === SESAMY_DEMO_VENDOR;
@@ -39,6 +42,10 @@ const LoginEnterCodePage: FC<Props> = ({
     state,
     username: email,
   });
+
+  const handleClick = async (e: Event) => {
+    setIsLoading(true);
+  };
 
   return (
     <Layout
@@ -72,12 +79,10 @@ const LoginEnterCodePage: FC<Props> = ({
             )}
             minLength={CODE_LENGTH}
             required
-            id="code-input"
           />
           {error && <ErrorMessage>{error}</ErrorMessage>}
           <div class="text-center sm:mt-2">
-            <Button id="initial-btn"> {i18next.t("validate_code")}</Button>
-            <Button isLoading className="hidden" id="loading-btn">
+            <Button isLoading={isLoading} onClick={handleClick}>
               {i18next.t("validate_code")}
             </Button>
           </div>
@@ -118,3 +123,6 @@ const LoginEnterCodePage: FC<Props> = ({
 };
 
 export default LoginEnterCodePage;
+
+const root = document.getElementById("root");
+render(<LoginEnterCodePage />, root);
