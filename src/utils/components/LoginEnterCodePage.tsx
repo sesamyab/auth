@@ -123,3 +123,6 @@ const LoginEnterCodePage: FC<Props> = ({
 };
 
 export default LoginEnterCodePage;
+
+const root = document.getElementById("root");
+render(<LoginEnterCodePage />, root);
