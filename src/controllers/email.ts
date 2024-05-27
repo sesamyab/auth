@@ -70,7 +70,7 @@ export async function sendCode(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  await env.sendEmail(client, {
+  env.sendEmail(client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -128,7 +128,7 @@ export async function sendLink(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  await env.sendEmail(client, {
+  env.sendEmail(client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -189,7 +189,7 @@ export async function sendResetPassword(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  await env.sendEmail(client, {
+  env.sendEmail(client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -254,7 +254,7 @@ export async function sendValidateEmailAddress(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  await env.sendEmail(client, {
+  env.sendEmail(client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
