@@ -642,7 +642,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env }>()
         // Get typescript errors here but works on the mgmt api users route...
         // ctx.set("log", `Code: ${code}`);
 
-        await sendResetPassword(env, client, username, code, state);
+        await sendResetPassword(ctx, client, username, code, state);
       } else {
         console.log("User not found");
       }
@@ -804,9 +804,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env }>()
         magicLink.searchParams.set("verification_code", code);
         magicLink.searchParams.set("nonce", "nonce");
 
-        await sendLink(env, client, params.username, code, magicLink.href);
+        await sendLink(ctx, client, params.username, code, magicLink.href);
       } else {
-        await sendCode(env, client, params.username, code);
+        await sendCode(ctx, client, params.username, code);
       }
 
       return ctx.redirect(
@@ -1076,7 +1076,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env }>()
         });
 
         await sendEmailVerificationEmail({
-          env: ctx.env,
+          ctx,
           client,
           user: newUser,
         });

@@ -6,11 +6,12 @@ import {
   getPrimaryUserByEmailAndProvider,
   getPrimaryUserByEmail,
 } from "../utils/users";
-import { User, Client, AuthParams } from "../types";
+import { User, Client, AuthParams, Var } from "../types";
 import { UniversalLoginSession } from "../adapters/interfaces/UniversalLoginSession";
 import { nanoid } from "nanoid";
 import generateOTP from "../utils/otp";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../constants";
+import { Context } from "hono";
 import { sendValidateEmailAddress } from "../controllers/email";
 
 // de-dupe
@@ -83,16 +84,17 @@ export async function validateCode(
 // can we mock templates? or even properly use them?
 
 interface sendEmailVerificationEmailParams {
-  env: Env;
+  ctx: Context<{ Bindings: Env; Variables: Var }> | Context<{ Bindings: Env }>;
   client: Client;
   user: User;
 }
 
 export async function sendEmailVerificationEmail({
-  env,
+  ctx,
   client,
   user,
 }: sendEmailVerificationEmailParams) {
+  const { env } = ctx;
   const authParams: AuthParams = {
     client_id: client.id,
     username: user.email,
@@ -125,5 +127,5 @@ export async function sendEmailVerificationEmail({
     expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
   });
 
-  await sendValidateEmailAddress(env, client, user.email, code, state);
+  await sendValidateEmailAddress(ctx, client, user.email, code, state);
 }

@@ -101,9 +101,9 @@ export const passwordlessRoutes = new OpenAPIHono<{
         magicLink.searchParams.set("email", email);
         magicLink.searchParams.set("verification_code", code);
 
-        await sendLink(ctx.env, client, email, code, magicLink.href);
+        await sendLink(ctx, client, email, code, magicLink.href);
       } else {
-        await sendCode(ctx.env, client, email, code);
+        await sendCode(ctx, client, email, code);
       }
 
       return ctx.html("OK");

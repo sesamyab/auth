@@ -1,6 +1,6 @@
 import { Liquid } from "liquidjs";
 import { translate } from "../utils/i18n";
-import { Client, Env } from "../types";
+import { Client, Env, Var } from "../types";
 import { getClientLogoPngGreyBg } from "../utils/clientLogos";
 import en from "../locales/en/default.json";
 import sv from "../locales/sv/default.json";
@@ -12,6 +12,8 @@ import {
   passwordReset,
   verifyEmail,
 } from "../templates/email/ts";
+import { waitUntil } from "../utils/wait-until";
+import { Context } from "hono";
 
 const SUPPORTED_LOCALES: { [key: string]: object } = {
   en,
@@ -30,13 +32,15 @@ function getLocale(language: string) {
 const engine = new Liquid();
 
 export async function sendCode(
-  env: Env,
+  ctx: Context<{ Bindings: Env; Variables: Var }> | Context<{ Bindings: Env }>,
   client: Client,
   to: string,
   code: string,
 ) {
   const language = client.tenant.language || "sv";
   const locale = getLocale(language);
+
+  const { env } = ctx;
 
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
@@ -65,26 +69,29 @@ export async function sendCode(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  env.sendEmail(client, {
-    to: [{ email: to, name: to }],
-    from: {
-      email: client.tenant.sender_email,
-      name: client.tenant.sender_name,
-    },
-    content: [
-      {
-        type: "text/html",
-        value: codeEmailBody,
+  waitUntil(
+    ctx,
+    env.sendEmail(client, {
+      to: [{ email: to, name: to }],
+      from: {
+        email: client.tenant.sender_email,
+        name: client.tenant.sender_name,
       },
-    ],
-    subject: translate(language, "codeEmailTitle")
-      .replace("{{vendorName}}", client.tenant.name)
-      .replace("{{code}}", code),
-  });
+      content: [
+        {
+          type: "text/html",
+          value: codeEmailBody,
+        },
+      ],
+      subject: translate(language, "codeEmailTitle")
+        .replace("{{vendorName}}", client.tenant.name)
+        .replace("{{code}}", code),
+    }),
+  );
 }
 
 export async function sendLink(
-  env: Env,
+  ctx: Context<{ Bindings: Env; Variables: Var }> | Context<{ Bindings: Env }>,
   client: Client,
   to: string,
   code: string,
@@ -92,6 +99,7 @@ export async function sendLink(
 ) {
   const language = client.tenant.language || "sv";
   const locale = getLocale(language);
+  const { env } = ctx;
 
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
@@ -123,26 +131,29 @@ export async function sendLink(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  env.sendEmail(client, {
-    to: [{ email: to, name: to }],
-    from: {
-      email: client.tenant.sender_email,
-      name: client.tenant.sender_name,
-    },
-    content: [
-      {
-        type: "text/html",
-        value: codeEmailBody,
+  waitUntil(
+    ctx,
+    env.sendEmail(client, {
+      to: [{ email: to, name: to }],
+      from: {
+        email: client.tenant.sender_email,
+        name: client.tenant.sender_name,
       },
-    ],
-    subject: translate(language, "codeEmailTitle")
-      .replace("{{vendorName}}", client.tenant.name)
-      .replace("{{code}}", code),
-  });
+      content: [
+        {
+          type: "text/html",
+          value: codeEmailBody,
+        },
+      ],
+      subject: translate(language, "codeEmailTitle")
+        .replace("{{vendorName}}", client.tenant.name)
+        .replace("{{code}}", code),
+    }),
+  );
 }
 
 export async function sendResetPassword(
-  env: Env,
+  ctx: Context<{ Bindings: Env; Variables: Var }> | Context<{ Bindings: Env }>,
   client: Client,
   to: string,
   // auth0 just has a ticket, but we have a code and a state
@@ -151,6 +162,7 @@ export async function sendResetPassword(
 ) {
   const language = client.tenant.language || "sv";
   const locale = getLocale(language);
+  const { env } = ctx;
 
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
@@ -184,27 +196,30 @@ export async function sendResetPassword(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  env.sendEmail(client, {
-    to: [{ email: to, name: to }],
-    from: {
-      email: client.tenant.sender_email,
-      name: client.tenant.sender_name,
-    },
-    content: [
-      {
-        type: "text/html",
-        value: passwordResetBody,
+  waitUntil(
+    ctx,
+    env.sendEmail(client, {
+      to: [{ email: to, name: to }],
+      from: {
+        email: client.tenant.sender_email,
+        name: client.tenant.sender_name,
       },
-    ],
-    subject: translate(language, "passwordResetTitle").replace(
-      "{{vendorName}}",
-      client.tenant.name,
-    ),
-  });
+      content: [
+        {
+          type: "text/html",
+          value: passwordResetBody,
+        },
+      ],
+      subject: translate(language, "passwordResetTitle").replace(
+        "{{vendorName}}",
+        client.tenant.name,
+      ),
+    }),
+  );
 }
 
 export async function sendValidateEmailAddress(
-  env: Env,
+  ctx: Context<{ Bindings: Env; Variables: Var }> | Context<{ Bindings: Env }>,
   client: Client,
   to: string,
   code: string,
@@ -213,6 +228,7 @@ export async function sendValidateEmailAddress(
   // const response = await env.AUTH_TEMPLATES.get(
   //   "templates/email/verify-email.liquid",
   // );
+  const { env } = ctx;
 
   const language = client.tenant.language || "sv";
   const locale = getLocale(language);
@@ -249,21 +265,24 @@ export async function sendValidateEmailAddress(
     buttonColor: client.tenant.primary_color || "#7d68f4",
   });
 
-  env.sendEmail(client, {
-    to: [{ email: to, name: to }],
-    from: {
-      email: client.tenant.sender_email,
-      name: client.tenant.sender_name,
-    },
-    content: [
-      {
-        type: "text/html",
-        value: emailValidationBody,
+  waitUntil(
+    ctx,
+    env.sendEmail(client, {
+      to: [{ email: to, name: to }],
+      from: {
+        email: client.tenant.sender_email,
+        name: client.tenant.sender_name,
       },
-    ],
-    subject: translate(language, "verifyEmailTitle").replace(
-      "{{vendorName}}",
-      client.tenant.name,
-    ),
-  });
+      content: [
+        {
+          type: "text/html",
+          value: emailValidationBody,
+        },
+      ],
+      subject: translate(language, "verifyEmailTitle").replace(
+        "{{vendorName}}",
+        client.tenant.name,
+      ),
+    }),
+  );
 }

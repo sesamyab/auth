@@ -105,7 +105,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
       });
 
       await sendEmailVerificationEmail({
-        env: ctx.env,
+        ctx,
         client,
         user: newUser,
       });
@@ -198,7 +198,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
         expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
       });
 
-      await sendResetPassword(ctx.env, client, email, code, state);
+      await sendResetPassword(ctx, client, email, code, state);
 
       return ctx.html("We've just sent you an email to reset your password.");
     },

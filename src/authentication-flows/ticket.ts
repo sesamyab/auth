@@ -63,7 +63,7 @@ export async function ticketAuth(
       }
 
       await sendEmailVerificationEmail({
-        env,
+        ctx,
         client,
         user,
       });
