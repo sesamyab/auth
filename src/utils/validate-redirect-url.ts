@@ -41,19 +41,23 @@ const ALLOWED_CALLBACK_URLS = [
   "http://localhost:3000",
   "http://localhost:3000/callback",
   "http://localhost:3000/link",
+  // TODO - delete these breakit- prefixed pages
   "http://localhost:3000/breakit-user-not-found",
+  "http://localhost:3000/user-not-found",
   // login2 dev
   "https://login2.sesamy.dev/",
   "https://login2.sesamy.dev/enter-code",
   "https://login2.sesamy.dev/callback",
   "https://login2.sesamy.dev/link",
   "https://login2.sesamy.dev/breakit-user-not-found",
+  "https://login2.sesamy.dev/user-not-found",
   // login2 prod
   "https://login2.sesamy.com/",
   "https://login2.sesamy.com/enter-code",
   "https://login2.sesamy.com/callback",
   "https://login2.sesamy.com/link",
   "https://login2.sesamy.com/breakit-user-not-found",
+  "https://login2.sesamy.com/user-not-found",
   // vercel preview deploys
   "https://*.vercel.sesamy.dev",
   "https://*.vercel.sesamy.dev/enter-code",
@@ -61,6 +65,7 @@ const ALLOWED_CALLBACK_URLS = [
   "https://*.vercel.sesamy.dev/enter-code",
   "https://*.vercel.sesamy.dev/link",
   "https://*.vercel.sesamy.dev/breakit-user-not-found",
+  "https://*.vercel.sesamy.dev/user-not-found",
   // example.com
   "http://example.com",
   "http://login.example.com",
