@@ -27,12 +27,28 @@ const LoginWithCodePage: FC<Props> = ({ error, vendorSettings, session }) => {
       ? i18next.t("login_description_code")
       : i18next.t("login_description_link");
 
+  const isFokus = vendorSettings.name === "fokus";
+
   return (
     <Layout title={i18next.t("welcome")} vendorSettings={vendorSettings}>
       <div class="mb-4 text-lg font-medium sm:text-2xl">
         {i18next.t("welcome")}
       </div>
       <div class="mb-8 text-gray-300">{loginDescriptionText}</div>
+      {isFokus && (
+        <div className="bg-[#FDFDFF] rounded-lg p-4 mb-8 border border-[#EBF0FB] flex items-center">
+          <Icon
+            name="info"
+            className="text-[#4272DD] text-2xl align-middle mr-2"
+          />
+          <p>
+            Vi har bytt inloggningssystem,{" "}
+            <a href="https://www.fokus.se/information/fokus-byter-prenumerationssystem/">
+              här kan du läsa mer om vad det innebär
+            </a>
+          </p>
+        </div>
+      )}
       <div class="flex flex-1 flex-col justify-center">
         <form method="post" className="mb-7">
           <input
