@@ -27,7 +27,9 @@ const LoginWithCodePage: FC<Props> = ({ error, vendorSettings, session }) => {
       ? i18next.t("login_description_code")
       : i18next.t("login_description_link");
 
-  const isFokus = vendorSettings.name === "fokus";
+  const isFokus =
+    session.authParams.vendor_id?.includes("fokus") ||
+    vendorSettings.name === "fokus";
 
   return (
     <Layout title={i18next.t("welcome")} vendorSettings={vendorSettings}>
