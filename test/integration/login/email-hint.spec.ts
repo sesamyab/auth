@@ -4,7 +4,7 @@ import { oauthApp } from "../../../src/app";
 import { testClient } from "hono/testing";
 import { AuthorizationResponseType } from "../../../src/types";
 
-test("Should go to code entry step if email_hint is passed to /authorize", async () => {
+test("Should go to code entry step if login_hint is passed to /authorize", async () => {
   const env = await getEnv();
   const oauthClient = testClient(oauthApp, env);
 
@@ -17,7 +17,7 @@ test("Should go to code entry step if email_hint is passed to /authorize", async
       redirect_uri: "http://localhost:3000/callback",
       state: "state",
       // this is the difference on this test
-      email_hint: "suggested-email@example.com",
+      login_hint: "suggested-email@example.com",
     },
   });
 
