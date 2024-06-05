@@ -10,12 +10,14 @@ interface UniversalAuthParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
   authParams: AuthParams;
   auth0Client?: string;
+  emailHint?: string;
 }
 
 export async function universalAuth({
   ctx,
   authParams,
   auth0Client,
+  emailHint,
 }: UniversalAuthParams) {
   const client = await getClient(ctx.env, authParams.client_id);
 
@@ -36,6 +38,11 @@ export async function universalAuth({
   };
 
   await ctx.env.data.universalLoginSessions.create(session);
+
+  if (emailHint) {
+    // TODO - need to send a code email here...
+    return ctx.redirect(`/u/enter-code?state=${session.id}`);
+  }
 
   return ctx.redirect(`/u/code?state=${session.id}`);
 }
