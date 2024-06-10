@@ -40,8 +40,6 @@ export async function silentAuth({
 }: SilentAuthParams) {
   const { env } = ctx;
 
-  ctx.set("logType", LogTypes.SUCCESS_SILENT_AUTH);
-
   const tokenState = getStateFromCookie(cookie_header);
   const redirectURL = new URL(redirect_uri);
 
@@ -49,15 +47,12 @@ export async function silentAuth({
     const session = await env.data.sessions.get(tenant_id, tokenState);
 
     if (session) {
-      ctx.set("userId", session.user_id);
-
       // Update the cookie
       const headers = new Headers();
       const [cookie] = serializeStateInCookie(tokenState);
       headers.set("set-cookie", cookie);
 
       const user = await env.data.users.get(tenant_id, session.user_id);
-      ctx.set("userName", user?.email);
       if (user) {
         const tokenResponse = await generateAuthData({
           env,
@@ -77,7 +72,6 @@ export async function silentAuth({
           responseType: response_type,
         });
 
-        ctx.set("log", JSON.stringify(tokenResponse));
         await env.data.sessions.update(tenant_id, tokenState, {
           used_at: new Date().toISOString(),
         });
@@ -95,8 +89,6 @@ export async function silentAuth({
     }
   }
 
-  ctx.set("description", "Login required");
-  ctx.set("logType", "fsa");
   return ctx.html(
     renderAuthIframe(
       `${redirectURL.protocol}//${redirectURL.host}`,

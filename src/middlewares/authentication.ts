@@ -157,14 +157,6 @@ export default function authenticationMiddleware(
       ) {
         throw new HTTPException(403, { message: "Unauthorized" });
       }
-
-      if (ctx.req.method)
-        ctx.set("user", {
-          sub: token.payload.sub,
-          azp: token.payload.azp || "sesamy",
-          permissions,
-        });
-      ctx.set("vendorId", token.payload.azp || "sesamy");
     } else {
       throw new HTTPException(403, { message: "Unauthorized" });
     }

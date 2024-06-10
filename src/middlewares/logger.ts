@@ -23,8 +23,6 @@ export default async function loggerMiddleware(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   next: Next,
 ) {
-  ctx.set("startAt", new Date().getTime());
-
   try {
     await next();
 

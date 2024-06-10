@@ -292,9 +292,6 @@ export const userRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         updated_at: new Date().toISOString(),
       });
 
-      ctx.set("userId", data.id);
-      ctx.set("tenantId", tenant_id);
-
       const log: Log = createTypeLog("sapi", ctx, body, `Create a User`);
       waitUntil(ctx, ctx.env.data.logs.create(tenant_id, log));
 

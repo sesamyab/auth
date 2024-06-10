@@ -607,9 +607,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
         });
 
-        // Get typescript errors here but works on the mgmt api users route...
-        // ctx.set("log", `Code: ${code}`);
-
         await sendResetPassword(env, client, username, code, state);
       } else {
         console.log("User not found");
@@ -774,8 +771,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         created_at: new Date(),
         expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME),
       });
-
-      // request.ctx.set("log", `Code: ${code}`);
 
       const sendType = getSendParamFromAuth0ClientHeader(session.auth0Client);
 

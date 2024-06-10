@@ -34,9 +34,6 @@ export async function ticketAuth(
 ) {
   const { env } = ctx;
 
-  ctx.set("logType", LogTypes.SUCCESS_CROSS_ORIGIN_AUTHENTICATION);
-  ctx.set("connection", realm);
-
   const ticket = await env.data.tickets.get(tenant_id, ticketId);
 
   if (!ticket) {
@@ -129,8 +126,6 @@ export async function ticketAuth(
         login2UniverifiedEmailUrl.searchParams.set("connection", connection2);
       }
 
-      ctx.set("logType", LogTypes.FAILED_LOGIN_INCORRECT_PASSWORD);
-
       return new Response("Redirecting", {
         status: 302,
         headers: {
@@ -177,9 +172,6 @@ export async function ticketAuth(
       user = primaryUser;
     }
   }
-
-  ctx.set("userId", user.id);
-  ctx.set("userName", user.name || user.email);
 
   const sessionId = await setSilentAuthCookies(
     env,

@@ -107,8 +107,8 @@ export async function validateCode(
       },
     },
     isMobile: false,
-    connection: ctx.var.connection || "",
-    auth0_client: ctx.var.auth0_client,
+    // connection: ctx.var.connection || "",
+    // auth0_client: ctx.var.auth0_client,
     audience: "",
     scope: [],
   };

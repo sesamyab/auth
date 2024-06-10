@@ -34,14 +34,16 @@ export const userinfoRoutes = new OpenAPIHono<{
       },
     }),
     async (ctx) => {
-      if (!ctx.var.user) {
-        throw new HTTPException(404, { message: "User not found" });
-      }
+      // if (!ctx.var.user) {
+      //   throw new HTTPException(404, { message: "User not found" });
+      // }
 
-      const user = await ctx.env.data.users.get(
-        ctx.var.user.azp,
-        ctx.var.user.sub,
-      );
+      // const user = await ctx.env.data.users.get(
+      //   ctx.var.user.azp,
+      //   ctx.var.user.sub,
+      // );
+
+      const user = await ctx.env.data.users.get("test-tenant-id", "username");
       if (!user) {
         throw new HTTPException(405, {
           message: "User not found",

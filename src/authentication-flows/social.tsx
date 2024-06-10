@@ -33,7 +33,6 @@ export async function socialAuth(
     (p) => p.name === connection,
   );
   if (!connectionInstance) {
-    ctx.set("logType", LogTypes.FAILED_LOGIN);
     throw new HTTPException(403, { message: "Connection Not Found" });
   }
 
@@ -97,7 +96,6 @@ export async function socialAuthCallback({
 
   if (!client) {
     // I'm not sure if these are correct as need to reverse engineer what Auth0 does
-    ctx.set("logType", LogTypes.FAILED_LOGIN);
     throw new HTTPException(403, { message: "Client not found" });
   }
   const connection = client.connections.find(
@@ -106,13 +104,11 @@ export async function socialAuthCallback({
 
   if (!connection) {
     // same here. unsure
-    ctx.set("logType", LogTypes.FAILED_LOGIN);
     throw new HTTPException(403, { message: "Connection not found" });
   }
 
   if (!state.authParams.redirect_uri) {
     // same here. unsure
-    ctx.set("logType", LogTypes.FAILED_LOGIN);
     throw new HTTPException(403, { message: "Redirect URI not defined" });
   }
 
@@ -189,8 +185,6 @@ export async function socialAuthCallback({
 
   if (!user) {
     if (client.disable_sign_ups) {
-      ctx.set("logType", LogTypes.FAILED_LOGIN);
-
       const vendorSettings = await fetchVendorSettings(
         env,
         client.id,
@@ -205,8 +199,6 @@ export async function socialAuthCallback({
         400,
       );
     }
-
-    ctx.set("logType", LogTypes.SUCCESS_SIGNUP);
 
     const primaryUser = await getPrimaryUserByEmail({
       userAdapter: env.data.users,
