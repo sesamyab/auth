@@ -68,45 +68,45 @@ export async function ticketAuth(
       });
 
       // TODO - move this page to auth2 BUT we need to be able to render JSX straight in here... WIP with Markus moving off TSOA
-      const login2UniverifiedEmailUrl = new URL(
+      const login2UnverifiedEmailUrl = new URL(
         `${env.LOGIN2_URL}/unverified-email`,
       );
 
       const stateDecoded = new URLSearchParams(authParams.state);
 
-      login2UniverifiedEmailUrl.searchParams.set(
+      login2UnverifiedEmailUrl.searchParams.set(
         "email",
         encodeURIComponent(ticket.email),
       );
 
-      login2UniverifiedEmailUrl.searchParams.set(
+      login2UnverifiedEmailUrl.searchParams.set(
         "lang",
         client.tenant.language || "sv",
       );
 
       const redirectUri = stateDecoded.get("redirect_uri");
       if (redirectUri) {
-        login2UniverifiedEmailUrl.searchParams.set("redirect_uri", redirectUri);
+        login2UnverifiedEmailUrl.searchParams.set("redirect_uri", redirectUri);
       }
 
       const audience = stateDecoded.get("audience");
       if (audience) {
-        login2UniverifiedEmailUrl.searchParams.set("audience", audience);
+        login2UnverifiedEmailUrl.searchParams.set("audience", audience);
       }
 
       const nonce = stateDecoded.get("nonce");
       if (nonce) {
-        login2UniverifiedEmailUrl.searchParams.set("nonce", nonce);
+        login2UnverifiedEmailUrl.searchParams.set("nonce", nonce);
       }
 
       const scope = stateDecoded.get("scope");
       if (scope) {
-        login2UniverifiedEmailUrl.searchParams.set("scope", scope);
+        login2UnverifiedEmailUrl.searchParams.set("scope", scope);
       }
 
       const responseType = stateDecoded.get("response_type");
       if (responseType) {
-        login2UniverifiedEmailUrl.searchParams.set(
+        login2UnverifiedEmailUrl.searchParams.set(
           "response_type",
           responseType,
         );
@@ -114,20 +114,21 @@ export async function ticketAuth(
 
       const state2 = stateDecoded.get("state");
       if (state2) {
-        login2UniverifiedEmailUrl.searchParams.set("state", state2);
+        login2UnverifiedEmailUrl.searchParams.set("state", state2);
       }
 
       const client_id = stateDecoded.get("client_id");
       if (client_id) {
-        login2UniverifiedEmailUrl.searchParams.set("client_id", client_id);
+        login2UnverifiedEmailUrl.searchParams.set("client_id", client_id);
       }
 
       // this will always be auth2
       const connection2 = stateDecoded.get("connection");
       if (connection2) {
-        login2UniverifiedEmailUrl.searchParams.set("connection", connection2);
+        login2UnverifiedEmailUrl.searchParams.set("connection", connection2);
       }
 
+      // here we need to assert a log somewhere...
       ctx.set("userId", user.id);
       ctx.set("userName", user.email);
       ctx.set("connection", user.connection);
@@ -144,7 +145,7 @@ export async function ticketAuth(
       return new Response("Redirecting", {
         status: 302,
         headers: {
-          location: login2UniverifiedEmailUrl.toString(),
+          location: login2UnverifiedEmailUrl.toString(),
         },
       });
     }
