@@ -4,9 +4,9 @@ import "dotenv/config";
 export default {
   schema: "./drizzle-mysql/schema.ts",
   dbCredentials: {
-    uri: `mysql://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@aws.connect.psdb.cloud/auth2-dev?ssl={"rejectUnauthorized":true}`,
+    url: `mysql://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}?ssl={"rejectUnauthorized":true}`,
   },
-  driver: "mysql2",
+  dialect: "mysql",
   introspect: {
     casing: "preserve",
   },
