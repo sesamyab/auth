@@ -59,7 +59,7 @@ export async function sendCode(
         value: codeEmailBody,
       },
     ],
-    subject: translate(language, "codeEmailTitle")
+    subject: translate(client.tenant.language, "codeEmailTitle")
       .replace("{{vendorName}}", client.tenant.name)
       .replace("{{code}}", code),
   });

@@ -18,7 +18,7 @@ const labels: Labels = {
 // This type is used for type checking and IDE auto-completion
 type LabelIds = keyof typeof en | keyof typeof sv;
 
-export function translate(language: string, label: LabelIds): string {
+export function translate(language = "sv", label: LabelIds): string {
   // or we could fallback to en
   if (!labels[language]) {
     throw new Error(`Language ${language} is not supported`);
@@ -27,7 +27,7 @@ export function translate(language: string, label: LabelIds): string {
   return labels[language]?.[label] ?? "missing label";
 }
 
-export function getLocale(language = "en") {
+export function getLocale(language = "sv") {
   if (!labels[language]) {
     throw new Error(`Language ${language} is not supported`);
   }
@@ -35,7 +35,7 @@ export function getLocale(language = "en") {
   return labels[language];
 }
 
-export function initI18n(lanaguage = "en") {
+export function initI18n(lanaguage = "sv") {
   i18next.init({
     lng: lanaguage,
     resources: {
