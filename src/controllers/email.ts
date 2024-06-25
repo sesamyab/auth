@@ -1,12 +1,7 @@
 import { Liquid } from "liquidjs";
-import { translate } from "../utils/i18n";
+import { getLocale, translate } from "../utils/i18n";
 import { AuthParams, Client, Env } from "../types";
 import { getClientLogoPngGreyBg } from "../utils/clientLogos";
-import en from "../locales/en/default.json";
-import sv from "../locales/sv/default.json";
-import nb from "../locales/nb/default.json";
-import it from "../locales/it/default.json";
-import pl from "../locales/pl/default.json";
 import {
   codeV2,
   linkV2,
@@ -14,21 +9,6 @@ import {
   verifyEmail,
 } from "../templates/email/ts";
 import { createMagicLink } from "../utils/magicLink";
-
-const SUPPORTED_LOCALES: { [key: string]: object } = {
-  en,
-  sv,
-  nb,
-  it,
-  pl,
-};
-
-function getLocale(language: string) {
-  if (SUPPORTED_LOCALES[language]) {
-    return SUPPORTED_LOCALES[language];
-  }
-  return en;
-}
 
 const engine = new Liquid();
 
@@ -38,8 +18,7 @@ export async function sendCode(
   to: string,
   code: string,
 ) {
-  const language = client.tenant.language || "sv";
-  const locale = getLocale(language);
+  const locale = getLocale(client.tenant.language);
 
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||

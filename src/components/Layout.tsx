@@ -1,4 +1,3 @@
-import type { FC } from "hono/jsx";
 import { VendorSettings } from "../types";
 import AppLogo from "./AppLogo";
 import i18next from "i18next";

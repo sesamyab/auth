@@ -5,23 +5,6 @@ import { getClient } from "../../services/clients";
 import { HTTPException } from "hono/http-exception";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { Var } from "../../types/Var";
-import i18next from "i18next";
-import en from "../../localesLogin2/en/default.json";
-import it from "../../localesLogin2/it/default.json";
-import nb from "../../localesLogin2/nb/default.json";
-import sv from "../../localesLogin2/sv/default.json";
-
-function initI18n(lng: string) {
-  i18next.init({
-    lng,
-    resources: {
-      en: { translation: en },
-      it: { translation: it },
-      nb: { translation: nb },
-      sv: { translation: sv },
-    },
-  });
-}
 
 export const callbackRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -76,8 +59,6 @@ export const callbackRoutes = new OpenAPIHono<{
       if (!tenant) {
         throw new HTTPException(400, { message: "Tenant not found" });
       }
-
-      initI18n(tenant.language || "sv");
 
       if (error) {
         const { redirect_uri } = loginState.authParams;
