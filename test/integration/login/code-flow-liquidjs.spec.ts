@@ -122,7 +122,7 @@ describe("Login with code on liquidjs template", () => {
     const { to, code, subject } = getCodeAndTo(env.data.emails[0]);
     expect(to).toBe("test@example.com");
     expect(subject).toBe(
-      `Velkommen til Test Tenant ! ${code} er påloggingskoden`,
+      `Velkommen til Test Tenant! ${code} er påloggingskoden`,
     );
 
     const { logs } = await env.data.logs.list("tenantId", {
@@ -854,7 +854,7 @@ describe("Login with code on liquidjs template", () => {
     const { to, code, subject } = getCodeAndTo(env.data.emails[0]);
     expect(to).toBe("foo@example.com");
     expect(subject).toBe(
-      `Velkommen til Test Tenant ! ${code} er påloggingskoden`,
+      `Velkommen til Test Tenant! ${code} er påloggingskoden`,
     );
 
     const authenticateResponse = await oauthClient.u["enter-code"].$post({

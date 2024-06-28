@@ -1,12 +1,7 @@
 import { Liquid } from "liquidjs";
-import { translate } from "../utils/i18n";
+import { t } from "i18next";
 import { AuthParams, Client, Env } from "../types";
 import { getClientLogoPngGreyBg } from "../utils/clientLogos";
-import en from "../locales/en/default.json";
-import sv from "../locales/sv/default.json";
-import nb from "../locales/nb/default.json";
-import it from "../locales/it/default.json";
-import pl from "../locales/pl/default.json";
 import {
   codeV2,
   linkV2,
@@ -14,21 +9,6 @@ import {
   verifyEmail,
 } from "../templates/email/ts";
 import { createMagicLink } from "../utils/magicLink";
-
-const SUPPORTED_LOCALES: { [key: string]: object } = {
-  en,
-  sv,
-  nb,
-  it,
-  pl,
-};
-
-function getLocale(language: string) {
-  if (SUPPORTED_LOCALES[language]) {
-    return SUPPORTED_LOCALES[language];
-  }
-  return en;
-}
 
 const engine = new Liquid();
 
@@ -38,9 +18,6 @@ export async function sendCode(
   to: string,
   code: string,
 ) {
-  const language = client.tenant.language || "sv";
-  const locale = getLocale(language);
-
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
@@ -51,7 +28,6 @@ export async function sendCode(
   const sendCodeTemplateString = await engine.render(
     sendCodeUniversalTemplate,
     {
-      ...locale,
       code,
       vendorName: client.tenant.name,
       logo,
@@ -80,9 +56,7 @@ export async function sendCode(
         value: codeEmailBody,
       },
     ],
-    subject: translate(language, "codeEmailTitle")
-      .replace("{{vendorName}}", client.tenant.name)
-      .replace("{{code}}", code),
+    subject: t("code_email_title", { vendorName: client.tenant.name, code }),
   });
 }
 
@@ -93,9 +67,6 @@ export async function sendLink(
   code: string,
   authParams: AuthParams,
 ) {
-  const language = client.tenant.language || "sv";
-  const locale = getLocale(language);
-
   const magicLink = createMagicLink({
     issuer: env.ISSUER,
     code,
@@ -113,7 +84,6 @@ export async function sendLink(
   const sendCodeTemplateString = await engine.render(
     sendCodeUniversalTemplate,
     {
-      ...locale,
       // pass in variables twice! no harm to overdo it
       code,
       vendorName: client.tenant.name,
@@ -145,9 +115,10 @@ export async function sendLink(
         value: codeEmailBody,
       },
     ],
-    subject: translate(language, "codeEmailTitle")
-      .replace("{{vendorName}}", client.tenant.name)
-      .replace("{{code}}", code),
+    subject: t("code_email_title", {
+      vendorName: client.tenant.name,
+      code,
+    }),
   });
 }
 
@@ -159,9 +130,6 @@ export async function sendResetPassword(
   code: string,
   state: string,
 ) {
-  const language = client.tenant.language || "sv";
-  const locale = getLocale(language);
-
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
@@ -175,7 +143,6 @@ export async function sendResetPassword(
   const sendPasswordResetTemplateString = await engine.render(
     sendPasswordResetUniversalTemplate,
     {
-      ...locale,
       vendorName: client.tenant.name,
       logo,
       passwordResetUrl,
@@ -206,10 +173,9 @@ export async function sendResetPassword(
         value: passwordResetBody,
       },
     ],
-    subject: translate(language, "passwordResetTitle").replace(
-      "{{vendorName}}",
-      client.tenant.name,
-    ),
+    subject: t("reset_password_subject", {
+      vendorName: client.tenant.name,
+    }),
   });
 }
 
@@ -220,13 +186,6 @@ export async function sendValidateEmailAddress(
   code: string,
   state: string,
 ) {
-  // const response = await env.AUTH_TEMPLATES.get(
-  //   "templates/email/verify-email.liquid",
-  // );
-
-  const language = client.tenant.language || "sv";
-  const locale = getLocale(language);
-
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
@@ -240,7 +199,6 @@ export async function sendValidateEmailAddress(
   const sendEmailValidationTemplateString = await engine.render(
     sendEmailValidationUniversalTemplate,
     {
-      ...locale,
       vendorName: client.tenant.name,
       logo,
       emailValidationUrl,
@@ -271,9 +229,8 @@ export async function sendValidateEmailAddress(
         value: emailValidationBody,
       },
     ],
-    subject: translate(language, "verifyEmailTitle").replace(
-      "{{vendorName}}",
-      client.tenant.name,
-    ),
+    subject: t("verify_email_title", {
+      vendorName: client.tenant.name,
+    }),
   });
 }
