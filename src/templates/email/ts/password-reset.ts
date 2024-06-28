@@ -214,12 +214,12 @@ export const passwordReset = `
                           <tbody>
                             <tr>
                               <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:18px;font-weight:500;line-height:21.6px;text-align:left;color:#14141A;">{{passwordResetTitle}}</div>
+                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:18px;font-weight:500;line-height:21.6px;text-align:left;color:#14141A;">{{reset_password_subject}}</div>
                               </td>
                             </tr>
                             <tr>
                               <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:16px;font-weight:400;line-height:19.2px;text-align:left;color:#88869F;">{{resetPasswordEmailClickToReset}}</div>
+                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:16px;font-weight:400;line-height:19.2px;text-align:left;color:#88869F;">{{reset_password_email_click_to_reset}}</div>
                               </td>
                             </tr>
                             <tr>
@@ -229,7 +229,7 @@ export const passwordReset = `
                                     <tr>
                                       <td align="center" bgcolor="{{buttonColor}}" role="presentation" style="border:none;border-radius:6px;cursor:auto;mso-padding-alt:15px 25px;background:{{buttonColor}};" valign="middle">
                                         <a href="{{passwordResetUrl}}" style="display:inline-block;background:{{buttonColor}};color:#ffffff;font-family:KHTeka, Helvetica, sans-serif;font-size:16px;font-weight:normal;line-height:20px;margin:0;text-decoration:none;text-transform:none;padding:15px 25px;mso-padding-alt:0px;border-radius:6px;" target="_blank">
-                                          {{resetPasswordEmailReset}}
+                                          {{reset_password_email_cta}}
                                         </a>
                                       </td>
                                     </tr>
@@ -268,7 +268,7 @@ export const passwordReset = `
                               <img alt="" width="14" height="14" style="width: 14px;border:0;display:block;outline:none;text-decoration:none;height:14px;" src="https://imgproxy.dev.sesamy.cloud/unsafe/format:png/size:28:28/aHR0cHM6Ly9hc3NldHMuc2VzYW15LmRldi9zdGF0aWMvaW1hZ2VzL2VtYWlsL3F1ZXN0aW9uLnBuZw&#x3D;&#x3D;" />
                             </td>
                             <td>
-                              <div class="text-style">{{supportInfo}}</div>
+                              <div class="text-style">{{support_info}}</div>
                             </td>
                           </tr>
                         </table>
@@ -281,7 +281,7 @@ export const passwordReset = `
                             <tr>
                               <td align="center" bgcolor="#0E0E11" role="presentation" style="border:none;border-radius:6px;cursor:auto;mso-padding-alt:10px 25px;background:#0E0E11;" valign="middle">
                                 <a href="{{supportUrl}}" style="display:inline-block;background:#0E0E11;color:#ffffff;font-family:KHTeka, Helvetica, sans-serif;font-size:14px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:6px;" target="_blank">
-                                  {{contactUs}}
+                                  {{contact_us}}
                                 </a>
                               </td>
                             </tr>
@@ -296,7 +296,7 @@ export const passwordReset = `
                     </tr>
                     <tr>
                       <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:14px;font-weight:400;line-height:16.8px;text-align:left;color:#88869F;">{{copyright}}</div>
+                        <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:14px;font-weight:400;line-height:16.8px;text-align:left;color:#88869F;">{{copyright_sesamy}}</div>
                       </td>
                     </tr>
                   </tbody>

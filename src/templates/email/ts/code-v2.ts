@@ -214,12 +214,12 @@ export const codeV2 = `
                           <tbody>
                             <tr>
                               <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:18px;font-weight:500;line-height:21.6px;text-align:left;color:#14141A;">{{welcomeToYourAccount}}</div>
+                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:18px;font-weight:500;line-height:21.6px;text-align:left;color:#14141A;">{{welcome_to_your_account}}</div>
                               </td>
                             </tr>
                             <tr>
                               <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:16px;font-weight:400;line-height:19.2px;text-align:left;color:#88869F;">{{codeEmailEnterCode}}</div>
+                                <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:16px;font-weight:400;line-height:19.2px;text-align:left;color:#88869F;">{{code_email_enter_code}}</div>
                               </td>
                             </tr>
                             <tr>
@@ -235,7 +235,7 @@ export const codeV2 = `
                                   <tr>
                                     <td align="center" style="padding-top: 6px;">
                                       <div class="text-style" style="font-size: 16px; line-height: 19.2px;">
-                                        {{codeValid30Mins}}
+                                        {{code_valid_30_minutes}}
                                       </div>
                                     </td>
                                   </tr>
@@ -273,7 +273,7 @@ export const codeV2 = `
                               <img alt="" width="14" height="14" style="width: 14px;border:0;display:block;outline:none;text-decoration:none;height:14px;" src="https://imgproxy.dev.sesamy.cloud/unsafe/format:png/size:28:28/aHR0cHM6Ly9hc3NldHMuc2VzYW15LmRldi9zdGF0aWMvaW1hZ2VzL2VtYWlsL3F1ZXN0aW9uLnBuZw&#x3D;&#x3D;" />
                             </td>
                             <td>
-                              <div class="text-style">{{supportInfo}}</div>
+                              <div class="text-style">{{support_info}}</div>
                             </td>
                           </tr>
                         </table>
@@ -286,7 +286,7 @@ export const codeV2 = `
                             <tr>
                               <td align="center" bgcolor="#0E0E11" role="presentation" style="border:none;border-radius:6px;cursor:auto;mso-padding-alt:10px 25px;background:#0E0E11;" valign="middle">
                                 <a href="{{supportUrl}}" style="display:inline-block;background:#0E0E11;color:#ffffff;font-family:KHTeka, Helvetica, sans-serif;font-size:14px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:6px;" target="_blank">
-                                  {{contactUs}}
+                                  {{contact_us}}
                                 </a>
                               </td>
                             </tr>
@@ -301,7 +301,7 @@ export const codeV2 = `
                     </tr>
                     <tr>
                       <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:14px;font-weight:400;line-height:16.8px;text-align:left;color:#88869F;">{{copyright}}</div>
+                        <div style="font-family:KHTeka, Helvetica, sans-serif;font-size:14px;font-weight:400;line-height:16.8px;text-align:left;color:#88869F;">{{copyright_sesamy}}</div>
                       </td>
                     </tr>
                   </tbody>
