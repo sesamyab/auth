@@ -226,9 +226,6 @@ export async function sendValidateEmailAddress(
   code: string,
   state: string,
 ) {
-  const language = client.tenant.language || "sv";
-  const locale = getLocale(language);
-
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
@@ -242,12 +239,19 @@ export async function sendValidateEmailAddress(
   const sendEmailValidationTemplateString = await engine.render(
     sendEmailValidationUniversalTemplate,
     {
-      ...locale,
       vendorName: client.tenant.name,
       logo,
       emailValidationUrl,
       supportUrl: client.tenant.support_url || "https://support.sesamy.com",
       buttonColor: client.tenant.primary_color || "#7d68f4",
+      welcomeToYourAccount: t("welcome_to_your_account"),
+      verifyEmailClickToVerify: t("verify_email_click_to_verify"),
+      verifyEmailVerify: t("verify_email_verify"),
+      resetPasswordEmailClickToReset: t("reset_password_email_click_to_reset"),
+      resetPasswordEmailReset: t("reset_password_email_reset"),
+      supportInfo: t("support_info"),
+      contactUs: t("contact_us"),
+      coptyright: t("copyright_sesamy"),
     },
   );
   const sendEmailValidationTemplate = engine.parse(
