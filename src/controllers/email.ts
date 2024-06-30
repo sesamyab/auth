@@ -251,7 +251,7 @@ export async function sendValidateEmailAddress(
       resetPasswordEmailReset: t("reset_password_email_reset"),
       supportInfo: t("support_info"),
       contactUs: t("contact_us"),
-      coptyright: t("copyright_sesamy"),
+      copyright: t("copyright_sesamy"),
     },
   );
   const sendEmailValidationTemplate = engine.parse(
