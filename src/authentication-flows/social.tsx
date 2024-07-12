@@ -1,12 +1,7 @@
 import { Context } from "hono";
-import { Apple } from "arctic";
-import {
-  AuthorizationResponseType,
-  AuthParams,
-  Client,
-  Env,
-  LoginState,
-} from "../types";
+import { Apple, Facebook, Google, generateCodeVerifier } from "arctic";
+import { getCookie, setCookie, deleteCookie } from "hono/cookie";
+import { AuthParams, Client, Env, LoginState } from "../types";
 import { setSilentAuthCookies } from "../helpers/silent-auth-cookie-new";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
 import { parseJwt } from "../utils/parse-jwt";
@@ -20,18 +15,18 @@ import { getPrimaryUserByEmailAndProvider } from "../utils/users";
 import UserNotFound from "../components/UserNotFoundPage";
 import { fetchVendorSettings } from "../utils/fetchVendorSettings";
 import { createLogMessage } from "../utils/create-log-message";
-import { setSearchParams } from "../utils/url";
+import { Vipps } from "./oauth2-adapters/vipps";
 
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
-  connection: string,
+  connectionName: string,
   authParams: AuthParams,
 ) {
-  const connectionInstance = client.connections.find(
-    (p) => p.name === connection,
-  );
-  if (!connectionInstance) {
+  const { env } = ctx;
+
+  const connection = client.connections.find((p) => p.name === connectionName);
+  if (!connection) {
     ctx.set("client_id", client.id);
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_LOGIN,
@@ -42,45 +37,77 @@ export async function socialAuth(
     throw new HTTPException(403, { message: "Connection Not Found" });
   }
 
-  const state = stateEncode({ authParams, connection });
+  const state = stateEncode({ authParams, connection: connectionName });
 
-  const oauthLoginUrl = new URL(connectionInstance.authorization_endpoint!);
+  let url: URL;
 
-  setSearchParams(oauthLoginUrl, {
-    scope: connectionInstance.scope,
-    client_id: connectionInstance.client_id,
-    redirect_uri: `${ctx.env.ISSUER}callback`,
-    response_type: connectionInstance.response_type,
-    response_mode: connectionInstance.response_mode,
-    state,
-  });
+  switch (connection.name) {
+    case "google-oauth2":
+      const google = new Google(
+        connection.client_id!,
+        connection.client_secret!,
+        `${env.ISSUER}callback`,
+      );
+      const codeVerifyer = generateCodeVerifier();
+      setCookie(ctx, "code_verifyer", codeVerifyer, {
+        httpOnly: true,
+        maxAge: 300,
+      });
+      url = await google.createAuthorizationURL(state, codeVerifyer, {
+        scopes: ["profile", "email"],
+      });
+      break;
+    case "apple":
+      const apple = new Apple(
+        {
+          clientId: connection.client_id!,
+          teamId: connection.team_id!,
+          keyId: connection.kid!,
+          certificate: connection
+            .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+            .replace(/-----END PRIVATE KEY-----/, "")
+            .replace(/\s/g, ""),
+        },
+        `${env.ISSUER}callback`,
+      );
 
-  return ctx.redirect(oauthLoginUrl.href);
+      url = await apple.createAuthorizationURL(state, {
+        scopes: ["name", "email"],
+      });
+    case "facebook":
+      const facebook = new Facebook(
+        connection.client_id!,
+        connection.client_secret!,
+        `${env.ISSUER}callback`,
+      );
+
+      url = await facebook.createAuthorizationURL(state, {
+        scopes: ["email"],
+      });
+    case "vipps":
+      const vipps = new Vipps(
+        connection.client_id!,
+        connection.client_secret!,
+        `${env.ISSUER}callback`,
+      );
+
+      url = await vipps.createAuthorizationURL(state, {
+        scopes: ["email", "phoneNumber", "name", "address", "birthDate"],
+      });
+      break;
+    default:
+      throw new HTTPException(400, {
+        message: "Strategy not supported",
+      });
+  }
+
+  return ctx.redirect(url.href);
 }
 
 interface socialAuthCallbackParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
   state: LoginState;
   code: string;
-}
-
-function getProfileData(profile: any) {
-  const {
-    iss,
-    azp,
-    aud,
-    at_hash,
-    iat,
-    exp,
-    hd,
-    jti,
-    nonce,
-    auth_time,
-    nonce_supported,
-    ...profileData
-  } = profile;
-
-  return profileData;
 }
 
 export async function socialAuthCallback({
@@ -126,52 +153,99 @@ export async function socialAuthCallback({
     });
   }
 
+  const code_verifyer = getCookie(ctx, "code_verifyer");
+
   let userinfo: any;
-  if (connection.name === "apple") {
-    const apple = new Apple(
-      {
-        clientId: connection.client_id!,
-        teamId: connection.team_id!,
-        keyId: connection.kid!,
-        certificate: connection
-          .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
-          .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, ""),
-      },
-      `${env.ISSUER}callback`,
-    );
 
-    const tokens = await apple.validateAuthorizationCode(code);
-    userinfo = parseJwt(tokens.idToken);
-  } else {
-    const oauth2Client = env.oauth2ClientFactory.create(
-      {
-        // TODO: The types here are optional which isn't correct..
-        ...connection,
-        client_id: connection.client_id!,
-        authorization_endpoint: connection.authorization_endpoint!,
-        token_endpoint: connection.token_endpoint!,
-        scope: connection.scope!,
-      },
-      `${env.ISSUER}callback`,
-    );
-
-    const token = await oauth2Client.exchangeCodeForTokenResponse(
-      code,
-      connection.token_exchange_basic_auth,
-    );
-
-    if (connection.userinfo_endpoint) {
-      userinfo = getProfileData(
-        await oauth2Client.getUserProfile(token.access_token),
+  switch (connection.name) {
+    case "apple":
+      const apple = new Apple(
+        {
+          clientId: connection.client_id!,
+          teamId: connection.team_id!,
+          keyId: connection.kid!,
+          certificate: connection
+            .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+            .replace(/-----END PRIVATE KEY-----/, "")
+            .replace(/\s/g, ""),
+        },
+        `${env.ISSUER}callback`,
       );
-    } else if (token.id_token) {
-      userinfo = getProfileData(parseJwt(token.id_token));
-    } else {
-      throw new HTTPException(500, {
-        message: "No id_token or userinfo endpoint availeble",
+
+      const appleTokens = await apple.validateAuthorizationCode(code);
+      userinfo = parseJwt(appleTokens.idToken);
+      break;
+    case "google-oauth2":
+      if (!code_verifyer) {
+        throw new HTTPException(400, {
+          message: "Code verifier not found",
+        });
+      }
+
+      const google = new Google(
+        connection.client_id!,
+        connection.client_secret!,
+        `${env.ISSUER}callback`,
+      );
+
+      const googleTokens = await google.validateAuthorizationCode(
+        code,
+        code_verifyer,
+      );
+      userinfo = parseJwt(googleTokens.idToken);
+    case "facebook":
+      const facebook = new Facebook(
+        connection.client_id!,
+        connection.client_secret!,
+        `${env.ISSUER}callback`,
+      );
+
+      const facebookTokens = await facebook.validateAuthorizationCode(code);
+      const facebookUserinfoUrl = new URL("https://graph.facebook.com/me");
+      facebookUserinfoUrl.searchParams.set(
+        "access_token",
+        facebookTokens.accessToken,
+      );
+      facebookUserinfoUrl.searchParams.set(
+        "fields",
+        ["id", "name", "picture", "email"].join(","),
+      );
+      const facebookResponse = await fetch(facebookUserinfoUrl);
+      if (!facebookResponse.ok) {
+        throw new HTTPException(400, {
+          message: "Failed to fetch user profile",
+        });
+      }
+      userinfo = facebookResponse.json();
+    case "vipps":
+      const vipps = new Vipps(
+        connection.client_id!,
+        connection.client_secret!,
+        `${env.ISSUER}callback`,
+      );
+
+      const vippsTokens = await vipps.validateAuthorizationCode(code);
+      const vippsUserinfoUrl = new URL("https://graph.facebook.com/me");
+      vippsUserinfoUrl.searchParams.set(
+        "access_token",
+        vippsTokens.accessToken,
+      );
+      vippsUserinfoUrl.searchParams.set(
+        "fields",
+        ["id", "name", "picture", "email"].join(","),
+      );
+      const vippsResponse = await fetch(vippsUserinfoUrl);
+      if (!vippsResponse.ok) {
+        throw new HTTPException(400, {
+          message: "Failed to fetch user profile",
+        });
+      }
+      userinfo = vippsResponse.json();
+      break;
+    default:
+      throw new HTTPException(400, {
+        message: "Strategy not supported",
       });
-    }
   }
 
   const { sub, email: emailRaw, ...profileData } = userinfo;
@@ -238,6 +312,8 @@ export async function socialAuthCallback({
     await ctx.env.data.logs.create(client.tenant_id, log);
   }
 
+  deleteCookie(ctx, "code_verifyer");
+
   const sessionId = await setSilentAuthCookies(
     env,
     client.tenant_id,
@@ -245,7 +321,7 @@ export async function socialAuthCallback({
     user,
   );
 
-  const authResponse = generateAuthResponse({
+  return generateAuthResponse({
     ctx,
     tenantId: client.tenant_id,
     sid: sessionId,
@@ -254,6 +330,4 @@ export async function socialAuthCallback({
     authParams: state.authParams,
     user,
   });
-
-  return authResponse;
 }
