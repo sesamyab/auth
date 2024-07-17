@@ -1,13 +1,6 @@
 // TODO - move this file to src/routes/oauth2/login.ts
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import {
-  Env,
-  User,
-  AuthorizationResponseType,
-  Client,
-  Var,
-  LogTypes,
-} from "../../types";
+import { Env, User, Client, Var, LogTypes } from "../../types";
 import ResetPasswordPage from "../../components/ResetPasswordPage";
 import validatePassword from "../../utils/validatePassword";
 import {
@@ -22,7 +15,6 @@ import EnterPasswordPage from "../../components/EnterPasswordPage";
 import EnterEmailPage from "../../components/EnterEmailPage";
 import EnterCodePage from "../../components/EnterCodePage";
 import SignupPage from "../../components/SignUpPage";
-import UnverifiedEmail from "../../components/UnverifiedEmailPage";
 import MessagePage from "../../components/Message";
 import EmailValidatedPage from "../../components/EmailValidatedPage";
 import { UniversalLoginSession } from "../../adapters/interfaces/UniversalLoginSession";
@@ -247,7 +239,12 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         } else if (customException.code === "EMAIL_NOT_VERIFIED") {
           // login2 looks a bit better - https://login2.sesamy.dev/unverified-email
           return ctx.html(
-            <UnverifiedEmail vendorSettings={vendorSettings} />,
+            <MessagePage
+              vendorSettings={vendorSettings}
+              state={state}
+              message={i18next.t("unverified_email")}
+              spamReminder
+            />,
             400,
           );
         }
@@ -529,6 +526,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           message={i18next.t("forgot_password_email_sent")}
           vendorSettings={vendorSettings}
           state={state}
+          spamReminder
         />,
       );
     },
@@ -1003,9 +1001,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         return ctx.html(
           <MessagePage
             message={i18next.t("validate_email_body")}
-            pageTitle={i18next.t("validate_email_title")}
             vendorSettings={vendorSettings}
             state={state}
+            spamReminder
           />,
         );
       } catch (err: any) {
