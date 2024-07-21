@@ -5,13 +5,13 @@ import { TenantsDataAdapter } from "./Tenants";
 import { TicketsAdapter } from "./Tickets";
 import { UserDataAdapter } from "./Users";
 import { LogsDataAdapter } from "./Logs";
-import { ConnectionsAdapter } from "./Connections";
 import { KeysAdapter } from "./Keys";
 import {
   ApplicationsAdapter,
   AuthenticationCodesAdapter,
   BrandingAdapter,
   CodesAdapter,
+  ConnectionsAdapter,
   DomainsAdapter,
   HooksAdapter,
   OTPAdapter,

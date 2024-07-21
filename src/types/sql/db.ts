@@ -9,11 +9,16 @@ import {
   SqlUniversalLoginSession,
   SqlLog,
 } from "../";
-import { Connection } from "../Connection";
 import { SqlBranding } from "./Branding";
 import { SqlAuthenticationCode } from "./AuthenticationCode";
 import { SqlUser } from "./User";
-import { Application, Code, Domain, Hook } from "@authhero/adapter-interfaces";
+import {
+  Application,
+  Code,
+  Connection,
+  Domain,
+  Hook,
+} from "@authhero/adapter-interfaces";
 
 // TODO: Update the colums to match the session entity
 interface SqlSession {

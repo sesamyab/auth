@@ -1,6 +1,6 @@
 import { Kysely } from "kysely";
 import { Database, PartialClient } from "../../../types";
-import { connectionSchema } from "../../../types/Connection";
+import { connectionSchema } from "@authhero/adapter-interfaces";
 import { HTTPException } from "hono/http-exception";
 import { removeNullProperties } from "../helpers/remove-nulls";
 

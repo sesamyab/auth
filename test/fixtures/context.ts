@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import {
   Application,
+  ConnectionInsert,
   Domain,
   OTP,
   SessionInsert,
@@ -23,7 +24,6 @@ import { migrateToLatest } from "../../migrate/migrate";
 import SQLite from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import { Database } from "../../src/types";
-import { ConnectionInsert } from "../../src/types/Connection";
 
 interface ContextFixtureParams {
   headers?: { [key: string]: string };

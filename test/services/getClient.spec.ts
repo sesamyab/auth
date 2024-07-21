@@ -6,8 +6,7 @@ import {
   AuthorizationResponseMode,
   Tenant,
 } from "../../src/types";
-import { Connection } from "../../src/types/Connection";
-import { Application, Domain } from "@authhero/adapter-interfaces";
+import { Application, Connection, Domain } from "@authhero/adapter-interfaces";
 
 const TENANT_FIXTURE: Tenant = {
   id: "tenantId",

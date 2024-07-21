@@ -1,5 +1,4 @@
-import { Application, Domain } from "@authhero/adapter-interfaces";
-import { Connection } from "../../src/types/Connection";
+import { Application, Connection, Domain } from "@authhero/adapter-interfaces";
 import {
   AuthorizationResponseMode,
   AuthorizationResponseType,

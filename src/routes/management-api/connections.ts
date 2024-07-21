@@ -4,11 +4,11 @@ import { Env, totalsSchema } from "../../types";
 import { HTTPException } from "hono/http-exception";
 import { auth0QuerySchema } from "../../types/auth0/Query";
 import { parseSort } from "../../utils/sort";
+import authenticationMiddleware from "../../middlewares/authentication";
 import {
   connectionInsertSchema,
   connectionSchema,
-} from "../../types/Connection";
-import authenticationMiddleware from "../../middlewares/authentication";
+} from "@authhero/adapter-interfaces";
 
 const connectionsWithTotalsSchema = totalsSchema.extend({
   connections: z.array(connectionSchema),
