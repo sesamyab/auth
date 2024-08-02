@@ -89,8 +89,9 @@ export async function socialAuthCallback({
   code,
 }: socialAuthCallbackParams) {
   const { env } = ctx;
-  ctx.set("client_id", state.authParams.client_id);
   const client = await getClient(env, state.authParams.client_id);
+  ctx.set("client_id", client.id);
+  ctx.set("tenant_id", client.tenant_id);
 
   const connection = client.connections.find(
     (p) => p.name === state.connection,
@@ -198,7 +199,8 @@ export async function socialAuthCallback({
   } else {
     try {
       await preUserSignupHook(ctx, client, ctx.env.data, email);
-    } catch (err) {
+    } catch (err: any) {
+      console.log("error", err.message);
       const vendorSettings = await fetchVendorSettings(
         env,
         client.id,

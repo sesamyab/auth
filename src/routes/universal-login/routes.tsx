@@ -68,6 +68,7 @@ async function initJSXRoute(
 
   const client = await getClient(env, session.authParams.client_id);
   ctx.set("client_id", client.id);
+  ctx.set("tenant_id", client.tenant_id);
 
   const tenant = await env.data.tenants.get(client.tenant_id);
   if (!tenant) {
@@ -94,7 +95,6 @@ async function handleLogin(
   if (session.authParams.redirect_uri) {
     ctx.set("userName", user.email);
     ctx.set("connection", user.connection);
-    ctx.set("client_id", client.id);
     ctx.set("userId", user.user_id);
 
     return generateAuthResponse({
