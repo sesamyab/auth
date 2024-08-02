@@ -40,6 +40,10 @@ export async function fetchVendorSettings(
       `${env.API_URL}/profile/vendors/${vendorId}/style`,
     );
 
+    if (!vendorSettingsRes.ok) {
+      throw new Error("Failed to fetch vendor settings");
+    }
+
     const vendorSettingsRaw = await vendorSettingsRes.json();
 
     const vendorSettings = vendorSettingsSchema.parse(vendorSettingsRaw);

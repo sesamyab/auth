@@ -12,6 +12,7 @@ import { waitUntil } from "../utils/wait-until";
 import { pemToBuffer } from "../utils/jwt";
 import { createJWT } from "oslo/jwt";
 import { TimeSpan } from "oslo";
+import { z } from "zod";
 
 async function createHookToken(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -48,9 +49,9 @@ async function createHookToken(
 async function invokeHook(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   hook: Hook,
-  data: any,
+  payload: any,
 ) {
-  const token = await createHookToken(ctx, data.trigger_id);
+  const token = await createHookToken(ctx, payload.trigger_id);
 
   const response = await fetch(hook.url, {
     method: "POST",
@@ -58,29 +59,38 @@ async function invokeHook(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
-
   if (!response.ok) {
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_HOOK,
-      description: `Failed webhook invocation fror ${data.trigger_id}: ${hook.url}`,
+      description: `Failed webhook invocation for ${payload.trigger_id}: ${hook.url}`,
     });
 
-    await data.logs.create(ctx.var.tenant_id, log);
+    await ctx.env.data.logs.create(ctx.var.tenant_id || "", log);
   }
 
   if (response.headers.get("content-type")?.startsWith("application/json")) {
     const body = await response.json();
-    const hookResponse = hookResponseSchema.parse(body);
-
-    if (hookResponse.status === "fail") {
+    let hookResponse: z.infer<typeof hookResponseSchema> | undefined;
+    try {
+      hookResponse = hookResponseSchema.parse(body);
+    } catch (e: any) {
       const log = createLogMessage(ctx, {
-        type: LogTypes.SUCCESS_API_OPERATION,
-        description: `Failed by webhook: ${hook.url}, ${hookResponse.message}`,
+        type: LogTypes.FAILED_HOOK,
+        description: "Invalid webhook response format",
       });
 
-      await data.logs.create(ctx.var.tenant_id, log);
+      await ctx.env.data.logs.create(ctx.var.tenant_id || "", log);
+    }
+
+    if (hookResponse?.status === "fail") {
+      const log = createLogMessage(ctx, {
+        type: LogTypes.FAILED_HOOK,
+        description: "Failed by webhook",
+      });
+
+      await ctx.env.data.logs.create(ctx.var.tenant_id || "", log);
 
       throw new HTTPException(400, {
         message: hookResponse.message,
@@ -92,15 +102,15 @@ async function invokeHook(
 async function invokeHooks(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   hooks: Hook[],
-  data: any,
+  payload: any,
 ) {
   const enabledHooks = hooks.filter((hook) => hook.enabled);
   enabledHooks.sort(({ priority: a = 0 }, { priority: b = 0 }) => b - a);
   for await (const hook of enabledHooks) {
     if (hook.synchronous) {
-      await invokeHook(ctx, hook, data);
+      await invokeHook(ctx, hook, payload);
     } else {
-      waitUntil(ctx, invokeHook(ctx, hook, data));
+      waitUntil(ctx, invokeHook(ctx, hook, payload));
     }
   }
 }
