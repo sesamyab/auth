@@ -170,7 +170,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
   }
 
   // REFRESH TOKEN
-  // if (authParams.scope?.split(' ').includes('offline_access')) {
+  // if (authParams.scope?.split(" ").includes("offline_access")) {
   //   const { refresh_token } = await createRefreshToken(params);
   //   tokenResponse.refresh_token = refresh_token;
   // }

@@ -9,16 +9,54 @@ import { Context } from "hono";
 import { Var, Env, hookResponseSchema } from "../types";
 import { HTTPException } from "hono/http-exception";
 import { waitUntil } from "../utils/wait-until";
+import { pemToBuffer } from "../utils/jwt";
+import { createJWT } from "oslo/jwt";
+import { TimeSpan } from "oslo";
+
+async function createHookToken(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  trigger_id: string,
+) {
+  const { env } = ctx;
+
+  const certificates = await env.data.keys.list();
+  const certificate = certificates[certificates.length - 1];
+
+  const keyBuffer = pemToBuffer(certificate.private_key);
+
+  return createJWT(
+    "RS256",
+    keyBuffer,
+    {
+      aud: env.ISSUER,
+      scope: "webhook",
+      sub: "auth",
+      iss: env.ISSUER,
+      tenant_id: ctx.var.tenant_id,
+      trigger_id,
+    },
+    {
+      includeIssuedTimestamp: true,
+      expiresIn: new TimeSpan(1, "m"),
+      headers: {
+        kid: certificate.kid,
+      },
+    },
+  );
+}
 
 async function invokeHook(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   hook: Hook,
   data: any,
 ) {
+  const token = await createHookToken(ctx, data.trigger_id);
+
   const response = await fetch(hook.url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
   });
