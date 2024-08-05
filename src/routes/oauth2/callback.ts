@@ -1,4 +1,4 @@
-import { socialAuthCallback } from "../../authentication-flows";
+import { oauth2Callback } from "../../authentication-flows";
 import { Env, Var } from "../../types";
 import { stateDecode } from "../../utils/stateEncode";
 import { HTTPException } from "hono/http-exception";
@@ -75,7 +75,7 @@ export const callbackRoutes = new OpenAPIHono<{
         throw new HTTPException(400, { message: "Code is required" });
       }
 
-      return socialAuthCallback({
+      return oauth2Callback({
         ctx,
         state: loginState,
         code,
@@ -150,7 +150,7 @@ export const callbackRoutes = new OpenAPIHono<{
       }
 
       if (code) {
-        return socialAuthCallback({
+        return oauth2Callback({
           ctx,
           state: loginState,
           code,
