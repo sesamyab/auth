@@ -234,13 +234,6 @@ export async function socialAuthCallback({
       profileData: JSON.stringify(profileData),
     });
     ctx.set("userId", user.user_id);
-
-    // TODO: this should really be handled in the hook
-    const log = createLogMessage(ctx, {
-      type: LogTypes.SUCCESS_SIGNUP,
-      description: "Successful signup",
-    });
-    await ctx.env.data.logs.create(client.tenant_id, log);
   }
 
   return generateAuthResponse({
