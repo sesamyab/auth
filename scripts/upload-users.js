@@ -1,7 +1,49 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 
-const token = "add token here...";
+const token = "add token here";
+
+async function getExistingUsers(lastUserId) {
+  const per_page = 1;
+
+  const url = new URL("http://auth2.sesamy.com/api/v2/users");
+  url.searchParams.append("per_page", "1");
+  url.searchParams.append("sort", "user_id:1");
+  url.searchParams.append("include_totals", "false");
+
+  if (lastUserId) {
+    url.searchParams.append("q", `user_id:>${lastUserId}`);
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      "tenant-id": "A-bFAG1IGuW4vGQM3yhca",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch users. Status: ${response.status}, with error ${await response.text()}`,
+    );
+  }
+
+  const body = await response.json();
+  console.log(
+    "Body: ",
+    body.map((u) => u.user_id),
+  );
+
+  if (body.length === per_page) {
+    const lastUser = body[body.length - 1];
+    const lastUserId = lastUser.user_id;
+
+    return [...body, ...(await getExistingUsers(lastUserId))];
+  }
+
+  return body;
+}
 
 function getProviderAndId(id) {
   const [provider, userId] = id.split("|");
@@ -74,6 +116,8 @@ async function postUser(user) {
 }
 
 async function importUsers(filePath) {
+  // const existingUsers = await getExistingUsers();
+
   const fileStream = fs.createReadStream(filePath);
 
   const users = [];
@@ -94,4 +138,4 @@ async function importUsers(filePath) {
     });
 }
 
-importUsers("./data/feber.csv");
+importUsers("./data/fokus.csv");
