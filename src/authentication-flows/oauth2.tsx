@@ -83,7 +83,7 @@ function getProfileData(profile: any) {
   return profileData;
 }
 
-export async function socialAuthCallback({
+export async function oauth2Callback({
   ctx,
   state,
   code,

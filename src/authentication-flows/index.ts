@@ -1,4 +1,4 @@
 export * from "./ticket";
 export * from "./silent";
-export * from "./social";
+export * from "./oauth2";
 export * from "./universal";
