@@ -82,6 +82,8 @@ describe("Register password user", () => {
       per_page: 100,
       include_totals: true,
     });
+
+    expect(logs.length).toBe(1);
     expect(logs[0]).toMatchObject({
       type: "ss",
       tenant_id: "tenantId",

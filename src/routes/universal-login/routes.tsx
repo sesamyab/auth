@@ -966,12 +966,16 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx,
         state,
       );
+
+      const connection = "Username-Password-Authentication";
       ctx.set("client_id", client.id);
+      ctx.set("connection", connection);
 
       const email = session.authParams.username;
       if (!email) {
         throw new HTTPException(400, { message: "Username required" });
       }
+      ctx.set("userName", email);
 
       if (loginParams.password !== loginParams["re-enter-password"]) {
         return ctx.html(
@@ -1020,17 +1024,16 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         const newUser = await ctx.env.data.users.create(client.tenant_id, {
           user_id: `auth2|${userIdGenerate()}`,
           email,
+          // TODO: this should be set by the adapter
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           email_verified,
           provider: "auth2",
-          connection: "Username-Password-Authentication",
+          connection,
           is_social: false,
           login_count: 0,
         });
         ctx.set("userId", newUser.user_id);
-        ctx.set("userName", newUser.email);
-        ctx.set("connection", newUser.connection);
 
         // fetch the user again to get the user_id of the password user in case they have been linked
         const newPasswordUser = await getUserByEmailAndProvider({
@@ -1049,12 +1052,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           password: await bcryptjs.hash(loginParams.password, 10),
           algorithm: "bcrypt",
         });
-
-        const log = createLogMessage(ctx, {
-          type: LogTypes.SUCCESS_SIGNUP,
-          description: "Successful signup",
-        });
-        await ctx.env.data.logs.create(client.tenant_id, log);
 
         if (!email_verified) {
           await sendEmailVerificationEmail({

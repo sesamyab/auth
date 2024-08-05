@@ -10,6 +10,7 @@ import { Context } from "hono";
 import { Env, Var } from "../types";
 import { HTTPException } from "hono/http-exception";
 import { createLogMessage } from "../utils/create-log-message";
+import { waitUntil } from "../utils/wait-until";
 
 function createUserHooks(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -20,6 +21,15 @@ function createUserHooks(
     let result = await linkUsersHook(data)(tenant_id, user);
     // Invoke post-user-registration webhooks
     await postUserRegistrationWebhook(ctx, data)(tenant_id, result);
+
+    // Set the userId in the context
+    ctx.set("userId", result.user_id);
+
+    const log = createLogMessage(ctx, {
+      type: LogTypes.SUCCESS_SIGNUP,
+      description: "Successful signup",
+    });
+    waitUntil(ctx, ctx.env.data.logs.create(ctx.var.tenant_id!, log));
 
     return result;
   };
