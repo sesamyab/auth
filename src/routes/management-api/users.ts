@@ -1,4 +1,5 @@
 import { HTTPException } from "hono/http-exception";
+import bcryptjs from "bcryptjs";
 import userIdGenerate from "../../utils/userIdGenerate";
 import userIdParse from "../../utils/userIdParse";
 import { Env, Var } from "../../types";
@@ -342,6 +343,7 @@ export const userRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
                 .object({
                   ...userInsertSchema.shape,
                   verify_email: z.boolean(),
+                  password: z.string(),
                 })
                 .partial(),
             },
@@ -369,9 +371,16 @@ export const userRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       const { user_id } = ctx.req.valid("param");
 
       // verify_email is not persisted
-      const { verify_email, ...userFields } = body;
+      const { verify_email, password, ...userFields } = body;
 
-      if (userFields.email) {
+      const userToPatch = await ctx.env.data.users.get(tenant_id, user_id);
+
+      if (!userToPatch) {
+        throw new HTTPException(404);
+      }
+
+      // Check if the email is being changed to an existing email of another user
+      if (userFields.email && userFields.email !== userToPatch.email) {
         const existingUser = await getUsersByEmail(
           ctx.env.data.users,
           tenant_id,
@@ -389,12 +398,6 @@ export const userRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         }
       }
 
-      const userToPatch = await ctx.env.data.users.get(tenant_id, user_id);
-
-      if (!userToPatch) {
-        throw new HTTPException(404);
-      }
-
       if (userToPatch.linked_to) {
         throw new HTTPException(404, {
           // not the auth0 error message but I'd rather deviate here
@@ -402,15 +405,24 @@ export const userRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         });
       }
 
-      const result = await ctx.env.data.users.update(
-        tenant_id,
-        user_id,
-        userFields,
-      );
+      await ctx.env.data.users.update(tenant_id, user_id, userFields);
 
-      if (!result) {
-        // TODO - why would this fail?
-        throw new HTTPException(500);
+      if (password) {
+        const passwordUser = userToPatch.identities?.find(
+          (i) => i.connection === "Username-Password-Authentication",
+        );
+
+        if (!passwordUser) {
+          throw new HTTPException(400, {
+            message: "User does not have a password identity",
+          });
+        }
+
+        await ctx.env.data.passwords.update(tenant_id, {
+          user_id: `${passwordUser.provider}|${passwordUser.user_id}`,
+          password: bcryptjs.hashSync(password, 10),
+          algorithm: "bcrypt",
+        });
       }
 
       const patchedUser = await ctx.env.data.users.get(tenant_id, user_id);
