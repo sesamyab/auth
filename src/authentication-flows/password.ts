@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { Context } from "hono";
 import bcryptjs from "bcryptjs";
 import { Var, Env } from "../types";
@@ -110,6 +109,8 @@ export async function loginWithPassword(
     user.user_id,
   );
 
+  console.log("password", password);
+  console.log("authparams.password", authParams.password);
   const valid = await bcryptjs.compare(authParams.password, password);
 
   if (!valid) {
