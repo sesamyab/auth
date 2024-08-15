@@ -55,28 +55,26 @@ function getLogTypeByAuthFlow(authFlow?: AuthFlowType) {
 async function generateCode({
   ctx,
   client,
-  user,
+  sid,
   authParams,
 }: GenerateAuthResponseParams) {
   const { env } = ctx;
-  const code = nanoid();
+  const code_id = nanoid();
 
-  await env.data.authenticationCodes.create(client.tenant_id, {
-    user_id: user?.user_id || client.id,
-    authParams: {
-      client_id: authParams.client_id,
-      scope: authParams.scope,
-      response_type: authParams.response_type,
-      nonce: authParams.nonce,
-      state: authParams.state,
-    },
-    created_at: new Date().toISOString(),
+  if (!sid) {
+    // The code is connected to a session, so we need a session ID
+    throw new Error("Session ID is required for generating code");
+  }
+
+  await env.data.codes.create(client.tenant_id, {
+    login_id: sid,
     expires_at: new Date(Date.now() + 30 * 1000).toISOString(),
-    code,
+    code_id,
+    code_type: "otp",
   });
 
   const codeResponse: CodeResponse = {
-    code,
+    code: code_id,
     state: authParams.state,
   };
 
