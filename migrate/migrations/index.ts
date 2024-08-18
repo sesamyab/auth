@@ -45,6 +45,7 @@ import * as n44_codes from "./2024-07-26T10:18:00_codes";
 import * as n45_hookProperties from "./2024-07-26T14:18:00_hook-properties";
 import * as n46_loginAuth0Client from "./2024-08-01T14:19:00_login_auth0_client";
 import * as n47_loginAuth0Client from "./2024-08-01T15:52:00_login_state";
+import * as n48_saml from "./2024-08-16T13:45:00_saml";
 
 // These need to be in alphabetic order
 export default {
@@ -95,4 +96,5 @@ export default {
   n45_hookProperties,
   n46_loginAuth0Client,
   n47_loginAuth0Client,
+  n48_saml,
 };

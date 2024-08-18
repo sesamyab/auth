@@ -50,15 +50,15 @@ export const logoutRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       const cookie = ctx.req.header("cookie");
 
       if (cookie) {
-        const tokenState = getAuthCookie(client.tenant_id, cookie);
+        const tokenState = getAuthCookie(client.tenant.id, cookie);
         if (tokenState) {
           const session = await ctx.env.data.sessions.get(
-            client.tenant_id,
+            client.tenant.id,
             tokenState,
           );
           if (session) {
             const user = await ctx.env.data.users.get(
-              client.tenant_id,
+              client.tenant.id,
               session.user_id,
             );
             if (user) {
@@ -67,7 +67,7 @@ export const logoutRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
               ctx.set("connection", user.connection);
             }
           }
-          await ctx.env.data.sessions.remove(client.tenant_id, tokenState);
+          await ctx.env.data.sessions.remove(client.tenant.id, tokenState);
         }
       }
       const log = createLogMessage(ctx, {
@@ -75,12 +75,12 @@ export const logoutRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         description: "User successfully logged out",
       });
 
-      await ctx.env.data.logs.create(client.tenant_id, log);
+      await ctx.env.data.logs.create(client.tenant.id, log);
 
       return new Response("Redirecting", {
         status: 302,
         headers: {
-          "set-cookie": clearAuthCookie(client.tenant_id),
+          "set-cookie": clearAuthCookie(client.tenant.id),
           location: redirectUri,
         },
       });

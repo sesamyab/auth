@@ -61,7 +61,7 @@ async function generateCode({
   const { env } = ctx;
   const code = nanoid();
 
-  await env.data.authenticationCodes.create(client.tenant_id, {
+  await env.data.authenticationCodes.create(client.tenant.id, {
     user_id: user?.user_id || client.id,
     authParams: {
       client_id: authParams.client_id,
@@ -89,12 +89,12 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
 
   if (authFlow !== "refresh-token" && user) {
     // Invoke webhooks
-    await postUserLoginWebhook(ctx, env.data)(client.tenant_id, user);
+    await postUserLoginWebhook(ctx, env.data)(client.tenant.id, user);
 
     // Update the user's last login. Skip for client_credentials and refresh_tokens
     waitUntil(
       ctx,
-      ctx.env.data.users.update(client.tenant_id, user.user_id, {
+      ctx.env.data.users.update(client.tenant.id, user.user_id, {
         last_login: new Date().toISOString(),
         login_count: user.login_count + 1,
         // This is specific to cloudflare
@@ -116,7 +116,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
       scope: authParams.scope || "",
       sub: user?.user_id || client.id,
       iss: env.ISSUER,
-      azp: client.tenant_id,
+      azp: client.tenant.id,
     },
     {
       includeIssuedTimestamp: true,
@@ -184,7 +184,7 @@ export async function generateAuthData(params: GenerateAuthResponseParams) {
     type: getLogTypeByAuthFlow(params.authFlow),
     description: "Successful login",
   });
-  waitUntil(ctx, ctx.env.data.logs.create(client.tenant_id, log));
+  waitUntil(ctx, ctx.env.data.logs.create(client.tenant.id, log));
 
   switch (params.authParams.response_type) {
     case AuthorizationResponseType.CODE:
@@ -205,9 +205,9 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
   if (user) {
     const sessionId =
       sid ||
-      (await setSilentAuthCookies(ctx.env, client.tenant_id, client.id, user));
+      (await setSilentAuthCookies(ctx.env, client.tenant.id, client.id, user));
 
-    headers.set("set-cookie", serializeAuthCookie(client.tenant_id, sessionId));
+    headers.set("set-cookie", serializeAuthCookie(client.tenant.id, sessionId));
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {

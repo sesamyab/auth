@@ -3,8 +3,8 @@ import { Env } from "../types";
 
 const DefaultSettingsSchema = z.object({
   allowed_logout_urls: z.array(z.string()).optional(),
-  allowed_web_origins: z.array(z.string()).optional(),
-  allowed_callback_urls: z.array(z.string()).optional(),
+  web_origins: z.array(z.string()).optional(),
+  callbacks: z.array(z.string()).optional(),
   connections: z
     .array(
       z.object({
@@ -52,12 +52,13 @@ export type DefaultSettings = z.infer<typeof DefaultSettingsSchema>;
 export async function getDefaultSettings(env: Env): Promise<DefaultSettings> {
   try {
     const defaultSetttingsClient = await env.data.clients.get("DEFAULT_CLIENT");
+
     return DefaultSettingsSchema.parse(defaultSetttingsClient);
   } catch (err: any) {
     return {
       allowed_logout_urls: [],
-      allowed_web_origins: [],
-      allowed_callback_urls: [],
+      web_origins: [],
+      callbacks: [],
       connections: [],
       domains: [],
       tenant: {

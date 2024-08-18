@@ -36,7 +36,7 @@ export async function validateCode(
 
   const client = await getClient(env, params.client_id);
 
-  const otps = await env.data.OTP.list(client.tenant_id, params.email);
+  const otps = await env.data.OTP.list(client.tenant.id, params.email);
   const otp = otps.find((otp) => otp.code === params.verification_code);
 
   if (!otp) {
@@ -44,11 +44,11 @@ export async function validateCode(
   }
 
   // TODO: disable for now
-  // await env.data.OTP.remove(client.tenant_id, otp.id);
+  // await env.data.OTP.remove(client.tenant.id, otp.id);
 
   const emailUser = await getPrimaryUserByEmailAndProvider({
     userAdapter: env.data.users,
-    tenant_id: client.tenant_id,
+    tenant_id: client.tenant.id,
     email: params.email,
     provider: "email",
   });
@@ -57,7 +57,7 @@ export async function validateCode(
     return emailUser;
   }
 
-  const user = await env.data.users.create(client.tenant_id, {
+  const user = await env.data.users.create(client.tenant.id, {
     user_id: `email|${userIdGenerate()}`,
     email: params.email,
     name: params.email,
@@ -78,7 +78,7 @@ export async function validateCode(
     description: "Successful signup",
   });
 
-  waitUntil(ctx, env.data.logs.create(client.tenant_id, log));
+  waitUntil(ctx, env.data.logs.create(client.tenant.id, log));
 
   return user;
 }
@@ -118,13 +118,13 @@ export async function sendEmailVerificationEmail({
     authParams,
   };
 
-  await env.data.logins.create(client.tenant_id, login);
+  await env.data.logins.create(client.tenant.id, login);
 
   const state = login.login_id;
 
   const code_id = generateOTP();
 
-  await env.data.codes.create(client.tenant_id, {
+  await env.data.codes.create(client.tenant.id, {
     code_id,
     code_type: "email_verification",
     login_id: login.login_id,

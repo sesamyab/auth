@@ -68,9 +68,9 @@ async function initJSXRoute(
 
   const client = await getClient(env, session.authParams.client_id);
   ctx.set("client_id", client.id);
-  ctx.set("tenant_id", client.tenant_id);
+  ctx.set("tenant_id", client.tenant.id);
 
-  const tenant = await env.data.tenants.get(client.tenant_id);
+  const tenant = await env.data.tenants.get(client.tenant.id);
   if (!tenant) {
     throw new HTTPException(400, { message: "Tenant not found" });
   }
@@ -391,7 +391,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       // this means the primary user could have a totally different email address
       const user = await getUserByEmailAndProvider({
         userAdapter: env.data.users,
-        tenant_id: client.tenant_id,
+        tenant_id: client.tenant.id,
         email: session.authParams.username,
         provider: "auth2",
       });
@@ -402,7 +402,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       try {
         const foundCode = await env.data.codes.get(
-          client.tenant_id,
+          client.tenant.id,
           code,
           "password_reset",
         );
@@ -421,7 +421,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           );
         }
 
-        await env.data.passwords.update(client.tenant_id, {
+        await env.data.passwords.update(client.tenant.id, {
           user_id: user.user_id,
           password: await bcryptjs.hash(password, 10),
           algorithm: "bcrypt",
@@ -429,7 +429,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
         // we could do this on the GET...
         if (!user.email_verified) {
-          await env.data.users.update(client.tenant_id, user.user_id, {
+          await env.data.users.update(client.tenant.id, user.user_id, {
             email_verified: true,
           });
         }
@@ -623,7 +623,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const user = await getPrimaryUserByEmail({
         userAdapter: env.data.users,
-        tenant_id: client.tenant_id,
+        tenant_id: client.tenant.id,
         email: params.username,
       });
       if (user) {
@@ -639,7 +639,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             description: "Public signup is disabled",
           });
 
-          await ctx.env.data.logs.create(client.tenant_id, log);
+          await ctx.env.data.logs.create(client.tenant.id, log);
 
           return ctx.html(
             <EnterEmailPage
@@ -656,7 +656,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       // Add the username to the state
       session.authParams.username = params.username;
-      await env.data.logins.update(client.tenant_id, session.login_id, session);
+      await env.data.logins.update(client.tenant.id, session.login_id, session);
 
       // we want to be able to override this with a value in the POST
       if (
@@ -686,7 +686,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ...otpAuthParams
       } = session.authParams;
 
-      await env.data.OTP.create(client.tenant_id, {
+      await env.data.OTP.create(client.tenant.id, {
         id: nanoid(),
         code,
         // is this a reasonable assumption?
@@ -761,7 +761,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const passwordUser = await getPrimaryUserByEmailAndProvider({
         userAdapter: ctx.env.data.users,
-        tenant_id: client.tenant_id,
+        tenant_id: client.tenant.id,
         email: session.authParams.username,
         provider: "auth2",
       });
@@ -845,13 +845,13 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           description: "Successful login",
         });
 
-        await ctx.env.data.logs.create(client.tenant_id, log);
+        await ctx.env.data.logs.create(client.tenant.id, log);
 
         return authResponse;
       } catch (err) {
         const user = await getPrimaryUserByEmailAndProvider({
           userAdapter: ctx.env.data.users,
-          tenant_id: client.tenant_id,
+          tenant_id: client.tenant.id,
           email: session.authParams.username,
           provider: "auth2",
         });
@@ -1003,12 +1003,12 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         );
       }
 
-      const otps = await env.data.OTP.list(client.tenant_id, email);
+      const otps = await env.data.OTP.list(client.tenant.id, email);
 
       try {
         const existingUser = await getUserByEmailAndProvider({
           userAdapter: ctx.env.data.users,
-          tenant_id: client.tenant_id,
+          tenant_id: client.tenant.id,
           email,
           provider: "auth2",
         });
@@ -1021,7 +1021,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           (otp) => !otp.used_at && otp.code === loginParams.code,
         );
 
-        const newUser = await ctx.env.data.users.create(client.tenant_id, {
+        const newUser = await ctx.env.data.users.create(client.tenant.id, {
           user_id: `auth2|${userIdGenerate()}`,
           email,
           // TODO: this should be set by the adapter
@@ -1038,7 +1038,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         // fetch the user again to get the user_id of the password user in case they have been linked
         const newPasswordUser = await getUserByEmailAndProvider({
           userAdapter: ctx.env.data.users,
-          tenant_id: client.tenant_id,
+          tenant_id: client.tenant.id,
           email,
           provider: "auth2",
         });
@@ -1047,7 +1047,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           throw new HTTPException(400, { message: "Invalid sign up" });
         }
 
-        await env.data.passwords.create(client.tenant_id, {
+        await env.data.passwords.create(client.tenant.id, {
           user_id: newPasswordUser.user_id,
           password: await bcryptjs.hash(loginParams.password, 10),
           algorithm: "bcrypt",
@@ -1134,7 +1134,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const user = await getUserByEmailAndProvider({
         userAdapter: env.data.users,
-        tenant_id: client.tenant_id,
+        tenant_id: client.tenant.id,
         email,
         provider: "auth2",
       });
@@ -1143,7 +1143,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       }
 
       const foundCode = await env.data.codes.get(
-        client.tenant_id,
+        client.tenant.id,
         code,
         "email_verification",
       );
@@ -1152,13 +1152,13 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         throw new HTTPException(400, { message: "Code not found or expired" });
       }
 
-      await env.data.users.update(client.tenant_id, user.user_id, {
+      await env.data.users.update(client.tenant.id, user.user_id, {
         email_verified: true,
       });
 
       const usersWithSameEmail = await getUsersByEmail(
         env.data.users,
-        client.tenant_id,
+        client.tenant.id,
         email,
       );
 
@@ -1183,7 +1183,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
         // now actually link this username-password user to the primary user
         if (primaryUsers.length === 1) {
-          await env.data.users.update(client.tenant_id, user.user_id, {
+          await env.data.users.update(client.tenant.id, user.user_id, {
             linked_to: primaryUsers[0].user_id,
           });
         }
@@ -1263,11 +1263,11 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       // Fetch the cookie
       const authCookie = getAuthCookie(
-        client.tenant_id,
+        client.tenant.id,
         ctx.req.header("cookie"),
       );
       const authSession = authCookie
-        ? await env.data.sessions.get(client.tenant_id, authCookie)
+        ? await env.data.sessions.get(client.tenant.id, authCookie)
         : null;
 
       if (!authSession) {
@@ -1275,7 +1275,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       }
 
       const user = await env.data.users.get(
-        client.tenant_id,
+        client.tenant.id,
         authSession.user_id,
       );
 
@@ -1321,11 +1321,11 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       // Fetch the cookie
       const authCookie = getAuthCookie(
-        client.tenant_id,
+        client.tenant.id,
         ctx.req.header("cookie"),
       );
       const authSession = authCookie
-        ? await env.data.sessions.get(client.tenant_id, authCookie)
+        ? await env.data.sessions.get(client.tenant.id, authCookie)
         : null;
 
       if (!authSession) {
@@ -1333,7 +1333,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       }
 
       const user = await env.data.users.get(
-        client.tenant_id,
+        client.tenant.id,
         authSession.user_id,
       );
 
@@ -1420,7 +1420,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const code = generateOTP();
 
-      await ctx.env.data.OTP.create(client.tenant_id, {
+      await ctx.env.data.OTP.create(client.tenant.id, {
         id: nanoid(),
         code,
         send: "link",

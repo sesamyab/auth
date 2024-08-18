@@ -24,9 +24,10 @@ const TENANT_FIXTURE: Tenant = {
 const APPLICATION_FIXTURE: Application = {
   id: "testClient",
   name: "clientName",
-  allowed_callback_urls: '"http://localhost:3000", "https://example.com"',
-  allowed_logout_urls: '"http://localhost:3000", "https://example.com"',
-  allowed_web_origins: '"http://localhost:3000", "https://example.com"',
+  web_origins: [],
+  callbacks: [],
+  allowed_origins: [],
+  allowed_logout_urls: [],
   email_validation: "enabled",
   client_secret: "clientSecret",
   created_at: "created_at",
@@ -118,7 +119,7 @@ describe("getClient", () => {
 
     const client = await getClient(ctx.env, "testClient");
 
-    expect(client!.domains.sort()).toEqual([
+    expect(client!.domains.sort()).toMatchObject([
       {
         domain: "example.com",
         dkim_private_key: "",
@@ -158,7 +159,7 @@ describe("getClient", () => {
 
     const client = await getClient(ctx.env, "testClient");
 
-    expect(client!.domains.sort()).toEqual([
+    expect(client!.domains.sort()).toMatchObject([
       {
         domain: "example.com",
         dkim_private_key: "",

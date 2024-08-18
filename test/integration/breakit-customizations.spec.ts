@@ -38,9 +38,10 @@ test("only allows existing breakit users to progress to the enter code step", as
     id: "breakit",
     name: "Test Client",
     client_secret: "clientSecret",
-    allowed_callback_urls: "https://example.com/callback",
-    allowed_logout_urls: "",
-    allowed_web_origins: "example.com",
+    web_origins: [],
+    callbacks: [],
+    allowed_origins: [],
+    allowed_logout_urls: [],
     email_validation: "enforced",
     disable_sign_ups: true,
   });
@@ -167,9 +168,10 @@ test("only allows existing breakit users to progress to the enter code step with
     id: "breakit",
     name: "Test Client",
     client_secret: "clientSecret",
-    allowed_callback_urls: "https://example.com/callback",
-    allowed_logout_urls: "",
-    allowed_web_origins: "example.com",
+    web_origins: [],
+    callbacks: ["https://example.com/callback"],
+    allowed_origins: [],
+    allowed_logout_urls: [],
     email_validation: "enforced",
     disable_sign_ups: true,
   });
@@ -213,8 +215,6 @@ test("only allows existing breakit users to progress to the enter code step with
 
   const socialStateParamNonExistingUser = osloBtoa({
     authParams: {
-      // With the "fix" on this PR, this need testing... if we do want this approach, I can duplicate this test with this here and check that auth2 doesn't do the existing user check
-      // redirect_uri: "https://login2.sesamy.dev/callback",
       redirect_uri: "https://example.com/callback",
       scope: "openid profile email",
       state: STATE,

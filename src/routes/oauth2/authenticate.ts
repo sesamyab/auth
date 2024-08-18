@@ -57,7 +57,7 @@ export const authenticateRoutes = new OpenAPIHono<{
 
       let ticket: Ticket = {
         id: nanoid(),
-        tenant_id: client.tenant_id,
+        tenant_id: client.tenant.id,
         client_id: client.id,
         email: email,
         created_at: new Date(),
@@ -65,7 +65,7 @@ export const authenticateRoutes = new OpenAPIHono<{
       };
 
       if (otp) {
-        const otps = await ctx.env.data.OTP.list(client.tenant_id, email);
+        const otps = await ctx.env.data.OTP.list(client.tenant.id, email);
         const matchingOtp = otps.find((o) => o.code === otp);
 
         if (!matchingOtp) {
@@ -87,7 +87,7 @@ export const authenticateRoutes = new OpenAPIHono<{
         }
 
         // TODO - use validateCode() helper common code here
-        await ctx.env.data.OTP.remove(client.tenant_id, matchingOtp.id);
+        await ctx.env.data.OTP.remove(client.tenant.id, matchingOtp.id);
 
         ticket.authParams = matchingOtp.authParams;
       } else if (password) {

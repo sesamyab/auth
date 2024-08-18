@@ -70,7 +70,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
 
       const existingUser = await getPrimaryUserByEmailAndProvider({
         userAdapter: ctx.env.data.users,
-        tenant_id: client.tenant_id,
+        tenant_id: client.tenant.id,
         email,
         provider: "auth2",
       });
@@ -80,7 +80,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
         throw new HTTPException(400, { message: "Invalid sign up" });
       }
 
-      const newUser = await ctx.env.data.users.create(client.tenant_id, {
+      const newUser = await ctx.env.data.users.create(client.tenant.id, {
         user_id: `auth2|${userIdGenerate()}`,
         email,
         created_at: new Date().toISOString(),
@@ -97,7 +97,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
       ctx.set("connection", newUser.connection);
 
       // Store the password
-      await ctx.env.data.passwords.create(client.tenant_id, {
+      await ctx.env.data.passwords.create(client.tenant.id, {
         user_id: newUser.user_id,
         password: bcryptjs.hashSync(password, 10),
         algorithm: "bcrypt",
@@ -113,7 +113,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
         type: LogTypes.SUCCESS_SIGNUP,
         description: "Successful signup",
       });
-      await ctx.env.data.logs.create(client.tenant_id, log);
+      await ctx.env.data.logs.create(client.tenant.id, log);
 
       return ctx.json({
         _id: newUser.user_id,
@@ -160,7 +160,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
         username: email,
       };
 
-      const session = await ctx.env.data.logins.create(client.tenant_id, {
+      const session = await ctx.env.data.logins.create(client.tenant.id, {
         expires_at: new Date(
           Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
         ).toISOString(),
