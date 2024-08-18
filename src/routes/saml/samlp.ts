@@ -2,14 +2,21 @@ import { Env, Var } from "../../types";
 import { getClient } from "../../services/clients";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { base64 } from "oslo/encoding";
-import * as pako from "pako";
 import { HTTPException } from "hono/http-exception";
 import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
 
-function tryInflateDecompress(input: Uint8Array): string {
+async function inflateRaw(compressedData: Uint8Array): Promise<Uint8Array> {
+  const ds = new DecompressionStream("deflate-raw");
+  const decompressedStream = new Blob([compressedData])
+    .stream()
+    .pipeThrough(ds);
+  return new Uint8Array(await new Response(decompressedStream).arrayBuffer());
+}
+
+async function tryInflateDecompress(input: Uint8Array): Promise<string> {
   try {
     // Try to decompress using pako
-    const decompressed = pako.inflateRaw(input);
+    const decompressed = await inflateRaw(input);
     return new TextDecoder().decode(decompressed);
   } catch (error) {
     console.warn(

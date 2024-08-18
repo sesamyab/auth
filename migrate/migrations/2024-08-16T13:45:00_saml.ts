@@ -5,19 +5,19 @@ export async function up(db: Kysely<Database>): Promise<void> {
   // Moved to inin migration for sqlite
   // await db.schema
   //   .alterTable("applications")
-  // .addColumn("addons", "varchar(4096)", (col) =>
-  //   col.notNull().defaultTo("{}"),
-  // )
-  // .addColumn("callbacks", "varchar(1024)", (col) =>
-  //   col.notNull().defaultTo("[]"),
-  // )
-  // .addColumn("allowed_origins", "varchar(1024)", (col) =>
-  //   col.notNull().defaultTo("[]"),
-  // )
-  // .addColumn("web_origins", "varchar(1024)", (col) =>
-  //   col.notNull().defaultTo("[]"),
-  // )
-  // .execute();
+  //   .addColumn("addons", "varchar(4096)", (col) =>
+  //     col.notNull().defaultTo("{}"),
+  //   )
+  //   .addColumn("callbacks", "varchar(1024)", (col) =>
+  //     col.notNull().defaultTo("[]"),
+  //   )
+  //   .addColumn("allowed_origins", "varchar(1024)", (col) =>
+  //     col.notNull().defaultTo("[]"),
+  //   )
+  //   .addColumn("web_origins", "varchar(1024)", (col) =>
+  //     col.notNull().defaultTo("[]"),
+  //   )
+  //   .execute();
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
