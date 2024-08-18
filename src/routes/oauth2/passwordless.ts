@@ -58,7 +58,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
 
       const code = generateOTP();
 
-      await ctx.env.data.OTP.create(client.tenant_id, {
+      await ctx.env.data.OTP.create(client.tenant.id, {
         id: nanoid(),
         code,
         email: email,
@@ -131,7 +131,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
           ip: ctx.req.header("x-real-ip"),
         });
 
-        if (!validateRedirectUrl(client.allowed_callback_urls, redirect_uri)) {
+        if (!validateRedirectUrl(client.callbacks, redirect_uri)) {
           throw new HTTPException(400, {
             message: `Invalid redirect URI - ${redirect_uri}`,
           });

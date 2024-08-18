@@ -110,19 +110,14 @@ export const authorizeRoutes = new OpenAPIHono<{
       };
 
       const origin = ctx.req.header("origin");
-      if (origin && !verifyRequestOrigin(origin, client.allowed_web_origins)) {
+      if (origin && !verifyRequestOrigin(origin, client.web_origins)) {
         throw new HTTPException(403, {
           message: `Origin ${origin} not allowed`,
         });
       }
 
       if (authParams.redirect_uri) {
-        if (
-          !validateRedirectUrl(
-            client.allowed_callback_urls,
-            authParams.redirect_uri,
-          )
-        ) {
+        if (!validateRedirectUrl(client.callbacks, authParams.redirect_uri)) {
           throw new HTTPException(400, {
             message: `Invalid redirect URI - ${authParams.redirect_uri}`,
           });
@@ -131,11 +126,11 @@ export const authorizeRoutes = new OpenAPIHono<{
 
       // Fetch the cookie
       const authCookie = getAuthCookie(
-        client.tenant_id,
+        client.tenant.id,
         ctx.req.header("cookie"),
       );
       const session = authCookie
-        ? await env.data.sessions.get(client.tenant_id, authCookie)
+        ? await env.data.sessions.get(client.tenant.id, authCookie)
         : null;
 
       // Silent authentication with iframe
@@ -167,7 +162,7 @@ export const authorizeRoutes = new OpenAPIHono<{
       } else if (login_ticket) {
         return ticketAuth(
           ctx,
-          client.tenant_id,
+          client.tenant.id,
           login_ticket,
           authParams,
           realm!,

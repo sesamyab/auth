@@ -29,7 +29,7 @@ export async function universalAuth({
   // Check if the user in the login_hint matches the user in the session
   if (session && login_hint) {
     const user = await ctx.env.data.users.get(
-      client.tenant_id,
+      client.tenant.id,
       session.user_id,
     );
 
@@ -44,7 +44,7 @@ export async function universalAuth({
     }
   }
 
-  const login = await ctx.env.data.logins.create(client.tenant_id, {
+  const login = await ctx.env.data.logins.create(client.tenant.id, {
     expires_at: new Date(
       Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),

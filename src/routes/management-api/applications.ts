@@ -97,7 +97,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         throw new HTTPException(404);
       }
 
-      return ctx.json(applicationSchema.parse(application), {
+      return ctx.json(application, {
         headers,
       });
     },

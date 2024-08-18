@@ -1,11 +1,7 @@
 import { Env } from "../types";
 import { DefaultSettings, getDefaultSettings } from "../models/DefaultSettings";
 import { HTTPException } from "hono/http-exception";
-import {
-  Client,
-  ClientSchema,
-  PartialClientSchema,
-} from "@authhero/adapter-interfaces";
+import { Client } from "@authhero/adapter-interfaces";
 
 // Thsese default settings are static and don't contain any keys
 const defaultSettings: DefaultSettings = {
@@ -39,13 +35,10 @@ const defaultSettings: DefaultSettings = {
 };
 
 export async function getClient(env: Env, clientId: string): Promise<Client> {
-  // TODO: we dont't have a tenant id here so we'll pass a wildcard for now. Use subdomains for
-  const clientRawObj = await env.data.clients.get(clientId);
-  if (!clientRawObj) {
+  const client = await env.data.clients.get(clientId);
+  if (!client) {
     throw new HTTPException(403, { message: "Client not found" });
   }
-
-  const client = PartialClientSchema.parse(clientRawObj);
   const envDefaultSettings = await getDefaultSettings(env);
 
   const connections = client.connections
@@ -69,11 +62,11 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
     })
     .filter((c) => c);
 
-  return ClientSchema.parse({
+  return {
     ...client,
-    allowed_web_origins: [
-      ...(envDefaultSettings.allowed_web_origins || []),
-      ...client.allowed_web_origins,
+    web_origins: [
+      ...(envDefaultSettings.web_origins || []),
+      ...client.web_origins,
       `${env.ISSUER}u/login`,
     ],
     allowed_logout_urls: [
@@ -81,9 +74,9 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
       ...client.allowed_logout_urls,
       env.ISSUER,
     ],
-    allowed_callback_urls: [
-      ...(envDefaultSettings.allowed_callback_urls || []),
-      ...client.allowed_callback_urls,
+    callbacks: [
+      ...(envDefaultSettings.callbacks || []),
+      ...client.callbacks,
       `${env.ISSUER}u/info`,
     ],
     connections,
@@ -92,5 +85,5 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
       ...envDefaultSettings.tenant,
       ...client.tenant,
     },
-  });
+  };
 }

@@ -15,11 +15,11 @@ export async function authorizeCodeGrant(
 ) {
   const client = await getClient(ctx.env, params.client_id);
   ctx.set("client_id", client.id);
-  ctx.set("tenant_id", client.tenant_id);
+  ctx.set("tenant_id", client.tenant.id);
 
   // TODO: this does not set the used_at attribute
   const { user_id, authParams, used_at, expires_at } =
-    await ctx.env.data.authenticationCodes.get(client.tenant_id, params.code);
+    await ctx.env.data.authenticationCodes.get(client.tenant.id, params.code);
 
   if (used_at || new Date(expires_at) < new Date()) {
     throw new HTTPException(400, { message: "Code not found or expired" });
@@ -29,7 +29,7 @@ export async function authorizeCodeGrant(
   authParams.response_type = AuthorizationResponseType.TOKEN_ID_TOKEN;
   authParams.response_mode = AuthorizationResponseMode.FORM_POST;
 
-  const user = await ctx.env.data.users.get(client.tenant_id, user_id);
+  const user = await ctx.env.data.users.get(client.tenant.id, user_id);
   if (!user) {
     throw new HTTPException(400, { message: "User not found" });
   }

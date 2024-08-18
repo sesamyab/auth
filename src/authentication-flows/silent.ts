@@ -48,10 +48,10 @@ export async function silentAuth({
 
     // Update the cookie
     const headers = new Headers();
-    const cookie = serializeAuthCookie(client.tenant_id, session.session_id);
+    const cookie = serializeAuthCookie(client.tenant.id, session.session_id);
     headers.set("set-cookie", cookie);
 
-    const user = await env.data.users.get(client.tenant_id, session.user_id);
+    const user = await env.data.users.get(client.tenant.id, session.user_id);
 
     if (user) {
       ctx.set("userName", user.email);
@@ -75,7 +75,7 @@ export async function silentAuth({
         sid: session.session_id,
       });
 
-      await env.data.sessions.update(client.tenant_id, session.session_id, {
+      await env.data.sessions.update(client.tenant.id, session.session_id, {
         used_at: new Date().toISOString(),
       });
 
@@ -83,7 +83,7 @@ export async function silentAuth({
         type: LogTypes.SUCCESS_SILENT_AUTH,
         description: "Successful silent authentication",
       });
-      await ctx.env.data.logs.create(client.tenant_id, log);
+      await ctx.env.data.logs.create(client.tenant.id, log);
 
       return ctx.html(
         renderAuthIframe(
@@ -101,7 +101,7 @@ export async function silentAuth({
     type: LogTypes.FAILED_SILENT_AUTH,
     description: "Login required",
   });
-  await ctx.env.data.logs.create(client.tenant_id, log);
+  await ctx.env.data.logs.create(client.tenant.id, log);
 
   return ctx.html(
     renderAuthIframe(

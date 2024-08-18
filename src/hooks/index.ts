@@ -47,7 +47,7 @@ export async function preUserSignupHook(
       type: LogTypes.FAILED_SIGNUP,
       description: "Public signup is disabled",
     });
-    await ctx.env.data.logs.create(client.tenant_id, log);
+    await ctx.env.data.logs.create(client.tenant.id, log);
 
     throw new HTTPException(400, {
       message: "Signups are disabled for this client",

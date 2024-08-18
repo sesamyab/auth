@@ -30,9 +30,10 @@ const data = createAdapters(db);
     name: "Default",
     id: "default",
     client_secret: "default",
-    allowed_callback_urls: "http://localhost:3000/oauth2-redirect.html",
-    allowed_logout_urls: "http://localhost:3000",
-    allowed_web_origins: "http://localhost:3000",
+    callbacks: ["http://localhost:3000/oauth2-redirect.html"],
+    allowed_origins: ["http://localhost:3000"],
+    allowed_logout_urls: ["http://localhost:3000"],
+    web_origins: ["http://localhost:3000"],
     email_validation: "disabled",
     disable_sign_ups: false,
   });

@@ -162,7 +162,7 @@ export const samlpRoutes = new OpenAPIHono<{
       // TODO: Validate the SAMLRequest
 
       // Create a new Login session
-      const login = await ctx.env.data.logins.create(client.tenant_id, {
+      const login = await ctx.env.data.logins.create(client.tenant.id, {
         authParams: {
           client_id: client.id,
           state: extractIdFromXml(xmlString),

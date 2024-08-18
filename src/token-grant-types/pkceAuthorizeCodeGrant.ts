@@ -28,7 +28,7 @@ export async function pkceAuthorizeCodeGrant(
 
   const client = await getClient(ctx.env, state.authParams.client_id);
   ctx.set("client_id", client.id);
-  ctx.set("tenant_id", client.tenant_id);
+  ctx.set("tenant_id", client.tenant.id);
 
   if (state.authParams.client_id !== client.id) {
     throw new HTTPException(403, { message: "Invalid Client" });

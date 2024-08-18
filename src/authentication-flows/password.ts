@@ -27,7 +27,7 @@ export async function requestPasswordReset(
 ) {
   let user = await getPrimaryUserByEmailAndProvider({
     userAdapter: ctx.env.data.users,
-    tenant_id: client.tenant_id,
+    tenant_id: client.tenant.id,
     email,
     provider: "auth2",
   });
@@ -35,7 +35,7 @@ export async function requestPasswordReset(
   if (!user) {
     const matchingUser = await getUsersByEmail(
       ctx.env.data.users,
-      client.tenant_id,
+      client.tenant.id,
       email,
     );
 
@@ -44,7 +44,7 @@ export async function requestPasswordReset(
     }
 
     // Create a new user if it doesn't exist
-    user = await ctx.env.data.users.create(client.tenant_id, {
+    user = await ctx.env.data.users.create(client.tenant.id, {
       user_id: `email|${userIdGenerate()}`,
       email,
       email_verified: false,
@@ -57,7 +57,7 @@ export async function requestPasswordReset(
     });
   }
 
-  const loginSession = await ctx.env.data.logins.create(client.tenant_id, {
+  const loginSession = await ctx.env.data.logins.create(client.tenant.id, {
     expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
     authParams: {
       client_id: client.id,
@@ -65,7 +65,7 @@ export async function requestPasswordReset(
     },
   });
 
-  const createdCode = await ctx.env.data.codes.create(client.tenant_id, {
+  const createdCode = await ctx.env.data.codes.create(client.tenant.id, {
     code_id: generateOTP(),
     code_type: "password_reset",
     login_id: loginSession.login_id,
@@ -89,7 +89,7 @@ export async function loginWithPassword(
 
   const user = await getUserByEmailAndProvider({
     userAdapter: ctx.env.data.users,
-    tenant_id: client.tenant_id,
+    tenant_id: client.tenant.id,
     email,
     provider: "auth2",
   });
@@ -105,12 +105,10 @@ export async function loginWithPassword(
   ctx.set("userId", user.user_id);
 
   const { password } = await env.data.passwords.get(
-    client.tenant_id,
+    client.tenant.id,
     user.user_id,
   );
 
-  console.log("password", password);
-  console.log("authparams.password", authParams.password);
   const valid = await bcryptjs.compare(authParams.password, password);
 
   if (!valid) {
@@ -119,7 +117,7 @@ export async function loginWithPassword(
       description: "Invalid password",
     });
 
-    await ctx.env.data.logs.create(client.tenant_id, log);
+    await ctx.env.data.logs.create(client.tenant.id, log);
 
     throw new CustomException(403, {
       message: "Invalid password",
@@ -140,7 +138,7 @@ export async function loginWithPassword(
       type: LogTypes.FAILED_LOGIN,
       description: "Email not verified",
     });
-    await ctx.env.data.logs.create(client.tenant_id, log);
+    await ctx.env.data.logs.create(client.tenant.id, log);
 
     throw new CustomException(403, {
       message: "Email not verified",
@@ -153,7 +151,7 @@ export async function loginWithPassword(
   }
 
   const primaryUser = await env.data.users.get(
-    client.tenant_id,
+    client.tenant.id,
     user.linked_to,
   );
   if (!primaryUser) {
