@@ -18,6 +18,11 @@ export async function up(db: Kysely<Database>): Promise<void> {
   //     col.notNull().defaultTo("[]"),
   //   )
   //   .execute();
+  // Migrage the data
+  //   UPDATE applications SET callbacks = "[]";
+  //   UPDATE applications SET web_origins = "[]";
+  //   UPDATE applications SET web_origins = "[]";
+  //   UPDATE applications SET allowed_origins = "[]";
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {

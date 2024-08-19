@@ -1,10 +1,10 @@
 import { Env } from "../types";
-import { DefaultSettings, getDefaultSettings } from "../models/DefaultSettings";
+import { getDefaultSettings } from "../models/DefaultSettings";
 import { HTTPException } from "hono/http-exception";
 import { Client } from "@authhero/adapter-interfaces";
 
-// Thsese default settings are static and don't contain any keys
-const defaultSettings: DefaultSettings = {
+// TODO: Remove this and use strategys
+const defaultSettings = {
   connections: [
     {
       name: "google-oauth2",
@@ -22,15 +22,6 @@ const defaultSettings: DefaultSettings = {
       token_endpoint: "https://graph.facebook.com/oauth/access_token",
       token_exchange_basic_auth: true,
     },
-    {
-      name: "apple",
-      scope: "name email",
-      authorization_endpoint: "https://appleid.apple.com/auth/authorize",
-      token_endpoint: "https://appleid.apple.com/auth/token",
-      token_exchange_basic_auth: false,
-      response_mode: "form_post",
-      response_type: "code",
-    },
   ],
 };
 
@@ -39,6 +30,7 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
   if (!client) {
     throw new HTTPException(403, { message: "Client not found" });
   }
+
   const envDefaultSettings = await getDefaultSettings(env);
 
   const connections = client.connections

@@ -2,6 +2,8 @@ import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import {
   applicationSchema,
   applicationInsertSchema,
+  Application,
+  totalsSchema,
 } from "@authhero/adapter-interfaces";
 import { headers } from "../../constants";
 import { Env } from "../../types";
@@ -10,6 +12,36 @@ import { nanoid } from "nanoid";
 import { auth0QuerySchema } from "../../types/auth0/Query";
 import { parseSort } from "../../utils/sort";
 import authenticationMiddleware from "../../middlewares/authentication";
+
+const restApplicationSchema = z.object({
+  ...applicationSchema.shape,
+  callbacks: z.string(),
+  allowed_logout_urls: z.string(),
+  allowed_origins: z.string(),
+  web_origins: z.string(),
+});
+
+const restApplicationInsertSchema = z.object({
+  ...applicationInsertSchema.shape,
+  callbacks: z.string(),
+  allowed_logout_urls: z.string(),
+  allowed_origins: z.string(),
+  web_origins: z.string(),
+});
+
+const applicationWithTotalsSchema = totalsSchema.extend({
+  applications: z.array(restApplicationSchema),
+});
+
+function mapApplication(application: Application) {
+  return {
+    ...application,
+    callbacks: application.callbacks?.join(", ") || "",
+    allowed_logout_urls: application.allowed_logout_urls?.join(", ") || "",
+    allowed_origins: application.allowed_origins?.join(", ") || "",
+    web_origins: application.web_origins?.join(", ") || "",
+  };
+}
 
 export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
   // --------------------------------
@@ -34,6 +66,14 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
       ],
       responses: {
         200: {
+          content: {
+            "application/json": {
+              schema: z.union([
+                applicationWithTotalsSchema,
+                z.array(restApplicationSchema),
+              ]),
+            },
+          },
           description: "List of applications",
         },
       },
@@ -51,7 +91,19 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         q,
       });
 
-      return ctx.json(result);
+      const applications = result.applications.map(mapApplication);
+
+      if (include_totals) {
+        // TODO: this should be supported by the adapter
+        return ctx.json({
+          applications,
+          start: 0,
+          limit: 10,
+          length: applications.length,
+        });
+      }
+
+      return ctx.json(applications);
     },
   )
   // --------------------------------
@@ -80,7 +132,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         200: {
           content: {
             "application/json": {
-              schema: applicationSchema,
+              schema: restApplicationSchema,
             },
           },
           description: "An application",
@@ -91,13 +143,20 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const { "tenant-id": tenant_id } = ctx.req.valid("header");
       const { id } = ctx.req.valid("param");
 
-      const application = await ctx.env.data.applications.get(tenant_id, id);
+      // Workaround until the adapter is fixed
+      // const application = await ctx.env.data.applications.get(tenant_id, id);
+      const applications = await ctx.env.data.applications.list(tenant_id, {
+        page: 1,
+        per_page: 0,
+        include_totals: false,
+      });
+      const application = applications.applications.find((a) => a.id === id);
 
       if (!application) {
         throw new HTTPException(404);
       }
 
-      return ctx.json(application, {
+      return ctx.json(mapApplication(application), {
         headers,
       });
     },
@@ -154,7 +213,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         body: {
           content: {
             "application/json": {
-              schema: z.object(applicationInsertSchema.shape).partial(),
+              schema: restApplicationInsertSchema.partial(),
             },
           },
         },
@@ -187,7 +246,21 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const { id } = ctx.req.valid("param");
       const body = ctx.req.valid("json");
 
-      await ctx.env.data.applications.update(tenant_id, id, body);
+      const applicationUpdate = {
+        ...body,
+        callbacks: body.callbacks ? body.callbacks.split(", ") : undefined,
+        allowed_logout_urls: body.allowed_logout_urls
+          ? body.allowed_logout_urls.split(", ")
+          : undefined,
+        allowed_origins: body.allowed_origins
+          ? body.allowed_origins.split(", ")
+          : undefined,
+        web_origins: body.web_origins
+          ? body.web_origins.split(", ")
+          : undefined,
+      };
+
+      await ctx.env.data.applications.update(tenant_id, id, applicationUpdate);
       const application = await ctx.env.data.applications.get(tenant_id, id);
 
       if (!application) {
@@ -209,7 +282,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         body: {
           content: {
             "application/json": {
-              schema: z.object(applicationInsertSchema.shape),
+              schema: restApplicationInsertSchema,
             },
           },
         },
@@ -227,7 +300,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         201: {
           content: {
             "application/json": {
-              schema: applicationSchema,
+              schema: restApplicationSchema,
             },
           },
           description: "An application",
@@ -238,12 +311,25 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const { "tenant-id": tenant_id } = ctx.req.valid("header");
       const body = ctx.req.valid("json");
 
-      const application = await ctx.env.data.applications.create(tenant_id, {
+      const applicationUpdate = {
         ...body,
+        callbacks: body.callbacks ? body.callbacks.split(", ") : [],
+        allowed_logout_urls: body.allowed_logout_urls
+          ? body.allowed_logout_urls.split(", ")
+          : [],
+        allowed_origins: body.allowed_origins
+          ? body.allowed_origins.split(", ")
+          : [],
+        web_origins: body.web_origins ? body.web_origins.split(", ") : [],
         id: body.id || nanoid(),
         client_secret: body.client_secret || nanoid(),
-      });
+      };
 
-      return ctx.json(application, { status: 201 });
+      const application = await ctx.env.data.applications.create(
+        tenant_id,
+        applicationUpdate,
+      );
+
+      return ctx.json(mapApplication(application), { status: 201 });
     },
   );
