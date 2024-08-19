@@ -15,10 +15,10 @@ describe("applications", () => {
           json: {
             id: "app",
             name: "app",
-            callbacks: [],
-            allowed_logout_urls: [],
-            allowed_origins: [],
-            web_origins: [],
+            callbacks: "",
+            allowed_logout_urls: "",
+            allowed_origins: "",
+            web_origins: "",
           },
           header: {
             "tenant-id": "tenantId",
@@ -39,10 +39,10 @@ describe("applications", () => {
 
     expect(rest).toEqual({
       name: "app",
-      callbacks: [],
-      allowed_logout_urls: [],
-      allowed_origins: [],
-      web_origins: [],
+      callbacks: "",
+      allowed_logout_urls: "",
+      allowed_origins: "",
+      web_origins: "",
       email_validation: "enforced",
       disable_sign_ups: false,
     });
