@@ -1,13 +1,10 @@
 import { Context } from "hono";
 import { Env, Var } from "../types";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../constants";
-import {
-  AuthParams,
-  Client,
-  Session,
-  LoginInsert,
-} from "@authhero/adapter-interfaces";
+import { AuthParams, Client, Session } from "@authhero/adapter-interfaces";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
+import { sendOtpEmail } from "./passwordless";
+import { getSendParamFromAuth0ClientHeader } from "../utils/getSendParamFromAuth0ClientHeader";
 
 interface UniversalAuthParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
@@ -15,6 +12,7 @@ interface UniversalAuthParams {
   session?: Session;
   authParams: AuthParams;
   auth0Client?: string;
+  connection?: string;
   login_hint?: string;
 }
 
@@ -24,6 +22,7 @@ export async function universalAuth({
   client,
   authParams,
   auth0Client,
+  connection,
   login_hint,
 }: UniversalAuthParams) {
   // Check if the user in the login_hint matches the user in the session
@@ -52,7 +51,15 @@ export async function universalAuth({
     auth0Client,
   });
 
-  // If there is a sesion we redirect to the check-account page
+  // If there's an email connectiona and a login_hint we redirect to the check-account page
+  if (connection === "email" && login_hint) {
+    const sendType = getSendParamFromAuth0ClientHeader(auth0Client);
+    await sendOtpEmail({ ctx, client, authParams, sendType });
+
+    return ctx.redirect(`/u/enter-code?state=${login.login_id}`);
+  }
+
+  // If there is a session we redirect to the check-account page
   if (session) {
     return ctx.redirect(`/u/check-account?state=${login.login_id}`);
   }

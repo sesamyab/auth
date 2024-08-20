@@ -53,10 +53,7 @@ export const authorizeRoutes = new OpenAPIHono<{
           code_challenge: z.string().optional(),
           realm: z.string().optional(),
           auth0Client: z.string().optional(),
-          // Auth0 way
           login_hint: z.string().optional(),
-          // deprecated: previous token service param
-          email_hint: z.string().optional(),
         }),
       },
       responses: {
@@ -88,8 +85,6 @@ export const authorizeRoutes = new OpenAPIHono<{
         auth0Client,
         username,
         login_hint,
-        // TODO: This is incorrect.. Remove
-        email_hint,
       } = ctx.req.valid("query");
 
       const client = await getClient(env, client_id);
@@ -106,7 +101,7 @@ export const authorizeRoutes = new OpenAPIHono<{
         response_type,
         code_challenge,
         code_challenge_method,
-        username: username || login_hint || email_hint,
+        username: username || login_hint,
       };
 
       const origin = ctx.req.header("origin");
@@ -157,7 +152,7 @@ export const authorizeRoutes = new OpenAPIHono<{
       }
 
       // Social login
-      if (connection) {
+      if (connection && connection !== "email") {
         return socialAuth(ctx, client, connection, authParams);
       } else if (login_ticket) {
         return ticketAuth(
@@ -174,8 +169,9 @@ export const authorizeRoutes = new OpenAPIHono<{
         client,
         authParams,
         auth0Client,
-        login_hint,
         session: session || undefined,
+        connection,
+        login_hint,
       });
     },
   );

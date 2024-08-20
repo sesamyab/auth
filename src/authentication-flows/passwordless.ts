@@ -2,14 +2,21 @@ import { HTTPException } from "hono/http-exception";
 import { Env, Var } from "../types";
 import userIdGenerate from "../utils/userIdGenerate";
 import { getClient } from "../services/clients";
-import { getPrimaryUserByEmailAndProvider } from "../utils/users";
+import {
+  getPrimaryUserByEmail,
+  getPrimaryUserByEmailAndProvider,
+} from "../utils/users";
 import { nanoid } from "nanoid";
 import generateOTP from "../utils/otp";
 import {
   CODE_EXPIRATION_TIME,
   UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
 } from "../constants";
-import { sendValidateEmailAddress } from "../controllers/email";
+import {
+  sendCode,
+  sendLink,
+  sendValidateEmailAddress,
+} from "../controllers/email";
 import { waitUntil } from "../utils/wait-until";
 import { Context } from "hono";
 import { createLogMessage } from "../utils/create-log-message";
@@ -20,6 +27,8 @@ import {
   Login,
   User,
 } from "@authhero/adapter-interfaces";
+import { preUserSignupHook } from "../hooks";
+import { SendType } from "../utils/getSendParamFromAuth0ClientHeader";
 
 interface LoginParams {
   client_id: string;
@@ -132,4 +141,80 @@ export async function sendEmailVerificationEmail({
   });
 
   await sendValidateEmailAddress(env, client, user.email, code_id, state);
+}
+
+interface sendOtpEmailParams {
+  ctx: Context<{ Bindings: Env; Variables: Var }>;
+  client: Client;
+  authParams: AuthParams;
+  sendType: SendType;
+}
+
+export async function sendOtpEmail({
+  ctx,
+  client,
+  authParams,
+  sendType,
+}: sendOtpEmailParams) {
+  const { env } = ctx;
+
+  if (!authParams.username) {
+    throw new HTTPException(400, { message: "Missing username" });
+  }
+
+  const user = await getPrimaryUserByEmail({
+    userAdapter: env.data.users,
+    tenant_id: client.tenant.id,
+    email: authParams.username,
+  });
+  if (user) {
+    ctx.set("userId", user.user_id);
+  }
+
+  if (!user) {
+    try {
+      await preUserSignupHook(ctx, client, ctx.env.data, authParams.username);
+    } catch (err) {
+      const log = createLogMessage(ctx, {
+        type: LogTypes.FAILED_SIGNUP,
+        description: "Public signup is disabled",
+      });
+
+      await ctx.env.data.logs.create(client.tenant.id, log);
+
+      throw new HTTPException(403, {
+        message: "Public signup is disabled",
+      });
+    }
+  }
+
+  const code = generateOTP();
+
+  // fields in universalLoginSessions don't match fields in OTP
+  const {
+    audience,
+    code_challenge_method,
+    code_challenge,
+    username,
+    vendor_id,
+    ...otpAuthParams
+  } = authParams;
+
+  await env.data.OTP.create(client.tenant.id, {
+    id: nanoid(),
+    code,
+    email: authParams.username,
+    send: "code",
+    authParams: otpAuthParams,
+    expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
+  });
+
+  if (sendType === "link") {
+    waitUntil(
+      ctx,
+      sendLink(ctx, client, authParams.username, code, authParams),
+    );
+  } else {
+    waitUntil(ctx, sendCode(ctx, client, authParams.username, code));
+  }
 }

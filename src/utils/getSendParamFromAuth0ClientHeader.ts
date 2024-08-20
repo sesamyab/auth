@@ -7,15 +7,15 @@ type Auth0Client = {
 
 const APP_CLIENT_IDS = ["Auth0.swift"];
 
-export type sendParam = "link" | "code";
+export type SendType = "link" | "code";
 
 // copied from login2
 export function getSendParamFromAuth0ClientHeader(
   auth0ClientHeader?: string,
-): sendParam {
+): SendType {
   if (!auth0ClientHeader) return "link";
 
-  const decodedAuth0Client = atob(auth0ClientHeader); // can we use Zod?
+  const decodedAuth0Client = atob(auth0ClientHeader);
 
   const auth0Client = JSON.parse(decodedAuth0Client) as Auth0Client;
 
