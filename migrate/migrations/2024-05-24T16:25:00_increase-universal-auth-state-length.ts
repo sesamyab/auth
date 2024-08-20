@@ -8,26 +8,24 @@ export async function up(db: Kysely<Database>): Promise<void> {
   //     // column this long working on planetscale on logs column
   //     .modifyColumn("state", "varchar(8192)")
   //     .execute();
-
   // In SQLite we have to drop and recreate the column
-  await db.schema
-    .alterTable("universal_login_sessions")
-    .dropColumn("state")
-    .execute();
-  await db.schema
-    .alterTable("universal_login_sessions")
-    .addColumn("state", "varchar(8192)")
-    .execute();
+  // await db.schema
+  //   .alterTable("universal_login_sessions")
+  //   .dropColumn("state")
+  //   .execute();
+  // await db.schema
+  //   .alterTable("universal_login_sessions")
+  //   .addColumn("state", "varchar(8192)")
+  //   .execute();
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
-  await db.schema
-    .alterTable("universal_login_sessions")
-    .dropColumn("state")
-    .execute();
-
-  await db.schema
-    .alterTable("universal_login_sessions")
-    .addColumn("state", "varchar(1024)")
-    .execute();
+  // await db.schema
+  //   .alterTable("universal_login_sessions")
+  //   .dropColumn("state")
+  //   .execute();
+  // await db.schema
+  //   .alterTable("universal_login_sessions")
+  //   .addColumn("state", "varchar(1024)")
+  //   .execute();
 }
