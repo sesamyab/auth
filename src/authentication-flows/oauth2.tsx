@@ -4,7 +4,7 @@ import {
   AuthParams,
   Client,
   LogTypes,
-  LoginState,
+  Login,
 } from "@authhero/adapter-interfaces";
 import { Env } from "../types";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
@@ -12,7 +12,6 @@ import { parseJwt } from "../utils/parse-jwt";
 import { validateRedirectUrl } from "../utils/validate-redirect-url";
 import { Var } from "../types/Var";
 import { HTTPException } from "hono/http-exception";
-import { stateEncode } from "../utils/stateEncode";
 import { getClient } from "../services/clients";
 import { getPrimaryUserByEmailAndProvider } from "../utils/users";
 import UserNotFound from "../components/UserNotFoundPage";
@@ -21,16 +20,27 @@ import { createLogMessage } from "../utils/create-log-message";
 import { setSearchParams } from "../utils/url";
 import i18next from "i18next";
 import { preUserSignupHook } from "../hooks";
+import {
+  OAUTH2_CODE_EXPIRES_IN_SECONDS,
+  UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
+} from "../constants";
+import { nanoid } from "nanoid";
 
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
   connection: string,
   authParams: AuthParams,
+  auth0Client?: string,
 ) {
+  if (!authParams.state) {
+    throw new HTTPException(400, { message: "State not found" });
+  }
+
   const connectionInstance = client.connections.find(
     (p) => p.name === connection,
   );
+
   if (!connectionInstance) {
     ctx.set("client_id", client.id);
     const log = createLogMessage(ctx, {
@@ -42,7 +52,30 @@ export async function socialAuth(
     throw new HTTPException(403, { message: "Connection Not Found" });
   }
 
-  const state = stateEncode({ authParams, connection });
+  let session = await ctx.env.data.logins.get(
+    client.tenant.id,
+    authParams.state,
+  );
+
+  if (!session) {
+    session = await ctx.env.data.logins.create(client.tenant.id, {
+      expires_at: new Date(
+        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+      ).toISOString(),
+      authParams,
+      auth0Client,
+    });
+  }
+
+  const auth0Code = await ctx.env.data.codes.create(client.tenant.id, {
+    login_id: session.login_id,
+    code_id: nanoid(),
+    code_type: "oauth2_state",
+    connection_id: connectionInstance.id,
+    expires_at: new Date(
+      Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
+    ).toISOString(),
+  });
 
   const oauthLoginUrl = new URL(connectionInstance.authorization_endpoint!);
 
@@ -52,7 +85,7 @@ export async function socialAuth(
     redirect_uri: `${ctx.env.ISSUER}callback`,
     response_type: connectionInstance.response_type,
     response_mode: connectionInstance.response_mode,
-    state,
+    state: auth0Code.code_id,
   });
 
   return ctx.redirect(oauthLoginUrl.href);
@@ -60,7 +93,8 @@ export async function socialAuth(
 
 interface socialAuthCallbackParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
-  state: LoginState;
+  session: Login;
+  connection_id: string;
   code: string;
 }
 
@@ -85,17 +119,16 @@ function getProfileData(profile: any) {
 
 export async function oauth2Callback({
   ctx,
-  state,
+  session,
+  connection_id,
   code,
 }: socialAuthCallbackParams) {
   const { env } = ctx;
-  const client = await getClient(env, state.authParams.client_id);
+  const client = await getClient(env, session.authParams.client_id);
   ctx.set("client_id", client.id);
   ctx.set("tenant_id", client.tenant.id);
 
-  const connection = client.connections.find(
-    (p) => p.name === state.connection,
-  );
+  const connection = client.connections.find((p) => p.name === connection_id);
 
   if (!connection) {
     const log = createLogMessage(ctx, {
@@ -107,7 +140,7 @@ export async function oauth2Callback({
   }
   ctx.set("connection", connection.name);
 
-  if (!state.authParams.redirect_uri) {
+  if (!session.authParams.redirect_uri) {
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_LOGIN,
       description: "Redirect URI not defined",
@@ -116,8 +149,8 @@ export async function oauth2Callback({
     throw new HTTPException(403, { message: "Redirect URI not defined" });
   }
 
-  if (!validateRedirectUrl(client.callbacks, state.authParams.redirect_uri)) {
-    const invalidRedirectUriMessage = `Invalid redirect URI - ${state.authParams.redirect_uri}`;
+  if (!validateRedirectUrl(client.callbacks, session.authParams.redirect_uri)) {
+    const invalidRedirectUriMessage = `Invalid redirect URI - ${session.authParams.redirect_uri}`;
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_LOGIN,
       description: invalidRedirectUriMessage,
@@ -155,7 +188,7 @@ export async function oauth2Callback({
         token_endpoint: connection.token_endpoint!,
         scope: connection.scope!,
       },
-      `${env.ISSUER}callback`,
+      `${env.ISSUER}callback/${connection_id}`,
     );
 
     const token = await oauth2Client.exchangeCodeForTokenResponse(
@@ -199,7 +232,7 @@ export async function oauth2Callback({
       const vendorSettings = await fetchVendorSettings(
         env,
         client.id,
-        state.authParams.vendor_id,
+        session.authParams.vendor_id,
       );
 
       await i18next.changeLanguage(client.tenant.language || "sv");
@@ -207,14 +240,14 @@ export async function oauth2Callback({
       return ctx.html(
         <UserNotFound
           vendorSettings={vendorSettings}
-          authParams={state.authParams}
+          authParams={session.authParams}
         />,
         400,
       );
     }
 
     user = await env.data.users.create(client.tenant.id, {
-      user_id: `${state.connection}|${sub}`,
+      user_id: `${connection}|${sub}`,
       email,
       name: email,
       provider: connection.name,
@@ -234,7 +267,7 @@ export async function oauth2Callback({
   return generateAuthResponse({
     ctx,
     client,
-    authParams: state.authParams,
+    authParams: session.authParams,
     user,
   });
 }

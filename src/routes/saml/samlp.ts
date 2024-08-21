@@ -1,9 +1,13 @@
-import { Env, Var } from "../../types";
-import { getClient } from "../../services/clients";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { base64 } from "oslo/encoding";
 import { HTTPException } from "hono/http-exception";
-import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
+import {
+  AuthorizationResponseMode,
+  AuthorizationResponseType,
+} from "@authhero/adapter-interfaces";
+import { Env, Var } from "../../types";
+import { getClient } from "../../services/clients";
+import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
 
 async function inflateRaw(compressedData: Uint8Array): Promise<Uint8Array> {
   const ds = new DecompressionStream("deflate-raw");
@@ -29,8 +33,8 @@ async function tryInflateDecompress(input: Uint8Array): Promise<string> {
 }
 
 function extractIdFromXml(xmlString: string) {
-  const idRegex = /ID=(['"])([^'"]+)\1/;
-  const match = xmlString.match(idRegex);
+  const regex = /ID=(['"])([^'"]+)\1/;
+  const match = xmlString.match(regex);
 
   if (match && match[2]) {
     return match[2];
@@ -38,6 +42,19 @@ function extractIdFromXml(xmlString: string) {
 
   throw new HTTPException(400, {
     message: "Failed to extract ID from SAMLRequest",
+  });
+}
+
+function extractAssersionConsumeUrlFromXml(xmlString: string) {
+  const regex = /AssertionConsumerServiceURL=(['"])([^'"]+)\1/;
+  const match = xmlString.match(regex);
+
+  if (match && match[2]) {
+    return match[2];
+  }
+
+  throw new HTTPException(400, {
+    message: "Failed to extract AssertionConsumerServiceURL from SAMLRequest",
   });
 }
 
@@ -175,8 +192,12 @@ export const samlpRoutes = new OpenAPIHono<{
           state: extractIdFromXml(xmlString),
           // TODO: Should be SAML
           response_type: AuthorizationResponseType.CODE,
+          response_mode: AuthorizationResponseMode.SAML_POST,
+          redirect_uri: extractAssersionConsumeUrlFromXml(xmlString),
         },
-        expires_at: new Date(Date.now() + 30 * 1000).toISOString(),
+        expires_at: new Date(
+          Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+        ).toISOString(),
       });
 
       return ctx.redirect(`/u/enter-email?state=${login.login_id}`);

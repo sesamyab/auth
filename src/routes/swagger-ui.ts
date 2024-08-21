@@ -57,6 +57,10 @@ function getSwaggerHtml() {
             {
               url: "/api/v2/spec",
               name: "Management api"
+            },
+             {
+              url: "/saml-spec",
+              name: "SAML api"
             }
           ],
           dom_id: "#swagger-ui",

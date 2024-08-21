@@ -38,7 +38,7 @@ const SocialButton = ({
     queryString.set("response_type", session.authParams.response_type);
   }
   if (session.authParams.state) {
-    queryString.set("state", session.authParams.state);
+    queryString.set("state", session.login_id);
   }
   const href = `/authorize?${queryString.toString()}`;
 

@@ -1,10 +1,8 @@
 import { oauth2Callback } from "../../authentication-flows";
 import { Env, Var } from "../../types";
-import { stateDecode } from "../../utils/stateEncode";
 import { HTTPException } from "hono/http-exception";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { setSearchParams } from "../../utils/url";
-import { LoginState } from "@authhero/adapter-interfaces";
 
 export const callbackRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -46,13 +44,27 @@ export const callbackRoutes = new OpenAPIHono<{
         error_reason,
       } = ctx.req.valid("query");
 
-      const loginState: LoginState = stateDecode(state);
-      if (!loginState) {
+      const auth0state = await ctx.env.data.codes.get(
+        ctx.var.tenant_id || "",
+        state,
+        "oauth2_state",
+      );
+
+      if (!auth0state || !auth0state.connection_id) {
+        throw new HTTPException(400, { message: "State not found" });
+      }
+
+      const session = await ctx.env.data.logins.get(
+        ctx.var.tenant_id || "",
+        auth0state.login_id,
+      );
+
+      if (!session) {
         throw new HTTPException(400, { message: "State not found" });
       }
 
       if (error) {
-        const { redirect_uri } = loginState.authParams;
+        const { redirect_uri } = session.authParams;
 
         if (!redirect_uri) {
           throw new HTTPException(400, { message: "Redirect uri not found" });
@@ -64,7 +76,7 @@ export const callbackRoutes = new OpenAPIHono<{
           error_description,
           error_code,
           error_reason,
-          state: loginState.authParams.state,
+          state: session.authParams.state,
         });
 
         return ctx.redirect(redirectUri.href);
@@ -77,7 +89,8 @@ export const callbackRoutes = new OpenAPIHono<{
 
       return oauth2Callback({
         ctx,
-        state: loginState,
+        session,
+        connection_id: auth0state.connection_id,
         code,
       });
     },
@@ -124,13 +137,27 @@ export const callbackRoutes = new OpenAPIHono<{
         error_reason,
       } = ctx.req.valid("form");
 
-      const loginState: LoginState = stateDecode(state);
-      if (!loginState) {
+      const auth0state = await ctx.env.data.codes.get(
+        ctx.var.tenant_id || "",
+        state,
+        "oauth2_state",
+      );
+
+      if (!auth0state || !auth0state.connection_id) {
         throw new HTTPException(400, { message: "State not found" });
       }
 
+      const session = await ctx.env.data.logins.get(
+        ctx.var.tenant_id || "",
+        auth0state.login_id,
+      );
+
+      if (!session) {
+        throw new HTTPException(400, { message: "Sesssion not found" });
+      }
+
       if (error) {
-        const { redirect_uri } = loginState.authParams;
+        const { redirect_uri } = session.authParams;
 
         if (!redirect_uri) {
           throw new Error("Redirect uri not found");
@@ -143,7 +170,7 @@ export const callbackRoutes = new OpenAPIHono<{
           error_description,
           error_code,
           error_reason,
-          state: loginState.authParams.state,
+          state: session.authParams.state,
         });
 
         return ctx.redirect(redirectUri.href);
@@ -152,7 +179,8 @@ export const callbackRoutes = new OpenAPIHono<{
       if (code) {
         return oauth2Callback({
           ctx,
-          state: loginState,
+          connection_id: auth0state.connection_id,
+          session,
           code,
         });
       }
