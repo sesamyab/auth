@@ -8,6 +8,7 @@ describe("token", () => {
     const { oauthApp, env } = await getTestServer();
     const oauthClient = testClient(oauthApp, env);
 
+    // Get a ticket by logging in with a username and password
     const loginResponse = await oauthClient.co.authenticate.$post({
       json: {
         client_id: "clientId",
@@ -23,6 +24,7 @@ describe("token", () => {
       login_ticket: string;
     };
 
+    // Trade the ticket for a code
     const authorizeResponse = await oauthClient.authorize.$get(
       {
         query: {

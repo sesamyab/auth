@@ -5,7 +5,25 @@ import { Env, Var } from "../../types";
 import { HTTPException } from "hono/http-exception";
 import { getClient } from "../../services/clients";
 import { loginWithPassword } from "../../authentication-flows/password";
-import { OTP, Ticket } from "@authhero/adapter-interfaces";
+import { Ticket } from "@authhero/adapter-interfaces";
+
+function createUnauthorizedResponse() {
+  return new HTTPException(403, {
+    res: new Response(
+      JSON.stringify({
+        error: "access_denied",
+        error_description: "Wrong email or verification code.",
+      }),
+      {
+        status: 403, // without this it returns a 200
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    ),
+    message: "Wrong email or verification code.",
+  });
+}
 
 const TICKET_EXPIRATION_TIME = 30 * 60 * 1000;
 
@@ -65,31 +83,26 @@ export const authenticateRoutes = new OpenAPIHono<{
       };
 
       if (otp) {
-        const otps = await ctx.env.data.OTP.list(client.tenant.id, email);
-        const matchingOtp = otps.find((o) => o.code === otp);
-
-        if (!matchingOtp) {
-          throw new HTTPException(403, {
-            res: new Response(
-              JSON.stringify({
-                error: "access_denied",
-                error_description: "Wrong email or verification code.",
-              }),
-              {
-                status: 403, // without this it returns a 200
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              },
-            ),
-            message: "Wrong email or verification code.",
-          });
+        const code = await ctx.env.data.codes.get(client.tenant.id, otp, "otp");
+        if (!code) {
+          throw createUnauthorizedResponse();
         }
 
-        // TODO - use validateCode() helper common code here
-        await ctx.env.data.OTP.remove(client.tenant.id, matchingOtp.id);
+        const loginSession = await ctx.env.data.logins.get(
+          client.tenant.id,
+          code.login_id,
+        );
+        if (!loginSession || loginSession.authParams.username !== email) {
+          throw createUnauthorizedResponse();
+        }
 
-        ticket.authParams = matchingOtp.authParams;
+        if (loginSession.authParams.username !== email) {
+          throw createUnauthorizedResponse();
+        }
+
+        // TODO: A temporary solution as the ticket doesn't have a username field. We should move the tickets over to the codes table instead
+        const { username, ...authParams } = loginSession.authParams;
+        ticket.authParams = authParams;
       } else if (password) {
         // This will throw if the login fails
         await loginWithPassword(ctx, client, {

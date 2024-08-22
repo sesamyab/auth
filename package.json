@@ -1,6 +1,6 @@
 {
   "name": "auth2",
-  "version": "1.253.17",
+  "version": "1.254.3",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -50,8 +50,8 @@
     ]
   },
   "dependencies": {
-    "@authhero/adapter-interfaces": "0.11.6",
-    "@authhero/kysely-adapter": "0.7.10",
+    "@authhero/adapter-interfaces": "0.11.7",
+    "@authhero/kysely-adapter": "0.7.11",
     "@hono/zod-openapi": "0.15.1",
     "@peculiar/x509": "^1.12.1",
     "@planetscale/database": "1.16.0",

@@ -29,7 +29,7 @@ import { nanoid } from "nanoid";
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
-  connection: string,
+  connectionName: string,
   authParams: AuthParams,
   auth0Client?: string,
 ) {
@@ -37,11 +37,9 @@ export async function socialAuth(
     throw new HTTPException(400, { message: "State not found" });
   }
 
-  const connectionInstance = client.connections.find(
-    (p) => p.name === connection,
-  );
+  const connection = client.connections.find((p) => p.name === connectionName);
 
-  if (!connectionInstance) {
+  if (!connection) {
     ctx.set("client_id", client.id);
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_LOGIN,
@@ -67,25 +65,46 @@ export async function socialAuth(
     });
   }
 
-  const auth0Code = await ctx.env.data.codes.create(client.tenant.id, {
+  const auth2State = await ctx.env.data.codes.create(client.tenant.id, {
     login_id: session.login_id,
     code_id: nanoid(),
     code_type: "oauth2_state",
-    connection_id: connectionInstance.id,
+    connection_id: connection.id,
     expires_at: new Date(
       Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
   });
 
-  const oauthLoginUrl = new URL(connectionInstance.authorization_endpoint!);
+  if (connectionName === "apple") {
+    const apple = new Apple(
+      {
+        clientId: connection.client_id!,
+        teamId: connection.team_id!,
+        keyId: connection.kid!,
+        certificate: connection
+          .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+          .replace(/-----END PRIVATE KEY-----/, "")
+          .replace(/\s/g, ""),
+      },
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const appleAuthorizatioUrl = await apple.createAuthorizationURL(
+      auth2State.code_id,
+    );
+
+    return ctx.redirect(appleAuthorizatioUrl.href);
+  }
+
+  const oauthLoginUrl = new URL(connection.authorization_endpoint!);
 
   setSearchParams(oauthLoginUrl, {
-    scope: connectionInstance.scope,
-    client_id: connectionInstance.client_id,
+    scope: connection.scope,
+    client_id: connection.client_id,
     redirect_uri: `${ctx.env.ISSUER}callback`,
-    response_type: connectionInstance.response_type,
-    response_mode: connectionInstance.response_mode,
-    state: auth0Code.code_id,
+    response_type: connection.response_type,
+    response_mode: connection.response_mode,
+    state: auth2State.code_id,
   });
 
   return ctx.redirect(oauthLoginUrl.href);

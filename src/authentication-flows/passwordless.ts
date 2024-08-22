@@ -33,7 +33,7 @@ import { SendType } from "../utils/getSendParamFromAuth0ClientHeader";
 interface LoginParams {
   client_id: string;
   email: string;
-  verification_code: string;
+  otp: string;
   ip?: string;
 }
 
@@ -45,15 +45,23 @@ export async function validateCode(
 
   const client = await getClient(env, params.client_id);
 
-  const otps = await env.data.OTP.list(client.tenant.id, params.email);
-  const otp = otps.find((otp) => otp.code === params.verification_code);
+  const code = await env.data.codes.get(client.tenant.id, params.otp, "otp");
 
-  if (!otp) {
+  if (!code) {
     throw new HTTPException(403, { message: "Code not found or expired" });
   }
 
+  const login = await env.data.logins.get(client.tenant.id, code.login_id);
+  if (!login) {
+    throw new HTTPException(403, { message: "Code not found or expired" });
+  }
+
+  if (login.authParams.username !== params.email) {
+    throw new HTTPException(403, { message: "Email does not match" });
+  }
+
   // TODO: disable for now
-  // await env.data.OTP.remove(client.tenant.id, otp.id);
+  // await env.data.codes.remove(client.tenant.id, otp.id);
 
   const emailUser = await getPrimaryUserByEmailAndProvider({
     userAdapter: env.data.users,
@@ -146,26 +154,26 @@ export async function sendEmailVerificationEmail({
 interface sendOtpEmailParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
   client: Client;
-  authParams: AuthParams;
   sendType: SendType;
+  session: Login;
 }
 
 export async function sendOtpEmail({
   ctx,
   client,
-  authParams,
+  session,
   sendType,
 }: sendOtpEmailParams) {
   const { env } = ctx;
 
-  if (!authParams.username) {
+  if (!session.authParams.username) {
     throw new HTTPException(400, { message: "Missing username" });
   }
 
   const user = await getPrimaryUserByEmail({
     userAdapter: env.data.users,
     tenant_id: client.tenant.id,
-    email: authParams.username,
+    email: session.authParams.username,
   });
   if (user) {
     ctx.set("userId", user.user_id);
@@ -173,7 +181,12 @@ export async function sendOtpEmail({
 
   if (!user) {
     try {
-      await preUserSignupHook(ctx, client, ctx.env.data, authParams.username);
+      await preUserSignupHook(
+        ctx,
+        client,
+        ctx.env.data,
+        session.authParams.username,
+      );
     } catch (err) {
       const log = createLogMessage(ctx, {
         type: LogTypes.FAILED_SIGNUP,
@@ -188,33 +201,28 @@ export async function sendOtpEmail({
     }
   }
 
-  const code = generateOTP();
-
-  // fields in universalLoginSessions don't match fields in OTP
-  const {
-    audience,
-    code_challenge_method,
-    code_challenge,
-    username,
-    vendor_id,
-    ...otpAuthParams
-  } = authParams;
-
-  await env.data.OTP.create(client.tenant.id, {
-    id: nanoid(),
-    code,
-    email: authParams.username,
-    send: "code",
-    authParams: otpAuthParams,
+  const createdCode = await ctx.env.data.codes.create(client.tenant.id, {
+    code_id: generateOTP(),
+    code_type: "otp",
+    login_id: session.login_id,
     expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
   });
 
   if (sendType === "link") {
     waitUntil(
       ctx,
-      sendLink(ctx, client, authParams.username, code, authParams),
+      sendLink(
+        ctx,
+        client,
+        session.authParams.username,
+        createdCode.code_id,
+        session.authParams,
+      ),
     );
   } else {
-    waitUntil(ctx, sendCode(ctx, client, authParams.username, code));
+    waitUntil(
+      ctx,
+      sendCode(ctx, client, session.authParams.username, createdCode.code_id),
+    );
   }
 }
