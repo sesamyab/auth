@@ -212,7 +212,7 @@ export async function oauth2Callback({
         token_endpoint: connection.token_endpoint!,
         scope: connection.scope!,
       },
-      `${env.ISSUER}callback/`,
+      `${env.ISSUER}callback`,
     );
 
     const token = await oauth2Client.exchangeCodeForTokenResponse(
