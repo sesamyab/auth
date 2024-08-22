@@ -27,8 +27,6 @@ const EnterEmailPage: FC<Props> = ({
   email,
   client,
 }) => {
-  const sendType = getSendParamFromAuth0ClientHeader(session.auth0Client);
-
   const connections = client.connections.map(({ name }) => name);
   const showFacebook = connections.includes("facebook");
   const showGoogle = connections.includes("google-oauth2");

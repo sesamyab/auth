@@ -153,7 +153,7 @@ export const authorizeRoutes = new OpenAPIHono<{
 
       // Social login
       if (connection && connection !== "email") {
-        return socialAuth(ctx, client, connection, authParams);
+        return socialAuth(ctx, client, connection, authParams, auth0Client);
       } else if (login_ticket) {
         return ticketAuth(
           ctx,

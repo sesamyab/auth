@@ -24,6 +24,9 @@ import {
   User,
 } from "@authhero/adapter-interfaces";
 import { setSilentAuthCookies } from "./silent-auth-cookie";
+import { SAMLResponse } from "./saml-response";
+import { samlResponseForm } from "../templates/samlResponse";
+import { HTTPException } from "hono/http-exception";
 
 export type AuthFlowType =
   | "cross-origin"
@@ -226,6 +229,26 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       (await setSilentAuthCookies(ctx.env, client.tenant.id, client.id, user));
 
     headers.set("set-cookie", serializeAuthCookie(client.tenant.id, sessionId));
+  }
+
+  if (authParams.response_mode === AuthorizationResponseMode.SAML_POST) {
+    if (!authParams.redirect_uri) {
+      throw new HTTPException(400, {
+        message: "Missing redirect_uri in authParams",
+      });
+    }
+
+    const samlResponse = new SAMLResponse(
+      ctx.env.ISSUER,
+      authParams.redirect_uri || "",
+      "default",
+      user?.user_id || "userId",
+    );
+
+    const xmlResponse = samlResponse.generateResponse();
+    const encodedResponse = samlResponse.encodeResponse(xmlResponse);
+
+    return samlResponseForm(authParams.redirect_uri, encodedResponse);
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {

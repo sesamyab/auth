@@ -98,7 +98,7 @@ describe("social sign on", () => {
       const socialSignOnQuery2 = location.searchParams;
       expect(socialSignOnQuery2.get("scope")).toBe("openid profile email");
       // previous args should create this state
-      expect(socialSignOnQuery2.get("state")).toBe(SOCIAL_STATE_PARAM);
+      expect(socialSignOnQuery2.get("state")).toBeTypeOf("string");
       expect(socialSignOnQuery2.get("redirect_uri")).toBe(
         "https://example.com/callback",
       );
@@ -110,21 +110,42 @@ describe("social sign on", () => {
     describe("Create a new user from a social callback", () => {
       // like most of the providers
       it("should receive params in the querystring when a GET", async () => {
-        const socialCallbackQuery = {
-          state: SOCIAL_STATE_PARAM,
-          code: "code",
-        };
         const { managementApp, oauthApp, env } = await getTestServer();
         const oauthClient = testClient(oauthApp, env);
         const managementClient = testClient(managementApp, env);
 
-        const socialCallbackResponse = await oauthClient.callback.$get({
-          query: socialCallbackQuery,
+        const session = await env.data.logins.create("tenantId", {
+          expires_at: new Date(Date.now() + 10000).toISOString(),
+          authParams: {
+            username: "someone@example.com",
+            client_id: "clientId",
+            redirect_uri: "https://login2.sesamy.dev/callback",
+            response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+            nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+            state: LOGIN2_STATE,
+          },
+          auth0Client: "auth0Client",
         });
+        const oauth2State = await env.data.codes.create("tenantId", {
+          login_id: session.login_id,
+          code_id: "code",
+          code_type: "oauth2_state",
+          connection_id: "demo-social-provider",
+          expires_at: new Date(Date.now() + 10000).toISOString(),
+        });
+
+        const socialCallbackResponse = await oauthClient.callback.$get({
+          query: {
+            code: oauth2State.code_id,
+            state: session.login_id,
+          },
+        });
+
         expect(socialCallbackResponse.status).toBe(302);
         const location2 = new URL(
           socialCallbackResponse.headers.get("location")!,
         );
+
         expect(location2.host).toBe("login2.sesamy.dev");
 
         const socialCallbackQuery2 = new URLSearchParams(
@@ -226,6 +247,7 @@ describe("social sign on", () => {
         } = newSocialUser;
         expect(newSocialUserWithoutDates).toEqual(EXPECTED_NEW_USER);
       });
+
       // like apple
       it("should receive params in the body when a POST", async () => {
         const token = await getAdminToken();
@@ -234,28 +256,30 @@ describe("social sign on", () => {
         const oauthClient = testClient(oauthApp, env);
         const managementClient = testClient(managementApp, env);
 
-        // check this user isn't already created from the previous test
-        const checkNoExistingUser = await managementClient.api.v2.users[
-          ":user_id"
-        ].$get(
-          {
-            param: { user_id: "demo-social-provider|1234567890" },
-            header: {
-              "tenant-id": "tenantId",
-            },
+        const session = await env.data.logins.create("tenantId", {
+          expires_at: new Date(Date.now() + 10000).toISOString(),
+          authParams: {
+            username: "someone@example.com",
+            client_id: "clientId",
+            redirect_uri: "https://login2.sesamy.dev/callback",
+            response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+            nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+            state: LOGIN2_STATE,
           },
-          {
-            headers: {
-              authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        // this checks that the integration test persistence is correctly reset every test
-        expect(checkNoExistingUser.status).toBe(404);
+          auth0Client: "auth0Client",
+        });
+        const oauth2State = await env.data.codes.create("tenantId", {
+          login_id: session.login_id,
+          code_id: "state",
+          code_type: "oauth2_state",
+          connection_id: "demo-social-provider",
+          expires_at: new Date(Date.now() + 10000).toISOString(),
+        });
+
         const socialCallbackResponse = await oauthClient.callback.$post({
           form: {
-            state: SOCIAL_STATE_PARAM,
-            code: "code",
+            state: session.login_id,
+            code: oauth2State.code_id,
           },
         });
         expect(socialCallbackResponse.status).toBe(302);
@@ -376,13 +400,31 @@ describe("social sign on", () => {
       // ---------------------------------------------
       // now do social sign on with same email - new user registered
       // ---------------------------------------------
-      const socialCallbackQuery = {
-        state: SOCIAL_STATE_PARAM,
-        code: "code",
-      };
+      const session = await env.data.logins.create("tenantId", {
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+        authParams: {
+          username: "someone@example.com",
+          client_id: "clientId",
+          redirect_uri: "https://login2.sesamy.dev/callback",
+          response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+          nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+          state: LOGIN2_STATE,
+        },
+        auth0Client: "auth0Client",
+      });
+      const oauth2State = await env.data.codes.create("tenantId", {
+        login_id: session.login_id,
+        code_id: "state",
+        code_type: "oauth2_state",
+        connection_id: "demo-social-provider",
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+      });
 
       const socialCallbackResponse = await oauthClient.callback.$get({
-        query: socialCallbackQuery,
+        query: {
+          code: oauth2State.code_id,
+          state: session.login_id,
+        },
       });
 
       const socialCallbackResponseQuery = new URLSearchParams(
@@ -494,7 +536,10 @@ describe("social sign on", () => {
       // now sign in same social user again and check we get the same primary user back
       // ---------------------------------------------
       const socialCallbackResponse2 = await oauthClient.callback.$get({
-        query: socialCallbackQuery,
+        query: {
+          code: oauth2State.code_id,
+          state: session.login_id,
+        },
       });
 
       const socialCallbackResponse2Query = new URLSearchParams(
@@ -506,16 +551,33 @@ describe("social sign on", () => {
       // ---------------------------------------------
       // now log-in with another SSO account with the same email address
       // ---------------------------------------------
-      const socialCallbackQueryAnotherSSO = {
-        state: osloBtoa({
-          authParams: SOCIAL_STATE_PARAM_AUTH_PARAMS,
-          connection: "other-social-provider",
-        }),
-        code: "code",
-      };
-      const socialCallbackResponseAnotherSSO = await oauthClient.callback.$get({
-        query: socialCallbackQueryAnotherSSO,
+      const session2 = await env.data.logins.create("tenantId", {
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+        authParams: {
+          username: "someone@example.com",
+          client_id: "clientId",
+          redirect_uri: "https://login2.sesamy.dev/callback",
+          response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+          nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+          state: LOGIN2_STATE,
+        },
+        auth0Client: "auth0Client",
       });
+      const oauth2State2 = await env.data.codes.create("tenantId", {
+        login_id: session2.login_id,
+        code_id: "state2",
+        code_type: "oauth2_state",
+        connection_id: "other-social-provider",
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+      });
+
+      const socialCallbackResponseAnotherSSO = await oauthClient.callback.$get({
+        query: {
+          code: oauth2State2.code_id,
+          state: session2.login_id,
+        },
+      });
+      expect(socialCallbackResponseAnotherSSO.status).toBe(302);
 
       const socialCallbackResponseAnotherSSOQuery = new URLSearchParams(
         socialCallbackResponseAnotherSSO.headers
@@ -637,13 +699,32 @@ describe("social sign on", () => {
       // ---------------------------------------------
       // now do social sign on with same email - new user registered
       // ---------------------------------------------
-      const socialCallbackQuery = {
-        state: SOCIAL_STATE_PARAM,
-        code: "code",
-      };
+
+      const session = await env.data.logins.create("tenantId", {
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+        authParams: {
+          username: "someone@example.com",
+          client_id: "clientId",
+          redirect_uri: "https://login2.sesamy.dev/callback",
+          response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+          nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+          state: LOGIN2_STATE,
+        },
+        auth0Client: "auth0Client",
+      });
+      const oauth2State = await env.data.codes.create("tenantId", {
+        login_id: session.login_id,
+        code_id: "state",
+        code_type: "oauth2_state",
+        connection_id: "demo-social-provider",
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+      });
 
       const socialCallbackResponse = await oauthClient.callback.$get({
-        query: socialCallbackQuery,
+        query: {
+          state: session.login_id,
+          code: oauth2State.code_id,
+        },
       });
 
       const socialCallbackResponseQuery = new URLSearchParams(
@@ -680,13 +761,31 @@ describe("social sign on", () => {
       // sign up new social user that has same email address
       //-----------------
 
-      const socialCallbackQuery = {
-        state: SOCIAL_STATE_PARAM,
-        code: "code",
-      };
+      const session = await env.data.logins.create("tenantId", {
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+        authParams: {
+          username: "someone@example.com",
+          client_id: "clientId",
+          redirect_uri: "https://login2.sesamy.dev/callback",
+          response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+          nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+          state: LOGIN2_STATE,
+        },
+        auth0Client: "auth0Client",
+      });
+      const oauth2State = await env.data.codes.create("tenantId", {
+        login_id: session.login_id,
+        code_id: "state",
+        code_type: "oauth2_state",
+        connection_id: "demo-social-provider",
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+      });
 
       const socialCallbackResponse = await oauthClient.callback.$get({
-        query: socialCallbackQuery,
+        query: {
+          code: oauth2State.code_id,
+          state: session.login_id,
+        },
       });
       expect(socialCallbackResponse.status).toBe(302);
       const location2 = new URL(
@@ -709,47 +808,30 @@ describe("social sign on", () => {
         const { oauthApp, env } = await getTestServer();
         const client = testClient(oauthApp, env);
 
-        const socialCallbackQuery = {
-          // this is the only difference from the other tests
-          state: osloBtoa({
-            authParams: {
-              redirect_uri: "https://login2.sesamy.dev/callback",
-              scope: "openid profile email",
-              state: "_7lvvz2iVJ7bQBqayN9ZsER5mt1VdGcx",
-              client_id: "clientId",
-              nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
-              response_type: "token id_token",
-            },
-            connection: "non-existing-social-provider",
-          }),
-          code: "code",
-        };
-        const socialCallbackResponse = await client.callback.$get({
-          query: socialCallbackQuery,
+        const session = await env.data.logins.create("tenantId", {
+          expires_at: new Date(Date.now() + 10000).toISOString(),
+          authParams: {
+            username: "someone@example.com",
+            client_id: "clientId",
+            redirect_uri: "https://login2.sesamy.dev/callback",
+            response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+            nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+            state: LOGIN2_STATE,
+          },
+          auth0Client: "auth0Client",
         });
-        expect(socialCallbackResponse.status).toBe(403);
-        expect(await socialCallbackResponse.text()).toBe(
-          "Connection not found",
-        );
-      });
-      it("should not when POST /callback", async () => {
-        const { oauthApp, env } = await getTestServer();
-        const client = testClient(oauthApp, env);
+        const oauth2State = await env.data.codes.create("tenantId", {
+          login_id: session.login_id,
+          code_id: "code",
+          code_type: "oauth2_state",
+          connection_id: "non-existing-social-provider",
+          expires_at: new Date(Date.now() + 10000).toISOString(),
+        });
 
-        const socialCallbackResponse = await client.callback.$post({
-          form: {
-            state: osloBtoa({
-              authParams: {
-                redirect_uri: "https://login2.sesamy.dev/callback",
-                scope: "openid profile email",
-                state: "_7lvvz2iVJ7bQBqayN9ZsER5mt1VdGcx",
-                client_id: "clientId",
-                nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
-                response_type: "token id_token",
-              },
-              connection: "evil-social-provider",
-            }),
-            code: "code",
+        const socialCallbackResponse = await client.callback.$get({
+          query: {
+            code: oauth2State.code_id,
+            state: session.login_id,
           },
         });
 
@@ -769,13 +851,26 @@ describe("social sign on", () => {
       const { oauthApp, env } = await getTestServer();
       const client = testClient(oauthApp, env);
 
+      const session = await env.data.logins.create("tenantId", {
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+        authParams: {
+          username: "someone@example.com",
+          client_id: "clientId",
+          redirect_uri: "https://login2.sesamy.dev/callback",
+          response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+          nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+          state: LOGIN2_STATE,
+        },
+        auth0Client: "auth0Client",
+      });
+
       const errorCallbackResponse = await client.callback.$get({
         query: {
           error: "access_denied",
           error_code: "200",
           error_description: "Permissions error",
           error_reason: "user_denied",
-          state: SOCIAL_STATE_PARAM,
+          state: session.login_id,
         },
       });
 

@@ -17,6 +17,7 @@ export const headers = {
 };
 
 export const UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS = 60 * 60 * 24; // 1 day
+export const OAUTH2_CODE_EXPIRES_IN_SECONDS = 5 * 60; // 5 minutes
 
 export const CODE_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 

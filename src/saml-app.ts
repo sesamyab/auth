@@ -14,11 +14,11 @@ export default function create(params: CreateAuthParams) {
 
   const oauthApp = app.route("/samlp", samlpRoutes);
 
-  oauthApp.doc("/spec", {
+  oauthApp.doc("/saml-spec", {
     openapi: "3.0.0",
     info: {
       version: "1.0.0",
-      title: "Oauth endpoints",
+      title: "SAML endpoints",
     },
   });
 

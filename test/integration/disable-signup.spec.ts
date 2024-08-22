@@ -14,7 +14,7 @@ function osloBtoa(payload: object) {
   return encodedStr;
 }
 
-test("only allows existing breakit users to progress to the enter code step", async () => {
+test("only allows existing users to progress to the enter code step", async () => {
   const testTenantLanguage = "en";
   const { env, oauthApp } = await getTestServer({
     testTenantLanguage,
@@ -63,17 +63,15 @@ test("only allows existing breakit users to progress to the enter code step", as
     name: "facebook",
   });
 
-  const searchParams = {
-    client_id: "breakit",
-    vendor_id: "breakit",
-    response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-    scope: "openid",
-    redirect_uri: "http://localhost:3000/callback",
-    state: "state",
-  };
-
   const response = await oauthClient.authorize.$get({
-    query: searchParams,
+    query: {
+      client_id: "breakit",
+      vendor_id: "breakit",
+      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+      scope: "openid",
+      redirect_uri: "http://localhost:3000/callback",
+      state: "state",
+    },
   });
   const location = response.headers.get("location");
   const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -212,27 +210,31 @@ test("only allows existing breakit users to progress to the enter code step with
   // ----------------------------
   // SSO callback from nonexisting user
   // ----------------------------
-
-  const socialStateParamNonExistingUser = osloBtoa({
+  const session = await env.data.logins.create("breakit", {
+    expires_at: new Date(Date.now() + 10000).toISOString(),
     authParams: {
-      redirect_uri: "https://example.com/callback",
-      scope: "openid profile email",
-      state: STATE,
+      username: "örjan.lindström@example.com",
       client_id: "breakit",
-      nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+      redirect_uri: "https://login2.sesamy.dev/callback",
       response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      // we do not have an account for this user so Auth2 will attempt to create one, which will fail here
-      connection: "other-social-provider",
+      nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+      state: "state",
     },
-    connection: "other-social-provider",
+    auth0Client: "auth0Client",
+  });
+  const oauth2State = await env.data.codes.create("breakit", {
+    login_id: session.login_id,
+    code_id: "code",
+    code_type: "oauth2_state",
+    connection_id: "other-social-provider",
+    expires_at: new Date(Date.now() + 10000).toISOString(),
   });
 
-  const socialCallbackQuery = {
-    state: socialStateParamNonExistingUser,
-    code: "code",
-  };
   const socialCallbackResponse = await oauthClient.callback.$get({
-    query: socialCallbackQuery,
+    query: {
+      state: session.login_id,
+      code: oauth2State.code_id,
+    },
   });
   expect(socialCallbackResponse.status).toBe(400);
 
@@ -256,24 +258,30 @@ test("only allows existing breakit users to progress to the enter code step with
   // ----------------------------
   //  Try going past email address step with existing breakit user
   // ----------------------------
-  const socialStateParamExistingUser = osloBtoa({
+  const session2 = await env.data.logins.create("breakit", {
+    expires_at: new Date(Date.now() + 10000).toISOString(),
     authParams: {
-      redirect_uri: "https://login2.sesamy.dev/callback",
-      scope: "openid profile email",
-      state: STATE,
+      username: "örjan.lindström@example.com",
       client_id: "breakit",
-      nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+      redirect_uri: "https://login2.sesamy.dev/callback",
       response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      // we DO have an account for this user
-      connection: "demo-social-provider",
+      nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+      state: "state",
     },
-    connection: "demo-social-provider",
+    auth0Client: "auth0Client",
+  });
+  const oauth2State2 = await env.data.codes.create("breakit", {
+    login_id: session2.login_id,
+    code_id: "code2",
+    code_type: "oauth2_state",
+    connection_id: "demo-social-provider",
+    expires_at: new Date(Date.now() + 10000).toISOString(),
   });
 
   const existingUserSocialCallbackResponse = await oauthClient.callback.$get({
     query: {
-      state: socialStateParamExistingUser,
-      code: "code",
+      state: session2.login_id,
+      code: oauth2State2.code_id,
     },
   });
   // now we're being redirected to the next step as the user exists
