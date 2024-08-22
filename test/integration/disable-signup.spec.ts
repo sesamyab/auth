@@ -144,7 +144,7 @@ test("only allows existing users to progress to the enter code step", async () =
 
 // this test name isn't correct as there is no "enter code" step with a social login. This test is testing that a new SSO user
 // cannot be redirect back to the callback
-test.skip("only allows existing breakit users to progress to the enter code step with social signon", async () => {
+test.only("only allows existing breakit users to progress to the enter code step with social signon", async () => {
   const testTenantLanguage = "en";
   const { oauthApp, env } = await getTestServer({
     testTenantLanguage,
@@ -226,7 +226,7 @@ test.skip("only allows existing breakit users to progress to the enter code step
     login_id: session.login_id,
     code_id: "code",
     code_type: "oauth2_state",
-    connection_id: "socialClientId",
+    connection_id: "other-social-provider",
     expires_at: new Date(Date.now() + 10000).toISOString(),
   });
 
@@ -258,24 +258,30 @@ test.skip("only allows existing breakit users to progress to the enter code step
   // ----------------------------
   //  Try going past email address step with existing breakit user
   // ----------------------------
-  const socialStateParamExistingUser = osloBtoa({
+  const session2 = await env.data.logins.create("breakit", {
+    expires_at: new Date(Date.now() + 10000).toISOString(),
     authParams: {
-      redirect_uri: "https://login2.sesamy.dev/callback",
-      scope: "openid profile email",
-      state: STATE,
+      username: "örjan.lindström@example.com",
       client_id: "breakit",
-      nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+      redirect_uri: "https://login2.sesamy.dev/callback",
       response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      // we DO have an account for this user
-      connection: "demo-social-provider",
+      nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
+      state: "state",
     },
-    connection: "demo-social-provider",
+    auth0Client: "auth0Client",
+  });
+  const oauth2State2 = await env.data.codes.create("breakit", {
+    login_id: session2.login_id,
+    code_id: "code2",
+    code_type: "oauth2_state",
+    connection_id: "demo-social-provider",
+    expires_at: new Date(Date.now() + 10000).toISOString(),
   });
 
   const existingUserSocialCallbackResponse = await oauthClient.callback.$get({
     query: {
-      state: socialStateParamExistingUser,
-      code: "code",
+      state: session2.login_id,
+      code: oauth2State2.code_id,
     },
   });
   // now we're being redirected to the next step as the user exists
