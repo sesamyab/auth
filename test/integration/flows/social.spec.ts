@@ -128,7 +128,7 @@ describe("social sign on", () => {
         });
         const oauth2State = await env.data.codes.create("tenantId", {
           login_id: session.login_id,
-          code_id: "code",
+          code_id: "state",
           code_type: "oauth2_state",
           connection_id: "demo-social-provider",
           expires_at: new Date(Date.now() + 10000).toISOString(),
@@ -136,8 +136,8 @@ describe("social sign on", () => {
 
         const socialCallbackResponse = await oauthClient.callback.$get({
           query: {
-            code: oauth2State.code_id,
-            state: session.login_id,
+            code: "code",
+            state: oauth2State.code_id,
           },
         });
 
@@ -278,8 +278,8 @@ describe("social sign on", () => {
 
         const socialCallbackResponse = await oauthClient.callback.$post({
           form: {
-            state: session.login_id,
-            code: oauth2State.code_id,
+            state: oauth2State.code_id,
+            code: "code",
           },
         });
         expect(socialCallbackResponse.status).toBe(302);
@@ -422,8 +422,8 @@ describe("social sign on", () => {
 
       const socialCallbackResponse = await oauthClient.callback.$get({
         query: {
-          code: oauth2State.code_id,
-          state: session.login_id,
+          code: "code",
+          state: oauth2State.code_id,
         },
       });
 
@@ -537,8 +537,8 @@ describe("social sign on", () => {
       // ---------------------------------------------
       const socialCallbackResponse2 = await oauthClient.callback.$get({
         query: {
-          code: oauth2State.code_id,
-          state: session.login_id,
+          code: "code",
+          state: oauth2State.code_id,
         },
       });
 
@@ -573,8 +573,8 @@ describe("social sign on", () => {
 
       const socialCallbackResponseAnotherSSO = await oauthClient.callback.$get({
         query: {
-          code: oauth2State2.code_id,
-          state: session2.login_id,
+          code: "code",
+          state: oauth2State2.code_id,
         },
       });
       expect(socialCallbackResponseAnotherSSO.status).toBe(302);
@@ -722,8 +722,8 @@ describe("social sign on", () => {
 
       const socialCallbackResponse = await oauthClient.callback.$get({
         query: {
-          state: session.login_id,
-          code: oauth2State.code_id,
+          state: oauth2State.code_id,
+          code: "code",
         },
       });
 
@@ -783,8 +783,8 @@ describe("social sign on", () => {
 
       const socialCallbackResponse = await oauthClient.callback.$get({
         query: {
-          code: oauth2State.code_id,
-          state: session.login_id,
+          code: "code",
+          state: oauth2State.code_id,
         },
       });
       expect(socialCallbackResponse.status).toBe(302);
@@ -822,7 +822,7 @@ describe("social sign on", () => {
         });
         const oauth2State = await env.data.codes.create("tenantId", {
           login_id: session.login_id,
-          code_id: "code",
+          code_id: "state",
           code_type: "oauth2_state",
           connection_id: "non-existing-social-provider",
           expires_at: new Date(Date.now() + 10000).toISOString(),
@@ -830,8 +830,8 @@ describe("social sign on", () => {
 
         const socialCallbackResponse = await client.callback.$get({
           query: {
-            code: oauth2State.code_id,
-            state: session.login_id,
+            code: "code",
+            state: oauth2State.code_id,
           },
         });
 
@@ -863,6 +863,13 @@ describe("social sign on", () => {
         },
         auth0Client: "auth0Client",
       });
+      const oauth2State = await env.data.codes.create("tenantId", {
+        login_id: session.login_id,
+        code_id: "state",
+        code_type: "oauth2_state",
+        connection_id: "non-existing-social-provider",
+        expires_at: new Date(Date.now() + 10000).toISOString(),
+      });
 
       const errorCallbackResponse = await client.callback.$get({
         query: {
@@ -870,7 +877,7 @@ describe("social sign on", () => {
           error_code: "200",
           error_description: "Permissions error",
           error_reason: "user_denied",
-          state: session.login_id,
+          state: oauth2State.code_id,
         },
       });
 

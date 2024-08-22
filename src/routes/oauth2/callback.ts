@@ -44,9 +44,18 @@ export const callbackRoutes = new OpenAPIHono<{
         error_reason,
       } = ctx.req.valid("query");
 
-      const session = await ctx.env.data.logins.get(
+      const auth0state = await ctx.env.data.codes.get(
         ctx.var.tenant_id || "",
         state,
+        "oauth2_state",
+      );
+      if (!auth0state || !auth0state.connection_id) {
+        throw new HTTPException(403, { message: "State not found" });
+      }
+
+      const session = await ctx.env.data.logins.get(
+        ctx.var.tenant_id || "",
+        auth0state.login_id,
       );
 
       if (!session) {
@@ -81,6 +90,7 @@ export const callbackRoutes = new OpenAPIHono<{
         ctx,
         session,
         code,
+        connection_id: auth0state.connection_id,
       });
     },
   )
@@ -126,13 +136,22 @@ export const callbackRoutes = new OpenAPIHono<{
         error_reason,
       } = ctx.req.valid("form");
 
-      const session = await ctx.env.data.logins.get(
+      const auth0state = await ctx.env.data.codes.get(
         ctx.var.tenant_id || "",
         state,
+        "oauth2_state",
+      );
+      if (!auth0state || !auth0state.connection_id) {
+        throw new HTTPException(403, { message: "State not found" });
+      }
+
+      const session = await ctx.env.data.logins.get(
+        ctx.var.tenant_id || "",
+        auth0state.login_id,
       );
 
       if (!session) {
-        throw new HTTPException(400, { message: "Sesssion not found" });
+        throw new HTTPException(403, { message: "State not found" });
       }
 
       if (error) {
@@ -160,6 +179,7 @@ export const callbackRoutes = new OpenAPIHono<{
           ctx,
           session,
           code,
+          connection_id: auth0state.connection_id,
         });
       }
 
