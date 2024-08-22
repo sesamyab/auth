@@ -224,7 +224,7 @@ test("only allows existing breakit users to progress to the enter code step with
   });
   const oauth2State = await env.data.codes.create("breakit", {
     login_id: session.login_id,
-    code_id: "code",
+    code_id: "state",
     code_type: "oauth2_state",
     connection_id: "other-social-provider",
     expires_at: new Date(Date.now() + 10000).toISOString(),
@@ -232,8 +232,8 @@ test("only allows existing breakit users to progress to the enter code step with
 
   const socialCallbackResponse = await oauthClient.callback.$get({
     query: {
-      state: session.login_id,
-      code: oauth2State.code_id,
+      state: oauth2State.code_id,
+      code: "code",
     },
   });
   expect(socialCallbackResponse.status).toBe(400);
@@ -272,7 +272,7 @@ test("only allows existing breakit users to progress to the enter code step with
   });
   const oauth2State2 = await env.data.codes.create("breakit", {
     login_id: session2.login_id,
-    code_id: "code2",
+    code_id: "state2",
     code_type: "oauth2_state",
     connection_id: "demo-social-provider",
     expires_at: new Date(Date.now() + 10000).toISOString(),
@@ -280,8 +280,8 @@ test("only allows existing breakit users to progress to the enter code step with
 
   const existingUserSocialCallbackResponse = await oauthClient.callback.$get({
     query: {
-      state: session2.login_id,
-      code: oauth2State2.code_id,
+      state: oauth2State2.code_id,
+      code: "code",
     },
   });
   // now we're being redirected to the next step as the user exists

@@ -50,10 +50,15 @@ export async function socialAuth(
     throw new HTTPException(403, { message: "Connection Not Found" });
   }
 
+  console.log("state", authParams.state);
+
   let session = await ctx.env.data.logins.get(
     client.tenant.id,
     authParams.state,
   );
+
+  console.log("session", session);
+  console.log("tenant_id", client.tenant.id);
 
   if (!session) {
     session = await ctx.env.data.logins.create(client.tenant.id, {
@@ -114,6 +119,7 @@ interface socialAuthCallbackParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
   session: Login;
   code: string;
+  connection_id: string;
 }
 
 function getProfileData(profile: any) {
@@ -139,30 +145,14 @@ export async function oauth2Callback({
   ctx,
   session,
   code,
+  connection_id,
 }: socialAuthCallbackParams) {
   const { env } = ctx;
   const client = await getClient(env, session.authParams.client_id);
   ctx.set("client_id", client.id);
   ctx.set("tenant_id", client.tenant.id);
 
-  const auth0state = await ctx.env.data.codes.get(
-    client.tenant.id,
-    code,
-    "oauth2_state",
-  );
-
-  if (!auth0state || !auth0state.connection_id) {
-    const log = createLogMessage(ctx, {
-      type: LogTypes.FAILED_LOGIN,
-      description: "Code not found",
-    });
-    await ctx.env.data.logs.create(client.tenant.id, log);
-    throw new HTTPException(400, { message: "Code not found" });
-  }
-
-  const connection = client.connections.find(
-    (p) => p.name === auth0state.connection_id,
-  );
+  const connection = client.connections.find((p) => p.name === connection_id);
 
   if (!connection) {
     const log = createLogMessage(ctx, {
