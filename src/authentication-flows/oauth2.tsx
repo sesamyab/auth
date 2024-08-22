@@ -113,7 +113,6 @@ export async function socialAuth(
 interface socialAuthCallbackParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
   session: Login;
-  connection_id: string;
   code: string;
 }
 
@@ -139,7 +138,6 @@ function getProfileData(profile: any) {
 export async function oauth2Callback({
   ctx,
   session,
-  connection_id,
   code,
 }: socialAuthCallbackParams) {
   const { env } = ctx;
@@ -147,7 +145,24 @@ export async function oauth2Callback({
   ctx.set("client_id", client.id);
   ctx.set("tenant_id", client.tenant.id);
 
-  const connection = client.connections.find((p) => p.name === connection_id);
+  const auth0state = await ctx.env.data.codes.get(
+    client.tenant.id,
+    code,
+    "oauth2_state",
+  );
+
+  if (!auth0state || !auth0state.connection_id) {
+    const log = createLogMessage(ctx, {
+      type: LogTypes.FAILED_LOGIN,
+      description: "Code not found",
+    });
+    await ctx.env.data.logs.create(client.tenant.id, log);
+    throw new HTTPException(400, { message: "Code not found" });
+  }
+
+  const connection = client.connections.find(
+    (p) => p.name === auth0state.connection_id,
+  );
 
   if (!connection) {
     const log = createLogMessage(ctx, {
@@ -207,7 +222,7 @@ export async function oauth2Callback({
         token_endpoint: connection.token_endpoint!,
         scope: connection.scope!,
       },
-      `${env.ISSUER}callback/${connection_id}`,
+      `${env.ISSUER}callback/`,
     );
 
     const token = await oauth2Client.exchangeCodeForTokenResponse(
@@ -266,7 +281,7 @@ export async function oauth2Callback({
     }
 
     user = await env.data.users.create(client.tenant.id, {
-      user_id: `${connection}|${sub}`,
+      user_id: `${connection.name}|${sub}`,
       email,
       name: email,
       provider: connection.name,

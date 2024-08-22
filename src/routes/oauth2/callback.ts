@@ -44,23 +44,13 @@ export const callbackRoutes = new OpenAPIHono<{
         error_reason,
       } = ctx.req.valid("query");
 
-      const auth0state = await ctx.env.data.codes.get(
-        ctx.var.tenant_id || "",
-        state,
-        "oauth2_state",
-      );
-
-      if (!auth0state || !auth0state.connection_id) {
-        throw new HTTPException(400, { message: "State not found" });
-      }
-
       const session = await ctx.env.data.logins.get(
         ctx.var.tenant_id || "",
-        auth0state.login_id,
+        state,
       );
 
       if (!session) {
-        throw new HTTPException(400, { message: "State not found" });
+        throw new HTTPException(403, { message: "State not found" });
       }
 
       if (error) {
@@ -90,7 +80,6 @@ export const callbackRoutes = new OpenAPIHono<{
       return oauth2Callback({
         ctx,
         session,
-        connection_id: auth0state.connection_id,
         code,
       });
     },
@@ -137,19 +126,9 @@ export const callbackRoutes = new OpenAPIHono<{
         error_reason,
       } = ctx.req.valid("form");
 
-      const auth0state = await ctx.env.data.codes.get(
-        ctx.var.tenant_id || "",
-        state,
-        "oauth2_state",
-      );
-
-      if (!auth0state || !auth0state.connection_id) {
-        throw new HTTPException(400, { message: "State not found" });
-      }
-
       const session = await ctx.env.data.logins.get(
         ctx.var.tenant_id || "",
-        auth0state.login_id,
+        state,
       );
 
       if (!session) {
@@ -179,7 +158,6 @@ export const callbackRoutes = new OpenAPIHono<{
       if (code) {
         return oauth2Callback({
           ctx,
-          connection_id: auth0state.connection_id,
           session,
           code,
         });
