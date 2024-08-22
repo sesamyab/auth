@@ -12,15 +12,6 @@ import {
   LogTypes,
 } from "@authhero/adapter-interfaces";
 
-function osloBtoa(payload: object) {
-  const str = JSON.stringify(payload);
-  const encoder = new TextEncoder();
-  const uint8Array = encoder.encode(str);
-  const encodedStr = base64url.encode(uint8Array);
-
-  return encodedStr;
-}
-
 const LOGIN2_STATE = "client_id=clientId&connection=auth2";
 
 const SOCIAL_STATE_PARAM_AUTH_PARAMS = {
@@ -31,12 +22,6 @@ const SOCIAL_STATE_PARAM_AUTH_PARAMS = {
   nonce: "MnjcTg0ay3xqf3JVqIL05ib.n~~eZcL_",
   response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
 };
-
-// same on each test
-const SOCIAL_STATE_PARAM = osloBtoa({
-  authParams: SOCIAL_STATE_PARAM_AUTH_PARAMS,
-  connection: "demo-social-provider",
-});
 
 const EXPECTED_PROFILE_DATA = {
   locale: "es-ES",
@@ -130,7 +115,7 @@ describe("social sign on", () => {
           login_id: session.login_id,
           code_id: "state",
           code_type: "oauth2_state",
-          connection_id: "demo-social-provider",
+          connection_id: "connectionId1",
           expires_at: new Date(Date.now() + 10000).toISOString(),
         });
 
@@ -272,7 +257,7 @@ describe("social sign on", () => {
           login_id: session.login_id,
           code_id: "state",
           code_type: "oauth2_state",
-          connection_id: "demo-social-provider",
+          connection_id: "connectionId1",
           expires_at: new Date(Date.now() + 10000).toISOString(),
         });
 
@@ -416,7 +401,7 @@ describe("social sign on", () => {
         login_id: session.login_id,
         code_id: "state",
         code_type: "oauth2_state",
-        connection_id: "demo-social-provider",
+        connection_id: "connectionId1",
         expires_at: new Date(Date.now() + 10000).toISOString(),
       });
 
@@ -567,7 +552,7 @@ describe("social sign on", () => {
         login_id: session2.login_id,
         code_id: "state2",
         code_type: "oauth2_state",
-        connection_id: "other-social-provider",
+        connection_id: "connectionId2",
         expires_at: new Date(Date.now() + 10000).toISOString(),
       });
 
@@ -716,7 +701,7 @@ describe("social sign on", () => {
         login_id: session.login_id,
         code_id: "state",
         code_type: "oauth2_state",
-        connection_id: "demo-social-provider",
+        connection_id: "connectionId1",
         expires_at: new Date(Date.now() + 10000).toISOString(),
       });
 
@@ -777,7 +762,7 @@ describe("social sign on", () => {
         login_id: session.login_id,
         code_id: "state",
         code_type: "oauth2_state",
-        connection_id: "demo-social-provider",
+        connection_id: "connectionId1",
         expires_at: new Date(Date.now() + 10000).toISOString(),
       });
 

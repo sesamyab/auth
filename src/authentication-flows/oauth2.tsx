@@ -152,7 +152,7 @@ export async function oauth2Callback({
   ctx.set("client_id", client.id);
   ctx.set("tenant_id", client.tenant.id);
 
-  const connection = client.connections.find((p) => p.name === connection_id);
+  const connection = client.connections.find((p) => p.id === connection_id);
 
   if (!connection) {
     const log = createLogMessage(ctx, {
@@ -250,6 +250,7 @@ export async function oauth2Callback({
     ctx.set("userId", user.user_id);
   } else {
     try {
+      console.log("preUserSignupHook");
       await preUserSignupHook(ctx, client, ctx.env.data, email);
     } catch (err: any) {
       console.log("error", err.message);

@@ -226,7 +226,7 @@ test("only allows existing breakit users to progress to the enter code step with
     login_id: session.login_id,
     code_id: "state",
     code_type: "oauth2_state",
-    connection_id: "other-social-provider",
+    connection_id: "breakit-social-connection2",
     expires_at: new Date(Date.now() + 10000).toISOString(),
   });
 
@@ -274,7 +274,7 @@ test("only allows existing breakit users to progress to the enter code step with
     login_id: session2.login_id,
     code_id: "state2",
     code_type: "oauth2_state",
-    connection_id: "demo-social-provider",
+    connection_id: "breakit-social-connection",
     expires_at: new Date(Date.now() + 10000).toISOString(),
   });
 
