@@ -124,6 +124,7 @@ describe("magic link flow", () => {
       const searchParams = new URLSearchParams(redirectUri.hash.slice(1));
 
       const accessToken = searchParams.get("access_token");
+      expect(accessToken).toBeTypeOf("string");
 
       const accessTokenPayload = parseJwt(accessToken!);
       expect(accessTokenPayload.aud).toBe("default");
@@ -618,16 +619,10 @@ describe("magic link flow", () => {
     // we are still getting a redirect but to a page on login2 saying the code is expired
     expect(authenticateResponse.status).toBe(302);
     const redirectUri = new URL(authenticateResponse.headers.get("location")!);
-    expect(redirectUri.hostname).toBe("login2.sesamy.dev");
-    expect(redirectUri.pathname).toBe("/expired-code");
-    expect(redirectUri.searchParams.get("email")).toBe("test@example.com");
-
-    expect(redirectUri.searchParams.get("lang")).toBe("sv");
-    expect(redirectUri.searchParams.get("client_id")).toBe("clientId");
-    expect(redirectUri.searchParams.get("vendor_id")).toBe("vendorId");
-    expect(redirectUri.searchParams.get("connection")).toBe("auth2");
-    expect(redirectUri.searchParams.get("redirect_uri")).toBe(
-      "https://example.com/callback",
+    expect(redirectUri.hostname).toBe("login.example.com");
+    expect(redirectUri.pathname).toBe("/callback");
+    expect(redirectUri.searchParams.get("error")).toBe(
+      "Code not found or expired",
     );
   });
 
@@ -674,10 +669,9 @@ describe("magic link flow", () => {
     const redirectUri2 = new URL(
       authenticateResponse2.headers.get("location")!,
     );
-    expect(redirectUri2.hostname).toBe("login2.sesamy.dev");
-    expect(redirectUri2.pathname).toBe("/expired-code");
-    expect(redirectUri2.searchParams.get("email")).toBe("another@email.com");
-    expect(redirectUri2.searchParams.get("lang")).toBe("sv");
+    expect(redirectUri2.hostname).toBe("login.example.com");
+    expect(redirectUri2.pathname).toBe("/callback");
+    expect(redirectUri2.searchParams.get("error")).toBe("Email does not match");
   });
 
   describe("edge cases", () => {

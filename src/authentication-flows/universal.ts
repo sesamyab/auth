@@ -54,7 +54,7 @@ export async function universalAuth({
   // If there's an email connectiona and a login_hint we redirect to the check-account page
   if (connection === "email" && login_hint) {
     const sendType = getSendParamFromAuth0ClientHeader(auth0Client);
-    await sendOtpEmail({ ctx, client, authParams, sendType });
+    await sendOtpEmail({ ctx, client, session: login, sendType });
 
     return ctx.redirect(`/u/enter-code?state=${login.login_id}`);
   }

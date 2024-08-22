@@ -991,6 +991,7 @@ describe("Login with code on liquidjs template", () => {
         code,
       },
     });
+    expect(authenticateResponse.status).toBe(302);
 
     const codeLoginRedirectUri = authenticateResponse.headers.get("location");
 
