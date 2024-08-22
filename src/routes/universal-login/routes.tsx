@@ -674,25 +674,10 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         }
       }
 
-      const code = generateOTP();
-
-      // fields in universalLoginSessions don't match fields in OTP
-      const {
-        audience,
-        code_challenge_method,
-        code_challenge,
-        username,
-        vendor_id,
-        ...otpAuthParams
-      } = session.authParams;
-
-      await env.data.OTP.create(client.tenant.id, {
-        id: nanoid(),
-        code,
-        // is this a reasonable assumption?
-        email: params.username,
-        send: "code",
-        authParams: otpAuthParams,
+      const createdCode = await ctx.env.data.codes.create(client.tenant.id, {
+        code_id: generateOTP(),
+        code_type: "otp",
+        login_id: session.login_id,
         expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
       });
 
@@ -701,10 +686,19 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       if (sendType === "link") {
         waitUntil(
           ctx,
-          sendLink(ctx, client, params.username, code, session.authParams),
+          sendLink(
+            ctx,
+            client,
+            params.username,
+            createdCode.code_id,
+            session.authParams,
+          ),
         );
       } else {
-        waitUntil(ctx, sendCode(ctx, client, params.username, code));
+        waitUntil(
+          ctx,
+          sendCode(ctx, client, params.username, createdCode.code_id),
+        );
       }
 
       return ctx.redirect(`/u/enter-code?state=${state}`);
@@ -734,7 +728,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
     async (ctx) => {
       const { state } = ctx.req.valid("query");
 
-      const { env } = ctx;
       const { vendorSettings, session, client } = await initJSXRoute(
         ctx,
         state,
@@ -827,7 +820,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         const user = await validateCode(ctx, {
           client_id: session.authParams.client_id,
           email: session.authParams.username,
-          verification_code: code,
+          otp: code,
         });
         ctx.set("userName", user.email);
         ctx.set("connection", user.connection);

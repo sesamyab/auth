@@ -53,28 +53,29 @@ export const passwordlessRoutes = new OpenAPIHono<{
     }),
     async (ctx) => {
       const body = ctx.req.valid("json");
+      const { env } = ctx;
       const { client_id, email, send, authParams } = body;
-      const client = await getClient(ctx.env, client_id);
+      const client = await getClient(env, client_id);
 
-      const code = generateOTP();
+      const login = await env.data.logins.create(client.tenant.id, {
+        authParams: { ...authParams, client_id, username: email },
+        expires_at: new Date(Date.now() + OTP_EXPIRATION_TIME).toISOString(),
+      });
 
-      await ctx.env.data.OTP.create(client.tenant.id, {
-        id: nanoid(),
-        code,
-        email: email,
-        send: send,
-        authParams: { ...authParams, client_id },
-        ip: ctx.req.header("x-real-ip"),
+      const code = await env.data.codes.create(client.tenant.id, {
+        code_id: generateOTP(),
+        code_type: "otp",
+        login_id: login.login_id,
         expires_at: new Date(Date.now() + OTP_EXPIRATION_TIME).toISOString(),
       });
 
       if (send === "link") {
-        await sendLink(ctx, client, email, code, {
+        await sendLink(ctx, client, email, code.code_id, {
           ...authParams,
           client_id,
         });
       } else {
-        await sendCode(ctx, client, email, code);
+        await sendCode(ctx, client, email, code.code_id);
       }
 
       return ctx.html("OK");
@@ -127,7 +128,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
         const user = await validateCode(ctx, {
           client_id,
           email,
-          verification_code,
+          otp: verification_code,
           ip: ctx.req.header("x-real-ip"),
         });
 
@@ -154,27 +155,10 @@ export const passwordlessRoutes = new OpenAPIHono<{
           authParams,
         });
       } catch (e: any) {
-        // TODO: add the expired code page
-        const locale = client.tenant.language || "sv";
-
-        const login2ExpiredCodeUrl = new URL(`${env.LOGIN2_URL}/expired-code`);
-
-        const stateDecoded = new URLSearchParams(state);
-        setSearchParams(login2ExpiredCodeUrl, {
-          email,
-          lang: locale,
-          redirect_uri: stateDecoded.get("redirect_uri"),
-          audience: stateDecoded.get("audience"),
-          nonce: stateDecoded.get("nonce"),
-          scope: stateDecoded.get("scope"),
-          response_type,
-          state,
-          client_id: stateDecoded.get("client_id"),
-          connection: stateDecoded.get("connection"),
-          vendor_id: stateDecoded.get("vendor_id"),
-        });
-
-        return ctx.redirect(login2ExpiredCodeUrl.toString());
+        const redirectUrl = new URL(redirect_uri);
+        redirectUrl.searchParams.set("error", e.message);
+        redirectUrl.searchParams.set("state", state);
+        return ctx.redirect(redirectUrl.toString());
       }
     },
   );
