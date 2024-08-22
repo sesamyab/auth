@@ -1,6 +1,6 @@
 {
   "name": "auth2",
-  "version": "1.253.15",
+  "version": "1.254.1",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -11,10 +11,10 @@
     "format:ci-cd": "prettier --check '**/*.{ts,css,json,md}'",
     "lint": "eslint",
     "test": "vitest run --pool=forks",
+    "test:watch": "vitest --pool=forks",
     "test:snapshots": "TEST_SNAPSHOTS=true vitest --pool=forks",
     "test:update-snapshots": "TEST_SNAPSHOTS=true vitest --pool=forks -u",
     "semantic-release": "semantic-release",
-    "prepare": "husky install",
     "type-check": "tsc",
     "pull-translations": "i18nexus pull -k U5P1_tq3Teu7FZx4OrfI9w --path ./src/localesLogin2 && prettier --write ./src/localesLogin2/**/*.json && yarn sort-translations",
     "knip": "knip",
@@ -50,8 +50,8 @@
     ]
   },
   "dependencies": {
-    "@authhero/adapter-interfaces": "0.10.5",
-    "@authhero/kysely-adapter": "0.6.11",
+    "@authhero/adapter-interfaces": "0.11.7",
+    "@authhero/kysely-adapter": "0.7.11",
     "@hono/zod-openapi": "0.15.1",
     "@planetscale/database": "1.16.0",
     "arctic": "^1.8.1",
@@ -76,6 +76,7 @@
     "@types/cookie": "0.6.0",
     "@types/jest-image-snapshot": "6.4.0",
     "@types/node": "20.12.12",
+    "@types/pako": "^2.0.3",
     "@types/service-worker-mock": "2.0.4",
     "@types/validator": "13.11.10",
     "autoprefixer": "^10.4.19",

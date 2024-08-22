@@ -53,10 +53,7 @@ export const authorizeRoutes = new OpenAPIHono<{
           code_challenge: z.string().optional(),
           realm: z.string().optional(),
           auth0Client: z.string().optional(),
-          // Auth0 way
           login_hint: z.string().optional(),
-          // deprecated: previous token service param
-          email_hint: z.string().optional(),
         }),
       },
       responses: {
@@ -88,8 +85,6 @@ export const authorizeRoutes = new OpenAPIHono<{
         auth0Client,
         username,
         login_hint,
-        // TODO: This is incorrect.. Remove
-        email_hint,
       } = ctx.req.valid("query");
 
       const client = await getClient(env, client_id);
@@ -106,23 +101,18 @@ export const authorizeRoutes = new OpenAPIHono<{
         response_type,
         code_challenge,
         code_challenge_method,
-        username: username || login_hint || email_hint,
+        username: username || login_hint,
       };
 
       const origin = ctx.req.header("origin");
-      if (origin && !verifyRequestOrigin(origin, client.allowed_web_origins)) {
+      if (origin && !verifyRequestOrigin(origin, client.web_origins)) {
         throw new HTTPException(403, {
           message: `Origin ${origin} not allowed`,
         });
       }
 
       if (authParams.redirect_uri) {
-        if (
-          !validateRedirectUrl(
-            client.allowed_callback_urls,
-            authParams.redirect_uri,
-          )
-        ) {
+        if (!validateRedirectUrl(client.callbacks, authParams.redirect_uri)) {
           throw new HTTPException(400, {
             message: `Invalid redirect URI - ${authParams.redirect_uri}`,
           });
@@ -131,11 +121,11 @@ export const authorizeRoutes = new OpenAPIHono<{
 
       // Fetch the cookie
       const authCookie = getAuthCookie(
-        client.tenant_id,
+        client.tenant.id,
         ctx.req.header("cookie"),
       );
       const session = authCookie
-        ? await env.data.sessions.get(client.tenant_id, authCookie)
+        ? await env.data.sessions.get(client.tenant.id, authCookie)
         : null;
 
       // Silent authentication with iframe
@@ -162,12 +152,12 @@ export const authorizeRoutes = new OpenAPIHono<{
       }
 
       // Social login
-      if (connection) {
+      if (connection && connection !== "email") {
         return socialAuth(ctx, client, connection, authParams);
       } else if (login_ticket) {
         return ticketAuth(
           ctx,
-          client.tenant_id,
+          client.tenant.id,
           login_ticket,
           authParams,
           realm!,
@@ -179,8 +169,9 @@ export const authorizeRoutes = new OpenAPIHono<{
         client,
         authParams,
         auth0Client,
-        login_hint,
         session: session || undefined,
+        connection,
+        login_hint,
       });
     },
   );

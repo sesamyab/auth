@@ -25,33 +25,50 @@ import { preUserSignupHook } from "../hooks";
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
-  connection: string,
+  connectionName: string,
   authParams: AuthParams,
 ) {
-  const connectionInstance = client.connections.find(
-    (p) => p.name === connection,
-  );
-  if (!connectionInstance) {
+  const connection = client.connections.find((p) => p.name === connectionName);
+  if (!connection) {
     ctx.set("client_id", client.id);
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_LOGIN,
       description: "Connection not found",
     });
-    await ctx.env.data.logs.create(client.tenant_id, log);
+    await ctx.env.data.logs.create(client.tenant.id, log);
 
     throw new HTTPException(403, { message: "Connection Not Found" });
   }
 
-  const state = stateEncode({ authParams, connection });
+  const state = stateEncode({ authParams, connection: connectionName });
 
-  const oauthLoginUrl = new URL(connectionInstance.authorization_endpoint!);
+  if (connection.name === "apple") {
+    const apple = new Apple(
+      {
+        clientId: connection.client_id!,
+        teamId: connection.team_id!,
+        keyId: connection.kid!,
+        certificate: connection
+          .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+          .replace(/-----END PRIVATE KEY-----/, "")
+          .replace(/\s/g, ""),
+      },
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const appleAuthorizatioUrl = await apple.createAuthorizationURL(state);
+
+    return ctx.redirect(appleAuthorizatioUrl.href);
+  }
+
+  const oauthLoginUrl = new URL(connection.authorization_endpoint!);
 
   setSearchParams(oauthLoginUrl, {
-    scope: connectionInstance.scope,
-    client_id: connectionInstance.client_id,
+    scope: connection.scope,
+    client_id: connection.client_id,
     redirect_uri: `${ctx.env.ISSUER}callback`,
-    response_type: connectionInstance.response_type,
-    response_mode: connectionInstance.response_mode,
+    response_type: connection.response_type,
+    response_mode: connection.response_mode,
     state,
   });
 
@@ -91,7 +108,7 @@ export async function oauth2Callback({
   const { env } = ctx;
   const client = await getClient(env, state.authParams.client_id);
   ctx.set("client_id", client.id);
-  ctx.set("tenant_id", client.tenant_id);
+  ctx.set("tenant_id", client.tenant.id);
 
   const connection = client.connections.find(
     (p) => p.name === state.connection,
@@ -102,7 +119,7 @@ export async function oauth2Callback({
       type: LogTypes.FAILED_LOGIN,
       description: "Connection not found",
     });
-    await ctx.env.data.logs.create(client.tenant_id, log);
+    await ctx.env.data.logs.create(client.tenant.id, log);
     throw new HTTPException(403, { message: "Connection not found" });
   }
   ctx.set("connection", connection.name);
@@ -112,22 +129,17 @@ export async function oauth2Callback({
       type: LogTypes.FAILED_LOGIN,
       description: "Redirect URI not defined",
     });
-    await ctx.env.data.logs.create(client.tenant_id, log);
+    await ctx.env.data.logs.create(client.tenant.id, log);
     throw new HTTPException(403, { message: "Redirect URI not defined" });
   }
 
-  if (
-    !validateRedirectUrl(
-      client.allowed_callback_urls,
-      state.authParams.redirect_uri,
-    )
-  ) {
+  if (!validateRedirectUrl(client.callbacks, state.authParams.redirect_uri)) {
     const invalidRedirectUriMessage = `Invalid redirect URI - ${state.authParams.redirect_uri}`;
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_LOGIN,
       description: invalidRedirectUriMessage,
     });
-    await ctx.env.data.logs.create(client.tenant_id, log);
+    await ctx.env.data.logs.create(client.tenant.id, log);
     throw new HTTPException(403, {
       message: invalidRedirectUriMessage,
     });
@@ -189,7 +201,7 @@ export async function oauth2Callback({
 
   let user = await getPrimaryUserByEmailAndProvider({
     userAdapter: env.data.users,
-    tenant_id: client.tenant_id,
+    tenant_id: client.tenant.id,
     email,
     provider: connection.name,
   });
@@ -218,7 +230,7 @@ export async function oauth2Callback({
       );
     }
 
-    user = await env.data.users.create(client.tenant_id, {
+    user = await env.data.users.create(client.tenant.id, {
       user_id: `${state.connection}|${sub}`,
       email,
       name: email,

@@ -18,6 +18,7 @@ import pl from "./localesLogin2/pl/default.json";
 import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
 import createManagementApp from "./management-app";
+import createSamlApp from "./saml-app";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -96,7 +97,8 @@ export default function create(params: CreateAuthParams) {
 
   const oauthApp = createOauthApp(params);
   const managementApp = createManagementApp(params);
-  rootApp.route("/", oauthApp).route("/", managementApp);
+  const samlApp = createSamlApp(params);
+  rootApp.route("/", oauthApp).route("/", managementApp).route("/", samlApp);
 
   app.get(
     "/css/tailwind.css",

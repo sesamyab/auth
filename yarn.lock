@@ -24,19 +24,19 @@
   dependencies:
     openapi3-ts "^4.1.2"
 
-"@authhero/adapter-interfaces@0.10.5", "@authhero/adapter-interfaces@^0.10.5":
-  version "0.10.5"
-  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.10.5.tgz#c3eed62d60dcb595241589322c96f03e6ccc7aee"
-  integrity sha512-QNTfb543LiY7Z9wx+EljZwRqKzuW835Mf9IygxtXfXeu5dmFopMH/PlRAsCXDsCDLic1rlsq1yTWRdToA6hR+Q==
+"@authhero/adapter-interfaces@0.11.7", "@authhero/adapter-interfaces@^0.11.7":
+  version "0.11.7"
+  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.11.7.tgz#30cf9f8f345fcffd08ad0e6d007d4932219c0506"
+  integrity sha512-4IGTvv7P+WYa03h1WOLpJVvXbSYbPEPNbdZZ1hHacCx09KyEstMfYah3aUj5TZQFTnNKkR+2MCzfXpTDzKMpgQ==
   dependencies:
     "@hono/zod-openapi" "^0.14.5"
 
-"@authhero/kysely-adapter@0.6.11":
-  version "0.6.11"
-  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.6.11.tgz#ada8879ec1b39be4b8a3756b6111f7c93a8b6299"
-  integrity sha512-NHqPimbzRRMykrX1TLOiwr/g9K8RbordQ4rdRfsgvTOoZNt0GhpbGD1EK0S8sQzwP/ArhpQiZ+krALMcVqdRLw==
+"@authhero/kysely-adapter@0.7.11":
+  version "0.7.11"
+  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.7.11.tgz#e7ce027da16298cfa563369d5930b6376bedc026"
+  integrity sha512-+riCQs1bI4IqGMtVlh9dqfdqMy2c7zSxE8kGnA0Bd6AqzVqUqFDnBdthJVcwxf7Gg1Y1nmloXBYSfAcf2/woXg==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.10.5"
+    "@authhero/adapter-interfaces" "^0.11.7"
     "@hono/zod-openapi" "^0.14.5"
     hono "^4.4.10"
     kysely "^0.27.4"
@@ -1577,6 +1577,11 @@
   version "2.4.4"
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.4.tgz#56e2cc26c397c038fab0e3a917a12d5c5909e901"
   integrity sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==
+
+"@types/pako@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/pako/-/pako-2.0.3.tgz#b6993334f3af27c158f3fe0dfeeba987c578afb1"
+  integrity sha512-bq0hMV9opAcrmE0Byyo0fY3Ew4tgOevJmQ9grUhpXQhYfyLJ1Kqg3P33JT5fdbT2AjeAjR51zqqVjAL/HMkx7Q==
 
 "@types/pixelmatch@*":
   version "5.2.6"

@@ -36,6 +36,7 @@ export async function ticketAuth(
   if (!ticket) {
     throw new HTTPException(403, { message: "Ticket not found" });
   }
+
   const client = await getClient(ctx.env, ticket.client_id);
   ctx.set("client_id", ticket.client_id);
 

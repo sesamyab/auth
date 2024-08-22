@@ -73,7 +73,7 @@ export async function sendCode(
     type: LogTypes.CODE_LINK_SENT,
     description: to,
   });
-  waitUntil(ctx, ctx.env.data.logs.create(client.tenant_id, log));
+  waitUntil(ctx, ctx.env.data.logs.create(client.tenant.id, log));
 }
 
 export async function sendLink(
@@ -142,7 +142,7 @@ export async function sendLink(
     type: LogTypes.CODE_LINK_SENT,
     description: to,
   });
-  waitUntil(ctx, ctx.env.data.logs.create(client.tenant_id, log));
+  waitUntil(ctx, ctx.env.data.logs.create(client.tenant.id, log));
 }
 
 export async function sendResetPassword(

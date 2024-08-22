@@ -15,21 +15,39 @@ export async function authorizeCodeGrant(
 ) {
   const client = await getClient(ctx.env, params.client_id);
   ctx.set("client_id", client.id);
-  ctx.set("tenant_id", client.tenant_id);
+  ctx.set("tenant_id", client.tenant.id);
 
-  // TODO: this does not set the used_at attribute
-  const { user_id, authParams, used_at, expires_at } =
-    await ctx.env.data.authenticationCodes.get(client.tenant_id, params.code);
+  const oauth2Code = await ctx.env.data.codes.get(
+    client.tenant.id,
+    params.code,
+    "authorization_code",
+  );
 
-  if (used_at || new Date(expires_at) < new Date()) {
-    throw new HTTPException(400, { message: "Code not found or expired" });
+  if (!oauth2Code || !oauth2Code.user_id) {
+    throw new HTTPException(400, { message: "Code not found" });
+  }
+
+  if (oauth2Code.used_at || new Date(oauth2Code.expires_at) < new Date()) {
+    throw new HTTPException(400, { message: "Code allready used or expired" });
+  }
+
+  const login = await ctx.env.data.logins.get(
+    client.tenant.id,
+    oauth2Code.login_id,
+  );
+
+  if (!login) {
+    throw new HTTPException(400, { message: "Code not found" });
   }
 
   // Set the response_type to token id_token for the code grant flow
-  authParams.response_type = AuthorizationResponseType.TOKEN_ID_TOKEN;
-  authParams.response_mode = AuthorizationResponseMode.FORM_POST;
+  login.authParams.response_type = AuthorizationResponseType.TOKEN_ID_TOKEN;
+  login.authParams.response_mode = AuthorizationResponseMode.FORM_POST;
 
-  const user = await ctx.env.data.users.get(client.tenant_id, user_id);
+  const user = await ctx.env.data.users.get(
+    client.tenant.id,
+    oauth2Code.user_id,
+  );
   if (!user) {
     throw new HTTPException(400, { message: "User not found" });
   }
@@ -49,7 +67,7 @@ export async function authorizeCodeGrant(
 
   return generateAuthResponse({
     ctx,
-    authParams,
+    authParams: login.authParams,
     user,
     client,
     authFlow: "code",

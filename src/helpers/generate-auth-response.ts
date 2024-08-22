@@ -1,5 +1,8 @@
 import { Env, Var } from "../types";
-import { ACCESS_TOKEN_EXPIRE_IN_SECONDS } from "../constants";
+import {
+  ACCESS_TOKEN_EXPIRE_IN_SECONDS,
+  UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
+} from "../constants";
 import { pemToBuffer } from "../utils/jwt";
 import { createJWT } from "oslo/jwt";
 import { TimeSpan } from "oslo";
@@ -31,6 +34,7 @@ export type AuthFlowType =
 export interface GenerateAuthResponseParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
   client: Client;
+  // The user will be undefined if the client is a client_credentials grant
   user?: User;
   sid?: string;
   authParams: AuthParams;
@@ -57,20 +61,36 @@ async function generateCode({
   client,
   sid,
   authParams,
+  user,
 }: GenerateAuthResponseParams) {
   const { env } = ctx;
-  const code_id = nanoid();
 
-  if (!sid) {
-    // The code is connected to a session, so we need a session ID
-    throw new Error("Session ID is required for generating code");
+  if (!user) {
+    throw new Error("User is required for generating a code");
   }
 
-  await env.data.codes.create(client.tenant_id, {
-    login_id: sid,
+  const code_id = nanoid();
+
+  let login_id = sid;
+
+  if (!login_id) {
+    // The code is connected to a login session
+    const login = await ctx.env.data.logins.create(client.tenant.id, {
+      expires_at: new Date(
+        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+      ).toISOString(),
+      authParams,
+    });
+
+    login_id = login.login_id;
+  }
+
+  await env.data.codes.create(client.tenant.id, {
+    login_id,
     expires_at: new Date(Date.now() + 30 * 1000).toISOString(),
     code_id,
-    code_type: "otp",
+    code_type: "authorization_code",
+    user_id: user.user_id,
   });
 
   const codeResponse: CodeResponse = {
@@ -87,12 +107,12 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
 
   if (authFlow !== "refresh-token" && user) {
     // Invoke webhooks
-    await postUserLoginWebhook(ctx, env.data)(client.tenant_id, user);
+    await postUserLoginWebhook(ctx, env.data)(client.tenant.id, user);
 
     // Update the user's last login. Skip for client_credentials and refresh_tokens
     waitUntil(
       ctx,
-      ctx.env.data.users.update(client.tenant_id, user.user_id, {
+      ctx.env.data.users.update(client.tenant.id, user.user_id, {
         last_login: new Date().toISOString(),
         login_count: user.login_count + 1,
         // This is specific to cloudflare
@@ -114,7 +134,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
       scope: authParams.scope || "",
       sub: user?.user_id || client.id,
       iss: env.ISSUER,
-      azp: client.tenant_id,
+      azp: client.tenant.id,
     },
     {
       includeIssuedTimestamp: true,
@@ -182,7 +202,7 @@ export async function generateAuthData(params: GenerateAuthResponseParams) {
     type: getLogTypeByAuthFlow(params.authFlow),
     description: "Successful login",
   });
-  waitUntil(ctx, ctx.env.data.logs.create(client.tenant_id, log));
+  waitUntil(ctx, ctx.env.data.logs.create(client.tenant.id, log));
 
   switch (params.authParams.response_type) {
     case AuthorizationResponseType.CODE:
@@ -203,9 +223,9 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
   if (user) {
     const sessionId =
       sid ||
-      (await setSilentAuthCookies(ctx.env, client.tenant_id, client.id, user));
+      (await setSilentAuthCookies(ctx.env, client.tenant.id, client.id, user));
 
-    headers.set("set-cookie", serializeAuthCookie(client.tenant_id, sessionId));
+    headers.set("set-cookie", serializeAuthCookie(client.tenant.id, sessionId));
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {
