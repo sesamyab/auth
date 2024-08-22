@@ -144,7 +144,7 @@ test("only allows existing users to progress to the enter code step", async () =
 
 // this test name isn't correct as there is no "enter code" step with a social login. This test is testing that a new SSO user
 // cannot be redirect back to the callback
-test.only("only allows existing breakit users to progress to the enter code step with social signon", async () => {
+test("only allows existing breakit users to progress to the enter code step with social signon", async () => {
   const testTenantLanguage = "en";
   const { oauthApp, env } = await getTestServer({
     testTenantLanguage,
