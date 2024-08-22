@@ -27,7 +27,6 @@ export const testPasswordUser = {
   password: "Test1234!",
 };
 
-// @ts-ignore
 export async function getTestServer(args: getEnvParams = {}) {
   const dialect = new SqliteDialect({
     database: new SQLite(":memory:"),

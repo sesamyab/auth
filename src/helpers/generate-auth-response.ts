@@ -1,5 +1,8 @@
 import { Env, Var } from "../types";
-import { ACCESS_TOKEN_EXPIRE_IN_SECONDS } from "../constants";
+import {
+  ACCESS_TOKEN_EXPIRE_IN_SECONDS,
+  UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
+} from "../constants";
 import { pemToBuffer } from "../utils/jwt";
 import { createJWT } from "oslo/jwt";
 import { TimeSpan } from "oslo";
@@ -31,6 +34,7 @@ export type AuthFlowType =
 export interface GenerateAuthResponseParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
   client: Client;
+  // The user will be undefined if the client is a client_credentials grant
   user?: User;
   sid?: string;
   authParams: AuthParams;
@@ -55,28 +59,42 @@ function getLogTypeByAuthFlow(authFlow?: AuthFlowType) {
 async function generateCode({
   ctx,
   client,
-  user,
+  sid,
   authParams,
+  user,
 }: GenerateAuthResponseParams) {
   const { env } = ctx;
-  const code = nanoid();
 
-  await env.data.authenticationCodes.create(client.tenant.id, {
-    user_id: user?.user_id || client.id,
-    authParams: {
-      client_id: authParams.client_id,
-      scope: authParams.scope,
-      response_type: authParams.response_type,
-      nonce: authParams.nonce,
-      state: authParams.state,
-    },
-    created_at: new Date().toISOString(),
+  if (!user) {
+    throw new Error("User is required for generating a code");
+  }
+
+  const code_id = nanoid();
+
+  let login_id = sid;
+
+  if (!login_id) {
+    // The code is connected to a login session
+    const login = await ctx.env.data.logins.create(client.tenant.id, {
+      expires_at: new Date(
+        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+      ).toISOString(),
+      authParams,
+    });
+
+    login_id = login.login_id;
+  }
+
+  await env.data.codes.create(client.tenant.id, {
+    login_id,
     expires_at: new Date(Date.now() + 30 * 1000).toISOString(),
-    code,
+    code_id,
+    code_type: "authorization_code",
+    user_id: user.user_id,
   });
 
   const codeResponse: CodeResponse = {
-    code,
+    code: code_id,
     state: authParams.state,
   };
 
