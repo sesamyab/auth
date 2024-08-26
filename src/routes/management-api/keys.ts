@@ -134,8 +134,6 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
         name: "CN=sesamy",
       });
 
-      console.log("length: ", signingKey.pkcs7?.length);
-
       await ctx.env.data.keys.create(signingKey);
 
       return ctx.text("OK", { status: 201 });
