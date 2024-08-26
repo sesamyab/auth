@@ -1,0 +1,26 @@
+import { Kysely } from "kysely";
+import { Database } from "@authhero/kysely-adapter";
+
+export async function up(db: Kysely<Database>): Promise<void> {
+  // await db.schema
+  //   .alterTable("keys")
+  //   .addColumn("cert", "varchar(2048)")
+  //   .addColumn("pkcs7", "varchar(1024)")
+  //   .addColumn("fingerprint", "varchar(256)")
+  //   .addColumn("thumbprint", "varchar(256)")
+  //   .addColumn("current_since", "varchar(256)")
+  //   .addColumn("current_until", "varchar(256)")
+  //   .execute();
+}
+
+export async function down(db: Kysely<Database>): Promise<void> {
+  // await db.schema
+  //   .alterTable("keys")
+  //   .dropColumn("cert")
+  //   .dropColumn("pkcs7")
+  //   .dropColumn("fingerprint")
+  //   .dropColumn("thumbprint")
+  //   .dropColumn("current_since")
+  //   .dropColumn("current_until")
+  //   .execute();
+}

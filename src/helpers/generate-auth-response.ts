@@ -124,10 +124,14 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
     );
   }
 
-  const certificates = await env.data.keys.list();
-  const certificate = certificates[certificates.length - 1];
+  const signingKeys = await env.data.keys.list();
+  const signingKey = signingKeys[signingKeys.length - 1];
 
-  const keyBuffer = pemToBuffer(certificate.private_key);
+  // TODO: remove fallback
+  // @ts-ignore
+  const privatKey: string = signingKey.pkcs7 ?? signingKey.private_key;
+
+  const keyBuffer = pemToBuffer(privatKey);
 
   const accessToken = await createJWT(
     "RS256",
@@ -143,7 +147,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
       includeIssuedTimestamp: true,
       expiresIn: new TimeSpan(1, "d"),
       headers: {
-        kid: certificate.kid,
+        kid: signingKey.kid,
       },
     },
   );
@@ -184,7 +188,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
         includeIssuedTimestamp: true,
         expiresIn: new TimeSpan(1, "d"),
         headers: {
-          kid: certificate.kid,
+          kid: signingKey.kid,
         },
       },
     );

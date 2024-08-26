@@ -3,9 +3,14 @@ import { BunSqliteDialect } from "kysely-bun-sqlite";
 import * as bunSqlite from "bun:sqlite";
 import { getDb } from "../src/services/db";
 import { migrateToLatest } from "../migrate/migrate";
-import { createRsaCertificate } from "../src/helpers/encryption";
+import {
+  convertPKCS7ToPem,
+  createX509Certificate,
+  getJWKFingerprint,
+} from "../src/helpers/encryption";
 import userIdGenerate from "../src/utils/userIdGenerate";
 import createAdapters from "@authhero/kysely-adapter";
+import { encodeHex } from "oslo/encoding";
 
 const dialect = new BunSqliteDialect({
   database: new bunSqlite.Database("db.sqlite"),
@@ -23,8 +28,11 @@ const data = createAdapters(db);
     sender_email: "login@example.com",
   });
 
-  const newCertificate = await createRsaCertificate();
-  await data.keys.create(newCertificate);
+  const signingKey = await createX509Certificate({
+    name: "CN=sesamy",
+  });
+
+  await data.keys.create(signingKey);
 
   await data.applications.create(tenant.id, {
     name: "Default",

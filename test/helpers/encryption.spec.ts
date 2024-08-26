@@ -3,16 +3,16 @@ import { describe, expect, it } from "vitest";
 import * as x509 from "@peculiar/x509";
 import { createJWT, validateJWT } from "oslo/jwt";
 import { TimeSpan } from "oslo";
+import { pemToBuffer } from "../../src/utils/jwt";
 
 describe("encryption", () => {
   describe("createX509Certificate", () => {
     it("should create a x509 cert", async () => {
-      const { cert, privateKey } = await createX509Certificate({
+      const signingKey = await createX509Certificate({
         name: "CN=authhero",
       });
 
-      // Make a pem of the cert for storage
-      const pemCert = cert.toString("pem");
+      const pemCert = signingKey.cert;
       expect(pemCert).toContain("-----BEGIN CERTIFICATE-----");
 
       const importedCert = new x509.X509Certificate(pemCert);
@@ -27,13 +27,12 @@ describe("encryption", () => {
       const publicPEMKey = importedCert.publicKey.toString("pem");
       expect(publicPEMKey).toContain("-----BEGIN PUBLIC KEY-----");
 
-      // I guess this i by design
-      expect(cert.privateKey).toBe(undefined);
+      expect(importedCert.privateKey).toBe(undefined);
 
       // Create a jwt
       const jwt = await createJWT(
         "RS256",
-        privateKey,
+        pemToBuffer(signingKey.pkcs7!),
         { foo: "bar" },
         {
           includeIssuedTimestamp: true,

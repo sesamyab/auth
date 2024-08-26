@@ -6,6 +6,7 @@ import {
 import { JWKS_CACHE_TIMEOUT_IN_SECONDS } from "../../constants";
 import { Env } from "../../types";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { X509Certificate } from "@peculiar/x509";
 
 export const wellKnownRoutes = new OpenAPIHono<{ Bindings: Env }>()
   // --------------------------------
@@ -29,21 +30,36 @@ export const wellKnownRoutes = new OpenAPIHono<{ Bindings: Env }>()
       },
     }),
     async (ctx) => {
-      const certificates = await ctx.env.data.keys.list();
-      const keys = certificates.map((cert) => {
-        const { alg, n, e, kty } = JSON.parse(cert.public_key);
-        if (!alg || !e || !kty || !n) {
-          throw new Error("Invalid public key");
-        }
+      const signingKeys = await ctx.env.data.keys.list();
+      const keys = await Promise.all(
+        signingKeys.map(async (signingKey) => {
+          if ("cert" in signingKey) {
+            const importedCert = new X509Certificate(signingKey.cert);
+            const publicKey = await importedCert.publicKey.export();
+            const jwkKey = await crypto.subtle.exportKey("jwk", publicKey);
 
-        return jwksSchema.parse({
-          kid: cert.kid,
-          alg,
-          n,
-          e,
-          kty,
-        });
-      });
+            return jwksSchema.parse({
+              ...jwkKey,
+              kid: signingKey.kid,
+            });
+          }
+
+          // TODO: remove legacy signing keys
+          // @ts-ignore
+          const { alg, n, e, kty } = JSON.parse(signingKey.public_key);
+          if (!alg || !e || !kty || !n) {
+            throw new Error("Invalid public key");
+          }
+
+          return jwksSchema.parse({
+            kid: signingKey.kid,
+            alg,
+            n,
+            e,
+            kty,
+          });
+        }),
+      );
 
       return ctx.json(
         { keys },

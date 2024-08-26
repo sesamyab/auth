@@ -1,45 +1,15 @@
-import { Certificate } from "@authhero/adapter-interfaces";
 import { nanoid } from "nanoid";
 import * as x509 from "@peculiar/x509";
 import { encodeHex, base64 } from "oslo/encoding";
-
-export async function createRsaCertificate(): Promise<Certificate> {
-  const keyPair = await crypto.subtle.generateKey(
-    {
-      name: "RSA-OAEP",
-      modulusLength: 4096,
-      publicExponent: new Uint8Array([1, 0, 1]),
-      hash: "SHA-256",
-    },
-    true,
-    ["encrypt", "decrypt"],
-  );
-
-  const kid = nanoid();
-
-  const private_key = await toPrivatePEM(keyPair.privateKey);
-  const publicJWKS = await toJWKS(keyPair.publicKey);
-
-  return {
-    private_key,
-    public_key: JSON.stringify({
-      alg: "RS256",
-      e: "AQAB",
-      kty: "RSA",
-      n: publicJWKS.n,
-      use: "sig",
-    }),
-    kid,
-    created_at: new Date().toISOString(),
-  };
-}
+import { sha256 } from "oslo/crypto";
+import { SigningKey } from "@authhero/adapter-interfaces";
 
 export interface CreateX509CertificateParams {
   name: string;
 }
 export async function createX509Certificate(
   params: CreateX509CertificateParams,
-) {
+): Promise<SigningKey> {
   const alg = {
     name: "RSASSA-PKCS1-v1_5",
     hash: "SHA-256",
@@ -72,16 +42,27 @@ export async function createX509Certificate(
 
   const privateKey = await crypto.subtle.exportKey("pkcs8", keys.privateKey!);
 
+  const pemCert = cert.toString("pem");
+  const fingerprint = await getJWKFingerprint(cert);
+  const thumbprint = encodeHex(await cert.getThumbprint());
+  const pkcs7 = convertPKCS7ToPem("PRIVATE", privateKey);
+
   return {
-    cert,
-    privateKey,
+    kid: cert.serialNumber,
+    cert: pemCert,
+    thumbprint,
+    fingerprint,
+    pkcs7,
   };
 }
 
-function convertBinaryToPem(binaryData: ArrayBuffer) {
+export function convertPKCS7ToPem(
+  keyType: "PRIVATE" | "PUBLIC",
+  binaryData: ArrayBuffer,
+) {
   const base64Cert = base64.encode(new Uint8Array(binaryData));
   // const base64Cert = arrayBufferToBase64String(binaryData);
-  let pemCert = "-----BEGIN PRIVATE KEY-----\r\n";
+  let pemCert = `-----BEGIN ${keyType} KEY-----\r\n`;
   let nextIndex = 0;
 
   while (nextIndex < base64Cert.length) {
@@ -92,16 +73,24 @@ function convertBinaryToPem(binaryData: ArrayBuffer) {
     }
     nextIndex += 64;
   }
-  pemCert += "-----END PRIVATE KEY-----\r\n";
+  pemCert += `-----END ${keyType} KEY-----\r\n`;
   return pemCert;
 }
 
-async function toPrivatePEM(key: CryptoKey): Promise<string> {
-  const pkcs8Key = await crypto.subtle.exportKey("pkcs8", key);
-
-  return convertBinaryToPem(pkcs8Key);
+export async function toJWKS(key: CryptoKey): Promise<JsonWebKey> {
+  return await crypto.subtle.exportKey("jwk", key);
 }
 
-async function toJWKS(key: CryptoKey): Promise<JsonWebKey> {
-  return await crypto.subtle.exportKey("jwk", key);
+export async function getJWKFingerprint(cert: x509.X509Certificate) {
+  const publicKey = await cert.publicKey.export();
+  const jwkKey = await crypto.subtle.exportKey("jwk", publicKey);
+
+  // Create a canonical JSON representation
+  const canonicalJWK = JSON.stringify(jwkKey, Object.keys(jwkKey).sort());
+
+  // Convert the string to an ArrayBuffer using TextEncoder
+  const encoder = new TextEncoder();
+  const data = encoder.encode(canonicalJWK);
+
+  return encodeHex(await sha256(data));
 }

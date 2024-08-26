@@ -8,12 +8,12 @@ import {
 import { getCertificate } from "./helpers/token";
 import { pemToBuffer } from "../../src/utils/jwt";
 
-function createTokenExample(payload: {
+async function createTokenExample(payload: {
   [key: string]: string | string[] | number | boolean;
 }) {
-  const keyBuffer = pemToBuffer(getCertificate().private_key);
+  const signingKey = await getCertificate();
 
-  return createJWT("RS256", keyBuffer, payload, {
+  return createJWT("RS256", pemToBuffer(signingKey.pkcs7!), payload, {
     includeIssuedTimestamp: true,
     expiresIn: new TimeSpan(1, "d"),
     headers: {

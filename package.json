@@ -50,8 +50,8 @@
     ]
   },
   "dependencies": {
-    "@authhero/adapter-interfaces": "0.11.7",
-    "@authhero/kysely-adapter": "0.7.11",
+    "@authhero/adapter-interfaces": "0.12.0",
+    "@authhero/kysely-adapter": "0.7.14",
     "@hono/zod-openapi": "0.15.1",
     "@peculiar/x509": "^1.12.1",
     "@planetscale/database": "1.16.0",
