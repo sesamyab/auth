@@ -160,8 +160,6 @@ export const hooksRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const { hook_id } = ctx.req.valid("param");
       const hook = ctx.req.valid("json");
 
-      console.log("hook", hook);
-
       await ctx.env.data.hooks.update(tenant_id, hook_id, hook);
       const result = await ctx.env.data.hooks.get(tenant_id, hook_id);
 

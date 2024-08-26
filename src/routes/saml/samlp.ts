@@ -1,10 +1,7 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { base64 } from "oslo/encoding";
 import { HTTPException } from "hono/http-exception";
-import {
-  AuthorizationResponseMode,
-  AuthorizationResponseType,
-} from "@authhero/adapter-interfaces";
+import { AuthorizationResponseMode } from "@authhero/adapter-interfaces";
 import { Env, Var } from "../../types";
 import { getClient } from "../../services/clients";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
@@ -42,6 +39,30 @@ function extractIdFromXml(xmlString: string) {
 
   throw new HTTPException(400, {
     message: "Failed to extract ID from SAMLRequest",
+  });
+}
+
+function extractIssuerFromXml(xmlString: string): string {
+  const regex = /<saml:Issuer\s*>([^<]+)<\/saml:Issuer>/;
+  const match = xmlString.match(regex);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  throw new HTTPException(400, {
+    message: "Failed to extract Issuer from SAMLRequest",
+  });
+}
+
+function extractEntityIdFromXml(xmlString: string) {
+  const regex = /entityID=(['"])([^'"]+)\1/;
+  const match = xmlString.match(regex);
+
+  if (match && match[2]) {
+    return match[2];
+  }
+
+  throw new HTTPException(400, {
+    message: "Failed to extract EntityID from SAML metadata",
   });
 }
 
@@ -182,6 +203,17 @@ export const samlpRoutes = new OpenAPIHono<{
       //    <samlp:NameIDPolicy AllowCreate='true' Format='urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'/>
       // </samlp:AuthnRequest>
 
+      const issuer = extractIssuerFromXml(xmlString);
+
+      // Example of a SP SAML metadata:
+      // <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="_7b7ed171-8d7a-4ca8-979b-fac1cb5a0c32" entityID="https://skiclassicsplay.vhx.tv/saml/metadata">
+      //   <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      //   <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://skiclassicsplay.vhx.tv/logout" ResponseLocation="https://skiclassicsplay.vhx.tv/logout"/>
+      //   <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+      //   <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://skiclassicsplay.vhx.tv/saml/consume" index="0" isDefault="true"/>
+      //   </md:SPSSODescriptor>
+      // </md:EntityDescriptor>
+
       // TODO: Validate the client
       // TODO: Validate the SAMLRequest
 
@@ -190,10 +222,9 @@ export const samlpRoutes = new OpenAPIHono<{
         authParams: {
           client_id: client.id,
           state: extractIdFromXml(xmlString),
-          // TODO: Should be SAML
-          response_type: AuthorizationResponseType.CODE,
           response_mode: AuthorizationResponseMode.SAML_POST,
           redirect_uri: extractAssersionConsumeUrlFromXml(xmlString),
+          audience: issuer,
         },
         expires_at: new Date(
           Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,

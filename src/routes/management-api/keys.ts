@@ -1,5 +1,5 @@
 import { Env } from "../../types";
-import { create } from "../../services/rsa-key";
+import { createRsaCertificate } from "../../helpers/encryption";
 import { HTTPException } from "hono/http-exception";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import authenticationMiddleware from "../../middlewares/authentication";
@@ -132,7 +132,7 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
         await ctx.env.data.keys.revoke(key.kid, new Date(Date.now() + DAY));
       }
 
-      const newCertificate = await create();
+      const newCertificate = await createRsaCertificate();
       await ctx.env.data.keys.create(newCertificate);
 
       return ctx.text("OK", { status: 201 });
@@ -174,7 +174,7 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
         throw new HTTPException(404, { message: "Key not found" });
       }
 
-      const newCertificate = await create();
+      const newCertificate = await createRsaCertificate();
       await ctx.env.data.keys.create(newCertificate);
 
       return ctx.text("OK", { status: 201 });

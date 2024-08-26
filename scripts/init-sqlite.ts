@@ -3,7 +3,7 @@ import { BunSqliteDialect } from "kysely-bun-sqlite";
 import * as bunSqlite from "bun:sqlite";
 import { getDb } from "../src/services/db";
 import { migrateToLatest } from "../migrate/migrate";
-import { create } from "../src/services/rsa-key";
+import { createRsaCertificate } from "../src/helpers/encryption";
 import userIdGenerate from "../src/utils/userIdGenerate";
 import createAdapters from "@authhero/kysely-adapter";
 
@@ -23,7 +23,7 @@ const data = createAdapters(db);
     sender_email: "login@example.com",
   });
 
-  const newCertificate = await create();
+  const newCertificate = await createRsaCertificate();
   await data.keys.create(newCertificate);
 
   await data.applications.create(tenant.id, {

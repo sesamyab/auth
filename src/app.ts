@@ -19,7 +19,6 @@ import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
 import createManagementApp from "./management-app";
 import createSamlApp from "./saml-app";
-import { createX509Certificate } from "./utils/x509";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",

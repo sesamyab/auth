@@ -5,15 +5,6 @@ import { snapshotResponse } from "./helpers/playwrightSnapshots";
 import { base64url } from "oslo/encoding";
 import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
 
-function osloBtoa(payload: object) {
-  const str = JSON.stringify(payload);
-  const encoder = new TextEncoder();
-  const uint8Array = encoder.encode(str);
-  const encodedStr = base64url.encode(uint8Array);
-
-  return encodedStr;
-}
-
 test("only allows existing users to progress to the enter code step", async () => {
   const testTenantLanguage = "en";
   const { env, oauthApp } = await getTestServer({
