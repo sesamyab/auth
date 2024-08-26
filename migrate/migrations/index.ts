@@ -49,6 +49,7 @@ import * as n48_saml from "./2024-08-16T13:45:00_saml";
 import * as n49_removeFields from "./2024-08-20T08:50:00_remove_fields";
 import * as n50_authParamsNonce from "./2024-08-22T08:26:00_authparams_nonce";
 import * as n51_connectionid from "./2024-08-22T11:54:00_connection_id";
+import * as n52_cert from "./2024-08-26T18:38:00_cert";
 
 // These need to be in alphabetic order
 export default {
@@ -103,4 +104,5 @@ export default {
   n49_removeFields,
   n50_authParamsNonce,
   n51_connectionid,
+  n52_cert,
 };

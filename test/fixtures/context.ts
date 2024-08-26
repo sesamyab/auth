@@ -3,7 +3,6 @@ import {
   Application,
   ConnectionInsert,
   Domain,
-  OTP,
   Password,
   SessionInsert,
   Tenant,
@@ -32,7 +31,6 @@ interface ContextFixtureParams {
   stateData?: { [key: string]: string };
   tickets?: Ticket[];
   sessions?: SessionInsert[];
-  otps?: OTP[];
   passwords?: Password[];
   users?: User[];
   userData?: { [key: string]: string | boolean };
@@ -56,7 +54,6 @@ export async function contextFixture(
     tickets,
     sessions,
     users,
-    otps,
     passwords,
     email,
     connections,
@@ -136,12 +133,6 @@ export async function contextFixture(
     });
   }
 
-  if (otps) {
-    otps.forEach((otp) => {
-      data.OTP.create(TENANT_FIXTURE.id, otp);
-    });
-  }
-
   if (sessions) {
     sessions.forEach(async (session) => {
       data.sessions.create(TENANT_FIXTURE.id, session);
@@ -155,7 +146,8 @@ export async function contextFixture(
   }
 
   // Add a known certificate
-  await data.keys.create(getCertificate());
+  const signingKey = await getCertificate();
+  await data.keys.create(signingKey);
 
   return {
     set: () => {},

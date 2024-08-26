@@ -8,10 +8,17 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("tenant_id", "varchar(255)", (col) =>
       col.references("tenants.id").onDelete("cascade"),
     )
-    .addColumn("private_key", "varchar(8192)", (col) => col.notNull())
-    .addColumn("public_key", "varchar(1024)", (col) => col.notNull())
+    // This will be removed in a future migration
+    // .addColumn("private_key", "varchar(8192)", (col) => col.notNull())
+    // .addColumn("public_key", "varchar(1024)", (col) => col.notNull())
     .addColumn("created_at", "varchar(255)", (col) => col.notNull())
     .addColumn("revoked_at", "varchar(255)")
+    .addColumn("cert", "varchar(2048)")
+    .addColumn("pkcs7", "varchar(1024)")
+    .addColumn("fingerprint", "varchar(256)")
+    .addColumn("thumbprint", "varchar(256)")
+    .addColumn("current_since", "varchar(256)")
+    .addColumn("current_until", "varchar(256)")
     .execute();
 }
 

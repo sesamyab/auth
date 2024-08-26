@@ -7,6 +7,5 @@ export async function cleanup(db: Kysely<Database>) {
   ).toISOString();
 
   await db.deleteFrom("codes").where("created_at", "<", oneWeekAgo).execute();
-  await db.deleteFrom("otps").where("created_at", "<", oneWeekAgo).execute();
   await db.deleteFrom("tickets").where("created_at", "<", oneWeekAgo).execute();
 }

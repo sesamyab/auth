@@ -1,5 +1,5 @@
 import { Env } from "../../types";
-import { createRsaCertificate } from "../../helpers/encryption";
+import { createX509Certificate } from "../../helpers/encryption";
 import { HTTPException } from "hono/http-exception";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import authenticationMiddleware from "../../middlewares/authentication";
@@ -7,6 +7,7 @@ import {
   certificateSchema,
   signingKeySchema,
 } from "@authhero/adapter-interfaces";
+import { encodeHex } from "oslo/encoding";
 
 const DAY = 1000 * 60 * 60 * 24;
 
@@ -18,7 +19,7 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
     createRoute({
       tags: ["keys"],
       method: "get",
-      path: "/",
+      path: "/signing",
       request: {
         headers: z.object({
           tenant_id: z.string(),
@@ -32,11 +33,11 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
       ],
       responses: {
         200: {
-          content: {
-            "application/json": {
-              schema: z.array(signingKeySchema),
-            },
-          },
+          // content: {
+          //   "application/json": {
+          //     schema: z.array(signingKeySchema),
+          //   },
+          // },
           description: "List of keys",
         },
       },
@@ -44,26 +45,23 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
     async (ctx) => {
       const keys = await ctx.env.data.keys.list();
 
-      return ctx.json(
-        keys.map((key) => ({
-          kid: key.kid,
-          cert: key.public_key,
-          revoked_at: key.revoked_at,
-          revoked: !!key.revoked_at,
-          fingerprint: "fingerprint",
-          thumbprint: "thumbprint",
-        })),
-      );
+      const signingKeys = keys
+        .filter((key) => "cert" in key)
+        .map((key) => {
+          return key;
+        });
+
+      return ctx.json(signingKeys);
     },
   )
   // --------------------------------
-  // GET /keys/:kid
+  // GET /keys/signing/:kid
   // --------------------------------
   .openapi(
     createRoute({
       tags: ["keys"],
       method: "get",
-      path: "/{kid}",
+      path: "/signing/{kid}",
       request: {
         headers: z.object({
           tenant_id: z.string(),
@@ -102,13 +100,13 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // POST /rotate
+  // POST /signing/rotate
   // --------------------------------
   .openapi(
     createRoute({
       tags: ["keys"],
       method: "post",
-      path: "/rotate",
+      path: "/signing/rotate",
       request: {
         headers: z.object({
           tenant_id: z.string(),
@@ -132,20 +130,23 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
         await ctx.env.data.keys.revoke(key.kid, new Date(Date.now() + DAY));
       }
 
-      const newCertificate = await createRsaCertificate();
-      await ctx.env.data.keys.create(newCertificate);
+      const signingKey = await createX509Certificate({
+        name: "CN=sesamy",
+      });
+
+      await ctx.env.data.keys.create(signingKey);
 
       return ctx.text("OK", { status: 201 });
     },
   )
   // --------------------------------
-  // PUT /:kid/revoke
+  // PUT /signing/:kid/revoke
   // --------------------------------
   .openapi(
     createRoute({
       tags: ["keys"],
       method: "put",
-      path: "/{kid}/revoke",
+      path: "/signing/{kid}/revoke",
       request: {
         headers: z.object({
           tenant_id: z.string(),
@@ -174,8 +175,11 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
         throw new HTTPException(404, { message: "Key not found" });
       }
 
-      const newCertificate = await createRsaCertificate();
-      await ctx.env.data.keys.create(newCertificate);
+      const signingKey = await createX509Certificate({
+        name: "CN=sesamy",
+      });
+
+      await ctx.env.data.keys.create(signingKey);
 
       return ctx.text("OK", { status: 201 });
     },

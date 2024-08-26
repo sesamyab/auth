@@ -23,7 +23,8 @@ async function createHookToken(
   const certificates = await env.data.keys.list();
   const certificate = certificates[certificates.length - 1];
 
-  const keyBuffer = pemToBuffer(certificate.private_key);
+  // @ts-ignore
+  const keyBuffer = pemToBuffer(certificate.pcks7 || certificate.private_key);
 
   return createJWT(
     "RS256",

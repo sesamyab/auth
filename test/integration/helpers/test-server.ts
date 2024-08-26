@@ -15,6 +15,7 @@ import {
   Tenant,
 } from "@authhero/adapter-interfaces";
 import createAdapters, { Database } from "@authhero/kysely-adapter";
+import * as x509 from "@peculiar/x509";
 import createApp from "../../../src/app";
 
 type getEnvParams = {
@@ -46,8 +47,9 @@ export async function getTestServer(args: getEnvParams = {}) {
   await migrateToLatest(dialect, false, db);
 
   const data: DataAdapters = createAdapters(db);
-  const certificate = getCertificate();
-  await data.keys.create(certificate);
+  const signingKey = await getCertificate();
+
+  await data.keys.create(signingKey);
 
   // Create Default Settings----------------------------------------
   await data.tenants.create({
@@ -221,15 +223,17 @@ export async function getTestServer(args: getEnvParams = {}) {
     algorithm: "bcrypt",
   });
 
+  const certificate = new x509.X509Certificate(signingKey.cert);
+  const publicKey = await certificate.publicKey.export();
+  const jwkKey = await crypto.subtle.exportKey("jwk", publicKey);
+
   const env = {
     JWKS_URL: "https://example.com/.well-known/jwks.json",
     TOKEN_SERVICE: {
       fetch: async () => ({
         ok: true,
         json: async () => ({
-          keys: [
-            { ...JSON.parse(certificate.public_key), kid: certificate.kid },
-          ],
+          keys: [{ ...jwkKey, kid: signingKey.kid }],
         }),
       }),
     },

@@ -996,7 +996,19 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         );
       }
 
-      const otps = await env.data.OTP.list(client.tenant.id, email);
+      const emailVerificationCode = loginParams.code
+        ? await env.data.codes.get(
+            client.tenant.id,
+            loginParams.code,
+            "email_verification",
+          )
+        : undefined;
+      const emailVerificationSession = emailVerificationCode
+        ? await env.data.logins.get(
+            client.tenant.id,
+            emailVerificationCode.login_id,
+          )
+        : undefined;
 
       try {
         const existingUser = await getUserByEmailAndProvider({
@@ -1010,9 +1022,8 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           throw new HTTPException(400, { message: "Invalid sign up" });
         }
 
-        const email_verified = !!otps.find(
-          (otp) => !otp.used_at && otp.code === loginParams.code,
-        );
+        const email_verified =
+          emailVerificationSession?.authParams.username === email;
 
         const newUser = await ctx.env.data.users.create(client.tenant.id, {
           user_id: `auth2|${userIdGenerate()}`,
@@ -1400,10 +1411,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
     }),
     async (ctx) => {
       const { state } = ctx.req.valid("query");
-      const { vendorSettings, session, client } = await initJSXRoute(
-        ctx,
-        state,
-      );
+      const { session, client } = await initJSXRoute(ctx, state);
 
       const { username } = session.authParams;
 
@@ -1411,17 +1419,10 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         throw new HTTPException(400, { message: "Username required" });
       }
 
-      const code = generateOTP();
-
-      await ctx.env.data.OTP.create(client.tenant.id, {
-        id: nanoid(),
-        code,
-        send: "link",
-        ip: ctx.req.header("x-real-ip"),
-        email: username,
-        authParams: {
-          client_id: session.authParams.client_id,
-        },
+      const otpCode = await ctx.env.data.codes.create(client.tenant.id, {
+        code_id: generateOTP(),
+        code_type: "email_verification",
+        login_id: session.login_id,
         expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
       });
 
@@ -1429,7 +1430,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx.env,
         client,
         username,
-        code,
+        otpCode.code_id,
         state,
       );
 
