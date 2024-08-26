@@ -50,15 +50,10 @@ export async function socialAuth(
     throw new HTTPException(403, { message: "Connection Not Found" });
   }
 
-  console.log("state", authParams.state);
-
   let session = await ctx.env.data.logins.get(
     client.tenant.id,
     authParams.state,
   );
-
-  console.log("session", session);
-  console.log("tenant_id", client.tenant.id);
 
   if (!session) {
     session = await ctx.env.data.logins.create(client.tenant.id, {
@@ -250,7 +245,6 @@ export async function oauth2Callback({
     ctx.set("userId", user.user_id);
   } else {
     try {
-      console.log("preUserSignupHook");
       await preUserSignupHook(ctx, client, ctx.env.data, email);
     } catch (err: any) {
       console.log("error", err.message);

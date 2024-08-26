@@ -238,12 +238,14 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       });
     }
 
-    const samlResponse = new SAMLResponse(
-      ctx.env.ISSUER,
-      authParams.redirect_uri || "",
-      "default",
-      user?.user_id || "userId",
-    );
+    const samlResponse = new SAMLResponse({
+      issuer: "https://keycloak.rejlers-srv01.se/auth/realms/master", // ctx.env.ISSUER,
+      recipient: authParams.redirect_uri || "",
+      audience: authParams.audience || "default",
+      nameID: user?.user_id || "userId",
+      userEmail: user?.email || "",
+      inResponseTo: authParams.state,
+    });
 
     const xmlResponse = samlResponse.generateResponse();
     const encodedResponse = samlResponse.encodeResponse(xmlResponse);

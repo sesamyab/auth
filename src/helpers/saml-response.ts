@@ -1,5 +1,14 @@
 import { nanoid } from "nanoid";
 
+interface SAMLResponseParams {
+  issuer: string;
+  recipient: string;
+  audience: string;
+  userEmail: string;
+  nameID: string;
+  inResponseTo?: string;
+}
+
 export class SAMLResponse {
   private issuer: string;
   private recipient: string;
@@ -7,19 +16,18 @@ export class SAMLResponse {
   private nameID: string;
   private notBefore: Date;
   private notOnOrAfter: Date;
+  private userEmail: string;
+  private inResponseTo?: string;
 
-  constructor(
-    issuer: string,
-    recipient: string,
-    audience: string,
-    nameID: string,
-  ) {
-    this.issuer = issuer;
-    this.recipient = recipient;
-    this.audience = audience;
-    this.nameID = nameID;
+  constructor(params: SAMLResponseParams) {
+    this.issuer = params.issuer;
+    this.recipient = params.recipient;
+    this.audience = params.audience;
+    this.nameID = params.nameID;
     this.notBefore = new Date();
     this.notOnOrAfter = new Date(this.notBefore.getTime() + 5 * 60000); // 5 minutes from now
+    this.userEmail = params.userEmail;
+    this.inResponseTo = params.inResponseTo;
   }
 
   generateResponse(): string {
@@ -27,13 +35,12 @@ export class SAMLResponse {
     const assertionID = nanoid();
     const issueInstant = new Date().toISOString();
 
-    return `
-      <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    return `<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
                       xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
                       ID="${responseID}"
                       Version="2.0"
                       IssueInstant="${issueInstant}"
-                      Destination="${this.recipient}">
+                      Destination="${this.recipient}"${this.inResponseTo ? ` InResponseTo="${this.inResponseTo}"` : ""}>
         <saml:Issuer>${this.issuer}</saml:Issuer>
         <samlp:Status>
           <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
@@ -45,7 +52,7 @@ export class SAMLResponse {
                         IssueInstant="${issueInstant}">
           <saml:Issuer>${this.issuer}</saml:Issuer>
           <saml:Subject>
-            <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">${this.nameID}</saml:NameID>
+            <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">${this.userEmail}</saml:NameID>
             <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
               <saml:SubjectConfirmationData NotOnOrAfter="${this.notOnOrAfter.toISOString()}"
                                             Recipient="${this.recipient}"/>
@@ -62,6 +69,16 @@ export class SAMLResponse {
               <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
             </saml:AuthnContext>
           </saml:AuthnStatement>
+          <saml:AttributeStatement>
+            <saml:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" 
+                            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+              <saml:AttributeValue xsi:type="xs:string">${this.userEmail}</saml:AttributeValue>
+            </saml:Attribute>
+                        <saml:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" 
+                            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+              <saml:AttributeValue xsi:type="xs:string">${this.nameID}</saml:AttributeValue>
+            </saml:Attribute>
+          </saml:AttributeStatement>
         </saml:Assertion>
       </samlp:Response>
     `;
