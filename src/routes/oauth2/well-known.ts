@@ -33,7 +33,7 @@ export const wellKnownRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const signingKeys = await ctx.env.data.keys.list();
       const keys = await Promise.all(
         signingKeys.map(async (signingKey) => {
-          if ("cert" in signingKey) {
+          if ("cert" in signingKey && signingKey.cert) {
             const importedCert = new X509Certificate(signingKey.cert);
             const publicKey = await importedCert.publicKey.export();
             const jwkKey = await crypto.subtle.exportKey("jwk", publicKey);
