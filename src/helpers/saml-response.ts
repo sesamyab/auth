@@ -87,7 +87,7 @@ export class SAMLResponse {
   async signResponse(
     xml: string,
     privateKey: CryptoKey,
-    publicKey: CryptoKey,
+    pemPublicKey: string,
   ): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(xml);
@@ -104,13 +104,6 @@ export class SAMLResponse {
     const signatureBase64 = btoa(
       String.fromCharCode(...new Uint8Array(signature)),
     );
-
-    // Extract the public key in PEM format
-    const exportedKey = await crypto.subtle.exportKey("spki", publicKey);
-    const exportedKeyBase64 = btoa(
-      String.fromCharCode(...new Uint8Array(exportedKey)),
-    );
-    const pemPublicKey = `-----BEGIN PUBLIC KEY-----\n${exportedKeyBase64}\n-----END PUBLIC KEY-----`;
 
     // Insert the signature into the XML
     const signedXml = xml.replace(

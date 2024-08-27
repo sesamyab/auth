@@ -5,6 +5,7 @@ import { AuthorizationResponseMode } from "@authhero/adapter-interfaces";
 import { Env, Var } from "../../types";
 import { getClient } from "../../services/clients";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
+import { X509Certificate } from "@peculiar/x509";
 
 async function inflateRaw(compressedData: Uint8Array): Promise<Uint8Array> {
   const ds = new DecompressionStream("deflate-raw");
@@ -115,6 +116,22 @@ export const samlpRoutes = new OpenAPIHono<{
 
       const client = await getClient(ctx.env, application_id);
 
+      if (!client) {
+        throw new HTTPException(404, {
+          message: "Client not found",
+        });
+      }
+
+      const [signingKey] = await ctx.env.data.keys.list();
+
+      if (!signingKey) {
+        throw new HTTPException(500, {
+          message: "No signing key found",
+        });
+      }
+
+      const cert = new X509Certificate(signingKey.cert);
+
       const issuer = ctx.env.ISSUER;
 
       const metadata = `<EntityDescriptor entityID="urn:auth2.sesamy.com" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
@@ -122,7 +139,7 @@ export const samlpRoutes = new OpenAPIHono<{
         <KeyDescriptor use="signing">
             <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
                 <X509Data>
-                    <X509Certificate>MIIDCTCCAfGgAwIBAgIJLY55kBON5jTHMA0GCSqGSIb3DQEBCwUAMCIxIDAeBgNVBAMTF3Nlc2FteS1kZXYuZXUuYXV0aDAuY29tMB4XDTIxMDcyODEzNDYyNloXDTM1MDQwNjEzNDYyNlowIjEgMB4GA1UEAxMXc2VzYW15LWRldi5ldS5hdXRoMC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCmScwL7541d90Utm1C/rR7fqPBH0ZcsX02y1ZRFLTbThGxiQmdwE1vqzp6UdWg2xLDWkhigZUotSp5zoCZ3Mhjqj8nt+rlah/fszAv/aydQYFxVU0QNZF3W8seBCX/0ivzwf3B1uSixuUiV4fTBK8g8rV+OtTnExnUg0hCXamEQiMDq6VRgA+kO2FyOEp3oKj3dI9GJAAJntfgAHFEpC2CcbpTs4GlTt6uORsJ+vbggQpA+WIUuJvo7WZJ6zZKlJXVofa4Eka0xrixOHEPz6hHLYg2o6AowX2gpIPETc0+eg0gvLJkVisgAD0wfq+dQiXw7mSaYeiNF59XDUEuLqspAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFNlGsUvzGigb7TSPEmVaAyaXv+MNMA4GA1UdDwEB/wQEAwIChDANBgkqhkiG9w0BAQsFAAOCAQEANfKDJSrczRCrfYmMkYRSN8B+yUZqiE/sskV9MYh8jHlj5fzm6P2uwIGFmj8h9JI+/4I4w/7mmSefrv4cx+/20tdOoxDKi8VuNok+Rfwy6DMBrQFmViChW0KD760JAwIiFxepjF83ltzMQ843rhO9II+HajSYk2t3bJ47dMrSW9tCJ+xTeK3agdRWAYEX81JF9Saq+F/38uQUi+i2IPebHqYx2WBC08o9cbAbsCFmovAVpYzAzaG8pZaVTXdOWWqo9L3rGWbBYqgwhSJUd8f1fWUildCcoaeahWEiaAmMxEu2le7M8cVykvyRYG2ffzjj80OIjL2BzrRimkg+nxwJoA==</X509Certificate>
+                    <X509Certificate>${cert.toString("base64")}</X509Certificate>
                 </X509Data>
             </KeyInfo>
         </KeyDescriptor>

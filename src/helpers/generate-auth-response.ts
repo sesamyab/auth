@@ -27,6 +27,7 @@ import { setSilentAuthCookies } from "./silent-auth-cookie";
 import { SAMLResponse } from "./saml-response";
 import { samlResponseForm } from "../templates/samlResponse";
 import { HTTPException } from "hono/http-exception";
+import { X509Certificate } from "@peculiar/x509";
 
 export type AuthFlowType =
   | "cross-origin"
@@ -127,9 +128,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
   const signingKeys = await env.data.keys.list();
   const signingKey = signingKeys[signingKeys.length - 1];
 
-  // TODO: remove fallback
-  // @ts-ignore
-  const privatKey: string = signingKey.pkcs7 ?? signingKey.private_key;
+  const privatKey: string = signingKey.pkcs7!;
 
   const keyBuffer = pemToBuffer(privatKey);
 
@@ -242,8 +241,30 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       });
     }
 
+    const [signingKey] = await ctx.env.data.keys.list();
+
+    if (!signingKey) {
+      throw new HTTPException(500, {
+        message: "No signing key found",
+      });
+    }
+
+    const importedCert = new X509Certificate(signingKey.cert);
+    const pemPublicKey = importedCert.publicKey.toString("pem");
+
+    const privateKey = await crypto.subtle.importKey(
+      "pkcs8",
+      pemToBuffer(signingKey.pkcs7!),
+      {
+        name: "RSASSA-PKCS1-v1_5",
+        hash: "SHA-256",
+      },
+      false,
+      ["sign"],
+    );
+
     const samlResponse = new SAMLResponse({
-      issuer: "https://keycloak.rejlers-srv01.se/auth/realms/master", // ctx.env.ISSUER,
+      issuer: ctx.env.ISSUER,
       recipient: authParams.redirect_uri || "",
       audience: authParams.audience || "default",
       nameID: user?.user_id || "userId",
@@ -252,7 +273,12 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
     });
 
     const xmlResponse = samlResponse.generateResponse();
-    const encodedResponse = samlResponse.encodeResponse(xmlResponse);
+    const signedXmlResponse = await samlResponse.signResponse(
+      xmlResponse,
+      privateKey,
+      pemPublicKey,
+    );
+    const encodedResponse = samlResponse.encodeResponse(signedXmlResponse);
 
     return samlResponseForm(authParams.redirect_uri, encodedResponse);
   }
