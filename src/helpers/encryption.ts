@@ -61,7 +61,6 @@ export function convertPKCS7ToPem(
   binaryData: ArrayBuffer,
 ) {
   const base64Cert = base64.encode(new Uint8Array(binaryData));
-  // const base64Cert = arrayBufferToBase64String(binaryData);
   let pemCert = `-----BEGIN ${keyType} KEY-----\r\n`;
   let nextIndex = 0;
 

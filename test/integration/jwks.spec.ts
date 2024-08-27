@@ -33,8 +33,6 @@ describe("jwks", () => {
   it("should create a new rsa-key and return it", async () => {
     const { oauthApp, managementApp, env } = await getTestServer();
     const oauthClient = testClient(oauthApp, env);
-    // TO FIX - Type instantiation is excessively deep and possibly infinite.
-    /* @ts-ignore */
     const managementClient = testClient(managementApp, env);
 
     const initialKey = await oauthClient[".well-known"]["jwks.json"].$get(

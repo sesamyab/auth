@@ -23,7 +23,7 @@ describe("encryption", () => {
       const jwkKey = await crypto.subtle.exportKey("jwk", publicKey);
       expect(jwkKey.alg).toBe("RS256");
 
-      // Make a puiblic pem key
+      // Make a public pem key
       const publicPEMKey = importedCert.publicKey.toString("pem");
       expect(publicPEMKey).toContain("-----BEGIN PUBLIC KEY-----");
 
