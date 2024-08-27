@@ -65,6 +65,23 @@ export async function requestPasswordReset(
     },
   });
 
+  let code_id = generateOTP();
+  let existingCode = await ctx.env.data.codes.get(
+    client.tenant.id,
+    code_id,
+    "password_reset",
+  );
+
+  // This is a slighly hacky way to ensure we don't generate a code that already exists
+  while (existingCode) {
+    code_id = generateOTP();
+    existingCode = await ctx.env.data.codes.get(
+      client.tenant.id,
+      code_id,
+      "password_reset",
+    );
+  }
+
   const createdCode = await ctx.env.data.codes.create(client.tenant.id, {
     code_id: generateOTP(),
     code_type: "password_reset",
