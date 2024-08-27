@@ -14,7 +14,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("login_id", "varchar(255)")
     .addColumn("connection_id", "varchar(255)")
     .addForeignKeyConstraint(
-      "codes_user_id_tenant_id_constraint",
+      "FK_codes_user_id_tenant_id_constraint",
       ["user_id", "tenant_id"],
       "users",
       ["user_id", "tenant_id"],
@@ -24,9 +24,10 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("created_at", "varchar(255)", (col) => col.notNull())
     .addColumn("expires_at", "varchar(255)", (col) => col.notNull())
     .addColumn("used_at", "varchar(255)")
-    .addPrimaryKeyConstraint("PK_codes_code_id_code_type", [
+    .addPrimaryKeyConstraint("PK_codes_code_id_code_type_tenant_id", [
       "code_id",
       "code_type",
+      "tenant_id",
     ])
     .execute();
 }
