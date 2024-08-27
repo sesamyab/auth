@@ -3,11 +3,7 @@ import { createX509Certificate } from "../../helpers/encryption";
 import { HTTPException } from "hono/http-exception";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import authenticationMiddleware from "../../middlewares/authentication";
-import {
-  certificateSchema,
-  signingKeySchema,
-} from "@authhero/adapter-interfaces";
-import { encodeHex } from "oslo/encoding";
+import { signingKeySchema } from "@authhero/adapter-interfaces";
 
 const DAY = 1000 * 60 * 60 * 24;
 
@@ -33,11 +29,11 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
       ],
       responses: {
         200: {
-          // content: {
-          //   "application/json": {
-          //     schema: z.array(signingKeySchema),
-          //   },
-          // },
+          content: {
+            "application/json": {
+              schema: z.array(signingKeySchema),
+            },
+          },
           description: "List of keys",
         },
       },
@@ -80,7 +76,7 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
         200: {
           content: {
             "application/json": {
-              schema: certificateSchema,
+              schema: signingKeySchema,
             },
           },
           description: "A key",
@@ -127,7 +123,9 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
     async (ctx) => {
       const keys = await ctx.env.data.keys.list();
       for await (const key of keys) {
-        await ctx.env.data.keys.revoke(key.kid, new Date(Date.now() + DAY));
+        await ctx.env.data.keys.update(key.kid, {
+          revoked_at: new Date(Date.now() + DAY).toISOString(),
+        });
       }
 
       const signingKey = await createX509Certificate({
@@ -170,7 +168,9 @@ export const keyRoutes = new OpenAPIHono<{ Bindings: Env }>()
     async (ctx) => {
       const { kid } = ctx.req.valid("param");
 
-      const revoked = await ctx.env.data.keys.revoke(kid, new Date(Date.now()));
+      const revoked = await ctx.env.data.keys.update(kid, {
+        revoked_at: new Date().toISOString(),
+      });
       if (!revoked) {
         throw new HTTPException(404, { message: "Key not found" });
       }
