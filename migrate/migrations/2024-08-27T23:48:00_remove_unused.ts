@@ -2,11 +2,11 @@ import { Kysely } from "kysely";
 import { Database } from "@authhero/kysely-adapter";
 
 export async function up(db: Kysely<Database>): Promise<void> {
-  await db.schema
-    .alterTable("keys")
-    .dropColumn("private_key")
-    .dropColumn("public_key")
-    .execute();
+  // await db.schema
+  //   .alterTable("keys")
+  //   .dropColumn("private_key")
+  //   .dropColumn("public_key")
+  //   .execute();
 
   await db.schema.dropTable("otps").execute();
   await db.schema.dropTable("authentication_codes").execute();
