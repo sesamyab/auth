@@ -230,6 +230,12 @@ export async function oauth2Callback({
 
   const { sub, email: emailRaw, ...profileData } = userinfo;
 
+  if (!emailRaw) {
+    ctx.set("userId", sub);
+    ctx.set("log", JSON.stringify(userinfo));
+    throw new HTTPException(400, { message: "User does not have an email" });
+  }
+
   const email = emailRaw.toLocaleLowerCase();
   ctx.set("userName", email);
   const strictEmailVerified = !!profileData.email_verified;

@@ -18,6 +18,7 @@ export type Var = {
   // connectionId?: string;
   connection?: string;
   auth0_client?: z.infer<typeof Auth0Client>;
+  log?: string;
   // TODO - enable these, populate, and use
   //   strategy?: string;
   //   strategyType?: string;
