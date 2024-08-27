@@ -51,6 +51,7 @@ import * as n50_authParamsNonce from "./2024-08-22T08:26:00_authparams_nonce";
 import * as n51_connectionid from "./2024-08-22T11:54:00_connection_id";
 import * as n52_cert from "./2024-08-26T18:38:00_cert";
 import * as n53_codes_primary_key from "./2024-08-27T14:35:00_codes_primay_key";
+import * as n54_cleanup_tables from "./2024-08-27T23:48:00_remove_unused";
 
 // These need to be in alphabetic order
 export default {
@@ -107,4 +108,5 @@ export default {
   n51_connectionid,
   n52_cert,
   n53_codes_primary_key,
+  n54_cleanup_tables,
 };

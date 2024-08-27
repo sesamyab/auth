@@ -2,21 +2,21 @@ import { Kysely } from "kysely";
 import { Database } from "@authhero/kysely-adapter";
 
 export async function up(db: Kysely<Database>): Promise<void> {
-  await db.schema
-    .alterTable("keys")
-    .dropColumn("primary_key")
-    .dropColumn("primary_key")
-    .execute();
+  // await db.schema
+  //   .alterTable("keys")
+  //   .dropColumn("private_key")
+  //   .dropColumn("public_key")
+  //   .execute();
 
-  await db.schema.dropTable("otps");
-  await db.schema.dropTable("authentication_codes");
+  await db.schema.dropTable("otps").execute();
+  await db.schema.dropTable("authentication_codes").execute();
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
   await db.schema
     .alterTable("keys")
-    .addColumn("primary_key", "varchar(2048)")
-    .addColumn("primary_key", "varchar(2048)")
+    .addColumn("private_key", "varchar(2048)")
+    .addColumn("public_key", "varchar(2048)")
     .execute();
 
   await db.schema
