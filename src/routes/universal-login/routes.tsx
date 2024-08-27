@@ -674,8 +674,25 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         }
       }
 
+      let code_id = generateOTP();
+      let existingCode = await env.data.codes.get(
+        client.tenant.id,
+        code_id,
+        "otp",
+      );
+
+      // This is a slighly hacky way to ensure we don't generate a code that already exists
+      while (existingCode) {
+        code_id = generateOTP();
+        existingCode = await env.data.codes.get(
+          client.tenant.id,
+          code_id,
+          "otp",
+        );
+      }
+
       const createdCode = await ctx.env.data.codes.create(client.tenant.id, {
-        code_id: generateOTP(),
+        code_id,
         code_type: "otp",
         login_id: session.login_id,
         expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
