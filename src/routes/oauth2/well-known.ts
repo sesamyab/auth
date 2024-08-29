@@ -33,30 +33,15 @@ export const wellKnownRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const signingKeys = await ctx.env.data.keys.list();
       const keys = await Promise.all(
         signingKeys.map(async (signingKey) => {
-          if ("cert" in signingKey && signingKey.cert) {
-            const importedCert = new X509Certificate(signingKey.cert);
-            const publicKey = await importedCert.publicKey.export();
-            const jwkKey = await crypto.subtle.exportKey("jwk", publicKey);
-
-            return jwksSchema.parse({
-              ...jwkKey,
-              kid: signingKey.kid,
-            });
-          }
-
-          // TODO: remove legacy signing keys
-          // @ts-ignore
-          const { alg, n, e, kty } = JSON.parse(signingKey.public_key);
-          if (!alg || !e || !kty || !n) {
-            throw new Error("Invalid public key");
-          }
+          const cert = new X509Certificate(signingKey.cert);
+          const publicKey = await cert.publicKey.export();
+          const jwkKey = await crypto.subtle.exportKey("jwk", publicKey);
 
           return jwksSchema.parse({
+            ...jwkKey,
             kid: signingKey.kid,
-            alg,
-            n,
-            e,
-            kty,
+            x5c: [cert.publicKey.toString("base64")],
+            x5t: signingKey,
           });
         }),
       );
