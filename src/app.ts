@@ -15,6 +15,7 @@ import it from "./localesLogin2/it/default.json";
 import nb from "./localesLogin2/nb/default.json";
 import sv from "./localesLogin2/sv/default.json";
 import pl from "./localesLogin2/pl/default.json";
+import fi from "./localesLogin2/fi/default.json";
 import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
 import createManagementApp from "./management-app";
@@ -39,6 +40,7 @@ i18next.init({
     nb: { translation: nb },
     sv: { translation: sv },
     pl: { translation: pl },
+    fi: { translation: fi },
   },
 });
 
