@@ -66,19 +66,33 @@ export class SAMLResponse {
           </saml:Conditions>
           <saml:AuthnStatement AuthnInstant="${issueInstant}">
             <saml:AuthnContext>
-              <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
+              <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef>
             </saml:AuthnContext>
           </saml:AuthnStatement>
           <saml:AttributeStatement>
-            <saml:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" 
-                            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
-              <saml:AttributeValue xsi:type="xs:string">${this.userEmail}</saml:AttributeValue>
-            </saml:Attribute>
-                        <saml:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" 
-                            NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
-              <saml:AttributeValue xsi:type="xs:string">${this.nameID}</saml:AttributeValue>
-            </saml:Attribute>
-          </saml:AttributeStatement>
+      <saml:AttributeStatement>
+         <saml:Attribute FriendlyName="persistent" Name="id" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">${this.nameID}</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">manage-account</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">default-roles-master</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">offline_access</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">view-profile</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">uma_authorization</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">manage-account-links</saml:AttributeValue>
+         </saml:Attribute>
+      </saml:AttributeStatement>
         </saml:Assertion>
       </samlp:Response>
     `;
@@ -87,7 +101,7 @@ export class SAMLResponse {
   async signResponse(
     xml: string,
     privateKey: CryptoKey,
-    pemPublicKey: string,
+    certBase64: string,
   ): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(xml);
@@ -124,7 +138,7 @@ export class SAMLResponse {
         <ds:SignatureValue>${signatureBase64}</ds:SignatureValue>
         <ds:KeyInfo>
           <ds:X509Data>
-            <ds:X509Certificate>${pemPublicKey}</ds:X509Certificate>
+            <ds:X509Certificate>${certBase64}</ds:X509Certificate>
           </ds:X509Data>
         </ds:KeyInfo>
       </ds:Signature></saml:Assertion>`,

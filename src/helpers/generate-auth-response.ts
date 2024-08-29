@@ -250,7 +250,6 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
     }
 
     const importedCert = new X509Certificate(signingKey.cert);
-    const pemPublicKey = importedCert.publicKey.toString("pem");
 
     const privateKey = await crypto.subtle.importKey(
       "pkcs8",
@@ -276,7 +275,7 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
     const signedXmlResponse = await samlResponse.signResponse(
       xmlResponse,
       privateKey,
-      pemPublicKey,
+      importedCert.publicKey.toString("base64"),
     );
     const encodedResponse = samlResponse.encodeResponse(signedXmlResponse);
 
