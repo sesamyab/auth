@@ -228,22 +228,20 @@ export async function oauth2Callback({
     }
   }
 
-  const { sub, email: emailRaw, ...profileData } = userinfo;
+  const { sub, email, ...profileData } = userinfo;
+  ctx.set("userId", sub);
 
-  if (!emailRaw) {
-    ctx.set("userId", sub);
-    ctx.set("log", JSON.stringify(userinfo));
-    throw new HTTPException(400, { message: "User does not have an email" });
-  }
+  let lowerCaseEmail =
+    email?.toLocaleLowerCase() ||
+    `${connection.name}.${sub}@${new URL(ctx.env.ISSUER).hostname}`;
 
-  const email = emailRaw.toLocaleLowerCase();
   ctx.set("userName", email);
   const strictEmailVerified = !!profileData.email_verified;
 
   let user = await getPrimaryUserByEmailAndProvider({
     userAdapter: env.data.users,
     tenant_id: client.tenant.id,
-    email,
+    email: lowerCaseEmail,
     provider: connection.name,
   });
 
@@ -273,7 +271,7 @@ export async function oauth2Callback({
 
     user = await env.data.users.create(client.tenant.id, {
       user_id: `${connection.name}|${sub}`,
-      email,
+      email: lowerCaseEmail,
       name: email,
       provider: connection.name,
       connection: connection.name,

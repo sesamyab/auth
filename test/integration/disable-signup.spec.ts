@@ -164,29 +164,7 @@ test("only allows existing breakit users to progress to the enter code step with
     email_validation: "enforced",
     disable_sign_ups: true,
   });
-  // this user will be created by our mockOauth2 provider when the client_id is socialClientId
-  await env.data.users.create("breakit", {
-    name: "örjan.lindström@example.com",
-    provider: "demo-social-provider",
-    connection: "demo-social-provider",
-    email: "örjan.lindström@example.com",
-    email_verified: true,
-    last_ip: "",
-    login_count: 0,
-    is_social: true,
-    profileData: JSON.stringify({
-      locale: "es-ES",
-      name: "Örjan Lindström",
-      given_name: "Örjan",
-      family_name: "Lindström",
-      picture:
-        "https://lh3.googleusercontent.com/a/ACg8ocKL2otiYIMIrdJso1GU8GtpcY9laZFqo7pfeHAPkU5J=s96-c",
-      email_verified: true,
-    }),
-    user_id: "demo-social-provider|123456789012345678901",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  });
+
   await env.data.connections.create("breakit", {
     id: "breakit-social-connection",
     name: "demo-social-provider",
@@ -195,8 +173,6 @@ test("only allows existing breakit users to progress to the enter code step with
     id: "breakit-social-connection2",
     name: "other-social-provider",
   });
-
-  const STATE = "some-state-key-from-calling-app";
 
   // ----------------------------
   // SSO callback from nonexisting user
@@ -249,6 +225,29 @@ test("only allows existing breakit users to progress to the enter code step with
   // ----------------------------
   //  Try going past email address step with existing breakit user
   // ----------------------------
+  await env.data.users.create("breakit", {
+    name: "örjan.lindström@example.com",
+    provider: "demo-social-provider",
+    connection: "demo-social-provider",
+    email: "örjan.lindström@example.com",
+    email_verified: true,
+    last_ip: "",
+    login_count: 0,
+    is_social: true,
+    profileData: JSON.stringify({
+      locale: "es-ES",
+      name: "Örjan Lindström",
+      given_name: "Örjan",
+      family_name: "Lindström",
+      picture:
+        "https://lh3.googleusercontent.com/a/ACg8ocKL2otiYIMIrdJso1GU8GtpcY9laZFqo7pfeHAPkU5J=s96-c",
+      email_verified: true,
+    }),
+    user_id: "demo-social-provider|123456789012345678901",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
+
   const session2 = await env.data.logins.create("breakit", {
     expires_at: new Date(Date.now() + 10000).toISOString(),
     authParams: {

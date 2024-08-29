@@ -11,6 +11,7 @@ import { Env, Var } from "../types";
 import { HTTPException } from "hono/http-exception";
 import { createLogMessage } from "../utils/create-log-message";
 import { waitUntil } from "../utils/wait-until";
+import { getPrimaryUserByEmail } from "../utils/users";
 
 function createUserHooks(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -43,15 +44,24 @@ export async function preUserSignupHook(
 ) {
   // Check the disabled flag on the client
   if (client.disable_sign_ups) {
-    const log = createLogMessage(ctx, {
-      type: LogTypes.FAILED_SIGNUP,
-      description: "Public signup is disabled",
+    // If there is another user with the same email, allow the signup as they will be linked together
+    const existingUser = await getPrimaryUserByEmail({
+      userAdapter: ctx.env.data.users,
+      tenant_id: client.tenant.id,
+      email,
     });
-    await ctx.env.data.logs.create(client.tenant.id, log);
 
-    throw new HTTPException(400, {
-      message: "Signups are disabled for this client",
-    });
+    if (!existingUser) {
+      const log = createLogMessage(ctx, {
+        type: LogTypes.FAILED_SIGNUP,
+        description: "Public signup is disabled",
+      });
+      await ctx.env.data.logs.create(client.tenant.id, log);
+
+      throw new HTTPException(400, {
+        message: "Signups are disabled for this client",
+      });
+    }
   }
 
   await preUserSignupWebhook(ctx, data)(ctx.var.tenant_id || "", email);
