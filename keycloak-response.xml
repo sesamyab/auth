@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" Destination="https://scplay.skiclassics.com/saml/consume" ID="ID_ebfbf32d-4805-4262-bfeb-ab0ac314be7f" InResponseTo="_cbfcb7a0-ff0d-44bb-b4ae-81faca84a58c" IssueInstant="2024-08-29T12:09:22.023Z" Version="2.0">
+   <saml:Issuer>https://keycloak.rejlers-srv01.se/auth/realms/master</saml:Issuer>
+   <dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+      <dsig:SignedInfo>
+         <dsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+         <dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+         <dsig:Reference URI="#ID_ebfbf32d-4805-4262-bfeb-ab0ac314be7f">
+            <dsig:Transforms>
+               <dsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+               <dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+            </dsig:Transforms>
+            <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+            <dsig:DigestValue>NEJvBEn4DyGLxVvHD6GXgvRB+ic=</dsig:DigestValue>
+         </dsig:Reference>
+      </dsig:SignedInfo>
+      <dsig:SignatureValue>qs1LdON+mdaMOP2CSJPOuBTPG8x6UJzUZFFT0YAfZfUmkv72QTMZHCFUsGVT5W80RA8u+PwXAD8xEjQjAh1+k9ixKNJL+/gPMISiCqf9F7MEn99PxrjEDI2AdQDGvDNBugMkZqvUTHNuokE3s9J+iY+6D1UDtjpq+3fUHyo8wQZGeJjxPkXxAVWFQIy9LSQoCmiR7Lbz887DPrl1hbeUQBbnnFgdxm0W5kwjZpUMY5tymbvSg3FaEAb6Z9alwgUrVKnoeUxJPVRkjVZyF2a8nEQ0hlFfWG/kq3eAzdE+YuvmbGklOjtdCE+NGPu8VbMRSKir5X5ookLK8cemIvwqvQ==</dsig:SignatureValue>
+      <dsig:KeyInfo>
+         <dsig:KeyName>U929L5xX0hciHKqSazt9h-GL3lX1icMXnieJSHbs0gE</dsig:KeyName>
+         <dsig:X509Data>
+            <dsig:X509Certificate>MIICmzCCAYMCBgF839oZ1TANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDDAZtYXN0ZXIwHhcNMjExMTAyMDg1MTI1WhcNMzExMTAyMDg1MzA1WjARMQ8wDQYDVQQDDAZtYXN0ZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8Od3cA0+2NJH9et4ENxcc0B3Gkv8k8MPz0aTH74Hnb7QNTxVZ4SNqym8NOJMG0wiBQeWH4QIosxPVtoxv+gZ6hfBz1KevkkkpCahoA9Q69FQmY5KwiIJd7/4PKGGsZTQeGfcjf/Erax98KX9XagAR5meMQXt1c2eDoc203eFbhmM0zAZZaTpoVagVAbWmgf8StXa1kgmtohZjqPcF46vVDtaMtXgnyXIKgZoslgP4ifGzqEMh7HXwQ/w5SnrbJeq9gjgdv/wtjj9dAW46NxDeiKfwNhHrWFeTj+517TT4kqcn+R49D1/Fz5X6oBSoYgdOKN4ue7HF36bMLoe0MruPAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAAA6IN+opXNquoZpJvyJSgIyms1hAAFA5hbAsiryYKFj6RfPJFcaksoCV/xJf/99A6Imzc3X2sbTTH0F3Qy3kgjWvHf6yRSeBvyh5h+p6Sy2Q96lqaO93Ni7g/Es38Tejssv48WrN/ZnPq8EFRfv+ZonUA5IfieCqvT12qq+uQTrZB4RRtw184EKSk0/QmkUvQmUY/V/3SzgZRggoRZdH0hMi7WGnLr0K/E22f5DaZwQG6mhztIjVJk6yTwC8Vk/E/NYmbVVNK1oPbFXJjIJxLTlxyHAH5TWAPda1EdvJFRSTiJtZs9jFP9J+0mUXjd/ses6dD4C7mmIbU+Ao2EJnhE=</dsig:X509Certificate>
+         </dsig:X509Data>
+         <dsig:KeyValue>
+            <dsig:RSAKeyValue>
+               <dsig:Modulus>vDnd3ANPtjSR/XreBDcXHNAdxpL/JPDD89Gkx++B52+0DU8VWeEjaspvDTiTBtMIgUHlh+ECKLMT1baMb/oGeoXwc9Snr5JJKQmoaAPUOvRUJmOSsIiCXe/+DyhhrGU0Hhn3I3/xK2sffCl/V2oAEeZnjEF7dXNng6HNtN3hW4ZjNMwGWWk6aFWoFQG1poH/ErV2tZIJraIWY6j3BeOr1Q7WjLV4J8lyCoGaLJYD+Inxs6hDIex18EP8OUp62yXqvYI4Hb/8LY4/XQFuOjcQ3oin8DYR61hXk4/ude00+JKnJ/kePQ9fxc+V+qAUqGIHTijeLnuxxd+mzC6HtDK7jw==</dsig:Modulus>
+               <dsig:Exponent>AQAB</dsig:Exponent>
+            </dsig:RSAKeyValue>
+         </dsig:KeyValue>
+      </dsig:KeyInfo>
+   </dsig:Signature>
+   <samlp:Status>
+      <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
+   </samlp:Status>
+   <saml:Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_4e20fa90-c168-48d5-8eba-aa9993f33c1e" IssueInstant="2024-08-29T12:09:22.022Z" Version="2.0">
+      <saml:Issuer>https://keycloak.rejlers-srv01.se/auth/realms/master</saml:Issuer>
+      <saml:Subject>
+         <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">markus@sesamy.com</saml:NameID>
+         <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+            <saml:SubjectConfirmationData InResponseTo="_cbfcb7a0-ff0d-44bb-b4ae-81faca84a58c" NotOnOrAfter="2024-08-29T12:10:20.022Z" Recipient="https://scplay.skiclassics.com/saml/consume" />
+         </saml:SubjectConfirmation>
+      </saml:Subject>
+      <saml:Conditions NotBefore="2024-08-29T12:09:20.022Z" NotOnOrAfter="2024-08-29T12:10:20.022Z">
+         <saml:AudienceRestriction>
+            <saml:Audience>https://scplay.skiclassics.com/saml/metadata</saml:Audience>
+         </saml:AudienceRestriction>
+      </saml:Conditions>
+      <saml:AuthnStatement AuthnInstant="2024-08-29T12:09:22.023Z" SessionIndex="70e1938e-f1ec-4edd-b72a-18dd75cd6e5d::a2af9228-d8ec-4d2a-9ec6-ed5843ce87f8" SessionNotOnOrAfter="2024-08-29T12:10:22.023Z">
+         <saml:AuthnContext>
+            <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef>
+         </saml:AuthnContext>
+      </saml:AuthnStatement>
+      <saml:AttributeStatement>
+         <saml:Attribute FriendlyName="persistent" Name="id" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">6f81f2e7-6fe2-4ae6-a956-96f152a3ce15</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">manage-account</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">default-roles-master</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">offline_access</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">view-profile</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">uma_authorization</saml:AttributeValue>
+         </saml:Attribute>
+         <saml:Attribute Name="Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">manage-account-links</saml:AttributeValue>
+         </saml:Attribute>
+      </saml:AttributeStatement>
+   </saml:Assertion>
+</samlp:Response>
