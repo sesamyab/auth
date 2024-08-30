@@ -16,7 +16,6 @@ import EnterCodePage from "../../components/EnterCodePage";
 import SignupPage from "../../components/SignUpPage";
 import MessagePage from "../../components/Message";
 import EmailValidatedPage from "../../components/EmailValidatedPage";
-import { nanoid } from "nanoid";
 import { generateAuthResponse } from "../../helpers/generate-auth-response";
 import { Context } from "hono";
 import ForgotPasswordPage from "../../components/ForgotPasswordPage";
