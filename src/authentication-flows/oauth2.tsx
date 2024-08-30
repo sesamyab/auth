@@ -158,6 +158,9 @@ export async function oauth2Callback({
     throw new HTTPException(403, { message: "Connection not found" });
   }
   ctx.set("connection", connection.name);
+  ctx.set("connection_id", connection.id);
+  ctx.set("strategy", connection.name);
+  ctx.set("strategy_type", "social");
 
   if (!session.authParams.redirect_uri) {
     const log = createLogMessage(ctx, {

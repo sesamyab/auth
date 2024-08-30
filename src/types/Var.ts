@@ -14,15 +14,13 @@ export type Var = {
   body?: unknown;
   userName?: string;
   tenant_id?: string;
-  // I'm not sure what connection_id actually means here...  In Auth0 we get con_TI7p6dEHf551Q9t6
-  // connectionId?: string;
+  connection_id?: string;
   connection?: string;
   auth0_client?: z.infer<typeof Auth0Client>;
   log?: string;
-  // TODO - enable these, populate, and use
-  //   strategy?: string;
-  //   strategyType?: string;
-  //   sessionConnection?: string;
-  //   audience?: string;
-  //   scope?: string;
+  strategy?: string;
+  strategy_type?: string;
+  session_connection?: string;
+  audience?: string;
+  scope?: string[];
 };

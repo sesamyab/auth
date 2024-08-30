@@ -841,6 +841,8 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         });
         ctx.set("userName", user.email);
         ctx.set("connection", user.connection);
+        ctx.set("strategy", "email");
+        ctx.set("strategy_type", "passwordless");
 
         const authResponse = await generateAuthResponse({
           ctx,

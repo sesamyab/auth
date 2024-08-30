@@ -124,6 +124,12 @@ export const passwordlessRoutes = new OpenAPIHono<{
       } = ctx.req.valid("query");
       const client = await getClient(env, client_id);
 
+      ctx.set("client_id", client.id);
+      ctx.set("tenant_id", client.tenant.id);
+      ctx.set("connection", "email");
+      ctx.set("strategy", "link");
+      ctx.set("strategy_type", "passwordless");
+
       try {
         const user = await validateCode(ctx, {
           client_id,
@@ -131,6 +137,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
           otp: verification_code,
           ip: ctx.req.header("x-real-ip"),
         });
+        ctx.set("userId", user.user_id);
 
         if (!validateRedirectUrl(client.callbacks, redirect_uri)) {
           throw new HTTPException(400, {

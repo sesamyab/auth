@@ -119,6 +119,8 @@ export async function loginWithPassword(
   }
 
   ctx.set("connection", user.connection);
+  ctx.set("strategy", "Username-Password-Authentication");
+  ctx.set("strategy_type", "database");
   ctx.set("userId", user.user_id);
 
   const { password } = await env.data.passwords.get(
