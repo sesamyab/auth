@@ -16,7 +16,6 @@ import EnterCodePage from "../../components/EnterCodePage";
 import SignupPage from "../../components/SignUpPage";
 import MessagePage from "../../components/Message";
 import EmailValidatedPage from "../../components/EmailValidatedPage";
-import { nanoid } from "nanoid";
 import { generateAuthResponse } from "../../helpers/generate-auth-response";
 import { Context } from "hono";
 import ForgotPasswordPage from "../../components/ForgotPasswordPage";
@@ -852,13 +851,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           authParams: session.authParams,
           user,
         });
-
-        const log = createLogMessage(ctx, {
-          type: LogTypes.SUCCESS_LOGIN,
-          description: "Successful login",
-        });
-
-        await ctx.env.data.logs.create(client.tenant.id, log);
 
         return authResponse;
       } catch (err) {
