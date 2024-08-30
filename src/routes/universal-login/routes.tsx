@@ -30,11 +30,6 @@ import { getUsersByEmail } from "../../utils/users";
 import userIdGenerate from "../../utils/userIdGenerate";
 import { sendEmailVerificationEmail } from "../../authentication-flows/passwordless";
 import { getSendParamFromAuth0ClientHeader } from "../../utils/getSendParamFromAuth0ClientHeader";
-import {
-  getPasswordLoginSelectionCookieName,
-  SesamyPasswordLoginSelection,
-  parsePasswordLoginSelectionCookie,
-} from "../../utils/authCookies";
 import { setCookie, getCookie } from "hono/cookie";
 import { waitUntil } from "../../utils/wait-until";
 import { fetchVendorSettings } from "../../utils/fetchVendorSettings";
@@ -119,6 +114,47 @@ async function handleLogin(
   );
 }
 
+async function usePasswordLogin(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  client: Client,
+  username: string,
+  login_selection?: "password" | "code",
+) {
+  if (login_selection !== undefined) {
+    return login_selection === "password";
+  }
+
+  // Get primary user for email
+  const user = await getPrimaryUserByEmail({
+    userAdapter: ctx.env.data.users,
+    tenant_id: client.tenant.id,
+    email: username,
+  });
+
+  if (!user) {
+    return false;
+  }
+
+  // Get last login
+  const lastLogins = await ctx.env.data.logs.list(client.tenant.id, {
+    page: 0,
+    per_page: 10,
+    include_totals: false,
+    sort: { sort_by: "date", sort_order: "desc" },
+    q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
+  });
+
+  const [lastLogin] = lastLogins.logs.filter(
+    (log) =>
+      log.strategy &&
+      ["Username-Password-Authentication", "passwordless", "email"].includes(
+        log.strategy,
+      ),
+  );
+
+  return lastLogin?.strategy === "Username-Password-Authentication";
+}
+
 export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
   // --------------------------------
   // GET /u/enter-password
@@ -147,19 +183,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       const { vendorSettings, client, session } = await initJSXRoute(
         ctx,
         state,
-      );
-
-      setCookie(
-        ctx,
-        getPasswordLoginSelectionCookieName(client.id),
-        SesamyPasswordLoginSelection.password,
-        {
-          path: "/",
-          secure: true,
-          httpOnly: true,
-          sameSite: "Strict",
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-        },
       );
 
       if (!session.authParams.username) {
@@ -206,7 +229,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         },
       },
     }),
-    // very similar to authenticate + ticket flow
     async (ctx) => {
       const { state } = ctx.req.valid("query");
       const body = ctx.req.valid("form");
@@ -590,12 +612,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             "application/x-www-form-urlencoded": {
               schema: z.object({
                 username: z.string().transform((u) => u.toLowerCase()),
-                login_selection: z
-                  .enum([
-                    SesamyPasswordLoginSelection.code,
-                    SesamyPasswordLoginSelection.password,
-                  ])
-                  .optional(),
+                login_selection: z.enum(["code", "password"]).optional(),
               }),
             },
           },
@@ -657,20 +674,15 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       session.authParams.username = params.username;
       await env.data.logins.update(client.tenant.id, session.login_id, session);
 
-      // we want to be able to override this with a value in the POST
       if (
-        params.login_selection !== SesamyPasswordLoginSelection.code &&
-        // Check that a password user is available
-        user?.identities?.find((i) => i.provider === "auth2")
+        await usePasswordLogin(
+          ctx,
+          client,
+          params.username,
+          params.login_selection,
+        )
       ) {
-        const passwordLoginSelection =
-          parsePasswordLoginSelectionCookie(
-            getCookie(ctx, getPasswordLoginSelectionCookieName(client.id)),
-          ) || SesamyPasswordLoginSelection.code;
-
-        if (passwordLoginSelection === SesamyPasswordLoginSelection.password) {
-          return ctx.redirect(`/u/enter-password?state=${state}`);
-        }
+        return ctx.redirect(`/u/enter-password?state=${state}`);
       }
 
       let code_id = generateOTP();
@@ -747,19 +759,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       const { vendorSettings, session, client } = await initJSXRoute(
         ctx,
         state,
-      );
-
-      setCookie(
-        ctx,
-        getPasswordLoginSelectionCookieName(client.id),
-        SesamyPasswordLoginSelection.code,
-        {
-          path: "/",
-          secure: true,
-          httpOnly: true,
-          sameSite: "Strict",
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-        },
       );
 
       if (!session.authParams.username) {
