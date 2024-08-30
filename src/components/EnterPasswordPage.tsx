@@ -22,7 +22,6 @@ const EnterPasswordPage: FC<Props> = ({
   vendorSettings,
   email,
   state,
-  client,
 }) => {
   const loginLinkParams = new URLSearchParams({
     state,
