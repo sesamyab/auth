@@ -840,6 +840,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           otp: code,
         });
         ctx.set("userName", user.email);
+        ctx.set("userId", user.user_id);
         ctx.set("connection", user.connection);
         ctx.set("strategy", "email");
         ctx.set("strategy_type", "passwordless");
