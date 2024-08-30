@@ -34,13 +34,13 @@ export function createLogMessage(
     user_id: params.userId || ctx.var.userId || "",
     hostname: ctx.req.header("host") || "",
     user_name: ctx.var.userName || "",
-    connection_id: "",
+    connection_id: ctx.var.connection_id || "",
     connection: ctx.var.connection || "",
     auth0_client: ctx.var.auth0_client,
-    strategy: "",
-    strategy_type: "",
-    audience: "",
-    scope: [],
+    strategy: ctx.var.strategy || "",
+    strategy_type: ctx.var.strategy_type || "",
+    audience: ctx.var.audience || "",
+    scope: ctx.var.scope || [],
   };
 
   return log;
