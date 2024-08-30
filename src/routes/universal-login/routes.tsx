@@ -853,13 +853,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           user,
         });
 
-        const log = createLogMessage(ctx, {
-          type: LogTypes.SUCCESS_LOGIN,
-          description: "Successful login",
-        });
-
-        await ctx.env.data.logs.create(client.tenant.id, log);
-
         return authResponse;
       } catch (err) {
         const user = await getPrimaryUserByEmailAndProvider({
