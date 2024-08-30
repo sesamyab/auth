@@ -28,6 +28,7 @@ import { SAMLResponse } from "./saml-response";
 import { samlResponseForm } from "../templates/samlResponse";
 import { HTTPException } from "hono/http-exception";
 import { X509Certificate } from "@peculiar/x509";
+import * as saml from "samlify";
 
 export type AuthFlowType =
   | "cross-origin"
@@ -250,6 +251,26 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
     }
 
     const importedCert = new X509Certificate(signingKey.cert);
+
+    const idp = saml.IdentityProvider({
+      privateKey: signingKey.pkcs7,
+      entityID: ctx.env.ISSUER,
+      signingCert: signingKey.cert,
+    });
+
+    const sp = saml.ServiceProvider({});
+
+    const response = idp.createLoginResponse(
+      sp,
+      {},
+      "post",
+      {},
+      undefined,
+      false,
+      sid,
+    );
+
+    console.log(response);
 
     const privateKey = await crypto.subtle.importKey(
       "pkcs8",

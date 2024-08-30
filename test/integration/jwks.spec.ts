@@ -35,7 +35,9 @@ describe("jwks", () => {
     const oauthClient = testClient(oauthApp, env);
     const managementClient = testClient(managementApp, env);
 
-    const initialKey = await oauthClient[".well-known"]["jwks.json"].$get(
+    const initialKeyResponse = await oauthClient[".well-known"][
+      "jwks.json"
+    ].$get(
       {
         param: {},
       },
@@ -46,7 +48,9 @@ describe("jwks", () => {
       },
     );
 
-    const initialKeys = jwksKeySchema.parse(await initialKey.json());
+    expect(initialKeyResponse.status).toBe(200);
+
+    const initialKeys = jwksKeySchema.parse(await initialKeyResponse.json());
     expect(initialKeys.keys[0].kid).not.toBe("testid-0");
 
     const token = await getAdminToken();

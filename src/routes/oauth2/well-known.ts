@@ -41,7 +41,7 @@ export const wellKnownRoutes = new OpenAPIHono<{ Bindings: Env }>()
             ...jwkKey,
             kid: signingKey.kid,
             x5c: [cert.publicKey.toString("base64")],
-            x5t: signingKey,
+            x5t: signingKey.fingerprint,
           });
         }),
       );

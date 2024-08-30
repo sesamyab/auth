@@ -116,5 +116,6 @@ export default function create(params: CreateAuthParams) {
     app,
     oauthApp,
     managementApp,
+    samlApp,
   };
 }
