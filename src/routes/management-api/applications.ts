@@ -45,7 +45,7 @@ function mapApplication(application: Application) {
 
 export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
   // --------------------------------
-  // GET /applications
+  // GET /clients
   // --------------------------------
   .openapi(
     createRoute({
@@ -107,7 +107,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // GET /applications/:id
+  // GET /clients/:id
   // --------------------------------
   .openapi(
     createRoute({
@@ -162,7 +162,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // DELETE /applications/:id
+  // DELETE /clients/:id
   // --------------------------------
   .openapi(
     createRoute({
@@ -202,7 +202,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // PATCH /applications/:id
+  // PATCH /clients/:id
   // --------------------------------
   .openapi(
     createRoute({
@@ -271,7 +271,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // POST /applications
+  // POST /clients
   // --------------------------------
   .openapi(
     createRoute({
