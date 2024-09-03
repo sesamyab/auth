@@ -95,6 +95,9 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("web_origins", "varchar(1024)", (col) =>
       col.notNull().defaultTo("[]"),
     )
+    .addColumn("allowed_clients", "varchar(1024)", (col) =>
+      col.defaultTo("[]").notNull(),
+    )
     .addColumn("options_kid", "varchar(32)")
     .addColumn("options_team_id", "varchar(32)")
     .addColumn("options_client_id", "varchar(32)")

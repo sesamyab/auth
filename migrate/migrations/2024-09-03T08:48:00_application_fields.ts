@@ -2,14 +2,13 @@ import { Kysely } from "kysely";
 import { Database } from "@authhero/kysely-adapter";
 
 export async function up(db: Kysely<Database>): Promise<void> {
-  await db.schema
-    .alterTable("applications")
-    .addColumn("allowed_clients", "varchar(1024)", (col) =>
-      col.defaultTo("[]").notNull(),
-    )
-    .dropColumn("styling_settings")
-    .execute();
-
+  // await db.schema
+  //   .alterTable("applications")
+  //   .addColumn("allowed_clients", "varchar(1024)", (col) =>
+  //     col.defaultTo("[]").notNull(),
+  //   )
+  //   .dropColumn("styling_settings")
+  //   .execute();
   //   await db.schema
   //     .alterTable("connections")
   //     .addColumn("options_kid", "varchar(32)")
@@ -23,11 +22,10 @@ export async function up(db: Kysely<Database>): Promise<void> {
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
-  await db.schema
-    .alterTable("applications")
-    .dropColumn("allowed_clients")
-    .execute();
-
+  // await db.schema
+  //   .alterTable("applications")
+  //   .dropColumn("allowed_clients")
+  //   .execute();
   // await db.schema
   //   .alterTable("connections")
   //   .dropColumn("options_kid")
