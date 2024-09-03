@@ -95,7 +95,16 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("web_origins", "varchar(1024)", (col) =>
       col.notNull().defaultTo("[]"),
     )
-    .addColumn("styling_settings", "varchar(255)")
+    .addColumn("allowed_clients", "varchar(1024)", (col) =>
+      col.defaultTo("[]").notNull(),
+    )
+    .addColumn("options_kid", "varchar(32)")
+    .addColumn("options_team_id", "varchar(32)")
+    .addColumn("options_client_id", "varchar(32)")
+    .addColumn("options_client_secret", "varchar(255)")
+    .addColumn("options_scope", "varchar(255)")
+    .addColumn("options_realms", "varchar(255)")
+    .addColumn("options_app_secret", "varchar(1024)")
     .addColumn("email_validation", "varchar(255)")
     .addColumn("disable_sign_ups", "boolean", (col) => col.notNull())
     .addColumn("created_at", "varchar(255)", (col) => col.notNull())

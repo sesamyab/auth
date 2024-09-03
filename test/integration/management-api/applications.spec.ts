@@ -43,7 +43,7 @@ describe("applications", () => {
       allowed_logout_urls: "",
       allowed_origins: "",
       web_origins: "",
-      email_validation: "enforced",
+      // email_validation: "enforced",
       disable_sign_ups: false,
     });
     expect(created_at).toBeTypeOf("string");

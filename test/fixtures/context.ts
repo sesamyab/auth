@@ -82,10 +82,6 @@ export async function contextFixture(
   await data.applications.create("DEFAULT_SETTINGS", {
     id: "DEFAULT_CLIENT",
     name: "Default Client",
-    web_origins: [],
-    callbacks: [],
-    allowed_origins: [],
-    allowed_logout_urls: [],
     email_validation: "enabled",
     client_secret: "secret",
     disable_sign_ups: false,
