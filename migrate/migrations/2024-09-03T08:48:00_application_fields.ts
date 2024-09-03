@@ -7,19 +7,19 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("allowed_clients", "varchar(1024)", (col) =>
       col.defaultTo("[]").notNull(),
     )
+    .dropColumn("styling_settings")
     .execute();
 
-  // await db.schema
-  //   .alterTable("connections")
-  //   .addColumn("options_kid", "varchar(32)")
-  //   .addColumn("options_team_id", "varchar(32)")
-  //   .addColumn("options_client_id", "varchar(32)")
-  //   .addColumn("options_client_secret", "varchar(255)")
-  //   .addColumn("options_scope", "varchar(255)")
-  //   .addColumn("options_realms", "varchar(255)")
-  //   .addColumn("options_app_secret", "varchar(1024)")
-  //   .dropColumn("styling_settings")
-  //   .execute();
+  //   await db.schema
+  //     .alterTable("connections")
+  //     .addColumn("options_kid", "varchar(32)")
+  //     .addColumn("options_team_id", "varchar(32)")
+  //     .addColumn("options_client_id", "varchar(32)")
+  //     .addColumn("options_client_secret", "varchar(255)")
+  //     .addColumn("options_scope", "varchar(255)")
+  //     .addColumn("options_realms", "varchar(255)")
+  //     .addColumn("options_app_secret", "varchar(1024)")
+  //     .execute();
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
