@@ -105,14 +105,16 @@ export const authorizeRoutes = new OpenAPIHono<{
       };
 
       const origin = ctx.req.header("origin");
-      if (origin && !verifyRequestOrigin(origin, client.web_origins)) {
+      if (origin && !verifyRequestOrigin(origin, client.web_origins || [])) {
         throw new HTTPException(403, {
           message: `Origin ${origin} not allowed`,
         });
       }
 
       if (authParams.redirect_uri) {
-        if (!validateRedirectUrl(client.callbacks, authParams.redirect_uri)) {
+        if (
+          !validateRedirectUrl(client.callbacks || [], authParams.redirect_uri)
+        ) {
           throw new HTTPException(400, {
             message: `Invalid redirect URI - ${authParams.redirect_uri}`,
           });

@@ -24,10 +24,6 @@ const TENANT_FIXTURE: Tenant = {
 const APPLICATION_FIXTURE: Application = {
   id: "testClient",
   name: "clientName",
-  web_origins: [],
-  callbacks: [],
-  allowed_origins: [],
-  allowed_logout_urls: [],
   email_validation: "enabled",
   client_secret: "clientSecret",
   created_at: "created_at",

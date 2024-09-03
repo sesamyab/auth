@@ -171,7 +171,12 @@ export async function oauth2Callback({
     throw new HTTPException(403, { message: "Redirect URI not defined" });
   }
 
-  if (!validateRedirectUrl(client.callbacks, session.authParams.redirect_uri)) {
+  if (
+    !validateRedirectUrl(
+      client.callbacks || [],
+      session.authParams.redirect_uri,
+    )
+  ) {
     const invalidRedirectUriMessage = `Invalid redirect URI - ${session.authParams.redirect_uri}`;
     const log = createLogMessage(ctx, {
       type: LogTypes.FAILED_LOGIN,

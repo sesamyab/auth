@@ -41,7 +41,7 @@ export const logoutRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       if (!redirectUri) {
         throw new Error("No return to url found");
       }
-      if (!validateRedirectUrl(client.allowed_logout_urls, redirectUri)) {
+      if (!validateRedirectUrl(client.allowed_logout_urls || [], redirectUri)) {
         throw new HTTPException(403, {
           message: `Invalid logout URI - ${redirectUri}`,
         });

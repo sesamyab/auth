@@ -139,7 +139,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
         });
         ctx.set("userId", user.user_id);
 
-        if (!validateRedirectUrl(client.callbacks, redirect_uri)) {
+        if (!validateRedirectUrl(client.callbacks || [], redirect_uri)) {
           throw new HTTPException(400, {
             message: `Invalid redirect URI - ${redirect_uri}`,
           });
