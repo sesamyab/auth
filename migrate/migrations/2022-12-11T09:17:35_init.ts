@@ -100,7 +100,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
     )
     .addColumn("options_kid", "varchar(32)")
     .addColumn("options_team_id", "varchar(32)")
-    .addColumn("options_client_id", "varchar(32)")
+    .addColumn("options_client_id", "varchar(128)")
     .addColumn("options_client_secret", "varchar(255)")
     .addColumn("options_scope", "varchar(255)")
     .addColumn("options_realms", "varchar(255)")
