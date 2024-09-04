@@ -55,6 +55,7 @@ import * as n54_cleanup_tables from "./2024-08-27T23:48:00_remove_unused";
 import * as n55_logs_index from "./2024-08-30T16:41:00_logs_index";
 import * as n56_application_fields from "./2024-09-03T08:48:00_application_fields";
 import * as n57_prompt_settings from "./2024-09-03T15:15:00_prompt_settings";
+import * as n58_connection_client_id from "./2024-09-04T08:41:00_connection_client_id";
 
 // These need to be in alphabetic order
 export default {
@@ -115,4 +116,5 @@ export default {
   n55_logs_index,
   n56_application_fields,
   n57_prompt_settings,
+  n58_connection_client_id,
 };

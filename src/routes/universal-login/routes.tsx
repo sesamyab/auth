@@ -130,35 +130,33 @@ async function usePasswordLogin(
     email: username,
   });
 
-  if (!user) {
-    return false;
-  }
+  if (user) {
+    // Get last login
+    const lastLogins = await ctx.env.data.logs.list(client.tenant.id, {
+      page: 0,
+      per_page: 10,
+      include_totals: false,
+      sort: { sort_by: "date", sort_order: "desc" },
+      q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
+    });
 
-  // Get last login
-  const lastLogins = await ctx.env.data.logs.list(client.tenant.id, {
-    page: 0,
-    per_page: 10,
-    include_totals: false,
-    sort: { sort_by: "date", sort_order: "desc" },
-    q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
-  });
-
-  const [lastLogin] = lastLogins.logs.filter(
-    (log) =>
-      log.strategy &&
-      ["Username-Password-Authentication", "passwordless", "email"].includes(
-        log.strategy,
-      ),
-  );
-
-  if (!lastLogin) {
-    const promptSettings = await ctx.env.data.promptSettings.get(
-      client.tenant.id,
+    const [lastLogin] = lastLogins.logs.filter(
+      (log) =>
+        log.strategy &&
+        ["Username-Password-Authentication", "passwordless", "email"].includes(
+          log.strategy,
+        ),
     );
-    return promptSettings.password_first;
+
+    if (lastLogin) {
+      return lastLogin.strategy === "Username-Password-Authentication";
+    }
   }
 
-  return lastLogin?.strategy === "Username-Password-Authentication";
+  const promptSettings = await ctx.env.data.promptSettings.get(
+    client.tenant.id,
+  );
+  return promptSettings.password_first;
 }
 
 export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
