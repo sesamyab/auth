@@ -24,7 +24,6 @@ import {
   User,
 } from "@authhero/adapter-interfaces";
 import { setSilentAuthCookies } from "./silent-auth-cookie";
-import { SAMLResponse } from "./saml-response";
 import { samlResponseForm } from "../templates/samlResponse";
 import { HTTPException } from "hono/http-exception";
 import { X509Certificate } from "@peculiar/x509";
@@ -272,35 +271,19 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
 
     console.log(response);
 
-    const privateKey = await crypto.subtle.importKey(
-      "pkcs8",
-      pemToBuffer(signingKey.pkcs7!),
-      {
-        name: "RSASSA-PKCS1-v1_5",
-        hash: "SHA-256",
-      },
-      false,
-      ["sign"],
-    );
+    throw new Error("Not implemented");
+    // const privateKey = await crypto.subtle.importKey(
+    //   "pkcs8",
+    //   pemToBuffer(signingKey.pkcs7!),
+    //   {
+    //     name: "RSASSA-PKCS1-v1_5",
+    //     hash: "SHA-256",
+    //   },
+    //   false,
+    //   ["sign"],
+    // );
 
-    const samlResponse = new SAMLResponse({
-      issuer: ctx.env.ISSUER,
-      recipient: authParams.redirect_uri || "",
-      audience: authParams.audience || "default",
-      nameID: user?.user_id || "userId",
-      userEmail: user?.email || "",
-      inResponseTo: authParams.state,
-    });
-
-    const xmlResponse = samlResponse.generateResponse();
-    const signedXmlResponse = await samlResponse.signResponse(
-      xmlResponse,
-      privateKey,
-      importedCert.publicKey.toString("base64"),
-    );
-    const encodedResponse = samlResponse.encodeResponse(signedXmlResponse);
-
-    return samlResponseForm(authParams.redirect_uri, encodedResponse);
+    // return samlResponseForm(authParams.redirect_uri, encodedResponse);
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {
