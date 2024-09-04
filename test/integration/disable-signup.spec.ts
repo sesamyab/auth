@@ -29,10 +29,6 @@ test("only allows existing users to progress to the enter code step", async () =
     id: "breakit",
     name: "Test Client",
     client_secret: "clientSecret",
-    web_origins: [],
-    callbacks: [],
-    allowed_origins: [],
-    allowed_logout_urls: [],
     email_validation: "enforced",
     disable_sign_ups: true,
   });
@@ -52,6 +48,7 @@ test("only allows existing users to progress to the enter code step", async () =
   await env.data.connections.create("breakit", {
     id: "breakit-connection",
     name: "facebook",
+    options: {},
   });
 
   const response = await oauthClient.authorize.$get({
@@ -157,10 +154,7 @@ test("only allows existing breakit users to progress to the enter code step with
     id: "breakit",
     name: "Test Client",
     client_secret: "clientSecret",
-    web_origins: [],
     callbacks: ["https://example.com/callback"],
-    allowed_origins: [],
-    allowed_logout_urls: [],
     email_validation: "enforced",
     disable_sign_ups: true,
   });
@@ -168,10 +162,13 @@ test("only allows existing breakit users to progress to the enter code step with
   await env.data.connections.create("breakit", {
     id: "breakit-social-connection",
     name: "demo-social-provider",
+    options: {},
   });
+
   await env.data.connections.create("breakit", {
     id: "breakit-social-connection2",
     name: "other-social-provider",
+    options: {},
   });
 
   // ----------------------------

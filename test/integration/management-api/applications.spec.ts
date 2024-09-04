@@ -10,7 +10,7 @@ describe("applications", () => {
 
     const token = await getAdminToken();
     const createApplicationResponse =
-      await managementClient.api.v2.applications.$post(
+      await managementClient.api.v2.clients.$post(
         {
           json: {
             id: "app",
@@ -43,7 +43,7 @@ describe("applications", () => {
       allowed_logout_urls: "",
       allowed_origins: "",
       web_origins: "",
-      email_validation: "enforced",
+      // email_validation: "enforced",
       disable_sign_ups: false,
     });
     expect(created_at).toBeTypeOf("string");
@@ -54,9 +54,7 @@ describe("applications", () => {
     // --------------------------------------------
     // PATCH
     // --------------------------------------------
-    const patchResult = await managementClient.api.v2.applications[
-      ":id"
-    ].$patch(
+    const patchResult = await managementClient.api.v2.clients[":id"].$patch(
       {
         param: {
           id,
@@ -84,7 +82,7 @@ describe("applications", () => {
     // --------------------------------------------
     // GET
     // --------------------------------------------
-    const getResponse = await managementClient.api.v2.applications[":id"].$get(
+    const getResponse = await managementClient.api.v2.clients[":id"].$get(
       {
         param: {
           id,
@@ -105,9 +103,7 @@ describe("applications", () => {
     // --------------------------------------------
     // DELETE
     // --------------------------------------------
-    const deleteResponse = await managementClient.api.v2.applications[
-      ":id"
-    ].$delete(
+    const deleteResponse = await managementClient.api.v2.clients[":id"].$delete(
       {
         param: {
           id,
@@ -127,9 +123,7 @@ describe("applications", () => {
     // --------------------------------------------
     // GET 404
     // --------------------------------------------
-    const get404Response = await managementClient.api.v2.applications[
-      ":id"
-    ].$get(
+    const get404Response = await managementClient.api.v2.clients[":id"].$get(
       {
         param: {
           id,

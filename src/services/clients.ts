@@ -58,17 +58,17 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
     ...client,
     web_origins: [
       ...(envDefaultSettings.web_origins || []),
-      ...client.web_origins,
+      ...(client.web_origins || []),
       `${env.ISSUER}u/login`,
     ],
     allowed_logout_urls: [
       ...(envDefaultSettings.allowed_logout_urls || []),
-      ...client.allowed_logout_urls,
+      ...(client.allowed_logout_urls || []),
       env.ISSUER,
     ],
     callbacks: [
       ...(envDefaultSettings.callbacks || []),
-      ...client.callbacks,
+      ...(client.callbacks || []),
       `${env.ISSUER}u/info`,
     ],
     connections,

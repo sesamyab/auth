@@ -14,6 +14,7 @@ describe("connections", () => {
         {
           json: {
             name: "apple",
+            options: {},
           },
           header: {
             "tenant-id": "tenantId",
@@ -31,7 +32,7 @@ describe("connections", () => {
 
     const { created_at, updated_at, id, ...rest } = createdConnection;
 
-    expect(rest).toEqual({ name: "apple" });
+    expect(rest).toEqual({ name: "apple", options: {} });
     expect(created_at).toBeTypeOf("string");
     expect(updated_at).toBeTypeOf("string");
     expect(id).toBeTypeOf("string");

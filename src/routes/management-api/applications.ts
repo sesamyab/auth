@@ -30,7 +30,7 @@ const restApplicationInsertSchema = z.object({
 });
 
 const applicationWithTotalsSchema = totalsSchema.extend({
-  applications: z.array(restApplicationSchema),
+  clients: z.array(restApplicationSchema),
 });
 
 function mapApplication(application: Application) {
@@ -45,11 +45,11 @@ function mapApplication(application: Application) {
 
 export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
   // --------------------------------
-  // GET /applications
+  // GET /clients
   // --------------------------------
   .openapi(
     createRoute({
-      tags: ["applications"],
+      tags: ["clients"],
       method: "get",
       path: "/",
       request: {
@@ -74,7 +74,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
               ]),
             },
           },
-          description: "List of applications",
+          description: "List of clients",
         },
       },
     }),
@@ -91,27 +91,27 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         q,
       });
 
-      const applications = result.applications.map(mapApplication);
+      const clients = result.applications.map(mapApplication);
 
       if (include_totals) {
         // TODO: this should be supported by the adapter
         return ctx.json({
-          applications,
+          clients,
           start: 0,
           limit: 10,
-          length: applications.length,
+          length: clients.length,
         });
       }
 
-      return ctx.json(applications);
+      return ctx.json(clients);
     },
   )
   // --------------------------------
-  // GET /applications/:id
+  // GET /clients/:id
   // --------------------------------
   .openapi(
     createRoute({
-      tags: ["applications"],
+      tags: ["clients"],
       method: "get",
       path: "/{id}",
       request: {
@@ -144,13 +144,13 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const { id } = ctx.req.valid("param");
 
       // Workaround until the adapter is fixed
-      // const application = await ctx.env.data.applications.get(tenant_id, id);
-      const applications = await ctx.env.data.applications.list(tenant_id, {
+      // const application = await ctx.env.data.clients.get(tenant_id, id);
+      const clients = await ctx.env.data.applications.list(tenant_id, {
         page: 1,
         per_page: 0,
         include_totals: false,
       });
-      const application = applications.applications.find((a) => a.id === id);
+      const application = clients.applications.find((a) => a.id === id);
 
       if (!application) {
         throw new HTTPException(404);
@@ -162,11 +162,11 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // DELETE /applications/:id
+  // DELETE /clients/:id
   // --------------------------------
   .openapi(
     createRoute({
-      tags: ["applications"],
+      tags: ["clients"],
       method: "delete",
       path: "/{id}",
       request: {
@@ -202,11 +202,11 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // PATCH /applications/:id
+  // PATCH /clients/:id
   // --------------------------------
   .openapi(
     createRoute({
-      tags: ["applications"],
+      tags: ["clients"],
       method: "patch",
       path: "/{id}",
       request: {
@@ -271,11 +271,11 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
     },
   )
   // --------------------------------
-  // POST /applications
+  // POST /clients
   // --------------------------------
   .openapi(
     createRoute({
-      tags: ["applications"],
+      tags: ["clients"],
       method: "post",
       path: "/",
       request: {

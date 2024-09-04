@@ -19,8 +19,8 @@ export async function up(db: Kysely<Database>): Promise<void> {
     // .addColumn("user_id", "varchar(255)", (col) =>
     //   col.references("users.id").onDelete("cascade").notNull(),
     // )
-    .addColumn("tenant_id", "varchar(255)")
-    .addColumn("user_id", "varchar(255)")
+    .addColumn("tenant_id", "varchar(64)")
+    .addColumn("user_id", "varchar(64)")
     .addForeignKeyConstraint(
       "tenant_id_constraint",
       ["tenant_id"],
@@ -29,8 +29,8 @@ export async function up(db: Kysely<Database>): Promise<void> {
       (cb) => cb.onDelete("cascade"),
     )
     .addColumn("ip", "varchar(255)")
-    .addColumn("type", "varchar(255)", (col) => col.notNull())
-    .addColumn("date", "varchar(255)", (col) => col.notNull())
+    .addColumn("type", "varchar(8)", (col) => col.notNull())
+    .addColumn("date", "varchar(25)", (col) => col.notNull())
     .addColumn("client_id", "varchar(255)")
     .addColumn("client_name", "varchar(255)")
     .addColumn("user_agent", "varchar(255)")

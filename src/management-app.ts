@@ -13,6 +13,7 @@ import { logRoutes } from "./routes/management-api/logs";
 import { hooksRoutes } from "./routes/management-api/hooks";
 import { connectionRoutes } from "./routes/management-api/connections";
 import { registerComponent } from "./middlewares/register-component";
+import { promptsRoutes } from "./routes/management-api/prompts";
 
 export default function create(params: CreateAuthParams) {
   const app = new OpenAPIHono<{
@@ -31,11 +32,12 @@ export default function create(params: CreateAuthParams) {
     .route("/api/v2/users", userRoutes)
     .route("/api/v2/keys", keyRoutes)
     .route("/api/v2/users-by-email", usersByEmailRoutes)
-    .route("/api/v2/applications", applicationRoutes)
+    .route("/api/v2/clients", applicationRoutes)
     .route("/api/v2/tenants", tenantRoutes)
     .route("/api/v2/logs", logRoutes)
     .route("/api/v2/hooks", hooksRoutes)
-    .route("/api/v2/connections", connectionRoutes);
+    .route("/api/v2/connections", connectionRoutes)
+    .route("/api/v2/prompts", promptsRoutes);
 
   registerComponent(managementApp);
 
