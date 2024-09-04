@@ -1,15 +1,15 @@
 import { Env } from "../../types";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import authenticationMiddleware from "../../middlewares/authentication";
-import { brandingSchema } from "@authhero/adapter-interfaces";
+import { promptSettingSchema } from "@authhero/adapter-interfaces";
 
-export const brandingRoutes = new OpenAPIHono<{ Bindings: Env }>()
+export const promptsRoutes = new OpenAPIHono<{ Bindings: Env }>()
   // --------------------------------
-  // GET /api/v2/branding
+  // GET /api/v2/propmpts
   // --------------------------------
   .openapi(
     createRoute({
-      tags: ["branding"],
+      tags: ["prompts"],
       method: "get",
       path: "/",
       request: {
@@ -27,7 +27,7 @@ export const brandingRoutes = new OpenAPIHono<{ Bindings: Env }>()
         200: {
           content: {
             "application/json": {
-              schema: brandingSchema,
+              schema: promptSettingSchema,
             },
           },
           description: "Branding settings",
@@ -37,21 +37,22 @@ export const brandingRoutes = new OpenAPIHono<{ Bindings: Env }>()
     async (ctx) => {
       const { "tenant-id": tenant_id } = ctx.req.valid("header");
 
-      const branding = await ctx.env.data.branding.get(tenant_id);
+      const promptSetting = await ctx.env.data.promptSettings.get(tenant_id);
 
-      if (!branding) {
-        return ctx.json({});
+      if (!promptSetting) {
+        // Returns the default values
+        return ctx.json(promptSettingSchema.parse({}));
       }
 
-      return ctx.json(branding);
+      return ctx.json(promptSetting);
     },
   )
   // --------------------------------
-  // PATCH /api/v2/branding
+  // PATCH /api/v2/prompts
   // --------------------------------
   .openapi(
     createRoute({
-      tags: ["branding"],
+      tags: ["prompts"],
       method: "patch",
       path: "/",
       request: {
@@ -61,7 +62,7 @@ export const brandingRoutes = new OpenAPIHono<{ Bindings: Env }>()
         body: {
           content: {
             "application/json": {
-              schema: z.object(brandingSchema.shape).partial(),
+              schema: z.object(promptSettingSchema.shape).partial(),
             },
           },
         },
@@ -74,17 +75,26 @@ export const brandingRoutes = new OpenAPIHono<{ Bindings: Env }>()
       ],
       responses: {
         200: {
-          description: "Branding settings",
+          description: "Prompts settings",
         },
       },
     }),
     async (ctx) => {
       const { "tenant-id": tenant_id } = ctx.req.valid("header");
 
-      const branding = ctx.req.valid("json");
+      const promptSettings = ctx.req.valid("json");
 
-      await ctx.env.data.branding.set(tenant_id, branding);
+      console.log("promptSettings", promptSettings);
 
-      return ctx.text("OK");
+      const updatedPromptSettings =
+        await ctx.env.data.promptSettings.get(tenant_id);
+
+      console.log("updatedPromptSettings", updatedPromptSettings);
+
+      Object.assign(updatedPromptSettings, promptSettings);
+
+      await ctx.env.data.promptSettings.set(tenant_id, updatedPromptSettings);
+
+      return ctx.json(updatedPromptSettings);
     },
   );
