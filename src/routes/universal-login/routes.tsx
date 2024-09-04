@@ -30,7 +30,6 @@ import { getUsersByEmail } from "../../utils/users";
 import userIdGenerate from "../../utils/userIdGenerate";
 import { sendEmailVerificationEmail } from "../../authentication-flows/passwordless";
 import { getSendParamFromAuth0ClientHeader } from "../../utils/getSendParamFromAuth0ClientHeader";
-import { setCookie, getCookie } from "hono/cookie";
 import { waitUntil } from "../../utils/wait-until";
 import { fetchVendorSettings } from "../../utils/fetchVendorSettings";
 import { createLogMessage } from "../../utils/create-log-message";
@@ -151,6 +150,13 @@ async function usePasswordLogin(
         log.strategy,
       ),
   );
+
+  if (!lastLogin) {
+    const promptSettings = await ctx.env.data.promptSettings.get(
+      client.tenant.id,
+    );
+    return promptSettings.password_first;
+  }
 
   return lastLogin?.strategy === "Username-Password-Authentication";
 }
