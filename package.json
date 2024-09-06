@@ -57,6 +57,7 @@
     "@planetscale/database": "1.16.0",
     "arctic": "^1.8.1",
     "bcryptjs": "^2.4.3",
+    "fast-xml-parser": "^4.5.0",
     "hono": "4.4.0",
     "kysely": "^0.27.3",
     "kysely-bun-sqlite": "^0.3.2",
@@ -66,6 +67,7 @@
     "nanoid": "5.0.7",
     "oslo": "^1.2.0",
     "playwright": "^1.44.1",
+    "xmldsigjs": "^2.6.1",
     "zod": "3.23.8"
   },
   "devDependencies": {

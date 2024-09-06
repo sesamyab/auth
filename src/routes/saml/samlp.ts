@@ -1,84 +1,11 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { base64 } from "oslo/encoding";
 import { HTTPException } from "hono/http-exception";
 import { AuthorizationResponseMode } from "@authhero/adapter-interfaces";
 import { Env, Var } from "../../types";
 import { getClient } from "../../services/clients";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
 import { X509Certificate } from "@peculiar/x509";
-
-async function inflateRaw(compressedData: Uint8Array): Promise<Uint8Array> {
-  const ds = new DecompressionStream("deflate-raw");
-  const decompressedStream = new Blob([compressedData])
-    .stream()
-    .pipeThrough(ds);
-  return new Uint8Array(await new Response(decompressedStream).arrayBuffer());
-}
-
-async function tryInflateDecompress(input: Uint8Array): Promise<string> {
-  try {
-    // Try to decompress using pako
-    const decompressed = await inflateRaw(input);
-    return new TextDecoder().decode(decompressed);
-  } catch (error) {
-    console.warn(
-      "Decompression failed, assuming data is not compressed:",
-      error,
-    );
-    // If decompression fails, assume the data is not compressed
-    return new TextDecoder().decode(input);
-  }
-}
-
-function extractIdFromXml(xmlString: string) {
-  const regex = /ID=(['"])([^'"]+)\1/;
-  const match = xmlString.match(regex);
-
-  if (match && match[2]) {
-    return match[2];
-  }
-
-  throw new HTTPException(400, {
-    message: "Failed to extract ID from SAMLRequest",
-  });
-}
-
-function extractIssuerFromXml(xmlString: string): string {
-  const regex = /<saml:Issuer\s*>([^<]+)<\/saml:Issuer>/;
-  const match = xmlString.match(regex);
-  if (match && match[1]) {
-    return match[1].trim();
-  }
-  throw new HTTPException(400, {
-    message: "Failed to extract Issuer from SAMLRequest",
-  });
-}
-
-function extractEntityIdFromXml(xmlString: string) {
-  const regex = /entityID=(['"])([^'"]+)\1/;
-  const match = xmlString.match(regex);
-
-  if (match && match[2]) {
-    return match[2];
-  }
-
-  throw new HTTPException(400, {
-    message: "Failed to extract EntityID from SAML metadata",
-  });
-}
-
-function extractAssersionConsumeUrlFromXml(xmlString: string) {
-  const regex = /AssertionConsumerServiceURL=(['"])([^'"]+)\1/;
-  const match = xmlString.match(regex);
-
-  if (match && match[2]) {
-    return match[2];
-  }
-
-  throw new HTTPException(400, {
-    message: "Failed to extract AssertionConsumerServiceURL from SAMLRequest",
-  });
-}
+import { parseSamlRequestQuery } from "../../helpers/saml";
 
 export const samlpRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -201,11 +128,7 @@ export const samlpRoutes = new OpenAPIHono<{
 
       const client = await getClient(ctx.env, application_id);
 
-      // Step 1: Decode the base64 URL-safe string
-      const decodedBytes = await base64.decode(SAMLRequest.replace(/ /g, "+"));
-
-      // Step 2: Try to decompress the decoded data
-      const xmlString = await tryInflateDecompress(decodedBytes);
+      const samlRequest = await parseSamlRequestQuery(SAMLRequest);
 
       // Example of a SAMLRequest:
       // <samlp:AuthnRequest
@@ -220,7 +143,7 @@ export const samlpRoutes = new OpenAPIHono<{
       //    <samlp:NameIDPolicy AllowCreate='true' Format='urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'/>
       // </samlp:AuthnRequest>
 
-      const issuer = extractIssuerFromXml(xmlString);
+      const issuer = samlRequest["samlp:AuthnRequest"]["saml:Issuer"]["#text"];
 
       // Example of a SP SAML metadata:
       // <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="_7b7ed171-8d7a-4ca8-979b-fac1cb5a0c32" entityID="https://skiclassicsplay.vhx.tv/saml/metadata">
@@ -231,16 +154,16 @@ export const samlpRoutes = new OpenAPIHono<{
       //   </md:SPSSODescriptor>
       // </md:EntityDescriptor>
 
-      // TODO: Validate the client
-      // TODO: Validate the SAMLRequest
-
       // Create a new Login session
       const login = await ctx.env.data.logins.create(client.tenant.id, {
         authParams: {
           client_id: client.id,
-          state: extractIdFromXml(xmlString),
+          state: samlRequest["samlp:AuthnRequest"]["@_ID"],
           response_mode: AuthorizationResponseMode.SAML_POST,
-          redirect_uri: extractAssersionConsumeUrlFromXml(xmlString),
+          redirect_uri:
+            samlRequest["samlp:AuthnRequest"][
+              "@_AssertionConsumerServiceURL"
+            ] || "https://auth.sesamy.dev/login/callback",
           audience: issuer,
         },
         expires_at: new Date(

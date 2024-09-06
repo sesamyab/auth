@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import { base64 } from "oslo/encoding";
 
 interface SAMLResponseParams {
   issuer: string;
@@ -115,9 +116,7 @@ export class SAMLResponse {
       data,
     );
 
-    const signatureBase64 = btoa(
-      String.fromCharCode(...new Uint8Array(signature)),
-    );
+    const signatureBase64 = base64.encode(new Uint8Array(signature));
 
     // Insert the signature into the XML
     const signedXml = xml.replace(
