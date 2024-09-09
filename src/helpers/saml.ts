@@ -1,14 +1,8 @@
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
-import {
-  dsSignatureSchema,
-  samlRequestSchema,
-  SAMLResponseJSON,
-} from "../types/saml";
+import { samlRequestSchema, SAMLResponseJSON } from "../types/saml";
 import { base64 } from "oslo/encoding";
-import { X509Certificate } from "@peculiar/x509";
-import { pemToBuffer } from "../utils/jwt";
 import { nanoid } from "nanoid";
-import * as XmlDSigJs from "xmldsigjs";
+import { SignedXml } from "xml-crypto";
 
 export interface SAMLResponseParams {
   destination: string;
@@ -76,7 +70,7 @@ export async function createSamlResponse(
   const notBefore = samlResponseParams.notBefore || new Date().toISOString();
   const notAfter =
     samlResponseParams.notAfter ||
-    new Date(new Date(notBefore).getTime() + 60 * 1000).toISOString();
+    new Date(new Date(notBefore).getTime() + 10 * 60 * 1000).toISOString();
   const issueInstant = samlResponseParams.issueInstant || notBefore;
   const sessionNotOnOrAfter =
     samlResponseParams.sessionNotOnOrAfter || notAfter;
@@ -333,6 +327,9 @@ export async function createSamlResponse(
     preserveOrder: true,
   });
 
+  // Generate XML
+  const xmlContent = builder.build(samlResponseJson);
+
   if (samlResponseParams.signature) {
     // Extract the Assertion for signing
     const assertion = samlResponseJson[0]["samlp:Response"].find((element) =>
@@ -343,49 +340,72 @@ export async function createSamlResponse(
       throw new Error("Assertion not found in SAML response");
     }
 
-    const assertionXml = builder.build([assertion]);
+    // const assertionXml = builder.build([assertion]);
 
-    const importedCert = new X509Certificate(samlResponseParams.signature.cert);
-    const publicKey = await importedCert.publicKey.export();
+    // const importedCert = new X509Certificate(samlResponseParams.signature.cert);
+    // const publicKey = await importedCert.publicKey.export();
 
-    const privateKey = await crypto.subtle.importKey(
-      "pkcs8",
-      pemToBuffer(samlResponseParams.signature.privateKeyPem),
-      {
-        name: "RSASSA-PKCS1-v1_5",
-        hash: "SHA-256",
-      },
-      false,
-      ["sign"],
-    );
+    // const privateKey = await crypto.subtle.importKey(
+    //   "pkcs8",
+    //   pemToBuffer(samlResponseParams.signature.privateKeyPem),
+    //   {
+    //     name: "RSASSA-PKCS1-v1_5",
+    //     hash: "SHA-256",
+    //   },
+    //   false,
+    //   ["sign"],
+    // );
 
-    const xmlDsigJs = new XmlDSigJs.SignedXml();
+    // const xmlDsigJs = new XmlDSigJs.SignedXml();
 
-    const signatureXml = await xmlDsigJs.Sign(
-      { name: "RSASSA-PKCS1-v1_5" },
-      privateKey,
-      XmlDSigJs.Parse(assertionXml),
-      {
-        keyValue: publicKey,
-        references: [{ hash: "SHA-512", transforms: ["enveloped", "c14n"] }],
-      },
-    );
+    // const signatureXml = await xmlDsigJs.Sign(
+    //   { name: "RSASSA-PKCS1-v1_5" },
+    //   privateKey,
+    //   XmlDSigJs.Parse(assertionXml),
+    //   {
+    //     keyValue: publicKey,
+    //     references: [{ hash: "SHA-512", transforms: ["enveloped", "c14n"] }],
+    //   },
+    // );
 
-    const parser = new XMLParser({
-      attributeNamePrefix: "@_",
-      alwaysCreateTextNode: true,
-      ignoreAttributes: false,
-      preserveOrder: true,
+    // const xmlContentWithSignature = xmlContent.replace(
+    //   "<saml:Subject>",
+    //   signatureXml.toString() + "<saml:Subject>",
+    // );
+
+    const xpath = "/*[local-name(.)='Response']/*[local-name(.)='Assertion']";
+    const issuerXPath =
+      '/*[local-name(.)="Issuer" and namespace-uri(.)="urn:oasis:names:tc:SAML:2.0:assertion"]';
+
+    const sig = new SignedXml({
+      privateKey: samlResponseParams.signature.privateKeyPem,
     });
-    const signatureJson = parser.parse(signatureXml.toString());
-    const signature = dsSignatureSchema.parse(signatureJson[0]);
+    sig.addReference({
+      xpath,
+      digestAlgorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
+      transforms: ["http://www.w3.org/2001/10/xml-exc-c14n#"],
+    });
+    sig.canonicalizationAlgorithm = "http://www.w3.org/2001/10/xml-exc-c14n#";
+    sig.signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+    sig.computeSignature(xmlContent, {
+      location: { reference: xpath + issuerXPath, action: "after" },
+    });
 
-    // @ts-ignore
-    assertion["saml:Assertion"].splice(1, 0, signature);
+    const signedXml = sig.getSignedXml();
+
+    const encodedResponse = btoa(signedXml);
+
+    return encodedResponse;
+
+    // const parser = new XMLParser({
+    //   attributeNamePrefix: "@_",
+    //   alwaysCreateTextNode: true,
+    //   ignoreAttributes: false,
+    //   preserveOrder: true,
+    // });
+    // const signatureJson = parser.parse(signatureXml.toString());
+    // const signature = dsSignatureSchema.parse(signatureJson[0]);
   }
-
-  // Generate XML
-  const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>${builder.build(samlResponseJson)}`;
 
   const encodedResponse = btoa(xmlContent);
 
