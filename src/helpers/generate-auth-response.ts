@@ -26,7 +26,6 @@ import {
 import { setSilentAuthCookies } from "./silent-auth-cookie";
 import { samlResponseForm } from "../templates/samlResponse";
 import { HTTPException } from "hono/http-exception";
-import { X509Certificate } from "@peculiar/x509";
 import { createSamlResponse } from "./saml";
 
 export type AuthFlowType =
@@ -249,33 +248,32 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       });
     }
 
-    const importedCert = new X509Certificate(signingKey.cert);
+    if (!client.addons?.samlp) {
+      throw new HTTPException(400, {
+        message: `SAML Addon is not enabled for client ${client.id}`,
+      });
+    }
 
-    const privateKey = await crypto.subtle.importKey(
-      "pkcs8",
-      pemToBuffer(signingKey.pkcs7!),
-      {
-        name: "RSASSA-PKCS1-v1_5",
-        hash: "SHA-256",
-      },
-      false,
-      ["sign"],
-    );
-
-    const destination = client.addons?.samlp?.recipient;
+    const { recipient, audience } = client.addons.samlp;
     const inResponseTo = authParams.state || "";
 
-    if (!destination || !inResponseTo || !user) {
+    if (!recipient || !inResponseTo || !user || !authParams.state) {
       throw new HTTPException(400, {
-        message: "Missing recipient, user or inResponseTo",
+        message: `Missing recipient or inResponseTo`,
       });
+    }
+
+    const state = JSON.parse(authParams.state);
+    const redirectUrl = new URL(authParams.redirect_uri);
+    if (state.relayState) {
+      redirectUrl.searchParams.set("RelayState", state.relayState);
     }
 
     const samlResponse = await createSamlResponse({
       issuer: ctx.env.ISSUER,
-      audience: authParams.client_id,
-      destination,
-      inResponseTo: authParams.state || "",
+      audience: audience || authParams.client_id,
+      destination: redirectUrl.toString(),
+      inResponseTo: state.requestId,
       userId: user.user_id,
       email: user.email,
       sessionIndex: sid!,
@@ -284,9 +282,10 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
         cert: signingKey.cert,
         kid: signingKey.kid,
       },
+      samlSignUrl: ctx.env.SAML_SIGN_URL,
     });
 
-    return samlResponseForm(authParams.redirect_uri, samlResponse);
+    return samlResponseForm(redirectUrl.toString(), samlResponse);
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {

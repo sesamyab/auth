@@ -6,6 +6,8 @@ import { getClient } from "../../services/clients";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
 import { X509Certificate } from "@peculiar/x509";
 import { parseSamlRequestQuery } from "../../helpers/saml";
+import { Sign } from "crypto";
+import { Signature } from "xmldsigjs";
 
 export const samlpRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -103,6 +105,9 @@ export const samlpRoutes = new OpenAPIHono<{
       request: {
         query: z.object({
           SAMLRequest: z.string(),
+          RelayState: z.string().optional(),
+          SigAlg: z.string().optional(),
+          Signature: z.string().optional(),
         }),
         params: z.object({
           application_id: z.string(),
@@ -124,7 +129,7 @@ export const samlpRoutes = new OpenAPIHono<{
     }),
     async (ctx) => {
       const { application_id } = ctx.req.valid("param");
-      const { SAMLRequest } = ctx.req.valid("query");
+      const { SAMLRequest, RelayState } = ctx.req.valid("query");
 
       const client = await getClient(ctx.env, application_id);
 
@@ -135,7 +140,10 @@ export const samlpRoutes = new OpenAPIHono<{
       const login = await ctx.env.data.logins.create(client.tenant.id, {
         authParams: {
           client_id: client.id,
-          state: samlRequest["samlp:AuthnRequest"]["@_ID"],
+          state: JSON.stringify({
+            requestId: samlRequest["samlp:AuthnRequest"]["@_ID"],
+            relayState: RelayState,
+          }),
           response_mode: AuthorizationResponseMode.SAML_POST,
           redirect_uri:
             samlRequest["samlp:AuthnRequest"][
