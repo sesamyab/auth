@@ -9,12 +9,15 @@ export const samlRequestSchema = z.object({
   "samlp:AuthnRequest": z.object({
     "saml:Issuer": samlIssuerSchema,
     "@_xmlns:samlp": z.string(),
-    "@_xmlns:saml": z.string(),
-    "@_ForceAuthn": z.string().transform((val) => val.toLowerCase() === "true"),
+    "@_xmlns:saml": z.string().optional(),
+    "@_ForceAuthn": z
+      .string()
+      .transform((val) => val.toLowerCase() === "true")
+      .optional(),
     "@_ID": z.string(),
     "@_IssueInstant": z.string().datetime(),
     "@_Destination": z.string().url(),
-    "@_AssertionConsumerServiceURL": z.string().url(),
+    "@_AssertionConsumerServiceURL": z.string().url().optional(),
     "@_ProtocolBinding": z.string().optional(),
     "@_Version": z.string(),
   }),
