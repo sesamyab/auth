@@ -191,6 +191,26 @@ export async function createSamlResponse(
                 {
                   "saml:Attribute": [
                     {
+                      "saml:AttributeValue": [
+                        { "#text": samlResponseParams.email },
+                      ],
+                      ":@": {
+                        "@_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+                        "@_xmlns:xsi":
+                          "http://www.w3.org/2001/XMLSchema-instance",
+                        "@_xsi:type": "xs:string",
+                      },
+                    },
+                  ],
+                  ":@": {
+                    "@_Name": "email",
+                    "@_NameFormat":
+                      "urn:oasis:names:tc:SAML:2.0:attrname-format:basic",
+                  },
+                },
+                {
+                  "saml:Attribute": [
+                    {
                       "saml:AttributeValue": [{ "#text": "manage-account" }],
                       ":@": {
                         "@_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
@@ -333,7 +353,7 @@ export async function createSamlResponse(
   let xmlContent = builder.build(samlResponseJson);
 
   if (samlResponseParams.signature) {
-    const response = await fetch("https://api.sesamy.com/profile/saml/sign", {
+    const response = await fetch("https://api.sesamy.dev/profile/saml/sign", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -346,7 +366,7 @@ export async function createSamlResponse(
     });
 
     if (!response.ok) {
-      throw new Error("Failed to sign SAML response");
+      throw new Error(`Failed to sign SAML response: ${response.status}`);
     }
 
     xmlContent = await response.text();
