@@ -23,6 +23,7 @@ export interface SAMLResponseParams {
     kid: string;
   };
   encode?: boolean;
+  samlSignUrl: string;
 }
 
 export async function inflateRaw(
@@ -353,7 +354,7 @@ export async function createSamlResponse(
   let xmlContent = builder.build(samlResponseJson);
 
   if (samlResponseParams.signature) {
-    const response = await fetch("https://api.sesamy.dev/profile/saml/sign", {
+    const response = await fetch(samlResponseParams.samlSignUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

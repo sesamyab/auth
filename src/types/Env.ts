@@ -17,6 +17,7 @@ export type Env = {
   READ_PERMISSION?: string;
   WRITE_PERMISSION?: string;
   ENVIRONMENT: string;
+  SAML_SIGN_URL: string;
   oauth2ClientFactory: IOAuth2ClientFactory;
   data: DataAdapters;
   sendEmail: (client: Client, email: EmailOptions) => Promise<void>;

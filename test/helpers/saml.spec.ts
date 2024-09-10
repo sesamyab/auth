@@ -86,6 +86,7 @@ describe("saml", () => {
           "47614e19-7d5f-4dcf-a3c0-034c465852ac::a2af9228-d8ec-4d2a-9ec6-ed5843ce87f8",
         userId: "6f81f2e7-6fe2-4ae6-a956-96f152a3ce15",
         encode: false,
+        samlSignUrl: "",
       });
 
       const arrayNodes = ["saml:Attribute"];

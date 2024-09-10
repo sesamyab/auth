@@ -282,6 +282,7 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
         cert: signingKey.cert,
         kid: signingKey.kid,
       },
+      samlSignUrl: ctx.env.SAML_SIGN_URL,
     });
 
     return samlResponseForm(redirectUrl.toString(), samlResponse);
