@@ -129,30 +129,7 @@ export const samlpRoutes = new OpenAPIHono<{
       const client = await getClient(ctx.env, application_id);
 
       const samlRequest = await parseSamlRequestQuery(SAMLRequest);
-
-      // Example of a SAMLRequest:
-      // <samlp:AuthnRequest
-      //  AssertionConsumerServiceURL='https://scplay.skiclassics.com/saml/consume'
-      //  Destination='https://keycloak.rejlers-srv01.se/auth/realms/master/protocol/saml'
-      //  ForceAuthn='true' ID='_60fe2a33-81fd-4046-99e1-5a2c2633447e'
-      //  ID='_60fe2a33-81fd-4046-99e1-5a2c2633447e'
-      //  IssueInstant='2024-08-15T23:23:26Z'
-      //  Version='2.0' xmlns:saml='urn:oasis:names:tc:SAML:2.0:assertion'
-      //  xmlns:samlp='urn:oasis:names:tc:SAML:2.0:protocol'>
-      //    <saml:Issuer>https://scplay.skiclassics.com/saml/metadata</saml:Issuer>
-      //    <samlp:NameIDPolicy AllowCreate='true' Format='urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'/>
-      // </samlp:AuthnRequest>
-
       const issuer = samlRequest["samlp:AuthnRequest"]["saml:Issuer"]["#text"];
-
-      // Example of a SP SAML metadata:
-      // <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="_7b7ed171-8d7a-4ca8-979b-fac1cb5a0c32" entityID="https://skiclassicsplay.vhx.tv/saml/metadata">
-      //   <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
-      //   <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://skiclassicsplay.vhx.tv/logout" ResponseLocation="https://skiclassicsplay.vhx.tv/logout"/>
-      //   <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
-      //   <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://skiclassicsplay.vhx.tv/saml/consume" index="0" isDefault="true"/>
-      //   </md:SPSSODescriptor>
-      // </md:EntityDescriptor>
 
       // Create a new Login session
       const login = await ctx.env.data.logins.create(client.tenant.id, {

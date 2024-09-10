@@ -24,10 +24,10 @@ import {
   User,
 } from "@authhero/adapter-interfaces";
 import { setSilentAuthCookies } from "./silent-auth-cookie";
-import { SAMLResponse } from "./saml-response";
 import { samlResponseForm } from "../templates/samlResponse";
 import { HTTPException } from "hono/http-exception";
 import { X509Certificate } from "@peculiar/x509";
+import { createSamlResponse } from "./saml";
 
 export type AuthFlowType =
   | "cross-origin"
@@ -262,24 +262,31 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       ["sign"],
     );
 
-    const samlResponse = new SAMLResponse({
+    const destination = client.addons?.samlp?.recipient;
+    const inResponseTo = authParams.state || "";
+
+    if (!destination || !inResponseTo || !user) {
+      throw new HTTPException(400, {
+        message: "Missing recipient, user or inResponseTo",
+      });
+    }
+
+    const samlResponse = await createSamlResponse({
       issuer: ctx.env.ISSUER,
-      recipient: authParams.redirect_uri || "",
-      audience: authParams.audience || "default",
-      nameID: user?.user_id || "userId",
-      userEmail: user?.email || "",
-      inResponseTo: authParams.state,
+      audience: authParams.client_id,
+      destination,
+      inResponseTo: authParams.state || "",
+      userId: user.user_id,
+      email: user.email,
+      sessionIndex: sid!,
+      signature: {
+        privateKeyPem: signingKey.pkcs7!,
+        cert: signingKey.cert,
+        kid: signingKey.kid,
+      },
     });
 
-    const xmlResponse = samlResponse.generateResponse();
-    const signedXmlResponse = await samlResponse.signResponse(
-      xmlResponse,
-      privateKey,
-      importedCert.publicKey.toString("base64"),
-    );
-    const encodedResponse = samlResponse.encodeResponse(signedXmlResponse);
-
-    return samlResponseForm(authParams.redirect_uri, encodedResponse);
+    return samlResponseForm(authParams.redirect_uri, samlResponse);
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {

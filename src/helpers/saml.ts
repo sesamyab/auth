@@ -2,7 +2,6 @@ import { XMLBuilder, XMLParser } from "fast-xml-parser";
 import { samlRequestSchema, SAMLResponseJSON } from "../types/saml";
 import { base64 } from "oslo/encoding";
 import { nanoid } from "nanoid";
-import { SignedXml } from "xml-crypto";
 
 export interface SAMLResponseParams {
   destination: string;
@@ -12,9 +11,10 @@ export interface SAMLResponseParams {
   email: string;
   notBefore?: string;
   notAfter?: string;
+  responseId?: string;
+  assertionId?: string;
   sessionNotOnOrAfter?: string;
   issueInstant?: string;
-  assertionId: string;
   sessionIndex: string;
   userId: string;
   signature?: {
@@ -22,6 +22,7 @@ export interface SAMLResponseParams {
     cert: string;
     kid: string;
   };
+  encode?: boolean;
 }
 
 export async function inflateRaw(
@@ -74,7 +75,8 @@ export async function createSamlResponse(
   const issueInstant = samlResponseParams.issueInstant || notBefore;
   const sessionNotOnOrAfter =
     samlResponseParams.sessionNotOnOrAfter || notAfter;
-  const responseId = `_${nanoid()}`;
+  const responseId = samlResponseParams.responseId || `_${nanoid()}`;
+  const assertionId = samlResponseParams.assertionId || `_${nanoid()}`;
 
   const samlResponseJson: SAMLResponseJSON = [
     {
@@ -303,7 +305,7 @@ export async function createSamlResponse(
           ],
           ":@": {
             "@_xmlns": "urn:oasis:names:tc:SAML:2.0:assertion",
-            "@_ID": `_${nanoid()}`,
+            "@_ID": assertionId,
             "@_IssueInstant": issueInstant,
             "@_Version": "2.0",
           },
@@ -328,83 +330,30 @@ export async function createSamlResponse(
   });
 
   // Generate XML
-  const xmlContent = builder.build(samlResponseJson);
+  let xmlContent = builder.build(samlResponseJson);
 
   if (samlResponseParams.signature) {
-    // Extract the Assertion for signing
-    const assertion = samlResponseJson[0]["samlp:Response"].find((element) =>
-      element.hasOwnProperty("saml:Assertion"),
-    );
+    const response = await fetch("https://api.sesamy.com/profile/saml/sign", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        xmlContent,
+        privateKey: samlResponseParams.signature.privateKeyPem,
+        publicCert: samlResponseParams.signature.cert,
+      }),
+    });
 
-    if (!assertion) {
-      throw new Error("Assertion not found in SAML response");
+    if (!response.ok) {
+      throw new Error("Failed to sign SAML response");
     }
 
-    // const assertionXml = builder.build([assertion]);
+    xmlContent = await response.text();
+  }
 
-    // const importedCert = new X509Certificate(samlResponseParams.signature.cert);
-    // const publicKey = await importedCert.publicKey.export();
-
-    // const privateKey = await crypto.subtle.importKey(
-    //   "pkcs8",
-    //   pemToBuffer(samlResponseParams.signature.privateKeyPem),
-    //   {
-    //     name: "RSASSA-PKCS1-v1_5",
-    //     hash: "SHA-256",
-    //   },
-    //   false,
-    //   ["sign"],
-    // );
-
-    // const xmlDsigJs = new XmlDSigJs.SignedXml();
-
-    // const signatureXml = await xmlDsigJs.Sign(
-    //   { name: "RSASSA-PKCS1-v1_5" },
-    //   privateKey,
-    //   XmlDSigJs.Parse(assertionXml),
-    //   {
-    //     keyValue: publicKey,
-    //     references: [{ hash: "SHA-512", transforms: ["enveloped", "c14n"] }],
-    //   },
-    // );
-
-    // const xmlContentWithSignature = xmlContent.replace(
-    //   "<saml:Subject>",
-    //   signatureXml.toString() + "<saml:Subject>",
-    // );
-
-    const xpath = "/*[local-name(.)='Response']/*[local-name(.)='Assertion']";
-    const issuerXPath =
-      '/*[local-name(.)="Issuer" and namespace-uri(.)="urn:oasis:names:tc:SAML:2.0:assertion"]';
-
-    const sig = new SignedXml({
-      privateKey: samlResponseParams.signature.privateKeyPem,
-    });
-    sig.addReference({
-      xpath,
-      digestAlgorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
-      transforms: ["http://www.w3.org/2001/10/xml-exc-c14n#"],
-    });
-    sig.canonicalizationAlgorithm = "http://www.w3.org/2001/10/xml-exc-c14n#";
-    sig.signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-    sig.computeSignature(xmlContent, {
-      location: { reference: xpath + issuerXPath, action: "after" },
-    });
-
-    const signedXml = sig.getSignedXml();
-
-    const encodedResponse = btoa(signedXml);
-
-    return encodedResponse;
-
-    // const parser = new XMLParser({
-    //   attributeNamePrefix: "@_",
-    //   alwaysCreateTextNode: true,
-    //   ignoreAttributes: false,
-    //   preserveOrder: true,
-    // });
-    // const signatureJson = parser.parse(signatureXml.toString());
-    // const signature = dsSignatureSchema.parse(signatureJson[0]);
+  if (samlResponseParams.encode === false) {
+    return xmlContent;
   }
 
   const encodedResponse = btoa(xmlContent);
