@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// Helper schemas
+const textSchema = z.object({ "#text": z.string() });
+
 export const samlIssuerSchema = z.object({
   "#text": z.string(),
   "@_xmlns:saml": z.string().optional(),
@@ -23,8 +26,74 @@ export const samlRequestSchema = z.object({
   }),
 });
 
-// Helper schemas
-const textSchema = z.object({ "#text": z.string() });
+export const samlMetadataResponseSchema = z.array(
+  z.object({
+    ":@": z.object({
+      "@_xmlns": z.string(),
+      "@_entityID": z.string(),
+    }),
+    EntityDescriptor: z.array(
+      z.object({
+        ":@": z.object({
+          "@_protocolSupportEnumeration": z.string(),
+        }),
+        IDPSSODescriptor: z.array(
+          z.union([
+            z.object({
+              KeyDescriptor: z.array(
+                z.object({
+                  KeyInfo: z.array(
+                    z.object({
+                      X509Data: z.array(
+                        z.object({
+                          X509Certificate: z.array(textSchema),
+                        }),
+                      ),
+                    }),
+                  ),
+                  ":@": z.object({
+                    "@_xmlns": z.string(),
+                  }),
+                }),
+              ),
+              ":@": z.object({
+                "@_use": z.string(),
+              }),
+            }),
+            z.object({
+              SingleLogoutService: z.array(z.object({})),
+              ":@": z.object({
+                "@_Binding": z.string(),
+                "@_Location": z.string(),
+              }),
+            }),
+            z.object({
+              NameIDFormat: z.array(textSchema),
+            }),
+            z.object({
+              SingleSignOnService: z.array(z.object({})),
+              ":@": z.object({
+                "@_Binding": z.string(),
+                "@_Location": z.string(),
+              }),
+            }),
+            z.object({
+              Attribute: z.array(z.object({})),
+              ":@": z.object({
+                "@_Name": z.string(),
+                "@_NameFormat": z.string(),
+                "@_FriendlyName": z.string(),
+                "@_xmlns": z.string(),
+              }),
+            }),
+          ]),
+        ),
+      }),
+    ),
+  }),
+);
+
+export type SAMLMetadataResponse = z.infer<typeof samlMetadataResponseSchema>;
 
 const attributeSchema = z.object({
   "saml:AttributeValue": z.array(

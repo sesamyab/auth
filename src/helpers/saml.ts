@@ -1,7 +1,18 @@
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
-import { samlRequestSchema, SAMLResponseJSON } from "../types/saml";
+import {
+  SAMLMetadataResponse,
+  samlRequestSchema,
+  SAMLResponseJSON,
+} from "../types/saml";
 import { base64 } from "oslo/encoding";
 import { nanoid } from "nanoid";
+
+export interface SAMLMetadataParams {
+  entityId: string;
+  assertionConsumerServiceUrl: string;
+  singleLogoutServiceUrl: string;
+  cert: string;
+}
 
 export interface SAMLResponseParams {
   destination: string;
@@ -64,6 +75,169 @@ export async function parseSamlRequestQuery(samlRequestQuery: string) {
   const samlRequestJson = parser.parse(samlRequesteXml);
 
   return samlRequestSchema.parse(samlRequestJson);
+}
+
+export function createSamlMetadata(samlMetadataParams: SAMLMetadataParams) {
+  const samlMetadataJSON = [
+    {
+      ":@": {
+        "@_entityID": samlMetadataParams.entityId,
+        "@_xmlns": "urn:oasis:names:tc:SAML:2.0:metadata",
+      },
+      EntityDescriptor: [
+        {
+          ":@": {
+            "@_protocolSupportEnumeration":
+              "urn:oasis:names:tc:SAML:2.0:protocol",
+          },
+          IDPSSODescriptor: [
+            {
+              ":@": {
+                "@_use": "signing",
+              },
+              KeyDescriptor: [
+                {
+                  ":@": {
+                    "@_xmlns": "http://www.w3.org/2000/09/xmldsig#",
+                  },
+                  KeyInfo: [
+                    {
+                      X509Data: [
+                        {
+                          X509Certificate: [
+                            { "#text": samlMetadataParams.cert },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              ":@": {
+                "@_Binding":
+                  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                "@_Location": samlMetadataParams.singleLogoutServiceUrl,
+              },
+              SingleLogoutService: [],
+            },
+            {
+              ":@": {
+                "@_Binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                "@_Location": samlMetadataParams.singleLogoutServiceUrl,
+              },
+              SingleLogoutService: [],
+            },
+            {
+              NameIDFormat: [
+                {
+                  "#text":
+                    "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                },
+              ],
+            },
+            {
+              NameIDFormat: [
+                {
+                  "#text":
+                    "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                },
+              ],
+            },
+            {
+              NameIDFormat: [
+                {
+                  "#text":
+                    "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+                },
+              ],
+            },
+            {
+              ":@": {
+                "@_Binding":
+                  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                "@_Location": samlMetadataParams.assertionConsumerServiceUrl,
+              },
+              SingleSignOnService: [],
+            },
+            {
+              ":@": {
+                "@_Binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                "@_Location": samlMetadataParams.assertionConsumerServiceUrl,
+              },
+              SingleSignOnService: [],
+            },
+            {
+              ":@": {
+                "@_Name":
+                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+                "@_NameFormat":
+                  "urn:oasis:names:tc:SAML:2.0:attrname-format:uri",
+                "@_FriendlyName": "E-Mail Address",
+                "@_xmlns": "urn:oasis:names:tc:SAML:2.0:assertion",
+              },
+              Attribute: [],
+            },
+            {
+              ":@": {
+                "@_Name":
+                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname",
+                "@_NameFormat":
+                  "urn:oasis:names:tc:SAML:2.0:attrname-format:uri",
+                "@_FriendlyName": "Given Name",
+                "@_xmlns": "urn:oasis:names:tc:SAML:2.0:assertion",
+              },
+              Attribute: [],
+            },
+            {
+              ":@": {
+                "@_Name":
+                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                "@_NameFormat":
+                  "urn:oasis:names:tc:SAML:2.0:attrname-format:uri",
+                "@_FriendlyName": "Name",
+                "@_xmlns": "urn:oasis:names:tc:SAML:2.0:assertion",
+              },
+              Attribute: [],
+            },
+            {
+              ":@": {
+                "@_Name":
+                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname",
+                "@_NameFormat":
+                  "urn:oasis:names:tc:SAML:2.0:attrname-format:uri",
+                "@_FriendlyName": "Surname",
+                "@_xmlns": "urn:oasis:names:tc:SAML:2.0:assertion",
+              },
+              Attribute: [],
+            },
+            {
+              ":@": {
+                "@_Name":
+                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                "@_NameFormat":
+                  "urn:oasis:names:tc:SAML:2.0:attrname-format:uri",
+                "@_FriendlyName": "Name ID",
+                "@_xmlns": "urn:oasis:names:tc:SAML:2.0:assertion",
+              },
+              Attribute: [],
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  const builder = new XMLBuilder({
+    ignoreAttributes: false,
+    suppressEmptyNode: true,
+    preserveOrder: true,
+    format: true,
+  });
+
+  // Generate XML
+  return builder.build(samlMetadataJSON);
 }
 
 export async function createSamlResponse(

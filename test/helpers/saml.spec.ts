@@ -4,7 +4,11 @@ import {
   samlRequestSchema,
   samlResponseJsonSchema,
 } from "../../src/types/saml";
-import { createSamlResponse, inflateDecompress } from "../../src/helpers/saml";
+import {
+  createSamlMetadata,
+  createSamlResponse,
+  inflateDecompress,
+} from "../../src/helpers/saml";
 
 describe("saml", () => {
   it("should parse nested XML with namespace", () => {
@@ -28,6 +32,61 @@ describe("saml", () => {
     const xmlString = builder.build(xmlJson);
 
     expect(xmlString).toBe(xml);
+  });
+
+  describe("metadata", () => {
+    it("should create a metadata", async () => {
+      const samlMetadata = `
+<EntityDescriptor entityID="urn:auth2.sesamy.com" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+    <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <KeyDescriptor use="signing">
+            <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+                <X509Data>
+                    <X509Certificate>MIIDDjCCAfagAwIBAgIVWWlLME1GMU96NXJLeWF4V0RtRU1RMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMTBnNlc2FteTAeFw0yNDA4MjYyMTI4MzVaFw0yNTA4MjYyMTI4MzVaMBExDzANBgNVBAMTBnNlc2FteTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALlQtACFQUAQqII+Ct0r//k9cjOtWI9AVx+EbyhJLOj5mzsu6PJaLHJjoKO3RrvCW9ShpSx6SABe5IB9YcbRQUyGvKEdpKYDQM6+DN4Bq6G1dKiqO+uRaDKtANYsn4C+8gausKKmMN4E41pJPIcfQI8ptPhSw23iTRPnGYtf0JxAza/s2fe/i/teyisfFm5lJ7yEp8OqhUB/HwktijtZod2GpO/vMlM8uvsmN95cFLz9H/T6TE8ENdaGmE7ZlujKhzef2TFPnwqhcls9W+CaFVx++rcLD8qItmQOt3dqrHVhIZR/J3ao1aW+ckOQtGgQQguhS6h2gA22P/18FIDH5kUCAwEAAaNdMFswEgYDVR0TAQH/BAgwBgEB/wIBAjAWBgNVHSUBAf8EDDAKBggrBgEFBQcDATAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFBjrCXJ28aDPGYp8mXFisDrVD3NeMA0GCSqGSIb3DQEBCwUAA4IBAQCuFzeS+z+22MEldoiKXkhNyBhNhAAKB6DORL+ZQ0IZbSE4xYRVtVij6OJLoxPQQ8Rz6S8OOYbjTfUjOg7izAvZaZSfEkvFb0u4OsSdulo5bfTSOovhCLiifGibq+uEDvHhWHi/Nh62yU8w/Avg8UOaq4RCzD8ZK31aIUTUNLeunHAfbiJda93OG+lwvm8D0zgepM49JG/oXjfm613ndOAs66WHeCRSilUYacMbsBbJk3gqbE17u10M0YmB2KT1DgM5iJJ2IyVD3j5dE7dPviGnYyPDg0SNaCNFina6JayBNMS8x0V5sN3ftzjeAZkcxSLvEEit1h/NAxEtsfh8JXFq</X509Certificate>
+                </X509Data>
+            </KeyInfo>
+        </KeyDescriptor>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://auth2.sesamy.dev/samlp/vimeo/logout"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://auth2.sesamy.dev/samlp/vimeo/logout"/>
+        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://auth2.sesamy.dev/samlp/vimeo"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://auth2.sesamy.dev/samlp/vimeo"/>
+        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="E-Mail Address" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Given Name" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Name" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Surname" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Name ID" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+    </IDPSSODescriptor>
+</EntityDescriptor>`;
+
+      const metadata = createSamlMetadata({
+        entityId: "urn:auth2.sesamy.com",
+        cert: "MIIDDjCCAfagAwIBAgIVWWlLME1GMU96NXJLeWF4V0RtRU1RMA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMTBnNlc2FteTAeFw0yNDA4MjYyMTI4MzVaFw0yNTA4MjYyMTI4MzVaMBExDzANBgNVBAMTBnNlc2FteTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALlQtACFQUAQqII+Ct0r//k9cjOtWI9AVx+EbyhJLOj5mzsu6PJaLHJjoKO3RrvCW9ShpSx6SABe5IB9YcbRQUyGvKEdpKYDQM6+DN4Bq6G1dKiqO+uRaDKtANYsn4C+8gausKKmMN4E41pJPIcfQI8ptPhSw23iTRPnGYtf0JxAza/s2fe/i/teyisfFm5lJ7yEp8OqhUB/HwktijtZod2GpO/vMlM8uvsmN95cFLz9H/T6TE8ENdaGmE7ZlujKhzef2TFPnwqhcls9W+CaFVx++rcLD8qItmQOt3dqrHVhIZR/J3ao1aW+ckOQtGgQQguhS6h2gA22P/18FIDH5kUCAwEAAaNdMFswEgYDVR0TAQH/BAgwBgEB/wIBAjAWBgNVHSUBAf8EDDAKBggrBgEFBQcDATAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFBjrCXJ28aDPGYp8mXFisDrVD3NeMA0GCSqGSIb3DQEBCwUAA4IBAQCuFzeS+z+22MEldoiKXkhNyBhNhAAKB6DORL+ZQ0IZbSE4xYRVtVij6OJLoxPQQ8Rz6S8OOYbjTfUjOg7izAvZaZSfEkvFb0u4OsSdulo5bfTSOovhCLiifGibq+uEDvHhWHi/Nh62yU8w/Avg8UOaq4RCzD8ZK31aIUTUNLeunHAfbiJda93OG+lwvm8D0zgepM49JG/oXjfm613ndOAs66WHeCRSilUYacMbsBbJk3gqbE17u10M0YmB2KT1DgM5iJJ2IyVD3j5dE7dPviGnYyPDg0SNaCNFina6JayBNMS8x0V5sN3ftzjeAZkcxSLvEEit1h/NAxEtsfh8JXFq",
+        assertionConsumerServiceUrl: "https://auth2.sesamy.dev/samlp/vimeo",
+        singleLogoutServiceUrl: "https://auth2.sesamy.dev/samlp/vimeo/logout",
+      });
+
+      // Parse the XML and serialize it to compare
+      const parser = new XMLParser({
+        attributeNamePrefix: "@_",
+        ignoreAttributes: false,
+        preserveOrder: true,
+      });
+
+      const builder = new XMLBuilder({
+        ignoreAttributes: false,
+        suppressEmptyNode: true,
+        preserveOrder: true,
+        format: true,
+      });
+
+      // Generate XML
+      const formatedMetadata = builder.build(parser.parse(samlMetadata));
+
+      expect(metadata).toEqual(formatedMetadata);
+    });
   });
 
   describe("samlResponse", () => {
