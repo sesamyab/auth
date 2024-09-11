@@ -13,35 +13,9 @@ import { auth0QuerySchema } from "../../types/auth0/Query";
 import { parseSort } from "../../utils/sort";
 import authenticationMiddleware from "../../middlewares/authentication";
 
-const restApplicationSchema = z.object({
-  ...applicationSchema.shape,
-  callbacks: z.string(),
-  allowed_logout_urls: z.string(),
-  allowed_origins: z.string(),
-  web_origins: z.string(),
-});
-
-const restApplicationInsertSchema = z.object({
-  ...applicationInsertSchema.shape,
-  callbacks: z.string(),
-  allowed_logout_urls: z.string(),
-  allowed_origins: z.string(),
-  web_origins: z.string(),
-});
-
 const applicationWithTotalsSchema = totalsSchema.extend({
-  clients: z.array(restApplicationSchema),
+  clients: z.array(applicationSchema),
 });
-
-function mapApplication(application: Application) {
-  return {
-    ...application,
-    callbacks: application.callbacks?.join(", ") || "",
-    allowed_logout_urls: application.allowed_logout_urls?.join(", ") || "",
-    allowed_origins: application.allowed_origins?.join(", ") || "",
-    web_origins: application.web_origins?.join(", ") || "",
-  };
-}
 
 export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
   // --------------------------------
@@ -70,7 +44,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
             "application/json": {
               schema: z.union([
                 applicationWithTotalsSchema,
-                z.array(restApplicationSchema),
+                z.array(applicationSchema),
               ]),
             },
           },
@@ -91,7 +65,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         q,
       });
 
-      const clients = result.applications.map(mapApplication);
+      const clients = result.applications;
 
       if (include_totals) {
         // TODO: this should be supported by the adapter
@@ -132,7 +106,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         200: {
           content: {
             "application/json": {
-              schema: restApplicationSchema,
+              schema: applicationSchema,
             },
           },
           description: "An application",
@@ -156,7 +130,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         throw new HTTPException(404);
       }
 
-      return ctx.json(mapApplication(application), {
+      return ctx.json(application, {
         headers,
       });
     },
@@ -213,7 +187,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         body: {
           content: {
             "application/json": {
-              schema: restApplicationInsertSchema.partial(),
+              schema: z.object(applicationInsertSchema.shape).partial(),
             },
           },
         },
@@ -246,19 +220,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
       const { id } = ctx.req.valid("param");
       const body = ctx.req.valid("json");
 
-      const applicationUpdate = {
-        ...body,
-        callbacks: body.callbacks ? body.callbacks.split(", ") : undefined,
-        allowed_logout_urls: body.allowed_logout_urls
-          ? body.allowed_logout_urls.split(", ")
-          : undefined,
-        allowed_origins: body.allowed_origins
-          ? body.allowed_origins.split(", ")
-          : undefined,
-        web_origins: body.web_origins
-          ? body.web_origins.split(", ")
-          : undefined,
-      };
+      const applicationUpdate = body;
 
       await ctx.env.data.applications.update(tenant_id, id, applicationUpdate);
       const application = await ctx.env.data.applications.get(tenant_id, id);
@@ -282,7 +244,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         body: {
           content: {
             "application/json": {
-              schema: restApplicationInsertSchema,
+              schema: z.object(applicationInsertSchema.shape),
             },
           },
         },
@@ -300,7 +262,7 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         201: {
           content: {
             "application/json": {
-              schema: restApplicationSchema,
+              schema: z.object(applicationSchema.shape),
             },
           },
           description: "An application",
@@ -313,14 +275,6 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
 
       const applicationUpdate = {
         ...body,
-        callbacks: body.callbacks ? body.callbacks.split(", ") : [],
-        allowed_logout_urls: body.allowed_logout_urls
-          ? body.allowed_logout_urls.split(", ")
-          : [],
-        allowed_origins: body.allowed_origins
-          ? body.allowed_origins.split(", ")
-          : [],
-        web_origins: body.web_origins ? body.web_origins.split(", ") : [],
         id: body.id || nanoid(),
         client_secret: body.client_secret || nanoid(),
       };
@@ -330,6 +284,6 @@ export const applicationRoutes = new OpenAPIHono<{ Bindings: Env }>()
         applicationUpdate,
       );
 
-      return ctx.json(mapApplication(application), { status: 201 });
+      return ctx.json(application, { status: 201 });
     },
   );
