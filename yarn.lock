@@ -24,19 +24,19 @@
   dependencies:
     openapi3-ts "^4.1.2"
 
-"@authhero/adapter-interfaces@0.15.5", "@authhero/adapter-interfaces@^0.15.5":
-  version "0.15.5"
-  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.15.5.tgz#f025cb62cca1f8d5088a6559de4b35ee904a0454"
-  integrity sha512-NHZc4uXdcHd7junpIa4S0JqMAc0JLNZMX0EwZDuxyGXC54QXp2zg4YeHGTZiIsHhREGhmV19lsAJ8x4dVR7Fig==
+"@authhero/adapter-interfaces@0.15.6", "@authhero/adapter-interfaces@^0.15.6":
+  version "0.15.6"
+  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.15.6.tgz#f979212c13cefd7934470d91249c56bb8218298a"
+  integrity sha512-F2al9DG7nY2PabuoofyDwhmwU4rfQXP8TWjMOIkkG5f0ykCuMSeyayHjtp4kkXPLK/s0oIgdHNoqXpw1tzClvw==
   dependencies:
     "@hono/zod-openapi" "^0.14.5"
 
-"@authhero/kysely-adapter@0.9.6":
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.9.6.tgz#1766b512c4207c592d45932e3393a009fbdb471d"
-  integrity sha512-wHYFQA2Jbf6D+gkHuRIL7bulgYUhrepepCVsRXtWQBuF1pVFmjUqjoOltg1HY12vDkUjRcZcwaV/9PndzTB9hw==
+"@authhero/kysely-adapter@0.9.7":
+  version "0.9.7"
+  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.9.7.tgz#b770ad633cb16aec79ecf0f8c3f1042fb61c30ad"
+  integrity sha512-3jx6TSNPDZsE8Q/ZGvhWgTa80phfU1IFgTVj3xL8y27LcCoGW9VHUQDTXxg+gdp9jG+8DXZa215iSFYfZYzxEQ==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.15.5"
+    "@authhero/adapter-interfaces" "^0.15.6"
     "@hono/zod-openapi" "^0.14.5"
     hono "^4.4.10"
     kysely "^0.27.4"
@@ -2000,10 +2000,10 @@ archy@~1.0.0:
   resolved "https://registry.yarnpkg.com/archy/-/archy-1.0.0.tgz#f9c8c13757cc1dd7bc379ac77b2c62a5c2868c40"
   integrity sha512-Xg+9RwCg/0p32teKdGMPTPnVXKD0w3DfHnFTficozsAgsvq2XenPJq/MYpzzQ/v8zrOyJn6Ds39VA4JIDwFfqw==
 
-arctic@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/arctic/-/arctic-1.8.1.tgz#a5ab9f2cd7980760be7a99058f9b9501a5d3cafe"
-  integrity sha512-YmTcSfk8+NDSZt7qWYBX4HrikHZA3EQgmfFYlS4BwtYzPrji2VjAFrCFMElnjp72zmx3J3mz1ldjaXvjxmiW4Q==
+arctic@^1.9.2:
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/arctic/-/arctic-1.9.2.tgz#812baa772d0a0556bf0da73cbb94beac17df41b6"
+  integrity sha512-VTnGpYx+ypboJdNrWnK17WeD7zN/xSCHnpecd5QYsBfVZde/5i+7DJ1wrf/ioSDMiEjagXmyNWAE3V2C9f1hNg==
   dependencies:
     oslo "1.2.0"
 
@@ -5713,10 +5713,18 @@ optionator@^0.9.3:
     prelude-ls "^1.2.1"
     type-check "^0.4.0"
 
-oslo@1.2.0, oslo@^1.2.0:
+oslo@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/oslo/-/oslo-1.2.0.tgz#3d7e3132de725c4ec9ab738445e959bae99e5b2f"
   integrity sha512-OoFX6rDsNcOQVAD2gQD/z03u4vEjWZLzJtwkmgfRF+KpQUXwdgEXErD7zNhyowmHwHefP+PM9Pw13pgpHMRlzw==
+  dependencies:
+    "@node-rs/argon2" "1.7.0"
+    "@node-rs/bcrypt" "1.9.0"
+
+oslo@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/oslo/-/oslo-1.2.1.tgz#aa2b9729c2b9bae74248ba865e9904defe231474"
+  integrity sha512-HfIhB5ruTdQv0XX2XlncWQiJ5SIHZ7NHZhVyHth0CSZ/xzge00etRyYy/3wp/Dsu+PkxMC+6+B2lS/GcKoewkA==
   dependencies:
     "@node-rs/argon2" "1.7.0"
     "@node-rs/bcrypt" "1.9.0"
