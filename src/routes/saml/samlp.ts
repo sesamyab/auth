@@ -5,9 +5,7 @@ import { Env, Var } from "../../types";
 import { getClient } from "../../services/clients";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
 import { X509Certificate } from "@peculiar/x509";
-import { parseSamlRequestQuery } from "../../helpers/saml";
-import { Sign } from "crypto";
-import { Signature } from "xmldsigjs";
+import { createSamlMetadata, parseSamlRequestQuery } from "../../helpers/saml";
 
 export const samlpRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -63,29 +61,12 @@ export const samlpRoutes = new OpenAPIHono<{
 
       const issuer = ctx.env.ISSUER;
 
-      const metadata = `<EntityDescriptor entityID="urn:auth2.sesamy.com" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
-    <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
-        <KeyDescriptor use="signing">
-            <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
-                <X509Data>
-                    <X509Certificate>${cert.toString("base64")}</X509Certificate>
-                </X509Data>
-            </KeyInfo>
-        </KeyDescriptor>
-        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${issuer}samlp/${application_id}/logout"/>
-        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${issuer}samlp/${application_id}/logout"/>
-        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>
-        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
-        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
-        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${issuer}samlp/${application_id}"/>
-        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${issuer}samlp/${application_id}"/>
-        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="E-Mail Address" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
-        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Given Name" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
-        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Name" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
-        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Surname" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
-        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Name ID" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
-    </IDPSSODescriptor>
-</EntityDescriptor>`;
+      const metadata = createSamlMetadata({
+        entityId: client.addons?.samlp?.audience || client.id,
+        cert: cert.toString("base64"),
+        assertionConsumerServiceUrl: `${issuer}samlp/${application_id}`,
+        singleLogoutServiceUrl: `${issuer}samlp/${application_id}/logout`,
+      });
 
       return new Response(metadata, {
         headers: {
