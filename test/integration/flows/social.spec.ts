@@ -52,6 +52,8 @@ const EXPECTED_NEW_USER = {
   is_social: true,
   profileData: JSON.stringify(EXPECTED_PROFILE_DATA),
   user_id: "demo-social-provider|123456789012345678901",
+  user_metadata: {},
+  app_metadata: {},
 };
 
 describe("social sign on", () => {
