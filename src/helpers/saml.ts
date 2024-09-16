@@ -275,7 +275,7 @@ export async function createSamlResponse(
             {
               "saml:Subject": [
                 {
-                  "saml:NameID": [{ "#text": "markus@sesamy.com" }],
+                  "saml:NameID": [{ "#text": samlResponseParams.email }],
                   ":@": {
                     "@_Format":
                       "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",

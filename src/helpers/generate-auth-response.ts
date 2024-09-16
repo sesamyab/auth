@@ -274,7 +274,7 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       audience: audience || authParams.client_id,
       destination: redirectUrl.toString(),
       inResponseTo: state.requestId,
-      userId: user.user_id,
+      userId: user.app_metadata?.vimeo?.user_id || user.user_id,
       email: user.email,
       sessionIndex: sid!,
       signature: {
