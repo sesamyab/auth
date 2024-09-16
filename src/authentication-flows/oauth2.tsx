@@ -29,7 +29,7 @@ import { nanoid } from "nanoid";
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
-  name: string,
+  connectionName: string,
   authParams: AuthParams,
   auth0Client?: string,
 ) {
@@ -37,7 +37,7 @@ export async function socialAuth(
     throw new HTTPException(400, { message: "State not found" });
   }
 
-  const connection = client.connections.find((p) => p.name === name);
+  const connection = client.connections.find((p) => p.name === connectionName);
 
   if (!connection) {
     ctx.set("client_id", client.id);
@@ -77,7 +77,7 @@ export async function socialAuth(
 
   const options = connection.options || {};
 
-  if (name === "apple") {
+  if (connectionName === "apple") {
     const apple = new Apple(
       {
         clientId: options.client_id!,
