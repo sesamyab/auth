@@ -7,9 +7,14 @@ export async function up(db: Kysely<Database>): Promise<void> {
     .addColumn("options", "varchar(2048)", (col) =>
       col.defaultTo("{}").notNull(),
     )
+    .addColumn("strategy", "varchar(64)", (col) => col.notNull())
     .execute();
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
-  await db.schema.alterTable("connections").dropColumn("options").execute();
+  await db.schema
+    .alterTable("connections")
+    .dropColumn("options")
+    .dropColumn("strategy")
+    .execute();
 }
