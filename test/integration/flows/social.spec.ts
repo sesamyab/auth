@@ -5,7 +5,7 @@ import { UserResponse } from "../../../src/types/auth0";
 import { doSilentAuthRequestAndReturnTokens } from "../helpers/silent-auth";
 import { testClient } from "hono/testing";
 import { getTestServer } from "../helpers/test-server";
-import { base64url } from "oslo/encoding";
+
 import {
   AuthorizationResponseType,
   Log,
@@ -74,6 +74,7 @@ describe("social sign on", () => {
           connection: "demo-social-provider",
         },
       });
+      console.log("authorize call done: " + socialSignOnResponse.status);
 
       expect(socialSignOnResponse.status).toBe(302);
 

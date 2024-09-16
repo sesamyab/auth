@@ -1,9 +1,5 @@
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
-import {
-  SAMLMetadataResponse,
-  samlRequestSchema,
-  SAMLResponseJSON,
-} from "../types/saml";
+import { samlRequestSchema, SAMLResponseJSON } from "../types/saml";
 import { base64 } from "oslo/encoding";
 import { nanoid } from "nanoid";
 

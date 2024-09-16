@@ -37,7 +37,12 @@ export async function socialAuth(
     throw new HTTPException(400, { message: "State not found" });
   }
 
+  console.log("connection", client.connections);
+  console.log("connectionName", connectionName);
+
   const connection = client.connections.find((p) => p.name === connectionName);
+
+  console.log("connection", connection);
 
   if (!connection) {
     ctx.set("client_id", client.id);
@@ -78,11 +83,11 @@ export async function socialAuth(
   if (connectionName === "apple") {
     const apple = new Apple(
       {
-        clientId: connection.client_id!,
-        teamId: connection.team_id!,
-        keyId: connection.kid!,
+        clientId: connection.options!.client_id!,
+        teamId: connection.options!.team_id!,
+        keyId: connection.options!.kid!,
         certificate: connection
-          .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+          .options!.app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
           .replace(/\s/g, ""),
       },
@@ -96,11 +101,11 @@ export async function socialAuth(
     return ctx.redirect(appleAuthorizatioUrl.href);
   }
 
-  const oauthLoginUrl = new URL(connection.authorization_endpoint!);
+  const oauthLoginUrl = new URL(connection.options!.authorization_endpoint!);
 
   setSearchParams(oauthLoginUrl, {
-    scope: connection.scope,
-    client_id: connection.client_id,
+    scope: connection.options!.scope,
+    client_id: connection.options!.client_id,
     redirect_uri: `${ctx.env.ISSUER}callback`,
     response_type: connection.response_type,
     response_mode: connection.response_mode,
@@ -192,11 +197,11 @@ export async function oauth2Callback({
   if (connection.name === "apple") {
     const apple = new Apple(
       {
-        clientId: connection.client_id!,
-        teamId: connection.team_id!,
-        keyId: connection.kid!,
+        clientId: connection.options!.client_id!,
+        teamId: connection.options!.team_id!,
+        keyId: connection.options!.kid!,
         certificate: connection
-          .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+          .options!.app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
           .replace(/\s/g, ""),
       },
@@ -210,20 +215,17 @@ export async function oauth2Callback({
       {
         // TODO: The types here are optional which isn't correct..
         ...connection,
-        client_id: connection.client_id!,
-        authorization_endpoint: connection.authorization_endpoint!,
-        token_endpoint: connection.token_endpoint!,
-        scope: connection.scope!,
+        client_id: connection.options!.client_id!,
+        authorization_endpoint: connection.options!.authorization_endpoint!,
+        token_endpoint: connection.options!.token_endpoint!,
+        scope: connection.options!.scope!,
       },
       `${env.ISSUER}callback`,
     );
 
-    const token = await oauth2Client.exchangeCodeForTokenResponse(
-      code,
-      connection.token_exchange_basic_auth,
-    );
+    const token = await oauth2Client.exchangeCodeForTokenResponse(code, true);
 
-    if (connection.userinfo_endpoint) {
+    if (connection.options!.userinfo_endpoint) {
       userinfo = getProfileData(
         await oauth2Client.getUserProfile(token.access_token),
       );

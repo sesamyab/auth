@@ -76,24 +76,28 @@ export async function getTestServer(args: getEnvParams = {}) {
   await data.connections.create("DEFAULT_SETTINGS", {
     id: "DEFAULT_CONNECTION",
     name: "demo-social-provider",
-    client_id: "socialClientId",
-    client_secret: "socialClientSecret",
-    authorization_endpoint: "https://example.com/o/oauth2/v2/auth",
-    token_endpoint: "https://example.com/token",
+    options: {
+      client_id: "socialClientId",
+      client_secret: "socialClientSecret",
+      authorization_endpoint: "https://example.com/o/oauth2/v2/auth",
+      token_endpoint: "https://example.com/token",
+      scope: "openid profile email",
+    },
     response_mode: AuthorizationResponseMode.QUERY,
     response_type: AuthorizationResponseType.CODE,
-    scope: "openid profile email",
   });
   await data.connections.create("DEFAULT_SETTINGS", {
     id: "DEFAULT_CONNECTION2",
     name: "other-social-provider",
-    client_id: "otherSocialClientId",
-    client_secret: "otherSocialClientSecret",
-    authorization_endpoint: "https://example.com/other/o/oauth2/v2/auth",
-    token_endpoint: "https://example.com/other/token",
+    options: {
+      client_id: "otherSocialClientId",
+      client_secret: "otherSocialClientSecret",
+      authorization_endpoint: "https://example.com/other/o/oauth2/v2/auth",
+      token_endpoint: "https://example.com/other/token",
+      scope: "openid profile email",
+    },
     response_mode: AuthorizationResponseMode.QUERY,
     response_type: AuthorizationResponseType.CODE,
-    scope: "openid profile email",
   });
 
   // Create fixtures----------------------------------------
@@ -133,6 +137,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   const testConnection1: Connection = {
     id: "connectionId1",
     name: "demo-social-provider",
+    options: {},
     created_at: "created_at",
     updated_at: "updated_at",
   };
@@ -140,6 +145,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   const testConnection2: Connection = {
     id: "connectionId2",
     name: "other-social-provider",
+    options: {},
     created_at: "created_at",
     updated_at: "updated_at",
   };
