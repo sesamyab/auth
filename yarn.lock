@@ -24,19 +24,19 @@
   dependencies:
     openapi3-ts "^4.1.2"
 
-"@authhero/adapter-interfaces@0.15.6", "@authhero/adapter-interfaces@^0.15.6":
-  version "0.15.6"
-  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.15.6.tgz#f979212c13cefd7934470d91249c56bb8218298a"
-  integrity sha512-F2al9DG7nY2PabuoofyDwhmwU4rfQXP8TWjMOIkkG5f0ykCuMSeyayHjtp4kkXPLK/s0oIgdHNoqXpw1tzClvw==
+"@authhero/adapter-interfaces@0.17.1", "@authhero/adapter-interfaces@^0.17.1":
+  version "0.17.1"
+  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.17.1.tgz#38541f22fe8820064afaea1bb036308fdfb29d7f"
+  integrity sha512-DFz9jpX2qHu6sdkqSOipei4ednTRV5j7bOD+Xygg0fV7FoiC8QDs1Ci8wYSXIOLjYbzm/IECBQfSiOQIQdwJcQ==
   dependencies:
     "@hono/zod-openapi" "^0.14.5"
 
-"@authhero/kysely-adapter@0.9.7":
-  version "0.9.7"
-  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.9.7.tgz#b770ad633cb16aec79ecf0f8c3f1042fb61c30ad"
-  integrity sha512-3jx6TSNPDZsE8Q/ZGvhWgTa80phfU1IFgTVj3xL8y27LcCoGW9VHUQDTXxg+gdp9jG+8DXZa215iSFYfZYzxEQ==
+"@authhero/kysely-adapter@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.11.2.tgz#14f7bd7276d8e57d119c07e476e78268590baaaf"
+  integrity sha512-ce0ewM76ivzywziWrY3gXLHkE8nTMQ/sXWCpX41WEe7UX53wlFNMxhKKE3PXuWZgwHpbOMF2BgiStqklUdT8bA==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.15.6"
+    "@authhero/adapter-interfaces" "^0.17.1"
     "@hono/zod-openapi" "^0.14.5"
     hono "^4.4.10"
     kysely "^0.27.4"

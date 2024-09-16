@@ -75,14 +75,16 @@ export async function socialAuth(
     ).toISOString(),
   });
 
+  const options = connection.options || {};
+
   if (connectionName === "apple") {
     const apple = new Apple(
       {
-        clientId: connection.client_id!,
-        teamId: connection.team_id!,
-        keyId: connection.kid!,
-        certificate: connection
-          .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+        clientId: options.client_id!,
+        teamId: options.team_id!,
+        keyId: options.kid!,
+        certificate: options
+          .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
           .replace(/\s/g, ""),
       },
@@ -96,11 +98,11 @@ export async function socialAuth(
     return ctx.redirect(appleAuthorizatioUrl.href);
   }
 
-  const oauthLoginUrl = new URL(connection.authorization_endpoint!);
+  const oauthLoginUrl = new URL(options.authorization_endpoint!);
 
   setSearchParams(oauthLoginUrl, {
-    scope: connection.scope,
-    client_id: connection.client_id,
+    scope: options.scope,
+    client_id: options.client_id,
     redirect_uri: `${ctx.env.ISSUER}callback`,
     response_type: connection.response_type,
     response_mode: connection.response_mode,
@@ -188,15 +190,17 @@ export async function oauth2Callback({
     });
   }
 
+  const options = connection.options || {};
+
   let userinfo: any;
   if (connection.name === "apple") {
     const apple = new Apple(
       {
-        clientId: connection.client_id!,
-        teamId: connection.team_id!,
-        keyId: connection.kid!,
-        certificate: connection
-          .private_key!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+        clientId: options.client_id!,
+        teamId: options.team_id!,
+        keyId: options.kid!,
+        certificate: options
+          .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
           .replace(/\s/g, ""),
       },
@@ -208,22 +212,18 @@ export async function oauth2Callback({
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
       {
-        // TODO: The types here are optional which isn't correct..
         ...connection,
-        client_id: connection.client_id!,
-        authorization_endpoint: connection.authorization_endpoint!,
-        token_endpoint: connection.token_endpoint!,
-        scope: connection.scope!,
+        client_id: options.client_id!,
+        authorization_endpoint: options.authorization_endpoint!,
+        token_endpoint: options.token_endpoint!,
+        scope: options.scope!,
       },
       `${env.ISSUER}callback`,
     );
 
-    const token = await oauth2Client.exchangeCodeForTokenResponse(
-      code,
-      connection.token_exchange_basic_auth,
-    );
+    const token = await oauth2Client.exchangeCodeForTokenResponse(code, true);
 
-    if (connection.userinfo_endpoint) {
+    if (options.userinfo_endpoint) {
       userinfo = getProfileData(
         await oauth2Client.getUserProfile(token.access_token),
       );

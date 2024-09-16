@@ -7,7 +7,6 @@ import Icon from "./Icon";
 import ErrorMessage from "./ErrorMessage";
 import SocialButton from "./SocialButton";
 import Google from "./GoogleLogo";
-import { getSendParamFromAuth0ClientHeader } from "../utils/getSendParamFromAuth0ClientHeader";
 import DisabledSubmitButton from "./DisabledSubmitButton";
 import Form from "./Form";
 import VippsLogo from "./VippsLogo";

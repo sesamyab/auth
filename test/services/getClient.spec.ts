@@ -34,13 +34,15 @@ const APPLICATION_FIXTURE: Application = {
 const CONNECTION_FIXTURE: Connection = {
   id: "connectionId",
   name: "facebook",
-  client_id: "facebookClientId",
-  client_secret: "facebookClientSecret",
-  authorization_endpoint: "https://www.facebook.com/dialog/oauth",
-  token_endpoint: "https://graph.facebook.com/oauth/access_token",
+  options: {
+    client_id: "facebookClientId",
+    client_secret: "facebookClientSecret",
+    scope: "email public_profile openid",
+    token_endpoint: "https://graph.facebook.com/oauth/access_token",
+    authorization_endpoint: "https://www.facebook.com/dialog/oauth",
+  },
   response_mode: AuthorizationResponseMode.QUERY,
   response_type: AuthorizationResponseType.CODE,
-  scope: "email public_profile openid",
   created_at: "created_at",
   updated_at: "updated_at",
 };
@@ -65,11 +67,13 @@ describe("getClient", () => {
         {
           id: "defaultConnection1",
           name: "facebook",
-          client_id: "facebookClientId",
-          client_secret: "facebookClientSecret",
-          scope: "email public_profile openid",
-          authorization_endpoint: "https://www.facebook.com/dialog/oauth",
-          token_endpoint: "https://graph.facebook.com/oauth/access_token",
+          options: {
+            client_id: "facebookClientId",
+            client_secret: "facebookClientSecret",
+            scope: "email public_profile openid",
+            authorization_endpoint: "https://www.facebook.com/dialog/oauth",
+            token_endpoint: "https://graph.facebook.com/oauth/access_token",
+          },
           response_mode: AuthorizationResponseMode.QUERY,
           response_type: AuthorizationResponseType.CODE,
         },
@@ -87,8 +91,8 @@ describe("getClient", () => {
       (c) => c.name === "facebook",
     );
 
-    expect(facebookConnection?.client_id).toBe("facebookClientId");
-    expect(facebookConnection?.authorization_endpoint).toBe(
+    expect(facebookConnection?.options?.client_id).toBe("facebookClientId");
+    expect(facebookConnection?.options?.authorization_endpoint).toBe(
       "https://www.facebook.com/dialog/oauth",
     );
   });
