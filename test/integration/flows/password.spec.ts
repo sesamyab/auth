@@ -919,7 +919,7 @@ describe("password-flow", () => {
       expect(state).toBeDefined();
     });
 
-    it.only("should reject weak passwords", async () => {
+    it("should reject weak passwords", async () => {
       const { oauthApp, env, emails } = await getTestServer({
         // vendor_id: "kvartal",
         testTenantLanguage: "nb",
