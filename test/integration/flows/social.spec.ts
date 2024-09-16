@@ -56,14 +56,6 @@ const EXPECTED_NEW_USER = {
 
 describe("social sign on", () => {
   describe("Primary user", () => {
-    /* TO TEST
-      * silent auth! have since merged PRs testing silent auth
-      * for POST and GET SSO calls to /callback
-        assert that we
-        - get the auth cookie back
-        - can silent auth with it
-      */
-
     it("should create correct args for social sign on from hitting /authorize with connection", async () => {
       const { oauthApp, env } = await getTestServer();
       const client = testClient(oauthApp, env);
@@ -74,7 +66,6 @@ describe("social sign on", () => {
           connection: "demo-social-provider",
         },
       });
-      console.log("authorize call done: " + socialSignOnResponse.status);
 
       expect(socialSignOnResponse.status).toBe(302);
 

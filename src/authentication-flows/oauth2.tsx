@@ -29,7 +29,7 @@ import { nanoid } from "nanoid";
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
-  connectionName: string,
+  name: string,
   authParams: AuthParams,
   auth0Client?: string,
 ) {
@@ -37,12 +37,7 @@ export async function socialAuth(
     throw new HTTPException(400, { message: "State not found" });
   }
 
-  console.log("connection", client.connections);
-  console.log("connectionName", connectionName);
-
-  const connection = client.connections.find((p) => p.name === connectionName);
-
-  console.log("connection", connection);
+  const connection = client.connections.find((p) => p.name === name);
 
   if (!connection) {
     ctx.set("client_id", client.id);
@@ -80,14 +75,16 @@ export async function socialAuth(
     ).toISOString(),
   });
 
-  if (connectionName === "apple") {
+  const options = connection.options || {};
+
+  if (name === "apple") {
     const apple = new Apple(
       {
-        clientId: connection.options!.client_id!,
-        teamId: connection.options!.team_id!,
-        keyId: connection.options!.kid!,
-        certificate: connection
-          .options!.app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+        clientId: options.client_id!,
+        teamId: options.team_id!,
+        keyId: options.kid!,
+        certificate: options
+          .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
           .replace(/\s/g, ""),
       },
@@ -101,11 +98,11 @@ export async function socialAuth(
     return ctx.redirect(appleAuthorizatioUrl.href);
   }
 
-  const oauthLoginUrl = new URL(connection.options!.authorization_endpoint!);
+  const oauthLoginUrl = new URL(options.authorization_endpoint!);
 
   setSearchParams(oauthLoginUrl, {
-    scope: connection.options!.scope,
-    client_id: connection.options!.client_id,
+    scope: options.scope,
+    client_id: options.client_id,
     redirect_uri: `${ctx.env.ISSUER}callback`,
     response_type: connection.response_type,
     response_mode: connection.response_mode,
@@ -193,15 +190,17 @@ export async function oauth2Callback({
     });
   }
 
+  const options = connection.options || {};
+
   let userinfo: any;
   if (connection.name === "apple") {
     const apple = new Apple(
       {
-        clientId: connection.options!.client_id!,
-        teamId: connection.options!.team_id!,
-        keyId: connection.options!.kid!,
-        certificate: connection
-          .options!.app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
+        clientId: options.client_id!,
+        teamId: options.team_id!,
+        keyId: options.kid!,
+        certificate: options
+          .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
           .replace(/\s/g, ""),
       },
@@ -213,19 +212,18 @@ export async function oauth2Callback({
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
       {
-        // TODO: The types here are optional which isn't correct..
         ...connection,
-        client_id: connection.options!.client_id!,
-        authorization_endpoint: connection.options!.authorization_endpoint!,
-        token_endpoint: connection.options!.token_endpoint!,
-        scope: connection.options!.scope!,
+        client_id: options.client_id!,
+        authorization_endpoint: options.authorization_endpoint!,
+        token_endpoint: options.token_endpoint!,
+        scope: options.scope!,
       },
       `${env.ISSUER}callback`,
     );
 
     const token = await oauth2Client.exchangeCodeForTokenResponse(code, true);
 
-    if (connection.options!.userinfo_endpoint) {
+    if (options.userinfo_endpoint) {
       userinfo = getProfileData(
         await oauth2Client.getUserProfile(token.access_token),
       );
