@@ -120,5 +120,5 @@ export default {
   n57_prompt_settings,
   n58_connection_client_id,
   n59_connection_options,
-  n60_user_metadata: n60_users_metadata,
+  n60_users_metadata,
 };
