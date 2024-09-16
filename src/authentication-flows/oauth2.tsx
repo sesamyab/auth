@@ -214,6 +214,7 @@ export async function oauth2Callback({
       {
         ...connection,
         client_id: options.client_id!,
+        client_secret: options.client_secret,
         authorization_endpoint: options.authorization_endpoint!,
         token_endpoint: options.token_endpoint!,
         scope: options.scope!,
