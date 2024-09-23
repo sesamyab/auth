@@ -372,7 +372,6 @@ export const userRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       // verify_email is not persisted
       const { verify_email, password, ...userFields } = body;
-
       const userToPatch = await ctx.env.data.users.get(tenant_id, user_id);
 
       if (!userToPatch) {

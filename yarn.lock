@@ -31,10 +31,10 @@
   dependencies:
     "@hono/zod-openapi" "^0.14.5"
 
-"@authhero/kysely-adapter@0.12.1":
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.12.1.tgz#b882dc7edb2132ada643e47d18563c1b2bf5ab7b"
-  integrity sha512-K9vAJFxDRaeRV8y8cZvdLEyAkNUPxDH5S1En8YiTz2J+lJ3108WPMCAXQ0GlPAeOhNjrlpFOEOfOhYz2LYmPoA==
+"@authhero/kysely-adapter@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.13.0.tgz#0d8d9aaeaf5f6f8476bc28e7d02be14eb7fe254c"
+  integrity sha512-qWMK7w0exvO7K/YAIt5kyQRQy+lXTLSLhv8+xeiHjgZ5C19N3Tj8RP20uxM9CyWR+HtYBwfr5MlDv/jSOFLj/g==
   dependencies:
     "@authhero/adapter-interfaces" "^0.19.0"
     "@hono/zod-openapi" "^0.14.5"
