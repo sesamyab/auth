@@ -121,6 +121,8 @@ export const samlpRoutes = new OpenAPIHono<{
       const login = await ctx.env.data.logins.create(client.tenant.id, {
         authParams: {
           client_id: client.id,
+          // TODO: A terrible hack to get the vendor_id
+          vendor_id: client.id.replace("vimeo-", ""),
           state: JSON.stringify({
             requestId: samlRequest["samlp:AuthnRequest"]["@_ID"],
             relayState: RelayState,
