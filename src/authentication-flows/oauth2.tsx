@@ -25,6 +25,7 @@ import {
   UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
 } from "../constants";
 import { nanoid } from "nanoid";
+import { log } from "console";
 
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -236,6 +237,8 @@ export async function oauth2Callback({
       });
     }
   }
+
+  ctx.set("log", JSON.stringify({ userinfo, options }));
 
   const { sub, email, ...profileData } = userinfo;
   ctx.set("userId", sub);
