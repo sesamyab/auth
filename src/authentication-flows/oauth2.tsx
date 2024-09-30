@@ -219,6 +219,7 @@ export async function oauth2Callback({
         authorization_endpoint: options.authorization_endpoint!,
         token_endpoint: options.token_endpoint!,
         scope: options.scope!,
+        userinfo_endpoint: options.userinfo_endpoint,
       },
       `${env.ISSUER}callback`,
     );
