@@ -25,6 +25,7 @@ import {
   UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
 } from "../constants";
 import { nanoid } from "nanoid";
+import { log } from "console";
 
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -235,6 +236,7 @@ export async function oauth2Callback({
         message: "No id_token or userinfo endpoint available",
       });
     }
+    ctx.set("log", JSON.stringify({ userinfo, options, token }));
   }
 
   const { sub, email, ...profileData } = userinfo;
