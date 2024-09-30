@@ -236,9 +236,8 @@ export async function oauth2Callback({
         message: "No id_token or userinfo endpoint available",
       });
     }
+    ctx.set("log", JSON.stringify({ userinfo, options, token }));
   }
-
-  ctx.set("log", JSON.stringify({ userinfo, options }));
 
   const { sub, email, ...profileData } = userinfo;
   ctx.set("userId", sub);
