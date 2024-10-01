@@ -29,6 +29,9 @@ WRITE_PERMISSION = "auth:write"
 ENVIRONMENT = 'dev'
 
 
+[observability]
+enabled = true
+
 [triggers]
 crons = ["0 3 * * *"]
 
@@ -54,6 +57,8 @@ WRITE_PERMISSION = 'auth:write'
 ENVIRONMENT = 'prod'
 IMAGE_PROXY_URL = "https://imgproxy.prod.sesamy.cloud"
 
+[env.production.observability]
+enabled = true
 
 [env.production.triggers]
 crons = ["0 3 * * *"]
