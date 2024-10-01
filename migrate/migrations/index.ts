@@ -58,6 +58,7 @@ import * as n57_prompt_settings from "./2024-09-03T15:15:00_prompt_settings";
 import * as n58_connection_client_id from "./2024-09-04T08:41:00_connection_client_id";
 import * as n59_connection_options from "./2024-09-15T19:31:00_connection_options";
 import * as n60_users_metadata from "./2024-09-16T17:02:00_users_metadata";
+import * as n61_userLocales from "./2024-10-01T9:09:00_ui_locales";
 
 // These need to be in alphabetic order
 export default {
@@ -121,4 +122,5 @@ export default {
   n58_connection_client_id,
   n59_connection_options,
   n60_users_metadata,
+  n61_userLocales,
 };

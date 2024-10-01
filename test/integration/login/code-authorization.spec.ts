@@ -18,18 +18,17 @@ test("code authorization flow should work", async () => {
   // start universal auth session where response_type is code
   // --------------------------------
 
-  const searchParams = {
-    client_id: "clientId",
-    vendor_id: "kvartal",
-    //   This is the test! Every other test is using TOKEN or ID_TOKEN here
-    response_type: AuthorizationResponseType.CODE,
-    scope: "openid",
-    redirect_uri: "http://localhost:3000/callback",
-    state: "state",
-    username: "foo@example.com",
-  };
   const response = await oauthClient.authorize.$get({
-    query: searchParams,
+    query: {
+      client_id: "clientId",
+      vendor_id: "kvartal",
+      //   This is the test! Every other test is using TOKEN or ID_TOKEN here
+      response_type: AuthorizationResponseType.CODE,
+      scope: "openid",
+      redirect_uri: "http://localhost:3000/callback",
+      state: "state",
+      login_hint: "foo@example.com",
+    },
   });
   expect(response.status).toBe(302);
   const location = response.headers.get("location");

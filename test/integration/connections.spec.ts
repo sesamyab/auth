@@ -1,4 +1,4 @@
-import { test } from "vitest";
+import { test, expect } from "vitest";
 import { testClient } from "hono/testing";
 import { getTestServer } from "./helpers/test-server";
 import { snapshotResponse } from "./helpers/playwrightSnapshots";
@@ -26,16 +26,15 @@ test("should hide social buttons for fokus by not specifying any connection", as
     disable_sign_ups: false,
   });
   // we do not specify any connections so no social buttons will be shown
-  const searchParams = {
-    client_id: "fokus",
-    vendor_id: "fokus",
-    response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-    scope: "openid",
-    redirect_uri: "http://localhost:3000/callback",
-    state: "state",
-  };
   const response = await oauthClient.authorize.$get({
-    query: searchParams,
+    query: {
+      client_id: "fokus",
+      vendor_id: "fokus",
+      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+      scope: "openid",
+      redirect_uri: "http://localhost:3000/callback",
+      state: "state",
+    },
   });
   const location = response.headers.get("location");
   const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -88,16 +87,15 @@ test("should show Vipps for parcferme as entered as connection", async () => {
     name: "apple",
   });
 
-  const searchParams = {
-    client_id: "parcferme",
-    vendor_id: "parcferme",
-    response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-    scope: "openid",
-    redirect_uri: "http://localhost:3000/callback",
-    state: "state",
-  };
   const response = await oauthClient.authorize.$get({
-    query: searchParams,
+    query: {
+      client_id: "parcferme",
+      vendor_id: "parcferme",
+      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+      scope: "openid",
+      redirect_uri: "http://localhost:3000/callback",
+      state: "state",
+    },
   });
   const location = response.headers.get("location");
   const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -135,18 +133,19 @@ test("should hide password entry button if auth2 not specified as a connection",
     disable_sign_ups: false,
   });
 
-  const searchParams = {
-    client_id: "code-only",
-    vendor_id: "code-only",
-    response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-    scope: "openid",
-    redirect_uri: "http://localhost:3000/callback",
-    state: "state",
-    username: "foo@example.com",
-  };
   const response = await oauthClient.authorize.$get({
-    query: searchParams,
+    query: {
+      client_id: "code-only",
+      vendor_id: "code-only",
+      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+      scope: "openid",
+      redirect_uri: "http://localhost:3000/callback",
+      state: "state",
+      login_hint: "foo@example.com",
+    },
   });
+  expect(response.status).toBe(302);
+
   const location = response.headers.get("location");
   const stateParam = new URLSearchParams(location!.split("?")[1]);
   const query = Object.fromEntries(stateParam.entries());
@@ -155,6 +154,8 @@ test("should hide password entry button if auth2 not specified as a connection",
       state: query.state,
     },
   });
+
+  expect(enterCodeStep.status).toBe(200);
   // this should not have "enter a password" button
   await snapshotResponse(enterCodeStep);
 });
