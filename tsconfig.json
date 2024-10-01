@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2023", "DOM"],
+    "lib": ["es2020", "DOM"],
     "module": "CommonJS",
-    "target": "es2023",
+    "target": "es2020",
     "strict": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
