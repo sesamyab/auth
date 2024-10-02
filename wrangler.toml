@@ -33,7 +33,7 @@ ENVIRONMENT = 'dev'
 enabled = true
 
 [triggers]
-crons = ["0 3 * * *"]
+crons = ["*/30 * * * *"]
 
 [env.production]
 account_id = "d684d0f34602a66c97de230566a2fa87"
