@@ -34,6 +34,8 @@ const ALLOWED_ORIGINS = [
 ];
 
 i18next.init({
+  supportedLngs: ["en", "it", "nb", "sv", "pl", "cs"],
+  fallbackLng: "en",
   resources: {
     en: { translation: en },
     it: { translation: it },
@@ -86,7 +88,7 @@ export default function create(params: CreateAuthParams) {
       }),
     )
     .use(loggerMiddleware)
-    .get("/", async (ctx: Context<{ Bindings: Env; Variables: Var }>) => {
+    .get("/", async (ctx: Context) => {
       const url = new URL(ctx.req.url);
       const tenantId = url.hostname.split(".")[0];
       return ctx.json({
@@ -100,16 +102,13 @@ export default function create(params: CreateAuthParams) {
   const samlApp = createSamlApp(params);
   rootApp.route("/", oauthApp).route("/", managementApp).route("/", samlApp);
 
-  app.get(
-    "/css/tailwind.css",
-    async (ctx: Context<{ Bindings: Env; Variables: Var }>) => {
-      const css = tailwindCss;
+  app.get("/css/tailwind.css", async (ctx: Context) => {
+    const css = tailwindCss;
 
-      return ctx.text(css, 200, {
-        "content-type": "text/css; charset=utf-8",
-      });
-    },
-  );
+    return ctx.text(css, 200, {
+      "content-type": "text/css; charset=utf-8",
+    });
+  });
 
   app.get("/docs", swaggerUi);
   app.get("/oauth2-redirect.html", renderOauthRedirectHtml);
