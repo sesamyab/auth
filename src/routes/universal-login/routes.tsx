@@ -39,7 +39,13 @@ import {
 } from "../../authentication-flows/password";
 import { CustomException } from "../../models/CustomError";
 import { CODE_EXPIRATION_TIME } from "../../constants";
-import { Client, Login, LogTypes, User } from "@authhero/adapter-interfaces";
+import {
+  Client,
+  ListLogsResponse,
+  Login,
+  LogTypes,
+  User,
+} from "@authhero/adapter-interfaces";
 import CheckEmailPage from "../../components/CheckEmailPage";
 import { getAuthCookie } from "../../services/cookies";
 import PreSignupPage from "../../components/PreSignUpPage";
@@ -49,12 +55,12 @@ import UnverifiedEmailPage from "../../components/UnverifiedEmailPage";
 import ForgotPasswordSentPage from "../../components/ForgotPasswordSentPage";
 import { preUserSignupHook } from "../../hooks";
 
-async function initJSXRoute(
-  ctx: Context<{ Bindings: Env; Variables: Var }>,
-  state: string,
-) {
+async function initJSXRoute(ctx: Context, state: string) {
   const { env } = ctx;
-  const session = await env.data.logins.get(ctx.var.tenant_id || "", state);
+  const session: Login = await env.data.logins.get(
+    ctx.var.tenant_id || "",
+    state,
+  );
   if (!session) {
     throw new HTTPException(400, { message: "Session not found" });
   }
@@ -74,13 +80,22 @@ async function initJSXRoute(
     session.authParams.vendor_id,
   );
 
-  await i18next.changeLanguage(tenant.language || "sv");
+  const loginSessionLanguage = session.authParams.ui_locales
+    ?.split(" ")
+    .map((locale) => locale.split("-")[0])
+    .find((language) => {
+      if (Array.isArray(i18next.options.supportedLngs)) {
+        return i18next.options.supportedLngs.includes(language);
+      }
+    });
+
+  await i18next.changeLanguage(loginSessionLanguage || tenant.language || "sv");
 
   return { vendorSettings, client, tenant, session };
 }
 
 async function handleLogin(
-  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  ctx: Context,
   user: User,
   session: Login,
   client: Client,
@@ -114,7 +129,7 @@ async function handleLogin(
 }
 
 async function usePasswordLogin(
-  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  ctx: Context,
   client: Client,
   username: string,
   login_selection?: "password" | "code",
@@ -132,13 +147,16 @@ async function usePasswordLogin(
 
   if (user) {
     // Get last login
-    const lastLogins = await ctx.env.data.logs.list(client.tenant.id, {
-      page: 0,
-      per_page: 10,
-      include_totals: false,
-      sort: { sort_by: "date", sort_order: "desc" },
-      q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
-    });
+    const lastLogins: ListLogsResponse = await ctx.env.data.logs.list(
+      client.tenant.id,
+      {
+        page: 0,
+        per_page: 10,
+        include_totals: false,
+        sort: { sort_by: "date", sort_order: "desc" },
+        q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
+      },
+    );
 
     const [lastLogin] = lastLogins.logs.filter(
       (log) =>
@@ -586,6 +604,8 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx,
         state,
       );
+
+      console.log("test");
 
       return ctx.html(
         <EnterEmailPage
