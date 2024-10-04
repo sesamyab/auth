@@ -143,6 +143,18 @@ describe("Register password", () => {
       },
     });
     expect(workingLoginResponse.status).toBe(302);
+
+    // -----------------------------
+    // Check that the session cookie is persisted
+    // -----------------------------
+    const cookies = workingLoginResponse.headers.get("set-cookie");
+    const [cookieName, cookieValue] = cookies
+      ?.split(";")[0]
+      .split("=") as Array<string>;
+    expect(cookieName).toBe("tenantId-auth-token");
+
+    const session = await env.data.sessions.get("tenantId", cookieValue);
+    expect(session).toBeDefined();
   });
 
   it("should create a new user with a password using the pre signup verification", async () => {

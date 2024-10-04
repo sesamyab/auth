@@ -868,7 +868,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         const authResponse = await generateAuthResponse({
           ctx,
           client,
-          sid: session.login_id,
           authParams: session.authParams,
           user,
         });
