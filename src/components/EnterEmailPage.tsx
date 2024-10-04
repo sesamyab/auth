@@ -10,6 +10,8 @@ import Google from "./GoogleLogo";
 import DisabledSubmitButton from "./DisabledSubmitButton";
 import Form from "./Form";
 import VippsLogo from "./VippsLogo";
+import Facebook from "./FacebookLogo";
+import Apple from "./AppleLogo";
 
 type Props = {
   error?: string;
@@ -78,10 +80,7 @@ const EnterEmailPage: FC<Props> = ({
               text={i18next.t("continue_with", { provider: "Facebook" })}
               canResize={true}
               icon={
-                <Icon
-                  className="text-xl text-[#1196F5] sm:absolute sm:left-4 sm:top-1/2 sm:-translate-y-1/2 sm:text-2xl short:static short:left-auto short:top-auto short:translate-y-0 short:text-xl"
-                  name="facebook"
-                />
+                <Facebook className="h-5 w-5 sm:absolute sm:left-4 sm:top-1/2 sm:h-6 sm:w-6 sm:-translate-y-1/2 short:static short:left-auto short:top-auto short:h-5 short:w-5 short:translate-y-0" />
               }
               session={session}
             />
@@ -103,10 +102,7 @@ const EnterEmailPage: FC<Props> = ({
               text={i18next.t("continue_with", { provider: "Apple" })}
               canResize={true}
               icon={
-                <Icon
-                  className="text-xl text-black dark:text-white sm:absolute sm:left-4 sm:top-1/2 sm:-translate-y-1/2 sm:text-2xl short:static short:left-auto short:top-auto short:translate-y-0 short:text-xl"
-                  name="apple"
-                />
+                <Apple className="h-5 w-5 sm:absolute sm:left-4 sm:top-1/2 sm:h-6 sm:w-6 sm:-translate-y-1/2 short:static short:left-auto short:top-auto short:h-5 short:w-5 short:translate-y-0" />
               }
               session={session}
             />
