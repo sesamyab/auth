@@ -27,8 +27,6 @@ test("Should user the language passed in the authorize call", async () => {
 
   const query = Object.fromEntries(stateParam.entries());
 
-  console.log("state", query.state);
-
   const getSendCodeResponse = await oauthClient.u["enter-email"].$get({
     query: { state: query.state },
   });

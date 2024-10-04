@@ -605,8 +605,6 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         state,
       );
 
-      console.log("test");
-
       return ctx.html(
         <EnterEmailPage
           vendorSettings={vendorSettings}
