@@ -25,6 +25,14 @@ export async function universalAuth({
   connection,
   login_hint,
 }: UniversalAuthParams) {
+  const login = await ctx.env.data.logins.create(client.tenant.id, {
+    expires_at: new Date(
+      Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+    ).toISOString(),
+    authParams,
+    auth0Client,
+  });
+
   // Check if the user in the login_hint matches the user in the session
   if (session && login_hint) {
     const user = await ctx.env.data.users.get(
@@ -36,20 +44,13 @@ export async function universalAuth({
       return generateAuthResponse({
         ctx,
         client,
-        sid: session.session_id,
+        // This needs to match the login_id as it has the reference to the auth params
+        sid: login.login_id,
         authParams,
         user,
       });
     }
   }
-
-  const login = await ctx.env.data.logins.create(client.tenant.id, {
-    expires_at: new Date(
-      Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
-    ).toISOString(),
-    authParams,
-    auth0Client,
-  });
 
   // If there's an email connectiona and a login_hint we redirect to the check-account page
   if (connection === "email" && login_hint) {

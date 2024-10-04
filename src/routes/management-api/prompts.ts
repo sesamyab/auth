@@ -84,12 +84,8 @@ export const promptsRoutes = new OpenAPIHono<{ Bindings: Env }>()
 
       const promptSettings = ctx.req.valid("json");
 
-      console.log("promptSettings", promptSettings);
-
       const updatedPromptSettings =
         await ctx.env.data.promptSettings.get(tenant_id);
-
-      console.log("updatedPromptSettings", updatedPromptSettings);
 
       Object.assign(updatedPromptSettings, promptSettings);
 

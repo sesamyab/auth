@@ -124,9 +124,10 @@ export const authorizeRoutes = new OpenAPIHono<{
         client.tenant.id,
         ctx.req.header("cookie"),
       );
+
       const session = authCookie
         ? await env.data.sessions.get(client.tenant.id, authCookie)
-        : null;
+        : undefined;
 
       // Silent authentication with iframe
       if (prompt == "none") {

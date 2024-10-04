@@ -37,7 +37,7 @@ export async function authorizeCodeGrant(
   );
 
   if (!login) {
-    throw new HTTPException(400, { message: "Code not found" });
+    throw new HTTPException(400, { message: "Login not found" });
   }
 
   // Set the response_type to token id_token for the code grant flow

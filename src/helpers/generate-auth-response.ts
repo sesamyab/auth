@@ -73,7 +73,6 @@ async function generateCode({
   }
 
   const code_id = nanoid();
-
   let login_id = sid;
 
   if (!login_id) {
