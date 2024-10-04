@@ -109,15 +109,15 @@ describe("Login with code on liquidjs template", () => {
 
     await snapshotResponse(codeInputFormResponse);
 
-    const postSendCodeResponse = await oauthClient.u["enter-email"].$post({
+    const postSendEmailResponse = await oauthClient.u["enter-email"].$post({
       query: { state: query.state },
       form: {
         username: "test@example.com",
       },
     });
 
-    expect(postSendCodeResponse.status).toBe(302);
-    const enterCodeLocation = postSendCodeResponse.headers.get("location");
+    expect(postSendEmailResponse.status).toBe(302);
+    const enterCodeLocation = postSendEmailResponse.headers.get("location");
 
     // flush pipe
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -153,7 +153,7 @@ describe("Login with code on liquidjs template", () => {
     expect(enterCodeForm.status).toBe(200);
     await snapshotResponse(enterCodeForm);
 
-    const authenticateResponse = await oauthClient.u["enter-code"].$post({
+    const postCodeResponse = await oauthClient.u["enter-code"].$post({
       query: {
         state: enterCodeQuery.state,
       },
@@ -162,7 +162,7 @@ describe("Login with code on liquidjs template", () => {
       },
     });
 
-    const codeLoginRedirectUri = authenticateResponse.headers.get("location");
+    const codeLoginRedirectUri = postCodeResponse.headers.get("location");
     const redirectUrl = new URL(codeLoginRedirectUri!);
     expect(redirectUrl.pathname).toBe("/callback");
     const hash = new URLSearchParams(redirectUrl.hash.slice(1));
@@ -170,11 +170,19 @@ describe("Login with code on liquidjs template", () => {
     expect(accessToken).toBeTruthy();
     const idToken = hash.get("id_token");
     expect(idToken).toBeTruthy();
-    // TO TEST - assert more params on tokens. copy from other tests. e.g. user_id
 
-    // TO TEST
-    // - silent auth request? Should still work right?
-    // - login again: previous flow was sign up
+    // -----------------------------
+    // Check that the session cookie is persisted
+    // -----------------------------
+    const cookies = postCodeResponse.headers.get("set-cookie");
+    expect(cookies).toBeTypeOf("string");
+    const [cookieName, cookieValue] = cookies
+      ?.split(";")[0]
+      .split("=") as Array<string>;
+    expect(cookieName).toBe("tenantId-auth-token");
+
+    const session = await env.data.sessions.get("tenantId", cookieValue);
+    expect(session).toBeDefined();
   });
 
   it("is an existing primary user", async () => {

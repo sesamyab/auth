@@ -39,6 +39,7 @@ export interface GenerateAuthResponseParams {
   client: Client;
   // The user will be undefined if the client is a client_credentials grant
   user?: User;
+  // The sid is the session id that is used to store the user's session. Do not pass the universal login session here
   sid?: string;
   authParams: AuthParams;
   authFlow?: AuthFlowType;
@@ -293,7 +294,6 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
 
   headers.set("location", applyTokenResponse(tokens, authParams));
 
-  // TODO: should we have different response for different response modes?
   return new Response("Redirecting", {
     status: 302,
     headers,
