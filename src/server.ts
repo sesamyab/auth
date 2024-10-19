@@ -22,6 +22,30 @@ const server = {
       dataAdapter,
     });
 
+    const signSAML = async (
+      xmlContent: string,
+      privateKey: string,
+      publicCert: string,
+    ) => {
+      const response = await fetch(env.SAML_SIGN_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          xmlContent,
+          privateKey,
+          publicCert,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to sign SAML response: ${response.status}`);
+      }
+
+      xmlContent = await response.text();
+    };
+
     return app.fetch(
       request,
       // Add dependencies to the environment
@@ -29,6 +53,7 @@ const server = {
         ...env,
         oauth2ClientFactory: { create: oAuth2ClientFactory },
         sendEmail,
+        signSAML,
       },
       ctx,
     );
