@@ -1,4 +1,4 @@
-import { Auth0Client } from "@authhero/adapter-interfaces";
+import { Auth0Client, Login } from "@authhero/adapter-interfaces";
 import { z } from "zod";
 
 export type Var = {
@@ -16,11 +16,14 @@ export type Var = {
   tenant_id?: string;
   connection_id?: string;
   connection?: string;
-  auth0_client?: z.infer<typeof Auth0Client>;
   log?: string;
   strategy?: string;
   strategy_type?: string;
   session_connection?: string;
+  // The universal auth routes stores the login session here
+  login?: Login;
+  // These could be replace by the login param above
+  auth0_client?: z.infer<typeof Auth0Client>;
   audience?: string;
   scope?: string[];
 };

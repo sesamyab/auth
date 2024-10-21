@@ -57,15 +57,16 @@ import { preUserSignupHook } from "../../hooks";
 
 async function initJSXRoute(ctx: Context, state: string) {
   const { env } = ctx;
-  const session: Login = await env.data.logins.get(
+  const login: Login = await env.data.logins.get(
     ctx.var.tenant_id || "",
     state,
   );
-  if (!session) {
+  if (!login) {
     throw new HTTPException(400, { message: "Session not found" });
   }
+  ctx.set("login", login);
 
-  const client = await getClient(env, session.authParams.client_id);
+  const client = await getClient(env, login.authParams.client_id);
   ctx.set("client_id", client.id);
   ctx.set("tenant_id", client.tenant.id);
 
@@ -77,10 +78,10 @@ async function initJSXRoute(ctx: Context, state: string) {
   const vendorSettings = await fetchVendorSettings(
     env,
     client.id,
-    session.authParams.vendor_id,
+    login.authParams.vendor_id,
   );
 
-  const loginSessionLanguage = session.authParams.ui_locales
+  const loginSessionLanguage = login.authParams.ui_locales
     ?.split(" ")
     .map((locale) => locale.split("-")[0])
     .find((language) => {
@@ -91,7 +92,7 @@ async function initJSXRoute(ctx: Context, state: string) {
 
   await i18next.changeLanguage(loginSessionLanguage || tenant.language || "sv");
 
-  return { vendorSettings, client, tenant, session };
+  return { vendorSettings, client, tenant, session: login };
 }
 
 async function handleLogin(

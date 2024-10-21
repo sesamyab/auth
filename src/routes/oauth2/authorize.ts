@@ -95,6 +95,7 @@ export const authorizeRoutes = new OpenAPIHono<{
         vendor_id,
         audience,
         nonce,
+        prompt,
         response_type,
         code_challenge,
         code_challenge_method,

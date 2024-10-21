@@ -113,9 +113,9 @@ export async function socialAuth(
   return ctx.redirect(oauthLoginUrl.href);
 }
 
-interface socialAuthCallbackParams {
+interface SocialAuthCallbackParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
-  session: Login;
+  login: Login;
   code: string;
   connection_id: string;
 }
@@ -141,10 +141,10 @@ function getProfileData(profile: any) {
 
 export async function oauth2Callback({
   ctx,
-  session,
+  login: session,
   code,
   connection_id,
-}: socialAuthCallbackParams) {
+}: SocialAuthCallbackParams) {
   const { env } = ctx;
   const client = await getClient(env, session.authParams.client_id);
   ctx.set("client_id", client.id);
