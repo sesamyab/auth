@@ -43,7 +43,10 @@ export async function preUserSignupHook(
   email: string,
 ) {
   // Check the disabled flag on the client
-  if (client.disable_sign_ups) {
+  if (
+    client.disable_sign_ups ||
+    ctx.var.login?.authParams.prompt === "x-login-only"
+  ) {
     // If there is another user with the same email, allow the signup as they will be linked together
     const existingUser = await getPrimaryUserByEmail({
       userAdapter: ctx.env.data.users,

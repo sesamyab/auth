@@ -6,7 +6,6 @@ export type Env = {
   ISSUER: string;
   DD_API_KEY: string;
   JWKS_URL: string;
-  LOGIN2_URL: string;
   API_URL: string;
   IMAGE_PROXY_URL: string;
   DATABASE_HOST: string;

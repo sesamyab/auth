@@ -53,17 +53,18 @@ export const callbackRoutes = new OpenAPIHono<{
         throw new HTTPException(403, { message: "State not found" });
       }
 
-      const session = await ctx.env.data.logins.get(
+      const login = await ctx.env.data.logins.get(
         ctx.var.tenant_id || "",
         auth0state.login_id,
       );
 
-      if (!session) {
+      if (!login) {
         throw new HTTPException(403, { message: "State not found" });
       }
+      ctx.set("login", login);
 
       if (error) {
-        const { redirect_uri } = session.authParams;
+        const { redirect_uri } = login.authParams;
 
         if (!redirect_uri) {
           throw new HTTPException(400, { message: "Redirect uri not found" });
@@ -75,7 +76,7 @@ export const callbackRoutes = new OpenAPIHono<{
           error_description,
           error_code,
           error_reason,
-          state: session.authParams.state,
+          state: login.authParams.state,
         });
 
         return ctx.redirect(redirectUri.href);
@@ -88,7 +89,7 @@ export const callbackRoutes = new OpenAPIHono<{
 
       return oauth2Callback({
         ctx,
-        session,
+        login,
         code,
         connection_id: auth0state.connection_id,
       });
@@ -177,7 +178,7 @@ export const callbackRoutes = new OpenAPIHono<{
       if (code) {
         return oauth2Callback({
           ctx,
-          session,
+          login: session,
           code,
           connection_id: auth0state.connection_id,
         });
