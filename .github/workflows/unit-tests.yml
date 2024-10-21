@@ -8,7 +8,7 @@ on: push
 jobs:
   node-test:
     # buildjet is working again now
-    runs-on: buildjet-4vcpu-ubuntu-2204
+    # runs-on: buildjet-4vcpu-ubuntu-2204
     # runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.44.1
     steps:
