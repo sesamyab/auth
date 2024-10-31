@@ -21,6 +21,7 @@ import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
 import createManagementApp from "./management-app";
 import createSamlApp from "./saml-app";
+import { transcode } from "buffer";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -35,7 +36,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 i18next.init({
-  supportedLngs: ["en", "it", "nb", "sv", "pl", "cs"],
+  supportedLngs: ["en", "it", "nb", "sv", "pl", "cs", "fi"],
   fallbackLng: "en",
   resources: {
     en: { translation: en },
@@ -44,6 +45,7 @@ i18next.init({
     sv: { translation: sv },
     pl: { translation: pl },
     cs: { translation: cs },
+    fi: { translation: fi },
   },
 });
 
