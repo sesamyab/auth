@@ -21,7 +21,6 @@ import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
 import createManagementApp from "./management-app";
 import createSamlApp from "./saml-app";
-import { transcode } from "buffer";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
