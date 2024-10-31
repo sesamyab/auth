@@ -16,6 +16,7 @@ import nb from "./localesLogin2/nb/default.json";
 import sv from "./localesLogin2/sv/default.json";
 import pl from "./localesLogin2/pl/default.json";
 import cs from "./localesLogin2/cs/default.json";
+import fi from "./localesLogin2/fi/default.json";
 import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
 import createManagementApp from "./management-app";
