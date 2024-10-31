@@ -269,7 +269,7 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       redirectUrl.searchParams.set("RelayState", state.relayState);
     }
 
-    const samlResponse = await createSamlResponse({
+    const samlResponse = await createSamlResponse(ctx, {
       issuer: ctx.env.ISSUER,
       audience: audience || authParams.client_id,
       destination: redirectUrl.toString(),
@@ -282,7 +282,6 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
         cert: signingKey.cert,
         kid: signingKey.kid,
       },
-      samlSignUrl: ctx.env.SAML_SIGN_URL,
     });
 
     return samlResponseForm(redirectUrl.toString(), samlResponse);

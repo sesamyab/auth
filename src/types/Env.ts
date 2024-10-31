@@ -20,4 +20,9 @@ export type Env = {
   oauth2ClientFactory: IOAuth2ClientFactory;
   data: DataAdapters;
   sendEmail: (client: Client, email: EmailOptions) => Promise<void>;
+  signSAML: (
+    xmlContent: string,
+    privateKey: string,
+    publicKey: string,
+  ) => Promise<string>;
 };

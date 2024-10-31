@@ -122,6 +122,12 @@ export async function getTestServer(args: getEnvParams = {}) {
     created_at: "created_at",
     updated_at: "updated_at",
     disable_sign_ups: false,
+    addons: {
+      samlp: {
+        recipient: "https://scplay.skiclassics.com/saml/consume",
+        audience: "https://scplay.skiclassics.com/saml/metadata",
+      },
+    },
   };
 
   const testApplication2: Application = {
@@ -238,6 +244,7 @@ export async function getTestServer(args: getEnvParams = {}) {
     ENVIRONMENT: "dev",
     db,
     oauth2ClientFactory: mockOAuth2ClientFactory,
+    signSAML: async () => "Mocked SAML Response",
   };
 
   const apps = createApp({ dataAdapter: data });
