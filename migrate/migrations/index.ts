@@ -60,6 +60,7 @@ import * as n59_connection_options from "./2024-09-15T19:31:00_connection_option
 import * as n60_users_metadata from "./2024-09-16T17:02:00_users_metadata";
 import * as n61_userLocales from "./2024-10-01T9:09:00_ui_locales";
 import * as n62_prompt from "./2024-10-19T07:47:00_prompt";
+import * as n63_connection_cleanup from "./2024-10-22T09:01:00_connection_cleanup";
 
 // These need to be in alphabetic order
 export default {
@@ -125,4 +126,5 @@ export default {
   n60_users_metadata,
   n61_userLocales,
   n62_prompt,
+  n63_connection_cleanup,
 };
