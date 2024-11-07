@@ -54,6 +54,7 @@ import bcryptjs from "bcryptjs";
 import UnverifiedEmailPage from "../../components/UnverifiedEmailPage";
 import ForgotPasswordSentPage from "../../components/ForgotPasswordSentPage";
 import { preUserSignupHook } from "../../hooks";
+import IncognitoPage from "../../components/Incognito";
 
 async function initJSXRoute(ctx: Context, state: string) {
   const { env } = ctx;
@@ -1506,6 +1507,44 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           vendorSettings={vendorSettings}
           state={state}
           email={username}
+        />,
+      );
+    },
+  )
+  // --------------------------------
+  // GET /u/incognito
+  // --------------------------------
+  .openapi(
+    createRoute({
+      tags: ["login"],
+      method: "get",
+      path: "/incognito",
+      request: {
+        query: z.object({
+          redirect_url: z.string().openapi({
+            description: "The url to redirect to after login",
+          }),
+          vendor_id: z.string(),
+        }),
+      },
+      responses: {
+        200: {
+          description: "Response",
+        },
+      },
+    }),
+    async (ctx) => {
+      const { redirect_url, vendor_id } = ctx.req.valid("query");
+      const vendorSettings = await fetchVendorSettings(
+        ctx.env,
+        undefined,
+        vendor_id,
+      );
+
+      return ctx.html(
+        <IncognitoPage
+          redirectUrl={redirect_url}
+          vendorSettings={vendorSettings}
         />,
       );
     },
