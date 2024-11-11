@@ -43,7 +43,7 @@ const server = {
         throw new Error(`Failed to sign SAML response: ${response.status}`);
       }
 
-      xmlContent = await response.text();
+      return response.text();
     };
 
     return app.fetch(
