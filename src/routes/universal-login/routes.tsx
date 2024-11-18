@@ -6,6 +6,7 @@ import {
   getUserByEmailAndProvider,
   getPrimaryUserByEmailAndProvider,
   getPrimaryUserByEmail,
+  getImpersonatedUser,
 } from "../../utils/users";
 import { getClient } from "../../services/clients";
 import { HTTPException } from "hono/http-exception";
@@ -177,24 +178,6 @@ async function usePasswordLogin(
     client.tenant.id,
   );
   return promptSettings.password_first;
-}
-
-async function getImpersonatedUser(
-  ctx: Context<{ Bindings: Env; Variables: Var }>,
-  tenant_id: string,
-  email: string,
-  impersonatedUser?: string,
-) {
-  if (!email.endsWith("sesamy.com") || !impersonatedUser) {
-    console.log("wrong email", email, impersonatedUser);
-    return;
-  }
-
-  return getPrimaryUserByEmail({
-    userAdapter: ctx.env.data.users,
-    tenant_id,
-    email: impersonatedUser,
-  });
 }
 
 export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
@@ -895,7 +878,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx.set("strategy_type", "passwordless");
 
         const actAs = await getImpersonatedUser(
-          ctx,
+          ctx.env.data.users,
           client.tenant.id,
           session.authParams.username,
           session.authParams.act_as,
