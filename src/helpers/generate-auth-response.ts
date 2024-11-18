@@ -270,9 +270,6 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
 
     const state = JSON.parse(authParams.state);
     const redirectUrl = new URL(authParams.redirect_uri);
-    if (state.relayState) {
-      redirectUrl.searchParams.set("RelayState", state.relayState);
-    }
 
     const samlResponse = await createSamlResponse(ctx, {
       issuer: ctx.env.ISSUER,
@@ -289,7 +286,11 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
       },
     });
 
-    return samlResponseForm(redirectUrl.toString(), samlResponse);
+    return samlResponseForm(
+      redirectUrl.toString(),
+      samlResponse,
+      state.relayState,
+    );
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {
