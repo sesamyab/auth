@@ -179,6 +179,24 @@ async function usePasswordLogin(
   return promptSettings.password_first;
 }
 
+async function getImpersonatedUser(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  tenant_id: string,
+  email: string,
+  impersonatedUser?: string,
+) {
+  if (!email.endsWith("sesamy.com") || !impersonatedUser) {
+    console.log("wrong email", email, impersonatedUser);
+    return;
+  }
+
+  return getPrimaryUserByEmail({
+    userAdapter: ctx.env.data.users,
+    tenant_id,
+    email: impersonatedUser,
+  });
+}
+
 export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
   // --------------------------------
   // GET /u/enter-password
@@ -876,11 +894,19 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx.set("strategy", "email");
         ctx.set("strategy_type", "passwordless");
 
+        const actAs = await getImpersonatedUser(
+          ctx,
+          client.tenant.id,
+          session.authParams.username,
+          session.authParams.act_as,
+        );
+
         const authResponse = await generateAuthResponse({
           ctx,
           client,
           authParams: session.authParams,
           user,
+          actAs,
         });
 
         return authResponse;
