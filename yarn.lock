@@ -24,25 +24,25 @@
   dependencies:
     openapi3-ts "^4.1.2"
 
-"@authhero/adapter-interfaces@0.20.2", "@authhero/adapter-interfaces@^0.20.2":
-  version "0.20.2"
-  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.20.2.tgz#3e221506b77a0d5f0e39fa3fd08b63006420c03c"
-  integrity sha512-xkBFJD69qrzGqsgHnRD6wc7FLWaeMS8J1+EybxE7deMGsUMdIdzc4w54hhQVzM1EULBbKajhy8pHr5Sax6H3uw==
+"@authhero/adapter-interfaces@0.21.0", "@authhero/adapter-interfaces@^0.21.0":
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.21.0.tgz#702fa7d1df1e3f6d39fd4a5875804569d845b91c"
+  integrity sha512-mY/yUPjhtbLICuBeobpHjIndGogUiK8TjTj6avDr8R0Ywsd/lLu0LBZN99G8NsXFBldzyXP9XGjX3WwQOVLK3w==
   dependencies:
     "@hono/zod-openapi" "^0.16.4"
 
-"@authhero/kysely-adapter@0.13.3":
-  version "0.13.3"
-  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.13.3.tgz#a7639069b8f1e6ef891eb2d490da5fcd4f43acf3"
-  integrity sha512-36oltYtx8efA2FY6oYedtOjx2rnbEHVqqSm2aDdSNI4m8LxClLizeksLjdWbfif/mU9vS5Sgt4oFx1MO2nsxXg==
+"@authhero/kysely-adapter@0.17.1":
+  version "0.17.1"
+  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.17.1.tgz#36ac2c0fc89b1fa75974737e2578c2950aac9374"
+  integrity sha512-kobwtWGAN/PBbjIWoElMAOQRbhzctsiWq7NZ1mTg2n+19dKCAC6shx679UEvNU6criJtxWzUnFKKnowIARFNYQ==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.20.2"
+    "@authhero/adapter-interfaces" "^0.21.0"
     "@hono/zod-openapi" "^0.16.4"
-    hono "^4.6.5"
+    hono "^4.6.8"
     kysely "^0.27.4"
     kysely-bun-sqlite "^0.3.2"
     kysely-planetscale "^1.5.0"
-    nanoid "^5.0.7"
+    nanoid "^5.0.8"
 
 "@babel/code-frame@^7.0.0":
   version "7.22.13"
@@ -3774,10 +3774,10 @@ hono@4.4.0:
   resolved "https://registry.yarnpkg.com/hono/-/hono-4.4.0.tgz#df456c61fab856db3d546869ec8d86839ff31b54"
   integrity sha512-Bb2GHk8jmlLIuxc3U+7UBGOoA5lByJTAFnRdH2N2fqEVy9TEQzJ9saIJUQ/ZqBvEvgEFe7UjPFNSFi8cyeU+3Q==
 
-hono@^4.6.5:
-  version "4.6.5"
-  resolved "https://registry.yarnpkg.com/hono/-/hono-4.6.5.tgz#9d5a1ada5b40dc865e2d28c0bcc5d24cc755b9f1"
-  integrity sha512-qsmN3V5fgtwdKARGLgwwHvcdLKursMd+YOt69eGpl1dUCJb8mCd7hZfyZnBYjxCegBG7qkJRQRUy2oO25yHcyQ==
+hono@^4.6.8:
+  version "4.6.10"
+  resolved "https://registry.yarnpkg.com/hono/-/hono-4.6.10.tgz#b778437fd1124b1ebef5798b420213528f4c5a67"
+  integrity sha512-IXXNfRAZEahFnWBhUUlqKEGF9upeE6hZoRZszvNkyAz/CYp+iVbxm3viMvStlagRJohjlBRGOQ7f4jfcV0XMGg==
 
 hook-std@^3.0.0:
   version "3.0.0"
@@ -5316,7 +5316,7 @@ mz@^2.4.0, mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nanoid@5.0.7, nanoid@^5.0.7:
+nanoid@5.0.7:
   version "5.0.7"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.0.7.tgz#6452e8c5a816861fd9d2b898399f7e5fd6944cc6"
   integrity sha512-oLxFY2gd2IqnjcYyOXD8XGCftpGtZP2AbHbOkthDkvRywH5ayNtPVy9YlOPcHckXzbLTCHpkb7FB+yuxKV13pQ==
@@ -5325,6 +5325,11 @@ nanoid@^3.3.3, nanoid@^3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
   integrity sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==
+
+nanoid@^5.0.8:
+  version "5.0.8"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.0.8.tgz#7610003f6b3b761b5c244bb342c112c5312512bf"
+  integrity sha512-TcJPw+9RV9dibz1hHUzlLVy8N4X9TnwirAjrU08Juo6BNKggzVfP2ZJ/3ZUSq15Xl5i85i+Z89XBO90pB2PghQ==
 
 napi-build-utils@^1.0.1:
   version "1.0.2"

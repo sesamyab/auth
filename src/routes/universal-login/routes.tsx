@@ -661,10 +661,12 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       );
       ctx.set("client_id", client.id);
 
+      const [username, actAs] = params.username.split("|");
+
       const user = await getPrimaryUserByEmail({
         userAdapter: env.data.users,
         tenant_id: client.tenant.id,
-        email: params.username,
+        email: username,
       });
       if (user) {
         ctx.set("userId", user.user_id);
@@ -696,6 +698,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       // Add the username to the state
       session.authParams.username = params.username;
+      session.authParams.act_as = actAs;
       await env.data.logins.update(client.tenant.id, session.login_id, session);
 
       if (
