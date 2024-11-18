@@ -225,8 +225,6 @@ export async function generateAuthData(params: GenerateAuthResponseParams) {
 export async function generateAuthResponse(params: GenerateAuthResponseParams) {
   const { ctx, authParams, sid, client } = params;
 
-  console.log("actAs", params.actAs);
-
   const user = params.actAs || params.user;
 
   const tokens = await generateAuthData(params);
