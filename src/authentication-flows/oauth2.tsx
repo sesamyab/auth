@@ -13,7 +13,10 @@ import { validateRedirectUrl } from "../utils/validate-redirect-url";
 import { Var } from "../types/Var";
 import { HTTPException } from "hono/http-exception";
 import { getClient } from "../services/clients";
-import { getPrimaryUserByEmailAndProvider } from "../utils/users";
+import {
+  getPrimaryUserByEmail,
+  getPrimaryUserByEmailAndProvider,
+} from "../utils/users";
 import UserNotFound from "../components/UserNotFoundPage";
 import { fetchVendorSettings } from "../utils/fetchVendorSettings";
 import { createLogMessage } from "../utils/create-log-message";
@@ -137,6 +140,23 @@ function getProfileData(profile: any) {
   } = profile;
 
   return profileData;
+}
+
+async function getImpersonatedUser(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  tenant_id: string,
+  email: string,
+  impersonatedUser?: string,
+) {
+  if (!email.endsWith("sesamy.com") || !impersonatedUser) {
+    return;
+  }
+
+  return getPrimaryUserByEmail({
+    userAdapter: ctx.env.data.users,
+    tenant_id,
+    email: impersonatedUser,
+  });
 }
 
 export async function oauth2Callback({
@@ -299,10 +319,18 @@ export async function oauth2Callback({
     ctx.set("userId", user.user_id);
   }
 
+  const actAs = await getImpersonatedUser(
+    ctx,
+    email,
+    client.tenant.id,
+    session.authParams.act_as,
+  );
+
   return generateAuthResponse({
     ctx,
     client,
     authParams: session.authParams,
     user,
+    actAs,
   });
 }

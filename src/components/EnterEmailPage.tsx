@@ -17,6 +17,7 @@ type Props = {
   session: Login;
   email?: string;
   client: Client;
+  impersonation?: boolean;
 };
 
 const EnterEmailPage: FC<Props> = ({
@@ -25,6 +26,7 @@ const EnterEmailPage: FC<Props> = ({
   session,
   email,
   client,
+  impersonation,
 }) => {
   const connections = client.connections.map(({ name }) => name);
   const showFacebook = connections.includes("facebook");
@@ -55,6 +57,22 @@ const EnterEmailPage: FC<Props> = ({
             required
             value={email || ""}
           />
+          {impersonation && (
+            <input
+              type="email"
+              name="act_as"
+              placeholder="Impersonate as"
+              className={cn(
+                "mb-2 w-full rounded-lg border bg-gray-100 px-4 py-5 text-base placeholder:text-gray-300 dark:bg-gray-600 md:text-base",
+                {
+                  "border-red": error,
+                  "border-gray-100 dark:border-gray-500": !error,
+                },
+              )}
+              required
+              value={""}
+            />
+          )}
           {error && <ErrorMessage>{error}</ErrorMessage>}
           <DisabledSubmitButton className="text-base sm:mt-4 md:text-base">
             <div className="flex items-center space-x-2">

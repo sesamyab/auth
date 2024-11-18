@@ -39,6 +39,7 @@ export interface GenerateAuthResponseParams {
   client: Client;
   // The user will be undefined if the client is a client_credentials grant
   user?: User;
+  actAs?: User;
   // The sid is the session id that is used to store the user's session. Do not pass the universal login session here
   sid?: string;
   authParams: AuthParams;
@@ -140,6 +141,8 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
       sub: user?.user_id || client.id,
       iss: env.ISSUER,
       azp: client.tenant.id,
+      tenant_id: client.tenant.id,
+      act_as: params.actAs?.user_id,
     },
     {
       includeIssuedTimestamp: true,
@@ -220,7 +223,9 @@ export async function generateAuthData(params: GenerateAuthResponseParams) {
 }
 
 export async function generateAuthResponse(params: GenerateAuthResponseParams) {
-  const { ctx, authParams, sid, client, user } = params;
+  const { ctx, authParams, sid, client } = params;
+
+  const user = params.actAs || params.user;
 
   const tokens = await generateAuthData(params);
 

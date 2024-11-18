@@ -591,6 +591,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           state: z.string().openapi({
             description: "The state parameter from the authorization request",
           }),
+          impersonation: z.string().optional(),
         }),
       },
       responses: {
@@ -600,7 +601,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       },
     }),
     async (ctx) => {
-      const { state } = ctx.req.valid("query");
+      const { state, impersonation } = ctx.req.valid("query");
 
       const { vendorSettings, session, client } = await initJSXRoute(
         ctx,
@@ -613,6 +614,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           session={session}
           client={client}
           email={session.authParams.username}
+          impersonation={impersonation === "true"}
         />,
       );
     },
@@ -636,6 +638,10 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             "application/x-www-form-urlencoded": {
               schema: z.object({
                 username: z.string().transform((u) => u.toLowerCase()),
+                act_as: z
+                  .string()
+                  .transform((u) => u.toLowerCase())
+                  .optional(),
                 login_selection: z.enum(["code", "password"]).optional(),
               }),
             },
@@ -661,7 +667,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       );
       ctx.set("client_id", client.id);
 
-      const [username, actAs] = params.username.split("|");
+      const username = params.username;
 
       const user = await getPrimaryUserByEmail({
         userAdapter: env.data.users,
@@ -698,7 +704,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       // Add the username to the state
       session.authParams.username = params.username;
-      session.authParams.act_as = actAs;
+      session.authParams.act_as = params.act_as;
       await env.data.logins.update(client.tenant.id, session.login_id, session);
 
       if (
