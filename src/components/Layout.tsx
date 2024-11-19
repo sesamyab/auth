@@ -100,6 +100,8 @@ const Layout = ({
                     <a
                       class="text-xs text-white hover:underline md:text-xs"
                       href={vendorSettings.supportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {i18next.t("contact_support")}
                     </a>

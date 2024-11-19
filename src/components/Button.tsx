@@ -49,9 +49,9 @@ const Button = ({
     >
       <span
         className={`
-      flex items-center justify-center space-x-2
-      ${isLoading ? "opacity-0" : ""}
-    `}
+    flex items-center justify-center space-x-2
+    ${isLoading ? "invisible h-0" : "visible h-auto"}
+  `}
       >
         {children}
       </span>
