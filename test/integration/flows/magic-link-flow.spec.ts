@@ -710,7 +710,7 @@ describe("magic link flow", () => {
 
       const magicLink = getMagicLinkFromEmailBody(emails[1]);
 
-      const authenticatePath = magicLink!?.split("https://example.com")[1];
+      const authenticatePath = magicLink?.split("https://example.com")[1];
 
       const querySearchParams = new URLSearchParams(
         authenticatePath.split("?")[1],

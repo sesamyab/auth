@@ -20,7 +20,7 @@ const getTailwindSize = (size: IconSizes | undefined) => {
 const Icon = ({ name, size, className = "" }: Props) => {
   const tailwindSize = getTailwindSize(size);
 
-  return <span class={cn(`uicon-${name}`, className, tailwindSize)} />;
+  return <span className={cn(`uicon-${name}`, className, tailwindSize)} />;
 };
 
 export default Icon;

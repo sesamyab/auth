@@ -6,7 +6,7 @@ type Props = {
 
 const Form = ({ children, className }: PropsWithChildren<Props>) => {
   return (
-    <form id="form" method="post" class={className}>
+    <form id="form" method="post" className={className}>
       {children}
     </form>
   );

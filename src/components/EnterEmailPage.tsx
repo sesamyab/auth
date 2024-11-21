@@ -37,11 +37,11 @@ const EnterEmailPage: FC<Props> = ({
 
   return (
     <Layout title={i18next.t("welcome")} vendorSettings={vendorSettings}>
-      <div class="mb-4 text-lg font-medium sm:text-2xl">
+      <div className="mb-4 text-lg font-medium sm:text-2xl">
         {i18next.t("welcome")}
       </div>
-      <div class="mb-8 text-gray-300">{i18next.t("login_description")}</div>
-      <div class="flex flex-1 flex-col justify-center">
+      <div className="mb-8 text-gray-300">{i18next.t("login_description")}</div>
+      <div className="flex flex-1 flex-col justify-center">
         <Form className="mb-7">
           <input
             type="email"
@@ -82,14 +82,14 @@ const EnterEmailPage: FC<Props> = ({
           </DisabledSubmitButton>
         </Form>
         {anySocialLogin && (
-          <div class="relative mb-5 block text-center text-gray-300 dark:text-gray-300">
-            <div class="absolute left-0 right-0 top-1/2 border-b border-gray-200 dark:border-gray-600" />
-            <div class="relative inline-block bg-white px-2 dark:bg-gray-800">
+          <div className="relative mb-5 block text-center text-gray-300 dark:text-gray-300">
+            <div className="absolute left-0 right-0 top-1/2 border-b border-gray-200 dark:border-gray-600" />
+            <div className="relative inline-block bg-white px-2 dark:bg-gray-800">
               {i18next.t("continue_social_login")}
             </div>
           </div>
         )}
-        <div class="flex space-x-4 sm:flex-col sm:space-x-0 sm:space-y-4 short:flex-row short:space-x-4 short:space-y-0">
+        <div className="flex space-x-4 sm:flex-col sm:space-x-0 sm:space-y-4 short:flex-row short:space-x-4 short:space-y-0">
           {showFacebook && (
             <SocialButton
               connection="facebook"

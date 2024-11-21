@@ -12,7 +12,7 @@ const Trans: FC<TransProps> = ({ i18nKey, values, components }) => {
   const translation = i18next.t(i18nKey, values);
   const regex = /<(\d+)>(.*?)<\/\d+>/g;
 
-  let result: (string | JSXNode)[] = [];
+  const result: (string | JSXNode)[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 

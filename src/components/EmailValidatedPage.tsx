@@ -20,10 +20,10 @@ const EmailValidatedPage: FC<Props> = ({ vendorSettings, state }) => {
       title={i18next.t("email_validated")}
       vendorSettings={vendorSettings}
     >
-      <div class="mb-4 text-lg font-medium sm:text-2xl">
+      <div className="mb-4 text-lg font-medium sm:text-2xl">
         {i18next.t("email_validated")}
       </div>
-      <div class="flex flex-1 flex-col justify-center mb-7">
+      <div className="flex flex-1 flex-col justify-center mb-7">
         <Button
           Component="a"
           href={`/u/enter-password?${loginLinkParams}`}

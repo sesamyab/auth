@@ -1,4 +1,5 @@
 // duplicate of build-tailwind: use this there!
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require("fs");
 
 if (process.argv.length !== 5) {

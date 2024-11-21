@@ -242,7 +242,7 @@ export async function oauth2Callback({
   const { sub, email, ...profileData } = userinfo;
   ctx.set("userId", sub);
 
-  let lowerCaseEmail =
+  const lowerCaseEmail =
     email?.toLocaleLowerCase() ||
     `${connection.name}.${sub}@${new URL(ctx.env.ISSUER).hostname}`;
 

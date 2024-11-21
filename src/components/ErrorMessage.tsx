@@ -3,7 +3,7 @@ type Props = {
 };
 
 const ErrorMessage = ({ children }: Props) => {
-  return <div class="mb-2 text-sm text-red">{children}</div>;
+  return <div className="mb-2 text-sm text-red">{children}</div>;
 };
 
 export default ErrorMessage;

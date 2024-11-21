@@ -18,8 +18,8 @@ const MessagePage: FC<Props> = ({
 }) => {
   return (
     <Layout title="Login" vendorSettings={vendorSettings}>
-      {pageTitle ? <div class="mb-6 text-gray-300">{pageTitle}</div> : ""}
-      <div class="flex flex-1 flex-col justify-center">{message}</div>
+      {pageTitle ? <div className="mb-6 text-gray-300">{pageTitle}</div> : ""}
+      <div className="flex flex-1 flex-col justify-center">{message}</div>
       {state ? <GoBack state={state} /> : ""}
     </Layout>
   );
