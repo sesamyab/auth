@@ -51,19 +51,18 @@ describe("jwks", () => {
 
     const token = await getAdminToken();
 
-    const createKeyResponse =
-      await managementClient.api.v2.keys.signing.rotate.$post(
-        {
-          header: {
-            "tenant-id": "tenantId",
-          },
+    const createKeyResponse = await managementClient.keys.signing.rotate.$post(
+      {
+        header: {
+          "tenant-id": "tenantId",
         },
-        {
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
+      },
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
         },
-      );
+      },
+    );
 
     expect(createKeyResponse.status).toBe(201);
 

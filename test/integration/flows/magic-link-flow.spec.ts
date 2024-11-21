@@ -51,9 +51,7 @@ describe("magic link flow", () => {
       // -----------------
       // Doing a new signup here, so expect this email not to exist
       // -----------------
-      const resInitialQuery = await managementClient.api.v2[
-        "users-by-email"
-      ].$get(
+      const resInitialQuery = await managementClient["users-by-email"].$get(
         {
           query: {
             email: "new-user@example.com",
@@ -191,9 +189,7 @@ describe("magic link flow", () => {
         updated_at: new Date().toISOString(),
       });
 
-      const resInitialQuery = await managementClient.api.v2[
-        "users-by-email"
-      ].$get(
+      const resInitialQuery = await managementClient["users-by-email"].$get(
         {
           query: {
             email: "bar@example.com",

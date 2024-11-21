@@ -38,9 +38,7 @@ describe("code-flow", () => {
     // -----------------
     // Doing a new signup here, so expect this email not to exist
     // -----------------
-    const resInitialQuery = await managementClient.api.v2[
-      "users-by-email"
-    ].$get(
+    const resInitialQuery = await managementClient["users-by-email"].$get(
       {
         query: {
           email: "test@example.com",
@@ -307,9 +305,7 @@ describe("code-flow", () => {
       updated_at: new Date().toISOString(),
     });
 
-    const resInitialQuery = await managementClient.api.v2[
-      "users-by-email"
-    ].$get(
+    const resInitialQuery = await managementClient["users-by-email"].$get(
       {
         query: {
           email: "bar@example.com",
@@ -588,7 +584,7 @@ describe("code-flow", () => {
     // ----------------------------
     // now check the primary user has a new 'email' connection identity
     // ----------------------------
-    const primaryUserRes = await managementClient.api.v2.users[":user_id"].$get(
+    const primaryUserRes = await managementClient.users[":user_id"].$get(
       {
         param: {
           user_id: "auth2|userId",
@@ -774,7 +770,7 @@ describe("code-flow", () => {
       // sanity check these users are linked
       // -----------------
 
-      const baseUserRes = await managementClient.api.v2.users[":user_id"].$get(
+      const baseUserRes = await managementClient.users[":user_id"].$get(
         {
           param: {
             user_id: "email|the-base-user",
@@ -893,7 +889,7 @@ describe("code-flow", () => {
       // fetch the base user again now and check we have THREE identities in there
       //------------------------------------------------------------------------------------------------
 
-      const baseUserRes2 = await managementClient.api.v2.users[":user_id"].$get(
+      const baseUserRes2 = await managementClient.users[":user_id"].$get(
         {
           param: {
             user_id: "email|the-base-user",
@@ -1049,7 +1045,7 @@ describe("code-flow", () => {
     // -------------------------
     // Create new email user - all lower case email
     // -------------------------
-    const createUserResponse1 = await managementClient.api.v2.users.$post(
+    const createUserResponse1 = await managementClient.users.$post(
       {
         json: {
           email: "john-doe@example.com",
@@ -1269,7 +1265,7 @@ describe("code-flow", () => {
       });
 
       // sanity check - get base user and check identities
-      const baseUserRes = await managementClient.api.v2.users[":user_id"].$get(
+      const baseUserRes = await managementClient.users[":user_id"].$get(
         {
           param: {
             user_id: "auth2|base-user",

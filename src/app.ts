@@ -102,7 +102,6 @@ export default function create(params: CreateAuthParams) {
 
   const { managementApp } = init({
     dataAdapter: params.dataAdapter,
-    issuer: "http://auth2.sesamy.dev",
   });
 
   managementApp.use(registerComponent(managementApp));
@@ -110,7 +109,10 @@ export default function create(params: CreateAuthParams) {
   const oauthApp = createOauthApp(params);
   const samlApp = createSamlApp(params);
 
-  rootApp.route("/", oauthApp).route("/", managementApp).route("/", samlApp);
+  rootApp
+    .route("/", oauthApp)
+    .route("/api/v2", managementApp)
+    .route("/", samlApp);
 
   app.get("/css/tailwind.css", async (ctx: Context) => {
     const css = tailwindCss;
