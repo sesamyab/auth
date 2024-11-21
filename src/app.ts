@@ -19,8 +19,9 @@ import cs from "./localesLogin2/cs/default.json";
 import fi from "./localesLogin2/fi/default.json";
 import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
-import createManagementApp from "./management-app";
+import { init } from "authhero";
 import createSamlApp from "./saml-app";
+import { registerComponent } from "hono-openapi-middlewares";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -99,10 +100,19 @@ export default function create(params: CreateAuthParams) {
       });
     });
 
+  const { managementApp } = init({
+    dataAdapter: params.dataAdapter,
+  });
+
+  managementApp.use(registerComponent(managementApp));
+
   const oauthApp = createOauthApp(params);
-  const managementApp = createManagementApp(params);
   const samlApp = createSamlApp(params);
-  rootApp.route("/", oauthApp).route("/", managementApp).route("/", samlApp);
+
+  rootApp
+    .route("/", oauthApp)
+    .route("/api/v2", managementApp)
+    .route("/", samlApp);
 
   app.get("/css/tailwind.css", async (ctx: Context) => {
     const css = tailwindCss;

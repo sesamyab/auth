@@ -19,7 +19,7 @@ function createUserHooks(
 ) {
   return async (tenant_id: string, user: User) => {
     // Check for existing user with the same email and if so link the users
-    let result = await linkUsersHook(data)(tenant_id, user);
+    const result = await linkUsersHook(data)(tenant_id, user);
     // Invoke post-user-registration webhooks
     await postUserRegistrationWebhook(ctx, data)(tenant_id, result);
 

@@ -22,11 +22,11 @@ const PreSignupComfirmationPage: FC<Props> = ({
       title={i18next.t("email_verification_for_signup_sent_title")}
       vendorSettings={vendorSettings}
     >
-      <div class="mb-4 text-lg font-medium sm:text-2xl">
+      <div className="mb-4 text-lg font-medium sm:text-2xl">
         {i18next.t("email_verification_for_signup_sent_title")}
       </div>
-      <div class="flex flex-1 flex-col justify-center">
-        <div class="mb-6 text-gray-300">
+      <div className="flex flex-1 flex-col justify-center">
+        <div className="mb-6 text-gray-300">
           <Trans
             i18nKey="email_verification_for_signup_sent_description"
             components={[

@@ -6,6 +6,7 @@ export type Env = {
   ISSUER: string;
   DD_API_KEY: string;
   JWKS_URL: string;
+  JWKS_SERVICE: Fetcher;
   API_URL: string;
   IMAGE_PROXY_URL: string;
   DATABASE_HOST: string;

@@ -331,7 +331,7 @@ describe("Register password", () => {
     // -----------------------------
     // get user by id assert that the username-password user info is in the identities array
     // --------------------
-    const primaryUserRes = await managementClient.api.v2.users[":user_id"].$get(
+    const primaryUserRes = await managementClient.users[":user_id"].$get(
       {
         param: {
           user_id: "email|codeUserId",

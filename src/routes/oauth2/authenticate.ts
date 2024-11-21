@@ -73,7 +73,7 @@ export const authenticateRoutes = new OpenAPIHono<{
 
       const email = username.toLocaleLowerCase();
 
-      let ticket: Ticket = {
+      const ticket: Ticket = {
         id: nanoid(),
         tenant_id: client.tenant.id,
         client_id: client.id,
