@@ -11,6 +11,7 @@ import {
   Log,
   LogTypes,
 } from "@authhero/adapter-interfaces";
+import exp from "constants";
 
 const LOGIN2_STATE = "client_id=clientId&connection=auth2";
 
@@ -359,10 +360,11 @@ describe("social sign on", () => {
         {
           headers: {
             authorization: `Bearer ${token}`,
-            "content-type": "application/json",
           },
         },
       );
+
+      expect(createEmailUserResponse.status).toBe(201);
 
       const createEmailUser =
         (await createEmailUserResponse.json()) as UserResponse;

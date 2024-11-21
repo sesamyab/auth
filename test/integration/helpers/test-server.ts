@@ -226,6 +226,14 @@ export async function getTestServer(args: getEnvParams = {}) {
 
   const env = {
     JWKS_URL: "https://example.com/.well-known/jwks.json",
+    JWKS_SERVICE: {
+      fetch: async () => ({
+        ok: true,
+        json: async () => ({
+          keys: [{ ...jwkKey, kid: signingKey.kid }],
+        }),
+      }),
+    },
     TOKEN_SERVICE: {
       fetch: async () => ({
         ok: true,

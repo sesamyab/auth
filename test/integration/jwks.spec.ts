@@ -55,7 +55,7 @@ describe("jwks", () => {
       await managementClient.api.v2.keys.signing.rotate.$post(
         {
           header: {
-            tenant_id: "tenantId",
+            "tenant-id": "tenantId",
           },
         },
         {

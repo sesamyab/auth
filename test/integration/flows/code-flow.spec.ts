@@ -1062,7 +1062,6 @@ describe("code-flow", () => {
       {
         headers: {
           authorization: `Bearer ${token}`,
-          "content-type": "application/json",
         },
       },
     );

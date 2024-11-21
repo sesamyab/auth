@@ -9,5 +9,8 @@ export async function up(db: Kysely<Database>): Promise<void> {
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
-  await db.schema.alterTable("logins").dropColumn("authParam_act_as").execute();
+  await db.schema
+    .alterTable("logins")
+    .dropColumn("authParams_act_as")
+    .execute();
 }
