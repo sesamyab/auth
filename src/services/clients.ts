@@ -8,17 +8,6 @@ import { flattenObject, unflattenObject } from "../utils/flatten";
 const defaultSettings = {
   connections: [
     {
-      name: "google-oauth2",
-      options: {
-        scope: "email profile",
-        authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-        token_endpoint: "https://oauth2.googleapis.com/token",
-      },
-      token_exchange_basic_auth: true,
-      response_type: "code",
-      response_mode: "query",
-    },
-    {
       name: "facebook",
       options: {
         scope: "email public_profile openid",

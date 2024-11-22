@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { Apple } from "arctic";
+import { Apple, Google } from "arctic";
 import {
   AuthParams,
   Client,
@@ -77,7 +77,7 @@ export async function socialAuth(
 
   const options = connection.options || {};
 
-  if (connectionName === "apple") {
+  if (connection.strategy === "apple") {
     if (
       !options.client_id ||
       !options.team_id ||
@@ -110,6 +110,21 @@ export async function socialAuth(
     );
 
     return ctx.redirect(appleAuthorizatioUrl.href);
+  } else if (connection.strategy === "google-oauth2") {
+    const google = new Google(
+      options.client_id!,
+      // Pass the login session as code verifier
+      session.login_id,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const googleAuthorizationUrl = google.createAuthorizationURL(
+      auth2State.code_id,
+      `${ctx.env.ISSUER}callback`,
+      options.scope!.split(" ") || ["email", "profile"],
+    );
+
+    return ctx.redirect(googleAuthorizationUrl.href);
   }
 
   const oauthLoginUrl = new URL(options.authorization_endpoint!);
@@ -207,7 +222,7 @@ export async function oauth2Callback({
   const options = connection.options || {};
 
   let userinfo: any;
-  if (connection.name === "apple") {
+  if (connection.strategy === "apple") {
     const apple = new Apple(
       options.client_id!,
       options.team_id!,
@@ -225,6 +240,18 @@ export async function oauth2Callback({
 
     const tokens = await apple.validateAuthorizationCode(code);
     userinfo = parseJwt(tokens.idToken());
+  } else if (connection.strategy === "google-oauth2") {
+    const google = new Google(
+      options.client_id!,
+      options.client_secret!,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const tokens = await google.validateAuthorizationCode(
+      code,
+      session.login_id,
+    );
+    userinfo = getProfileData(parseJwt(tokens.idToken()));
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
       {
