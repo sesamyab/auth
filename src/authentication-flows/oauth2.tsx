@@ -79,20 +79,23 @@ export async function socialAuth(
 
   if (connectionName === "apple") {
     const apple = new Apple(
-      {
-        clientId: options.client_id!,
-        teamId: options.team_id!,
-        keyId: options.kid!,
-        certificate: options
+      options.client_id!,
+      options.team_id!,
+      options.kid!,
+      new Uint8Array(
+        options
           .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, ""),
-      },
+          .replace(/\s/g, "")
+          .split("")
+          .map((char) => char.charCodeAt(0)),
+      ),
       `${ctx.env.ISSUER}callback`,
     );
 
     const appleAuthorizatioUrl = await apple.createAuthorizationURL(
       auth2State.code_id,
+      options.scope?.split(" ") || [],
     );
 
     return ctx.redirect(appleAuthorizatioUrl.href);
@@ -195,20 +198,22 @@ export async function oauth2Callback({
   let userinfo: any;
   if (connection.name === "apple") {
     const apple = new Apple(
-      {
-        clientId: options.client_id!,
-        teamId: options.team_id!,
-        keyId: options.kid!,
-        certificate: options
+      options.client_id!,
+      options.team_id!,
+      options.kid!,
+      new Uint8Array(
+        options
           .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, ""),
-      },
-      `${env.ISSUER}callback`,
+          .replace(/\s/g, "")
+          .split("")
+          .map((char) => char.charCodeAt(0)),
+      ),
+      `${ctx.env.ISSUER}callback`,
     );
 
     const tokens = await apple.validateAuthorizationCode(code);
-    userinfo = parseJwt(tokens.idToken);
+    userinfo = parseJwt(tokens.idToken());
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
       {

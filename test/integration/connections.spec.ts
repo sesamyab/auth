@@ -73,18 +73,22 @@ test("should show Vipps for parcferme as entered as connection", async () => {
   await env.data.connections.create("parcferme", {
     id: "parcferme-connection1",
     name: "vipps",
+    strategy: "vipps",
   });
   await env.data.connections.create("parcferme", {
     id: "parcferme-connection2",
     name: "facebook",
+    strategy: "facebook",
   });
   await env.data.connections.create("parcferme", {
     id: "parcferme-connection3",
     name: "google-oauth2",
+    strategy: "google-oauth2",
   });
   await env.data.connections.create("parcferme", {
     id: "parcferme-connection4",
     name: "apple",
+    strategy: "apple",
   });
 
   const response = await oauthClient.authorize.$get({

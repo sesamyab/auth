@@ -34,6 +34,7 @@ const APPLICATION_FIXTURE: Application = {
 const CONNECTION_FIXTURE: Connection = {
   id: "connectionId",
   name: "facebook",
+  strategy: "facebook",
   options: {
     client_id: "facebookClientId",
     client_secret: "facebookClientSecret",
@@ -67,6 +68,7 @@ describe("getClient", () => {
         {
           id: "defaultConnection1",
           name: "facebook",
+          strategy: "facebook",
           options: {
             client_id: "facebookClientId",
             client_secret: "facebookClientSecret",
@@ -81,6 +83,7 @@ describe("getClient", () => {
           // only has minimal specified so we are getting the rest from default settings
           id: "connectionId",
           name: "facebook",
+          strategy: "facebook",
         },
       ],
       domains: [DOMAIN_FIXTURE],

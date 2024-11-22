@@ -31,6 +31,7 @@ export const CONNECTIONS_FIXTURE: Connection[] = [
   {
     id: "connectionId1",
     name: "google-oauth2",
+    strategy: "google-oauth2",
     options: {
       client_id: "googleClientId",
       client_secret: "googleClientSecret",
@@ -46,6 +47,7 @@ export const CONNECTIONS_FIXTURE: Connection[] = [
   {
     id: "connectionId2",
     name: "facebook",
+    strategy: "facebook",
     options: {
       client_id: "facebookClientId",
       client_secret: "facebookClientSecret",

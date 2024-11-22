@@ -76,6 +76,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   await data.connections.create("DEFAULT_SETTINGS", {
     id: "DEFAULT_CONNECTION",
     name: "demo-social-provider",
+    strategy: "oauth2",
     options: {
       client_id: "socialClientId",
       client_secret: "socialClientSecret",
@@ -89,6 +90,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   await data.connections.create("DEFAULT_SETTINGS", {
     id: "DEFAULT_CONNECTION2",
     name: "other-social-provider",
+    strategy: "oauth2",
     options: {
       client_id: "otherSocialClientId",
       client_secret: "otherSocialClientSecret",
@@ -143,6 +145,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   const testConnection1: Connection = {
     id: "connectionId1",
     name: "demo-social-provider",
+    strategy: "oauth2",
     options: {},
     created_at: "created_at",
     updated_at: "updated_at",
@@ -151,6 +154,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   const testConnection2: Connection = {
     id: "connectionId2",
     name: "other-social-provider",
+    strategy: "oauth2",
     options: {},
     created_at: "created_at",
     updated_at: "updated_at",
@@ -185,18 +189,22 @@ export async function getTestServer(args: getEnvParams = {}) {
   await data.connections.create("tenantId", {
     id: "facebook",
     name: "facebook",
+    strategy: "facebook",
   });
   await data.connections.create("tenantId", {
     id: "google-oauth2",
     name: "google-oauth2",
+    strategy: "google-oauth2",
   });
   await data.connections.create("tenantId", {
     id: "apple",
     name: "apple",
+    strategy: "apple",
   });
   await data.connections.create("tenantId", {
     id: "auth2",
     name: "auth2",
+    strategy: "authhero",
   });
 
   await data.users.create("tenantId", {
