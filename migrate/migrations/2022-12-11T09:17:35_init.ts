@@ -123,6 +123,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
       col.references("tenants.id").onDelete("cascade").notNull(),
     )
     .addColumn("name", "varchar(255)", (col) => col.notNull())
+    .addColumn("strategy", "varchar(64)", (col) => col.notNull())
     .addColumn("response_type", "varchar(255)")
     .addColumn("response_mode", "varchar(255)")
     .addColumn("options", "varchar(2048)", (col) =>

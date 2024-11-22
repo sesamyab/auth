@@ -78,21 +78,35 @@ export async function socialAuth(
   const options = connection.options || {};
 
   if (connectionName === "apple") {
+    if (
+      !options.client_id ||
+      !options.team_id ||
+      !options.kid ||
+      !options.app_secret
+    ) {
+      throw new Error("Missing required Apple authentication parameters");
+    }
+
+    // Use a secure buffer to handle private key
+    const privateKeyBuffer = Buffer.from(options.app_secret, "utf-8");
+    const cleanedKey = privateKeyBuffer
+      .toString()
+      .replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, "");
+    const keyArray = Uint8Array.from(Buffer.from(cleanedKey, "base64"));
+    // Clear sensitive data from memory
+    privateKeyBuffer.fill(0);
+
     const apple = new Apple(
-      {
-        clientId: options.client_id!,
-        teamId: options.team_id!,
-        keyId: options.kid!,
-        certificate: options
-          .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
-          .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, ""),
-      },
+      options.client_id!,
+      options.team_id!,
+      options.kid!,
+      keyArray,
       `${ctx.env.ISSUER}callback`,
     );
 
     const appleAuthorizatioUrl = await apple.createAuthorizationURL(
       auth2State.code_id,
+      options.scope?.split(" ") || ["name", "email"],
     );
 
     return ctx.redirect(appleAuthorizatioUrl.href);
@@ -195,20 +209,22 @@ export async function oauth2Callback({
   let userinfo: any;
   if (connection.name === "apple") {
     const apple = new Apple(
-      {
-        clientId: options.client_id!,
-        teamId: options.team_id!,
-        keyId: options.kid!,
-        certificate: options
+      options.client_id!,
+      options.team_id!,
+      options.kid!,
+      new Uint8Array(
+        options
           .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, ""),
-      },
-      `${env.ISSUER}callback`,
+          .replace(/\s/g, "")
+          .split("")
+          .map((char) => char.charCodeAt(0)),
+      ),
+      `${ctx.env.ISSUER}callback`,
     );
 
     const tokens = await apple.validateAuthorizationCode(code);
-    userinfo = parseJwt(tokens.idToken);
+    userinfo = parseJwt(tokens.idToken());
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
       {

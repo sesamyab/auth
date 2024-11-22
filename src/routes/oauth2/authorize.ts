@@ -17,6 +17,14 @@ import {
   AuthorizationResponseType,
   CodeChallengeMethod,
 } from "@authhero/adapter-interfaces";
+const UI_STRATEGIES = [
+  "email",
+  "sms",
+  "auth0",
+  "authhero",
+  // TODO: this is a legacy strategy. Remove once migrated
+  "Username-Password-Authentication",
+];
 
 export const authorizeRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -151,6 +159,20 @@ export const authorizeRoutes = new OpenAPIHono<{
           audience,
           scope,
         });
+      }
+
+      // If there's only one connection and it's not a u
+      if (
+        client.connections.length === 1 &&
+        UI_STRATEGIES.includes(client.connections[0].strategy || "")
+      ) {
+        return socialAuth(
+          ctx,
+          client,
+          client.connections[0].strategy,
+          authParams,
+          auth0Client,
+        );
       }
 
       // Social login
