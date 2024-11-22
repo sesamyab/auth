@@ -4,7 +4,7 @@ export const idTokenSchema = z.object({
   iss: z.string(),
   azp: z.string(),
   aud: z.string(),
-  sub: z.string().optional(),
+  sub: z.string(),
   email: z.string().optional(),
   email_verified: z.boolean().optional(),
   at_hash: z.string(),
