@@ -4,21 +4,6 @@ import { HTTPException } from "hono/http-exception";
 import { Client, connectionSchema } from "@authhero/adapter-interfaces";
 import { flattenObject, unflattenObject } from "../utils/flatten";
 
-// TODO: Remove this and use strategys
-const defaultSettings = {
-  connections: [
-    {
-      name: "facebook",
-      options: {
-        scope: "email public_profile openid",
-        authorization_endpoint: "https://www.facebook.com/dialog/oauth",
-        token_endpoint: "https://graph.facebook.com/oauth/access_token",
-      },
-      token_exchange_basic_auth: true,
-    },
-  ],
-};
-
 export async function getClient(env: Env, clientId: string): Promise<Client> {
   const client = await env.data.clients.get(clientId);
   if (!client) {
@@ -29,12 +14,6 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
 
   const connections = client.connections
     .map((connection) => {
-      const defaultConnection = defaultSettings?.connections?.find(
-        (c) => c.name === connection.name,
-      ) || {
-        options: {},
-      };
-
       const envDefaultConnection =
         envDefaultSettings?.connections?.find(
           (c) => c.name === connection.name,
@@ -43,7 +22,6 @@ export async function getClient(env: Env, clientId: string): Promise<Client> {
       const mergedConnection = connectionSchema.parse(
         unflattenObject(
           {
-            ...flattenObject(defaultConnection),
             ...flattenObject(envDefaultConnection),
             ...flattenObject(connection),
           },

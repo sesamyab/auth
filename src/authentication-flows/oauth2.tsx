@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { Apple, Google, generateCodeVerifier } from "arctic";
+import { Apple, Google, Facebook, generateCodeVerifier } from "arctic";
 import {
   AuthParams,
   Client,
@@ -130,6 +130,23 @@ export async function socialAuth(
     );
 
     return ctx.redirect(googleAuthorizationUrl.href);
+  } else if (connection.strategy === "facebook") {
+    if (!options.client_id || !options.client_secret) {
+      throw new Error("Missing required Facebook authentication parameters");
+    }
+
+    const facebook = new Facebook(
+      options.client_id,
+      options.client_secret,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const facebookAuthorizationUrl = facebook.createAuthorizationURL(
+      auth2State.code_id,
+      options.scope?.split(" ") || ["email"],
+    );
+
+    return ctx.redirect(facebookAuthorizationUrl.href);
   }
 
   const oauthLoginUrl = new URL(options.authorization_endpoint!);
@@ -256,6 +273,15 @@ export async function oauth2Callback({
     );
 
     const tokens = await google.validateAuthorizationCode(code, code_verifier!);
+    userinfo = getProfileData(parseJwt(tokens.idToken()));
+  } else if (connection.strategy === "facebook") {
+    const facebook = new Facebook(
+      options.client_id!,
+      options.client_secret!,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const tokens = await facebook.validateAuthorizationCode(code);
     userinfo = getProfileData(parseJwt(tokens.idToken()));
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
