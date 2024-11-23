@@ -34,8 +34,8 @@ describe("oslo", () => {
       typ: "JWT",
     });
 
-    // @ts-ignore
-    const { exp, iat, ...rest } = payload?.payload;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { exp, iat, ...rest } = payload?.payload as any;
 
     expect(rest).toEqual({
       foo: "bar",

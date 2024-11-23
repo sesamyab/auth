@@ -6,6 +6,7 @@ import {
   getUserByEmailAndProvider,
   getPrimaryUserByEmailAndProvider,
   getPrimaryUserByEmail,
+  getImpersonatedUser,
 } from "../../utils/users";
 import { getClient } from "../../services/clients";
 import { HTTPException } from "hono/http-exception";
@@ -44,6 +45,7 @@ import {
   Login,
   LogTypes,
   PasswordInsert,
+  ListLogsResponse,
   User,
 } from "@authhero/adapter-interfaces";
 import CheckEmailPage from "../../components/CheckEmailPage";
@@ -54,18 +56,20 @@ import bcryptjs from "bcryptjs";
 import UnverifiedEmailPage from "../../components/UnverifiedEmailPage";
 import ForgotPasswordSentPage from "../../components/ForgotPasswordSentPage";
 import { preUserSignupHook } from "../../hooks";
+import IncognitoPage from "../../components/Incognito";
 
-async function initJSXRoute(
-  ctx: Context<{ Bindings: Env; Variables: Var }>,
-  state: string,
-) {
+async function initJSXRoute(ctx: Context, state: string) {
   const { env } = ctx;
-  const session = await env.data.logins.get(ctx.var.tenant_id || "", state);
-  if (!session) {
+  const login: Login = await env.data.logins.get(
+    ctx.var.tenant_id || "",
+    state,
+  );
+  if (!login) {
     throw new HTTPException(400, { message: "Session not found" });
   }
+  ctx.set("login", login);
 
-  const client = await getClient(env, session.authParams.client_id);
+  const client = await getClient(env, login.authParams.client_id);
   ctx.set("client_id", client.id);
   ctx.set("tenant_id", client.tenant.id);
 
@@ -77,16 +81,25 @@ async function initJSXRoute(
   const vendorSettings = await fetchVendorSettings(
     env,
     client.id,
-    session.authParams.vendor_id,
+    login.authParams.vendor_id,
   );
 
-  await i18next.changeLanguage(tenant.language || "sv");
+  const loginSessionLanguage = login.authParams.ui_locales
+    ?.split(" ")
+    .map((locale) => locale.split("-")[0])
+    .find((language) => {
+      if (Array.isArray(i18next.options.supportedLngs)) {
+        return i18next.options.supportedLngs.includes(language);
+      }
+    });
 
-  return { vendorSettings, client, tenant, session };
+  await i18next.changeLanguage(loginSessionLanguage || tenant.language || "sv");
+
+  return { vendorSettings, client, tenant, session: login };
 }
 
 async function handleLogin(
-  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  ctx: Context,
   user: User,
   session: Login,
   client: Client,
@@ -120,7 +133,7 @@ async function handleLogin(
 }
 
 async function usePasswordLogin(
-  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  ctx: Context,
   client: Client,
   username: string,
   login_selection?: "password" | "code",
@@ -138,13 +151,16 @@ async function usePasswordLogin(
 
   if (user) {
     // Get last login
-    const lastLogins = await ctx.env.data.logs.list(client.tenant.id, {
-      page: 0,
-      per_page: 10,
-      include_totals: false,
-      sort: { sort_by: "date", sort_order: "desc" },
-      q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
-    });
+    const lastLogins: ListLogsResponse = await ctx.env.data.logs.list(
+      client.tenant.id,
+      {
+        page: 0,
+        per_page: 10,
+        include_totals: false,
+        sort: { sort_by: "date", sort_order: "desc" },
+        q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
+      },
+    );
 
     const [lastLogin] = lastLogins.logs.filter(
       (log) =>
@@ -584,6 +600,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           state: z.string().openapi({
             description: "The state parameter from the authorization request",
           }),
+          impersonation: z.string().optional(),
         }),
       },
       responses: {
@@ -593,7 +610,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       },
     }),
     async (ctx) => {
-      const { state } = ctx.req.valid("query");
+      const { state, impersonation } = ctx.req.valid("query");
 
       const { vendorSettings, session, client } = await initJSXRoute(
         ctx,
@@ -606,6 +623,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           session={session}
           client={client}
           email={session.authParams.username}
+          impersonation={impersonation === "true"}
         />,
       );
     },
@@ -629,6 +647,10 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             "application/x-www-form-urlencoded": {
               schema: z.object({
                 username: z.string().transform((u) => u.toLowerCase()),
+                act_as: z
+                  .string()
+                  .transform((u) => u.toLowerCase())
+                  .optional(),
                 login_selection: z.enum(["code", "password"]).optional(),
               }),
             },
@@ -654,10 +676,12 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       );
       ctx.set("client_id", client.id);
 
+      const username = params.username;
+
       const user = await getPrimaryUserByEmail({
         userAdapter: env.data.users,
         tenant_id: client.tenant.id,
-        email: params.username,
+        email: username,
       });
       if (user) {
         ctx.set("userId", user.user_id);
@@ -689,6 +713,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       // Add the username to the state
       session.authParams.username = params.username;
+      session.authParams.act_as = params.act_as;
       await env.data.logins.update(client.tenant.id, session.login_id, session);
 
       if (
@@ -860,12 +885,19 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx.set("strategy", "email");
         ctx.set("strategy_type", "passwordless");
 
+        const actAs = await getImpersonatedUser(
+          ctx.env.data.users,
+          client.tenant.id,
+          session.authParams.username,
+          session.authParams.act_as,
+        );
+
         const authResponse = await generateAuthResponse({
           ctx,
           client,
-          sid: session.login_id,
           authParams: session.authParams,
           user,
+          actAs,
         });
 
         return authResponse;
@@ -1501,6 +1533,44 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           vendorSettings={vendorSettings}
           state={state}
           email={username}
+        />,
+      );
+    },
+  )
+  // --------------------------------
+  // GET /u/incognito
+  // --------------------------------
+  .openapi(
+    createRoute({
+      tags: ["login"],
+      method: "get",
+      path: "/incognito",
+      request: {
+        query: z.object({
+          redirect_url: z.string().openapi({
+            description: "The url to redirect to after login",
+          }),
+          vendor_id: z.string(),
+        }),
+      },
+      responses: {
+        200: {
+          description: "Response",
+        },
+      },
+    }),
+    async (ctx) => {
+      const { redirect_url, vendor_id } = ctx.req.valid("query");
+      const vendorSettings = await fetchVendorSettings(
+        ctx.env,
+        undefined,
+        vendor_id,
+      );
+
+      return ctx.html(
+        <IncognitoPage
+          redirectUrl={redirect_url}
+          vendorSettings={vendorSettings}
         />,
       );
     },

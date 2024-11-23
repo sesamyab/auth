@@ -1,5 +1,5 @@
 export function flattenObject(obj: any, prefix = "", res: any = {}) {
-  for (let key in obj) {
+  for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const newKey = prefix ? `${prefix}_${key}` : key;
       if (

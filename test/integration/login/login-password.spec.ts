@@ -39,17 +39,16 @@ describe("Register password", () => {
     const { oauthApp, emails, env } = await getTestServer();
     const oauthClient = testClient(oauthApp, env);
 
-    const searchParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      redirect_uri: "http://localhost:3000/callback",
-      state: "state",
-      username: "password-login-test@example.com",
-    };
     const response = await oauthClient.authorize.$get({
-      query: searchParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "password-login-test@example.com",
+      },
     });
     const location = response.headers.get("location");
     const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -144,6 +143,18 @@ describe("Register password", () => {
       },
     });
     expect(workingLoginResponse.status).toBe(302);
+
+    // -----------------------------
+    // Check that the session cookie is persisted
+    // -----------------------------
+    const cookies = workingLoginResponse.headers.get("set-cookie");
+    const [cookieName, cookieValue] = cookies
+      ?.split(";")[0]
+      .split("=") as Array<string>;
+    expect(cookieName).toBe("tenantId-auth-token");
+
+    const session = await env.data.sessions.get("tenantId", cookieValue);
+    expect(session).toBeDefined();
   });
 
   it("should create a new user with a password using the pre signup verification", async () => {
@@ -151,17 +162,16 @@ describe("Register password", () => {
     const { oauthApp, emails, env } = await getTestServer();
     const oauthClient = testClient(oauthApp, env);
 
-    const searchParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      redirect_uri: "http://localhost:3000/callback",
-      state: "state",
-      username: "password-login-test@example.com",
-    };
     const response = await oauthClient.authorize.$get({
-      query: searchParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "password-login-test@example.com",
+      },
     });
     const location = response.headers.get("location");
     const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -224,17 +234,16 @@ describe("Register password", () => {
     // -------------------------------
     // Universal Login Session
     // -------------------------------
-    const searchParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      redirect_uri: "http://localhost:3000/callback",
-      state: "state",
-      username: "existing-code-user@example.com",
-    };
     const response = await oauthClient.authorize.$get({
-      query: searchParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "existing-code-user@example.com",
+      },
     });
     const location = response.headers.get("location");
     const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -322,7 +331,7 @@ describe("Register password", () => {
     // -----------------------------
     // get user by id assert that the username-password user info is in the identities array
     // --------------------
-    const primaryUserRes = await managementClient.api.v2.users[":user_id"].$get(
+    const primaryUserRes = await managementClient.users[":user_id"].$get(
       {
         param: {
           user_id: "email|codeUserId",
@@ -367,17 +376,17 @@ describe("Register password", () => {
     const password = "Password1234!";
     const { oauthApp, emails, env } = await getTestServer();
     const oauthClient = testClient(oauthApp, env);
-    const searchParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      redirect_uri: "http://localhost:3000/callback",
-      state: "state",
-      username: "password-login-test@example.com",
-    };
+
     const response = await oauthClient.authorize.$get({
-      query: searchParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "password-login-test@example.com",
+      },
     });
     const location = response.headers.get("location");
     const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -441,17 +450,16 @@ describe("Register password", () => {
     const { oauthApp, emails, env } = await getTestServer();
     const oauthClient = testClient(oauthApp, env);
 
-    const searchParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      redirect_uri: "http://localhost:3000/callback",
-      state: "state",
-      username: "password-login-test@example.com",
-    };
     const response = await oauthClient.authorize.$get({
-      query: searchParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "password-login-test@example.com",
+      },
     });
     const location = response.headers.get("location");
     const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -519,17 +527,16 @@ describe("Register password", () => {
     const { oauthApp, emails, env } = await getTestServer();
     const oauthClient = testClient(oauthApp, env);
 
-    const initialAuthorizeUniversalLoginParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      redirect_uri: "http://localhost:3000/callback",
-      state: "state",
-      username: "password-login-test@example.com",
-    };
     const response = await oauthClient.authorize.$get({
-      query: initialAuthorizeUniversalLoginParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "password-login-test@example.com",
+      },
     });
     const location = response.headers.get("location");
     const stateParam = new URLSearchParams(location!.split("?")[1]);
@@ -550,19 +557,17 @@ describe("Register password", () => {
     // now log-in with correct password but will be blocked because have not verified email address
     // -------------------------------
 
-    const secondAuthorizeUniversalLoginParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      username: "password-login-test@example.com",
-      // these two are different to initial
-      redirect_uri: "http://example.com",
-      state: "another-state-key",
-    };
-
     const authorizeRes2 = await oauthClient.authorize.$get({
-      query: secondAuthorizeUniversalLoginParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        login_hint: "password-login-test@example.com",
+        // these two are different to initial
+        redirect_uri: "http://example.com",
+        state: "another-state-key",
+      },
     });
     expect(authorizeRes2.status).toBe(302);
     const authorizeRes2URlSearchParams = new URLSearchParams(
@@ -646,18 +651,16 @@ describe("Login with password user", () => {
     });
     const oauthClient = testClient(oauthApp, env);
 
-    const searchParams = {
-      client_id: "clientId",
-      vendor_id: "kvartal",
-      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
-      scope: "openid",
-      redirect_uri: "http://localhost:3000/callback",
-      state: "state",
-      username: "foo@example.com",
-    };
-
     const response = await oauthClient.authorize.$get({
-      query: searchParams,
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "foo@example.com",
+      },
     });
 
     expect(response.status).toBe(302);
@@ -729,7 +732,7 @@ describe("Login with password user", () => {
         scope: "openid",
         redirect_uri: "http://localhost:3000/callback",
         state: "state",
-        username: "not-an-existing-user@example.com",
+        login_hint: "not-an-existing-user@example.com",
       },
     });
 
@@ -775,7 +778,7 @@ describe("Login with password user", () => {
         scope: "openid",
         redirect_uri: "http://localhost:3000/callback",
         state: "state",
-        username: "foo@example.com",
+        login_hint: "foo@example.com",
       },
     });
 

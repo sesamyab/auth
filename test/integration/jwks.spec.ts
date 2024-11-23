@@ -51,19 +51,18 @@ describe("jwks", () => {
 
     const token = await getAdminToken();
 
-    const createKeyResponse =
-      await managementClient.api.v2.keys.signing.rotate.$post(
-        {
-          header: {
-            tenant_id: "tenantId",
-          },
+    const createKeyResponse = await managementClient.keys.signing.rotate.$post(
+      {
+        header: {
+          "tenant-id": "tenantId",
         },
-        {
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
+      },
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
         },
-      );
+      },
+    );
 
     expect(createKeyResponse.status).toBe(201);
 
@@ -82,10 +81,8 @@ describe("jwks", () => {
 
     const body = jwksKeySchema.parse(await response.json());
 
-    // this is correct because the above endpoint filters out any revoked certificates
-    expect(body.keys.length).toBe(1);
-
-    expect(body.keys[0].kid).not.toBe(initialKeys.keys[0].kid);
+    // The rotated key is available for 24 hours
+    expect(body.keys.length).toBe(2);
   });
 
   it("should return an openid-configuration with the current issues", async () => {

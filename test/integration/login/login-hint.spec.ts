@@ -1,4 +1,4 @@
-import { test, expect } from "vitest";
+import { it, expect } from "vitest";
 import { getTestServer } from "../helpers/test-server";
 import { testClient } from "hono/testing";
 import { chromium } from "playwright";
@@ -8,7 +8,7 @@ import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
 // TODO - try this globally in vite config - the issue is the types!
 expect.extend({ toMatchImageSnapshot });
 
-test("Should prefill email with login_hint if passed to /authorize", async () => {
+it("should prefill email with login_hint if passed to /authorize", async () => {
   const { oauthApp, env } = await getTestServer();
   const oauthClient = testClient(oauthApp, env);
 
@@ -58,4 +58,86 @@ test("Should prefill email with login_hint if passed to /authorize", async () =>
     const snapshot = await page.screenshot();
     expect(snapshot).toMatchImageSnapshot();
   }
+});
+
+it("should redirect the user back with a code if the email matches the current session", async () => {
+  const { oauthApp, env } = await getTestServer();
+  const oauthClient = testClient(oauthApp, env);
+
+  // Login with password using the universal login so we get a session
+  const authorizeResponse = await oauthClient.authorize.$get({
+    query: {
+      client_id: "clientId",
+      vendor_id: "kvartal",
+      response_type: AuthorizationResponseType.TOKEN_ID_TOKEN,
+      scope: "openid",
+      redirect_uri: "http://localhost:3000/callback",
+      state: "state",
+      login_hint: "foo@example.com",
+    },
+  });
+  const location = authorizeResponse.headers.get("location");
+  const stateParam = new URLSearchParams(location!.split("?")[1]);
+  const query = Object.fromEntries(stateParam.entries());
+
+  const passwordResponse = await oauthClient.u["enter-password"].$post({
+    query: {
+      state: query.state,
+    },
+    form: {
+      password: "Test1234!",
+    },
+  });
+
+  // Validate that the password response is successful and get the session cookie
+  expect(passwordResponse.status).toBe(302);
+  const passwordLoginLocation = new URL(
+    passwordResponse.headers.get("location")!,
+  );
+  expect(passwordLoginLocation.hostname).toBe("localhost");
+  const cookie = passwordResponse.headers.get("set-cookie");
+  expect(cookie).toBeTypeOf("string");
+  const sessionCookie = cookie!.split(";")[0].split("=")[1];
+
+  // Make a request with matching login_hint
+  const loginHintResponse = await oauthClient.authorize.$get(
+    {
+      query: {
+        client_id: "clientId",
+        vendor_id: "kvartal",
+        response_type: AuthorizationResponseType.CODE,
+        scope: "openid",
+        redirect_uri: "http://localhost:3000/callback",
+        state: "state",
+        login_hint: "foo@example.com",
+      },
+    },
+    {
+      headers: {
+        cookie: `tenantId-auth-token=${sessionCookie}`,
+      },
+    },
+  );
+
+  expect(loginHintResponse.status).toBe(302);
+
+  const loginHintLocation = loginHintResponse.headers.get("location");
+  const loginHinUrl = new URL("http://example.com" + loginHintLocation!);
+  const code = loginHinUrl.searchParams.get("code");
+
+  expect(code).toBeTypeOf("string");
+
+  const tokenResponse = await oauthClient.oauth.token.$post({
+    form: {
+      client_id: "clientId",
+      client_secret: "clientSecret",
+      code: code!,
+      grant_type: "authorization_code",
+      redirect_uri: "http://localhost:3000/callback",
+    },
+  });
+
+  expect(tokenResponse.status).toBe(200);
+  const tokenBody: any = await tokenResponse.json();
+  expect(tokenBody.access_token).toBeTypeOf("string");
 });

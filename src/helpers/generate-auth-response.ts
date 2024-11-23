@@ -39,6 +39,8 @@ export interface GenerateAuthResponseParams {
   client: Client;
   // The user will be undefined if the client is a client_credentials grant
   user?: User;
+  actAs?: User;
+  // The sid is the session id that is used to store the user's session. Do not pass the universal login session here
   sid?: string;
   authParams: AuthParams;
   authFlow?: AuthFlowType;
@@ -73,7 +75,6 @@ async function generateCode({
   }
 
   const code_id = nanoid();
-
   let login_id = sid;
 
   if (!login_id) {
@@ -140,6 +141,8 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
       sub: user?.user_id || client.id,
       iss: env.ISSUER,
       azp: client.tenant.id,
+      tenant_id: client.tenant.id,
+      act_as: params.actAs?.user_id,
     },
     {
       includeIssuedTimestamp: true,
@@ -220,7 +223,9 @@ export async function generateAuthData(params: GenerateAuthResponseParams) {
 }
 
 export async function generateAuthResponse(params: GenerateAuthResponseParams) {
-  const { ctx, authParams, sid, client, user } = params;
+  const { ctx, authParams, sid, client } = params;
+
+  const user = params.actAs || params.user;
 
   const tokens = await generateAuthData(params);
 
@@ -265,11 +270,8 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
 
     const state = JSON.parse(authParams.state);
     const redirectUrl = new URL(authParams.redirect_uri);
-    if (state.relayState) {
-      redirectUrl.searchParams.set("RelayState", state.relayState);
-    }
 
-    const samlResponse = await createSamlResponse({
+    const samlResponse = await createSamlResponse(ctx, {
       issuer: ctx.env.ISSUER,
       audience: audience || authParams.client_id,
       destination: redirectUrl.toString(),
@@ -282,10 +284,13 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
         cert: signingKey.cert,
         kid: signingKey.kid,
       },
-      samlSignUrl: ctx.env.SAML_SIGN_URL,
     });
 
-    return samlResponseForm(redirectUrl.toString(), samlResponse);
+    return samlResponseForm(
+      redirectUrl.toString(),
+      samlResponse,
+      state.relayState,
+    );
   }
 
   if (authParams.response_mode === AuthorizationResponseMode.FORM_POST) {
@@ -294,7 +299,6 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
 
   headers.set("location", applyTokenResponse(tokens, authParams));
 
-  // TODO: should we have different response for different response modes?
   return new Response("Redirecting", {
     status: 302,
     headers,

@@ -123,6 +123,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
       col.references("tenants.id").onDelete("cascade").notNull(),
     )
     .addColumn("name", "varchar(255)", (col) => col.notNull())
+    .addColumn("strategy", "varchar(64)", (col) => col.notNull())
     .addColumn("response_type", "varchar(255)")
     .addColumn("response_mode", "varchar(255)")
     .addColumn("options", "varchar(2048)", (col) =>
@@ -130,16 +131,6 @@ export async function up(db: Kysely<Database>): Promise<void> {
     )
     .addColumn("created_at", "varchar(255)", (col) => col.notNull())
     .addColumn("modified_at", "varchar(255)", (col) => col.notNull())
-    // Deprecated
-    .addColumn("private_key", "varchar(767)")
-    .addColumn("kid", "varchar(255)")
-    .addColumn("team_id", "varchar(255)")
-    .addColumn("strategy", "varchar(64)")
-    .addColumn("client_id", "varchar(255)")
-    .addColumn("client_secret", "varchar(255)")
-    .addColumn("authorization_endpoint", "varchar(255)")
-    .addColumn("token_endpoint", "varchar(255)")
-    .addColumn("scope", "varchar(255)")
     .execute();
 
   await db.schema

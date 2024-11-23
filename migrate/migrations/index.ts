@@ -58,6 +58,11 @@ import * as n57_prompt_settings from "./2024-09-03T15:15:00_prompt_settings";
 import * as n58_connection_client_id from "./2024-09-04T08:41:00_connection_client_id";
 import * as n59_connection_options from "./2024-09-15T19:31:00_connection_options";
 import * as n60_users_metadata from "./2024-09-16T17:02:00_users_metadata";
+import * as n61_userLocales from "./2024-10-01T9:09:00_ui_locales";
+import * as n62_prompt from "./2024-10-19T07:47:00_prompt";
+import * as n63_connection_cleanup from "./2024-10-22T09:01:00_connection_cleanup";
+import * as n64_act_as from "./2024-11-18T10:37:00_act_as";
+import * as n65_code_verifier from "./2024-11-22T17:48:00_code_verifier";
 
 // These need to be in alphabetic order
 export default {
@@ -121,4 +126,9 @@ export default {
   n58_connection_client_id,
   n59_connection_options,
   n60_users_metadata,
+  n61_userLocales,
+  n62_prompt,
+  n63_connection_cleanup,
+  n64_act_as,
+  n65_code_verifier,
 };

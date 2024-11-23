@@ -202,9 +202,7 @@ describe("social sign on", () => {
         // ---------------------------------------------
         // now check that the user was created was properly in the data providers
         // ---------------------------------------------
-        const newSocialUserRes = await managementClient.api.v2.users[
-          ":user_id"
-        ].$get(
+        const newSocialUserRes = await managementClient.users[":user_id"].$get(
           {
             param: { user_id: "demo-social-provider|123456789012345678901" },
             header: {
@@ -307,9 +305,7 @@ describe("social sign on", () => {
         // ---------------------------------------------
         // now check that the user was created was properly in the data providers
         // ---------------------------------------------
-        const newSocialUserRes = await managementClient.api.v2.users[
-          ":user_id"
-        ].$get(
+        const newSocialUserRes = await managementClient.users[":user_id"].$get(
           {
             param: { user_id: "demo-social-provider|123456789012345678901" },
             header: {
@@ -344,7 +340,7 @@ describe("social sign on", () => {
       const oauthClient = testClient(oauthApp, env);
       const managementClient = testClient(managementApp, env);
 
-      const createEmailUserResponse = await managementClient.api.v2.users.$post(
+      const createEmailUserResponse = await managementClient.users.$post(
         {
           json: {
             email: "örjan.lindström@example.com",
@@ -359,10 +355,11 @@ describe("social sign on", () => {
         {
           headers: {
             authorization: `Bearer ${token}`,
-            "content-type": "application/json",
           },
         },
       );
+
+      expect(createEmailUserResponse.status).toBe(201);
 
       const createEmailUser =
         (await createEmailUserResponse.json()) as UserResponse;
@@ -430,9 +427,7 @@ describe("social sign on", () => {
       // ---------------------------------------------
       // now check that the new social user was created was properly in the data providers
       // ---------------------------------------------
-      const newSocialUserRes = await managementClient.api.v2.users[
-        ":user_id"
-      ].$get(
+      const newSocialUserRes = await managementClient.users[":user_id"].$get(
         {
           param: { user_id: createEmailUser.user_id },
           header: {
@@ -450,9 +445,7 @@ describe("social sign on", () => {
       // ---------------------------------------------
       // check that the primary user has new identities
       // ---------------------------------------------
-      const primaryUserRes = await managementClient.api.v2.users[
-        ":user_id"
-      ].$get(
+      const primaryUserRes = await managementClient.users[":user_id"].$get(
         {
           param: { user_id: createEmailUser.user_id },
           header: {
@@ -574,9 +567,7 @@ describe("social sign on", () => {
       // ---------------------------------------------
       // now check that the primary user has new identities
       // ---------------------------------------------
-      const primaryUserResAgain = await managementClient.api.v2.users[
-        ":user_id"
-      ].$get(
+      const primaryUserResAgain = await managementClient.users[":user_id"].$get(
         {
           param: { user_id: createEmailUser.user_id },
           header: { "tenant-id": "tenantId" },

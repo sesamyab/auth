@@ -48,6 +48,7 @@ test("only allows existing users to progress to the enter code step", async () =
   await env.data.connections.create("breakit", {
     id: "breakit-connection",
     name: "facebook",
+    strategy: "facebook",
     options: {},
   });
 
@@ -162,12 +163,14 @@ test("only allows existing breakit users to progress to the enter code step with
   await env.data.connections.create("breakit", {
     id: "breakit-social-connection",
     name: "demo-social-provider",
+    strategy: "oauth2",
     options: {},
   });
 
   await env.data.connections.create("breakit", {
     id: "breakit-social-connection2",
     name: "other-social-provider",
+    strategy: "oauth2",
     options: {},
   });
 

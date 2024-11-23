@@ -2,6 +2,8 @@ import { XMLBuilder, XMLParser } from "fast-xml-parser";
 import { samlRequestSchema, SAMLResponseJSON } from "../types/saml";
 import { base64 } from "oslo/encoding";
 import { nanoid } from "nanoid";
+import { Context } from "hono";
+import { Env, Var } from "../types";
 
 export interface SAMLMetadataParams {
   entityId: string;
@@ -30,7 +32,6 @@ export interface SAMLResponseParams {
     kid: string;
   };
   encode?: boolean;
-  samlSignUrl: string;
 }
 
 export async function inflateRaw(
@@ -237,6 +238,7 @@ export function createSamlMetadata(samlMetadataParams: SAMLMetadataParams) {
 }
 
 export async function createSamlResponse(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
   samlResponseParams: SAMLResponseParams,
 ): Promise<string> {
   const notBefore = samlResponseParams.notBefore || new Date().toISOString();
@@ -524,23 +526,11 @@ export async function createSamlResponse(
   let xmlContent = builder.build(samlResponseJson);
 
   if (samlResponseParams.signature) {
-    const response = await fetch(samlResponseParams.samlSignUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        xmlContent,
-        privateKey: samlResponseParams.signature.privateKeyPem,
-        publicCert: samlResponseParams.signature.cert,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to sign SAML response: ${response.status}`);
-    }
-
-    xmlContent = await response.text();
+    xmlContent = await ctx.env.signSAML(
+      xmlContent,
+      samlResponseParams.signature.privateKeyPem,
+      samlResponseParams.signature.cert,
+    );
   }
 
   if (samlResponseParams.encode === false) {

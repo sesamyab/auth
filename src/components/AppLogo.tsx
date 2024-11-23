@@ -8,10 +8,10 @@ type AppLogoProps = {
 const AppLogo: FC<AppLogoProps> = ({ vendorSettings }) => {
   if (vendorSettings?.logoUrl) {
     return (
-      <div class="flex h-9 items-center">
+      <div className="flex h-9 items-center">
         <img
           src={vendorSettings.logoUrl}
-          class="max-h-full"
+          className="max-h-full"
           alt="Vendor logo"
         />
       </div>

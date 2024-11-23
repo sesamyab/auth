@@ -15,10 +15,13 @@ import it from "./localesLogin2/it/default.json";
 import nb from "./localesLogin2/nb/default.json";
 import sv from "./localesLogin2/sv/default.json";
 import pl from "./localesLogin2/pl/default.json";
+import cs from "./localesLogin2/cs/default.json";
+import fi from "./localesLogin2/fi/default.json";
 import { DataAdapters } from "@authhero/adapter-interfaces";
 import createOauthApp from "./oauth-app";
-import createManagementApp from "./management-app";
+import { init } from "authhero";
 import createSamlApp from "./saml-app";
+import { registerComponent } from "hono-openapi-middlewares";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -33,12 +36,16 @@ const ALLOWED_ORIGINS = [
 ];
 
 i18next.init({
+  supportedLngs: ["en", "it", "nb", "sv", "pl", "cs", "fi"],
+  fallbackLng: "en",
   resources: {
     en: { translation: en },
     it: { translation: it },
     nb: { translation: nb },
     sv: { translation: sv },
     pl: { translation: pl },
+    cs: { translation: cs },
+    fi: { translation: fi },
   },
 });
 
@@ -84,7 +91,7 @@ export default function create(params: CreateAuthParams) {
       }),
     )
     .use(loggerMiddleware)
-    .get("/", async (ctx: Context<{ Bindings: Env; Variables: Var }>) => {
+    .get("/", async (ctx: Context) => {
       const url = new URL(ctx.req.url);
       const tenantId = url.hostname.split(".")[0];
       return ctx.json({
@@ -93,21 +100,27 @@ export default function create(params: CreateAuthParams) {
       });
     });
 
+  const { managementApp } = init({
+    dataAdapter: params.dataAdapter,
+  });
+
+  managementApp.use(registerComponent(managementApp));
+
   const oauthApp = createOauthApp(params);
-  const managementApp = createManagementApp(params);
   const samlApp = createSamlApp(params);
-  rootApp.route("/", oauthApp).route("/", managementApp).route("/", samlApp);
 
-  app.get(
-    "/css/tailwind.css",
-    async (ctx: Context<{ Bindings: Env; Variables: Var }>) => {
-      const css = tailwindCss;
+  rootApp
+    .route("/", oauthApp)
+    .route("/api/v2", managementApp)
+    .route("/", samlApp);
 
-      return ctx.text(css, 200, {
-        "content-type": "text/css; charset=utf-8",
-      });
-    },
-  );
+  app.get("/css/tailwind.css", async (ctx: Context) => {
+    const css = tailwindCss;
+
+    return ctx.text(css, 200, {
+      "content-type": "text/css; charset=utf-8",
+    });
+  });
 
   app.get("/docs", swaggerUi);
   app.get("/oauth2-redirect.html", renderOauthRedirectHtml);
@@ -116,5 +129,6 @@ export default function create(params: CreateAuthParams) {
     app,
     oauthApp,
     managementApp,
+    samlApp,
   };
 }

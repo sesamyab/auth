@@ -18,19 +18,19 @@ const PreSignupPage: FC<Props> = ({ vendorSettings, email, state }) => {
       title={i18next.t("create_password_account_title")}
       vendorSettings={vendorSettings}
     >
-      <div class="mb-4 text-lg font-medium sm:text-2xl">
+      <div className="mb-4 text-lg font-medium sm:text-2xl">
         {i18next.t("create_password_account_title")}
       </div>
-      <div class="mb-6 text-gray-300">
+      <div className="mb-6 text-gray-300">
         {i18next.t("enter_email_for_verification_description")}
       </div>
-      <div class="flex flex-1 flex-col justify-center">
+      <div className="flex flex-1 flex-col justify-center">
         <Form className="pt-2">
           <input
             type="email"
             name="username"
             placeholder={i18next.t("email_placeholder")}
-            class="mb-2 w-full rounded-lg bg-gray-100 px-4 py-5 text-base placeholder:text-gray-300 dark:bg-gray-600 md:text-base"
+            className="mb-2 w-full rounded-lg bg-gray-100 px-4 py-5 text-base placeholder:text-gray-300 dark:bg-gray-600 md:text-base"
             required
             value={email}
             disabled

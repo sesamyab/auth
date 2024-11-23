@@ -8,6 +8,7 @@ import {
   AuthorizationResponseMode,
   AuthorizationResponseType,
 } from "@authhero/adapter-interfaces";
+import { getImpersonatedUser } from "../utils/users";
 
 export async function authorizeCodeGrant(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -37,7 +38,7 @@ export async function authorizeCodeGrant(
   );
 
   if (!login) {
-    throw new HTTPException(400, { message: "Code not found" });
+    throw new HTTPException(400, { message: "Login not found" });
   }
 
   // Set the response_type to token id_token for the code grant flow
@@ -65,10 +66,18 @@ export async function authorizeCodeGrant(
     throw new HTTPException(403, { message: "Invalid Secret" });
   }
 
+  const actAs = await getImpersonatedUser(
+    ctx.env.data.users,
+    client.tenant.id,
+    user.email,
+    login.authParams.act_as,
+  );
+
   return generateAuthResponse({
     ctx,
     authParams: login.authParams,
     user,
+    actAs,
     client,
     authFlow: "code",
   });

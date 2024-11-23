@@ -128,3 +128,21 @@ export async function getPrimaryUserByEmailAndProvider({
 
   return userAdapter.get(tenant_id, user.linked_to);
 }
+
+export async function getImpersonatedUser(
+  userAdapter: UserDataAdapter,
+  tenant_id: string,
+  email: string,
+  impersonatedUser?: string,
+) {
+  if (!email.endsWith("sesamy.com") || !impersonatedUser) {
+    console.log("wrong email", email, impersonatedUser);
+    return;
+  }
+
+  return getPrimaryUserByEmail({
+    userAdapter,
+    tenant_id,
+    email: impersonatedUser,
+  });
+}

@@ -20,7 +20,7 @@ describe("Register password user", () => {
           scope: "openid",
           redirect_uri: "http://localhost:3000/callback",
           state: "state",
-          username: "test@example.com",
+          login_hint: "test@example.com",
         },
       },
       {
@@ -112,7 +112,7 @@ describe("Register password user", () => {
           scope: "openid",
           redirect_uri: "http://localhost:3000/callback",
           state: "state",
-          username: "test@example.com",
+          login_hint: "test@example.com",
         },
       },
       {

@@ -50,6 +50,7 @@ const jwksCache = new LRUCache<string, JwksKey[]>({
 
 async function getJwks(env: Env) {
   const jwksKeys = jwksCache.get(env.JWKS_URL);
+
   if (jwksKeys) {
     return jwksKeys;
   }
@@ -67,8 +68,7 @@ async function getJwks(env: Env) {
     return responseBody.keys;
   } catch (error: any) {
     throw new HTTPException(500, {
-      message:
-        "Failed to fetch jwks: " + error.message + ", " + JSON.stringify(env),
+      message: `Failed to fetch jwks: ${error.message}`,
     });
   }
 }

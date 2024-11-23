@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { Apple } from "arctic";
+import { Apple, Google, Facebook, generateCodeVerifier } from "arctic";
 import {
   AuthParams,
   Client,
@@ -65,10 +65,12 @@ export async function socialAuth(
     });
   }
 
+  const code_verifier = generateCodeVerifier();
   const auth2State = await ctx.env.data.codes.create(client.tenant.id, {
     login_id: session.login_id,
     code_id: nanoid(),
     code_type: "oauth2_state",
+    code_verifier,
     connection_id: connection.id,
     expires_at: new Date(
       Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
@@ -77,25 +79,74 @@ export async function socialAuth(
 
   const options = connection.options || {};
 
-  if (connectionName === "apple") {
+  if (connection.strategy === "apple") {
+    if (
+      !options.client_id ||
+      !options.team_id ||
+      !options.kid ||
+      !options.app_secret
+    ) {
+      throw new Error("Missing required Apple authentication parameters");
+    }
+
+    // Use a secure buffer to handle private key
+    const privateKeyBuffer = Buffer.from(options.app_secret, "utf-8");
+    const cleanedKey = privateKeyBuffer
+      .toString()
+      .replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, "");
+    const keyArray = Uint8Array.from(Buffer.from(cleanedKey, "base64"));
+    // Clear sensitive data from memory
+    privateKeyBuffer.fill(0);
+
     const apple = new Apple(
-      {
-        clientId: options.client_id!,
-        teamId: options.team_id!,
-        keyId: options.kid!,
-        certificate: options
-          .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
-          .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, ""),
-      },
+      options.client_id!,
+      options.team_id!,
+      options.kid!,
+      keyArray,
       `${ctx.env.ISSUER}callback`,
     );
 
     const appleAuthorizatioUrl = await apple.createAuthorizationURL(
       auth2State.code_id,
+      options.scope?.split(" ") || ["name", "email"],
     );
 
     return ctx.redirect(appleAuthorizatioUrl.href);
+  } else if (connection.strategy === "google-oauth2") {
+    if (!options.client_id || !options.client_secret) {
+      throw new Error("Missing required Google authentication parameters");
+    }
+
+    const google = new Google(
+      options.client_id,
+      options.client_secret,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const googleAuthorizationUrl = google.createAuthorizationURL(
+      auth2State.code_id,
+      code_verifier,
+      options.scope?.split(" ") ?? ["email", "profile"],
+    );
+
+    return ctx.redirect(googleAuthorizationUrl.href);
+  } else if (connection.strategy === "facebook") {
+    if (!options.client_id || !options.client_secret) {
+      throw new Error("Missing required Facebook authentication parameters");
+    }
+
+    const facebook = new Facebook(
+      options.client_id,
+      options.client_secret,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const facebookAuthorizationUrl = facebook.createAuthorizationURL(
+      auth2State.code_id,
+      options.scope?.split(" ") || ["email"],
+    );
+
+    return ctx.redirect(facebookAuthorizationUrl.href);
   }
 
   const oauthLoginUrl = new URL(options.authorization_endpoint!);
@@ -112,11 +163,12 @@ export async function socialAuth(
   return ctx.redirect(oauthLoginUrl.href);
 }
 
-interface socialAuthCallbackParams {
+interface SocialAuthCallbackParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
-  session: Login;
+  login: Login;
   code: string;
   connection_id: string;
+  code_verifier?: string;
 }
 
 function getProfileData(profile: any) {
@@ -140,10 +192,11 @@ function getProfileData(profile: any) {
 
 export async function oauth2Callback({
   ctx,
-  session,
+  login: session,
   code,
   connection_id,
-}: socialAuthCallbackParams) {
+  code_verifier,
+}: SocialAuthCallbackParams) {
   const { env } = ctx;
   const client = await getClient(env, session.authParams.client_id);
   ctx.set("client_id", client.id);
@@ -159,6 +212,7 @@ export async function oauth2Callback({
     await ctx.env.data.logs.create(client.tenant.id, log);
     throw new HTTPException(403, { message: "Connection not found" });
   }
+
   ctx.set("connection", connection.name);
   ctx.set("connection_id", connection.id);
   ctx.set("strategy", connection.name);
@@ -193,22 +247,42 @@ export async function oauth2Callback({
   const options = connection.options || {};
 
   let userinfo: any;
-  if (connection.name === "apple") {
+  if (connection.strategy === "apple") {
     const apple = new Apple(
-      {
-        clientId: options.client_id!,
-        teamId: options.team_id!,
-        keyId: options.kid!,
-        certificate: options
+      options.client_id!,
+      options.team_id!,
+      options.kid!,
+      new Uint8Array(
+        options
           .app_secret!.replace(/^-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, ""),
-      },
-      `${env.ISSUER}callback`,
+          .replace(/\s/g, "")
+          .split("")
+          .map((char) => char.charCodeAt(0)),
+      ),
+      `${ctx.env.ISSUER}callback`,
     );
 
     const tokens = await apple.validateAuthorizationCode(code);
-    userinfo = parseJwt(tokens.idToken);
+    userinfo = parseJwt(tokens.idToken());
+  } else if (connection.strategy === "google-oauth2") {
+    const google = new Google(
+      options.client_id!,
+      options.client_secret!,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const tokens = await google.validateAuthorizationCode(code, code_verifier!);
+    userinfo = getProfileData(parseJwt(tokens.idToken()));
+  } else if (connection.strategy === "facebook") {
+    const facebook = new Facebook(
+      options.client_id!,
+      options.client_secret!,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const tokens = await facebook.validateAuthorizationCode(code);
+    userinfo = getProfileData(parseJwt(tokens.idToken()));
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
       {
@@ -218,6 +292,7 @@ export async function oauth2Callback({
         authorization_endpoint: options.authorization_endpoint!,
         token_endpoint: options.token_endpoint!,
         scope: options.scope!,
+        userinfo_endpoint: options.userinfo_endpoint,
       },
       `${env.ISSUER}callback`,
     );
@@ -235,12 +310,13 @@ export async function oauth2Callback({
         message: "No id_token or userinfo endpoint available",
       });
     }
+    ctx.set("log", JSON.stringify({ userinfo, options, token }));
   }
 
   const { sub, email, ...profileData } = userinfo;
   ctx.set("userId", sub);
 
-  let lowerCaseEmail =
+  const lowerCaseEmail =
     email?.toLocaleLowerCase() ||
     `${connection.name}.${sub}@${new URL(ctx.env.ISSUER).hostname}`;
 

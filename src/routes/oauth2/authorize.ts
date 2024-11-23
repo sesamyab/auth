@@ -17,6 +17,14 @@ import {
   AuthorizationResponseType,
   CodeChallengeMethod,
 } from "@authhero/adapter-interfaces";
+const UI_STRATEGIES = [
+  "email",
+  "sms",
+  "auth0",
+  "authhero",
+  // TODO: this is a legacy strategy. Remove once migrated
+  "Username-Password-Authentication",
+];
 
 export const authorizeRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -42,10 +50,6 @@ export const authorizeRoutes = new OpenAPIHono<{
           response_type: z.nativeEnum(AuthorizationResponseType).optional(),
           audience: z.string().optional(),
           connection: z.string().optional(),
-          username: z
-            .string()
-            .transform((u) => u.toLowerCase())
-            .optional(),
           nonce: z.string().optional(),
           max_age: z.string().optional(),
           login_ticket: z.string().optional(),
@@ -54,6 +58,7 @@ export const authorizeRoutes = new OpenAPIHono<{
           realm: z.string().optional(),
           auth0Client: z.string().optional(),
           login_hint: z.string().optional(),
+          ui_locales: z.string().optional(),
         }),
       },
       responses: {
@@ -83,8 +88,8 @@ export const authorizeRoutes = new OpenAPIHono<{
         login_ticket,
         realm,
         auth0Client,
-        username,
         login_hint,
+        ui_locales,
       } = ctx.req.valid("query");
 
       const client = await getClient(env, client_id);
@@ -98,10 +103,12 @@ export const authorizeRoutes = new OpenAPIHono<{
         vendor_id,
         audience,
         nonce,
+        prompt,
         response_type,
         code_challenge,
         code_challenge_method,
-        username: username || login_hint,
+        username: login_hint,
+        ui_locales,
       };
 
       const origin = ctx.req.header("origin");
@@ -126,9 +133,10 @@ export const authorizeRoutes = new OpenAPIHono<{
         client.tenant.id,
         ctx.req.header("cookie"),
       );
+
       const session = authCookie
         ? await env.data.sessions.get(client.tenant.id, authCookie)
-        : null;
+        : undefined;
 
       // Silent authentication with iframe
       if (prompt == "none") {
@@ -151,6 +159,20 @@ export const authorizeRoutes = new OpenAPIHono<{
           audience,
           scope,
         });
+      }
+
+      // If there's only one connection and it's not a u
+      if (
+        client.connections.length === 1 &&
+        UI_STRATEGIES.includes(client.connections[0].strategy || "")
+      ) {
+        return socialAuth(
+          ctx,
+          client,
+          client.connections[0].strategy,
+          authParams,
+          auth0Client,
+        );
       }
 
       // Social login

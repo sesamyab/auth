@@ -19,7 +19,7 @@ function createUserHooks(
 ) {
   return async (tenant_id: string, user: User) => {
     // Check for existing user with the same email and if so link the users
-    let result = await linkUsersHook(data)(tenant_id, user);
+    const result = await linkUsersHook(data)(tenant_id, user);
     // Invoke post-user-registration webhooks
     await postUserRegistrationWebhook(ctx, data)(tenant_id, result);
 
@@ -43,7 +43,10 @@ export async function preUserSignupHook(
   email: string,
 ) {
   // Check the disabled flag on the client
-  if (client.disable_sign_ups) {
+  if (
+    client.disable_sign_ups ||
+    ctx.var.login?.authParams.prompt === "x-login-only"
+  ) {
     // If there is another user with the same email, allow the signup as they will be linked together
     const existingUser = await getPrimaryUserByEmail({
       userAdapter: ctx.env.data.users,

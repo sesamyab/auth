@@ -1,6 +1,11 @@
-export function samlResponseForm(postUrl: string, base64EncodedSaml: string) {
-  const relayState =
-    '<input type="hidden" name="RelayState" value="OPTIONAL_RELAY_STATE_HERE" />';
+export function samlResponseForm(
+  postUrl: string,
+  base64EncodedSaml: string,
+  relayState?: string,
+) {
+  const relayStateInput = relayState
+    ? `<input type="hidden" name="RelayState" value="${relayState}" />`
+    : "";
 
   const samlResponseTempate = `
 <!DOCTYPE html>
@@ -11,7 +16,8 @@ export function samlResponseForm(postUrl: string, base64EncodedSaml: string) {
         <input type="submit" value="Continue">
     </noscript>
     <form method="post" action="${postUrl}">
-        <input type="hidden" name="SAMLResponse" value="${base64EncodedSaml}" />        
+        <input type="hidden" name="SAMLResponse" value="${base64EncodedSaml}" />  
+        ${relayStateInput}      
     </form>
     <script>
     window.onload = function() {{

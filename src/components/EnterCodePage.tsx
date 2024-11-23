@@ -42,10 +42,10 @@ const EnterCodePage: FC<Props> = ({
       title={i18next.t("verify_your_email")}
       vendorSettings={vendorSettings}
     >
-      <div class="mb-4 text-2xl font-medium">
+      <div className="mb-4 text-2xl font-medium">
         {i18next.t("verify_your_email")}
       </div>
-      <div class="mb-8 text-gray-300">
+      <div className="mb-8 text-gray-300">
         <Trans
           i18nKey="we_sent_a_code_to"
           components={[
@@ -56,7 +56,7 @@ const EnterCodePage: FC<Props> = ({
           values={{ email }}
         />
       </div>
-      <div class="flex flex-1 flex-col justify-center">
+      <div className="flex flex-1 flex-col justify-center">
         <Form className="pt-2">
           <input
             autoFocus
@@ -66,7 +66,7 @@ const EnterCodePage: FC<Props> = ({
             inputMode="numeric"
             name="code"
             placeholder="******"
-            class={cn(
+            className={cn(
               "mb-2 w-full rounded-lg border bg-gray-100 px-4 pb-2 pt-2.5 text-center indent-[5px] font-mono text-3xl placeholder:text-gray-300 dark:bg-gray-600 md:text-3xl",
               {
                 "border-red": error,
@@ -78,7 +78,7 @@ const EnterCodePage: FC<Props> = ({
             id="code-input"
           />
           {error && <ErrorMessage>{error}</ErrorMessage>}
-          <div class="text-center sm:mt-2">
+          <div className="text-center sm:mt-2">
             <DisabledSubmitButton className="text-base sm:mt-4 md:text-base">
               <div className="flex items-center space-x-2">
                 <span>{i18next.t("login")}</span>
@@ -86,9 +86,9 @@ const EnterCodePage: FC<Props> = ({
               </div>
             </DisabledSubmitButton>
           </div>
-          <div class="my-4 flex space-x-2 text-sm text-[#B2B2B2]">
+          <div className="my-4 flex space-x-2 text-sm text-[#B2B2B2]">
             <Icon className="text-base" name="info-bubble" />
-            <div class="text-sm text-gray-300 md:text-sm">
+            <div className="text-sm text-gray-300 md:text-sm">
               {i18next.t("sent_code_spam")}
             </div>
           </div>
