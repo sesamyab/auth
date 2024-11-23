@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { Apple, Google } from "arctic";
+import { Apple, Google, Facebook, generateCodeVerifier } from "arctic";
 import {
   AuthParams,
   Client,
@@ -65,10 +65,12 @@ export async function socialAuth(
     });
   }
 
+  const code_verifier = generateCodeVerifier();
   const auth2State = await ctx.env.data.codes.create(client.tenant.id, {
     login_id: session.login_id,
     code_id: nanoid(),
     code_type: "oauth2_state",
+    code_verifier,
     connection_id: connection.id,
     expires_at: new Date(
       Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
@@ -111,20 +113,40 @@ export async function socialAuth(
 
     return ctx.redirect(appleAuthorizatioUrl.href);
   } else if (connection.strategy === "google-oauth2") {
+    if (!options.client_id || !options.client_secret) {
+      throw new Error("Missing required Google authentication parameters");
+    }
+
     const google = new Google(
-      options.client_id!,
-      // Pass the login session as code verifier
-      session.login_id,
+      options.client_id,
+      options.client_secret,
       `${ctx.env.ISSUER}callback`,
     );
 
     const googleAuthorizationUrl = google.createAuthorizationURL(
       auth2State.code_id,
-      `${ctx.env.ISSUER}callback`,
-      options.scope!.split(" ") || ["email", "profile"],
+      code_verifier,
+      options.scope?.split(" ") ?? ["email", "profile"],
     );
 
     return ctx.redirect(googleAuthorizationUrl.href);
+  } else if (connection.strategy === "facebook") {
+    if (!options.client_id || !options.client_secret) {
+      throw new Error("Missing required Facebook authentication parameters");
+    }
+
+    const facebook = new Facebook(
+      options.client_id,
+      options.client_secret,
+      `${ctx.env.ISSUER}callback`,
+    );
+
+    const facebookAuthorizationUrl = facebook.createAuthorizationURL(
+      auth2State.code_id,
+      options.scope?.split(" ") || ["email"],
+    );
+
+    return ctx.redirect(facebookAuthorizationUrl.href);
   }
 
   const oauthLoginUrl = new URL(options.authorization_endpoint!);
@@ -146,6 +168,7 @@ interface SocialAuthCallbackParams {
   login: Login;
   code: string;
   connection_id: string;
+  code_verifier?: string;
 }
 
 function getProfileData(profile: any) {
@@ -172,6 +195,7 @@ export async function oauth2Callback({
   login: session,
   code,
   connection_id,
+  code_verifier,
 }: SocialAuthCallbackParams) {
   const { env } = ctx;
   const client = await getClient(env, session.authParams.client_id);
@@ -188,6 +212,7 @@ export async function oauth2Callback({
     await ctx.env.data.logs.create(client.tenant.id, log);
     throw new HTTPException(403, { message: "Connection not found" });
   }
+
   ctx.set("connection", connection.name);
   ctx.set("connection_id", connection.id);
   ctx.set("strategy", connection.name);
@@ -247,10 +272,16 @@ export async function oauth2Callback({
       `${ctx.env.ISSUER}callback`,
     );
 
-    const tokens = await google.validateAuthorizationCode(
-      code,
-      session.login_id,
+    const tokens = await google.validateAuthorizationCode(code, code_verifier!);
+    userinfo = getProfileData(parseJwt(tokens.idToken()));
+  } else if (connection.strategy === "facebook") {
+    const facebook = new Facebook(
+      options.client_id!,
+      options.client_secret!,
+      `${ctx.env.ISSUER}callback`,
     );
+
+    const tokens = await facebook.validateAuthorizationCode(code);
     userinfo = getProfileData(parseJwt(tokens.idToken()));
   } else {
     const oauth2Client = env.oauth2ClientFactory.create(
