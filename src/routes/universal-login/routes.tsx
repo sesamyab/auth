@@ -42,9 +42,10 @@ import { CustomException } from "../../models/CustomError";
 import { CODE_EXPIRATION_TIME } from "../../constants";
 import {
   Client,
-  ListLogsResponse,
   Login,
   LogTypes,
+  PasswordInsert,
+  ListLogsResponse,
   User,
 } from "@authhero/adapter-interfaces";
 import CheckEmailPage from "../../components/CheckEmailPage";
@@ -467,11 +468,18 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           );
         }
 
-        await env.data.passwords.update(client.tenant.id, {
+        const passwordOptions: PasswordInsert = {
           user_id: user.user_id,
           password: await bcryptjs.hash(password, 10),
           algorithm: "bcrypt",
-        });
+        };
+
+        try {
+          // In case the password doesn't exist
+          await env.data.passwords.create(client.tenant.id, passwordOptions);
+        } catch (err) {
+          await env.data.passwords.update(client.tenant.id, passwordOptions);
+        }
 
         // we could do this on the GET...
         if (!user.email_verified) {
