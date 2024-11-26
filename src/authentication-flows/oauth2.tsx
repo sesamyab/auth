@@ -150,6 +150,8 @@ export async function socialAuth(
     return ctx.redirect(facebookAuthorizationUrl.href);
   }
 
+  console.log("got here", JSON.stringify(options));
+
   const oauthLoginUrl = new URL(options.authorization_endpoint!);
 
   setSearchParams(oauthLoginUrl, {
