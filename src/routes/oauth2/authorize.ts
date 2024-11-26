@@ -169,7 +169,7 @@ export const authorizeRoutes = new OpenAPIHono<{
         return socialAuth(
           ctx,
           client,
-          client.connections[0].strategy,
+          client.connections[0].name,
           authParams,
           auth0Client,
         );

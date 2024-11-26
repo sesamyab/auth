@@ -477,7 +477,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         try {
           // In case the password doesn't exist
           await env.data.passwords.create(client.tenant.id, passwordOptions);
-        } catch (err) {
+        } catch {
           await env.data.passwords.update(client.tenant.id, passwordOptions);
         }
 
@@ -487,7 +487,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             email_verified: true,
           });
         }
-      } catch (err) {
+      } catch {
         // seems like we should not do this catch... try and see what happens
         return ctx.html(
           <ResetPasswordPage
@@ -690,7 +690,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       if (!user) {
         try {
           await preUserSignupHook(ctx, client, ctx.env.data, params.username);
-        } catch (err) {
+        } catch {
           const log = createLogMessage(ctx, {
             type: LogTypes.FAILED_SIGNUP,
             description: "Public signup is disabled",
@@ -901,7 +901,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         });
 
         return authResponse;
-      } catch (err) {
+      } catch {
         const user = await getPrimaryUserByEmailAndProvider({
           userAdapter: ctx.env.data.users,
           tenant_id: client.tenant.id,
@@ -1136,17 +1136,19 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         }
 
         return handleLogin(ctx, newUser, session, client);
-      } catch (err: any) {
+      } catch (err: unknown) {
         const vendorSettings = await fetchVendorSettings(
           env,
           client.id,
           session.authParams.vendor_id,
         );
+
+        const error = err as Error;
         return ctx.html(
           <SignupPage
             state={state}
             vendorSettings={vendorSettings}
-            error={err.message}
+            error={error.message}
             email={email}
           />,
           400,
