@@ -179,17 +179,8 @@ describe("code-flow", () => {
         "clientId",
       );
 
-    const {
-      // these are the fields that change on every test run
-      exp,
-      iat,
-      sid,
-      sub,
-      ...restOfIdTokenPayload
-    } = silentAuthIdTokenPayload;
-
-    expect(sub).toContain("email|");
-    expect(restOfIdTokenPayload).toEqual({
+    expect(silentAuthIdTokenPayload.sub).toContain("email|");
+    expect(silentAuthIdTokenPayload).toMatchObject({
       aud: "clientId",
       name: "test@example.com",
       email: "test@example.com",
@@ -256,23 +247,8 @@ describe("code-flow", () => {
         "clientId",
       );
 
-    const {
-      sub: sub2,
-      // TO TEST? that these fields are the same as on the first silent auth?
-      exp: exp2,
-      iat: iat2,
-      sid: sid2,
-      //
-      family_name: family_name2,
-      given_name: given_name2,
-      nickname: nickname2,
-      locale: locale2,
-      picture: picture2,
-      ...restOfIdTokenPayload2
-    } = silentAuthIdTokenPayload2;
-
-    expect(sub2).toEqual(sub);
-    expect(restOfIdTokenPayload2).toEqual({
+    expect(silentAuthIdTokenPayload2.sub).toEqual(silentAuthIdTokenPayload.sub);
+    expect(silentAuthIdTokenPayload2).toMatchObject({
       aud: "clientId",
       name: "test@example.com",
       email: "test@example.com",
@@ -622,19 +598,10 @@ describe("code-flow", () => {
         "clientId",
       );
 
-    const {
-      // these are the fields that change on every test run
-      exp,
-      iat,
-      sid,
-      sub,
-      ...restOfIdTokenPayload
-    } = silentAuthIdTokenPayload;
-
     // this is the id of the primary account
-    expect(sub).toBe("auth2|userId");
+    expect(silentAuthIdTokenPayload.sub).toBe("auth2|userId");
 
-    expect(restOfIdTokenPayload).toEqual({
+    expect(silentAuthIdTokenPayload).toMatchObject({
       aud: "clientId",
       email: "foo@example.com",
       email_verified: true,

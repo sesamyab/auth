@@ -474,12 +474,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           algorithm: "bcrypt",
         };
 
-        try {
-          // In case the password doesn't exist
-          await env.data.passwords.create(client.tenant.id, passwordOptions);
-        } catch {
-          await env.data.passwords.update(client.tenant.id, passwordOptions);
-        }
+        await env.data.passwords.update(client.tenant.id, passwordOptions);
 
         // we could do this on the GET...
         if (!user.email_verified) {

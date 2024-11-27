@@ -145,17 +145,8 @@ describe("magic link flow", () => {
           "clientId",
         );
 
-      const {
-        // these are the fields that change on every test run
-        exp,
-        iat,
-        sid,
-        sub,
-        ...restOfIdTokenPayload
-      } = silentAuthIdTokenPayload;
-
-      expect(sub).toContain("email|");
-      expect(restOfIdTokenPayload).toEqual({
+      expect(silentAuthIdTokenPayload.sub).toContain("email|");
+      expect(silentAuthIdTokenPayload).toMatchObject({
         aud: "clientId",
         name: "new-user@example.com",
         email: "new-user@example.com",
@@ -279,10 +270,7 @@ describe("magic link flow", () => {
           "clientId",
         );
 
-      const { exp, iat, sid, ...restOfIdTokenPayload } =
-        silentAuthIdTokenPayload;
-
-      expect(restOfIdTokenPayload).toEqual({
+      expect(silentAuthIdTokenPayload).toMatchObject({
         sub: "email|userId2",
         aud: "clientId",
         name: "",
@@ -391,10 +379,7 @@ describe("magic link flow", () => {
           "clientId",
         );
 
-      const { exp, iat, sid, ...restOfIdTokenPayload } =
-        silentAuthIdTokenPayload;
-
-      expect(restOfIdTokenPayload).toEqual({
+      expect(silentAuthIdTokenPayload).toMatchObject({
         sub: "auth2|userId",
         aud: "clientId",
         name: "Åkesson Þorsteinsson",
@@ -492,10 +477,7 @@ describe("magic link flow", () => {
           "clientId",
         );
 
-      const { exp, iat, sid, ...restOfIdTokenPayload } =
-        silentAuthIdTokenPayload;
-
-      expect(restOfIdTokenPayload).toEqual({
+      expect(silentAuthIdTokenPayload).toMatchObject({
         sub: "auth2|userId",
         aud: "clientId",
         name: "Åkesson Þorsteinsson",

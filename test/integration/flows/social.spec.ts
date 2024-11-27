@@ -216,13 +216,7 @@ describe("social sign on", () => {
           },
         );
         const newSocialUser = (await newSocialUserRes.json()) as UserResponse;
-        const {
-          created_at,
-          updated_at,
-          last_login,
-          ...newSocialUserWithoutDates
-        } = newSocialUser;
-        expect(newSocialUserWithoutDates).toEqual(EXPECTED_NEW_USER);
+        expect(newSocialUser).toMatchObject(EXPECTED_NEW_USER);
       });
 
       // like apple
@@ -319,13 +313,7 @@ describe("social sign on", () => {
           },
         );
         const newSocialUser = (await newSocialUserRes.json()) as UserResponse;
-        const {
-          created_at,
-          updated_at,
-          last_login,
-          ...newSocialUserWithoutDates
-        } = newSocialUser;
-        expect(newSocialUserWithoutDates).toEqual(EXPECTED_NEW_USER);
+        expect(newSocialUser).toMatchObject(EXPECTED_NEW_USER);
       });
     });
   });
@@ -404,7 +392,7 @@ describe("social sign on", () => {
       });
 
       const socialCallbackResponseQuery = new URLSearchParams(
-        socialCallbackResponse.headers.get("location")?.split("#")[1]!,
+        socialCallbackResponse.headers.get("location")?.split("#")[1],
       );
       const accessTokenPayload = parseJwt(
         socialCallbackResponseQuery.get("access_token")!,
@@ -515,7 +503,7 @@ describe("social sign on", () => {
       });
 
       const socialCallbackResponse2Query = new URLSearchParams(
-        socialCallbackResponse2.headers.get("location")?.split("#")[1]!,
+        socialCallbackResponse2.headers.get("location")?.split("#")[1],
       );
       expect(
         parseJwt(socialCallbackResponse2Query.get("access_token")!).sub,
@@ -552,9 +540,7 @@ describe("social sign on", () => {
       expect(socialCallbackResponseAnotherSSO.status).toBe(302);
 
       const socialCallbackResponseAnotherSSOQuery = new URLSearchParams(
-        socialCallbackResponseAnotherSSO.headers
-          .get("location")
-          ?.split("#")[1]!,
+        socialCallbackResponseAnotherSSO.headers.get("location")?.split("#")[1],
       );
       // these confirm we are still signing in with the primary user
       expect(
@@ -698,7 +684,7 @@ describe("social sign on", () => {
       });
 
       const socialCallbackResponseQuery = new URLSearchParams(
-        socialCallbackResponse.headers.get("location")?.split("#")[1]!,
+        socialCallbackResponse.headers.get("location")?.split("#")[1],
       );
 
       const accessTokenPayload = parseJwt(

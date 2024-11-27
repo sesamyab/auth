@@ -53,7 +53,7 @@ it("should prefill email with login_hint if passed to /authorize", async () => {
   const usernameValue = await usernameInput!.getAttribute("value");
   expect(usernameValue).toBe("suggested-email@example.com");
 
-  // @ts-ignore
+  // @ts-expect-error - dynamic import
   if (import.meta.env.TEST_SNAPSHOTS === "true") {
     const snapshot = await page.screenshot();
     expect(snapshot).toMatchImageSnapshot();
@@ -138,6 +138,7 @@ it("should redirect the user back with a code if the email matches the current s
   });
 
   expect(tokenResponse.status).toBe(200);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tokenBody: any = await tokenResponse.json();
   expect(tokenBody.access_token).toBeTypeOf("string");
 });
