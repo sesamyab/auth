@@ -474,9 +474,16 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           algorithm: "bcrypt",
         };
 
-        await env.data.passwords.update(client.tenant.id, passwordOptions);
+        const existingPassword = await env.data.passwords.get(
+          client.tenant.id,
+          user.user_id,
+        );
+        if (existingPassword) {
+          await env.data.passwords.update(client.tenant.id, passwordOptions);
+        } else {
+          await env.data.passwords.create(client.tenant.id, passwordOptions);
+        }
 
-        // we could do this on the GET...
         if (!user.email_verified) {
           await env.data.users.update(client.tenant.id, user.user_id, {
             email_verified: true,
