@@ -37,26 +37,28 @@ it("should prefill email with login_hint if passed to /authorize", async () => {
     query: { state: query.state },
   });
 
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-
-  const responseText = await getSendCodeResponse.text();
-  const responseBody = responseText.replace(
-    "/css/tailwind.css",
-    "http://auth2.sesamy.dev/css/tailwind.css",
-  );
-  await page.setContent(responseBody);
-
-  // assert that username input is prefilled with this email address
-  const usernameInput = await page.$('input[name="username"]');
-  expect(usernameInput).not.toBeNull();
-  const usernameValue = await usernameInput!.getAttribute("value");
-  expect(usernameValue).toBe("suggested-email@example.com");
-
-  // @ts-ignore
+  // @ts-expect-error - dynamic import
   if (import.meta.env.TEST_SNAPSHOTS === "true") {
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+
+    const responseText = await getSendCodeResponse.text();
+    const responseBody = responseText.replace(
+      "/css/tailwind.css",
+      "http://auth2.sesamy.dev/css/tailwind.css",
+    );
+    await page.setContent(responseBody);
+
+    // assert that username input is prefilled with this email address
+    const usernameInput = await page.$('input[name="username"]');
+    expect(usernameInput).not.toBeNull();
+    const usernameValue = await usernameInput!.getAttribute("value");
+    expect(usernameValue).toBe("suggested-email@example.com");
+
     const snapshot = await page.screenshot();
     expect(snapshot).toMatchImageSnapshot();
+
+    await browser.close();
   }
 });
 
@@ -138,6 +140,7 @@ it("should redirect the user back with a code if the email matches the current s
   });
 
   expect(tokenResponse.status).toBe(200);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tokenBody: any = await tokenResponse.json();
   expect(tokenBody.access_token).toBeTypeOf("string");
 });

@@ -2,7 +2,6 @@ import { test, expect } from "vitest";
 import { getTestServer } from "./helpers/test-server";
 import { testClient } from "hono/testing";
 import { snapshotResponse } from "./helpers/playwrightSnapshots";
-import { base64url } from "oslo/encoding";
 import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
 
 test("only allows existing users to progress to the enter code step", async () => {
@@ -46,9 +45,14 @@ test("only allows existing users to progress to the enter code step", async () =
   });
   // this will only render the FB button
   await env.data.connections.create("breakit", {
-    id: "breakit-connection",
     name: "facebook",
     strategy: "facebook",
+    options: {},
+  });
+  // We need another option so it doesn't redirect straight to facebook
+  await env.data.connections.create("breakit", {
+    name: "email",
+    strategy: "email",
     options: {},
   });
 
@@ -62,6 +66,8 @@ test("only allows existing users to progress to the enter code step", async () =
       state: "state",
     },
   });
+
+  expect(response.status).toBe(302);
   const location = response.headers.get("location");
   const stateParam = new URLSearchParams(location!.split("?")[1]);
   const query = Object.fromEntries(stateParam.entries());

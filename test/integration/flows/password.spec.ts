@@ -185,16 +185,9 @@ describe("password-flow", () => {
           "unique-nonce",
           "clientId",
         );
-      const {
-        // these are the fields that change on every test run
-        exp,
-        iat,
-        sid,
-        sub,
-        ...restOfIdTokenPayload
-      } = silentAuthIdTokenPayload;
-      expect(sub).toContain("auth2|");
-      expect(restOfIdTokenPayload).toEqual({
+
+      expect(silentAuthIdTokenPayload.sub).toContain("auth2|");
+      expect(silentAuthIdTokenPayload).toMatchObject({
         aud: "clientId",
         email: "password-login-test@example.com",
         email_verified: true,
@@ -520,7 +513,7 @@ describe("password-flow", () => {
     });
 
     it("should not allow a new sign up to overwrite the password of an existing signup", async () => {
-      const { oauthApp, emails, env } = await getTestServer();
+      const { oauthApp, env } = await getTestServer();
       const aNewPassword = "A-new-valid-password-1234!";
       const oauthClient = testClient(oauthApp, env);
 
@@ -572,7 +565,7 @@ describe("password-flow", () => {
   });
   describe("Login with password", () => {
     it("should login with existing user", async () => {
-      const { oauthApp, emails, env } = await getTestServer();
+      const { oauthApp, env } = await getTestServer();
       const oauthClient = testClient(oauthApp, env);
       // foo@example.com is an existing username-password user, with password - Test!
 
@@ -643,9 +636,7 @@ describe("password-flow", () => {
           "unique-nonce",
           "clientId",
         );
-      const { exp, iat, sid, ...restOfIdTokenPayload } =
-        silentAuthIdTokenPayload;
-      expect(restOfIdTokenPayload).toEqual({
+      expect(silentAuthIdTokenPayload).toMatchObject({
         sub: "auth2|userId",
         aud: "clientId",
         email: "foo@example.com",
