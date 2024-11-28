@@ -92,10 +92,6 @@ export const authenticateRoutes = new OpenAPIHono<{
           throw createUnauthorizedResponse();
         }
 
-        if (existingLoginSession.authParams.username !== email) {
-          throw createUnauthorizedResponse();
-        }
-
         loginSession = existingLoginSession;
       } else if (password) {
         // This will throw if the login fails
