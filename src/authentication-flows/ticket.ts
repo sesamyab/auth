@@ -31,31 +31,36 @@ export async function ticketAuth(
 
   ctx.set("connection", realm);
 
-  const ticket = await env.data.tickets.get(tenant_id, ticketId);
-
-  if (!ticket) {
+  const code = await env.data.codes.get(tenant_id, ticketId, "ticket");
+  if (!code) {
     throw new HTTPException(403, { message: "Ticket not found" });
   }
 
-  const client = await getClient(ctx.env, ticket.client_id);
-  ctx.set("client_id", ticket.client_id);
+  const login = await env.data.logins.get(tenant_id, code.login_id);
 
-  await env.data.tickets.remove(tenant_id, ticketId);
+  if (!login || !login.authParams.username) {
+    throw new HTTPException(403, { message: "Session not found" });
+  }
+
+  const client = await getClient(ctx.env, login.authParams.client_id);
+  ctx.set("client_id", login.authParams.client_id);
+
+  await env.data.codes.remove(tenant_id, ticketId);
 
   const provider = getProviderFromRealm(realm);
 
   let user = await getPrimaryUserByEmailAndProvider({
     userAdapter: env.data.users,
     tenant_id,
-    email: ticket.email,
+    email: login.authParams.username,
     provider,
   });
 
   if (!user) {
     user = await env.data.users.create(tenant_id, {
       user_id: `email|${userIdGenerate()}`,
-      email: ticket.email,
-      name: ticket.email,
+      email: login.authParams.username,
+      name: login.authParams.username,
       provider: "email",
       connection: "email",
       email_verified: true,
@@ -74,7 +79,7 @@ export async function ticketAuth(
   return generateAuthResponse({
     ctx,
     authParams: {
-      scope: ticket.authParams?.scope,
+      scope: login.authParams?.scope,
       ...authParams,
     },
     user,

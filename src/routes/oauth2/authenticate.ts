@@ -5,7 +5,7 @@ import { Env, Var } from "../../types";
 import { HTTPException } from "hono/http-exception";
 import { getClient } from "../../services/clients";
 import { loginWithPassword } from "../../authentication-flows/password";
-import { Ticket } from "@authhero/adapter-interfaces";
+import { Login } from "authhero";
 
 function createUnauthorizedResponse() {
   return new HTTPException(403, {
@@ -73,14 +73,7 @@ export const authenticateRoutes = new OpenAPIHono<{
 
       const email = username.toLocaleLowerCase();
 
-      const ticket: Ticket = {
-        id: nanoid(),
-        tenant_id: client.tenant.id,
-        client_id: client.id,
-        email: email,
-        created_at: new Date(),
-        expires_at: new Date(Date.now() + TICKET_EXPIRATION_TIME),
-      };
+      let loginSession: Login;
 
       if (otp) {
         const code = await ctx.env.data.codes.get(client.tenant.id, otp, "otp");
@@ -88,21 +81,18 @@ export const authenticateRoutes = new OpenAPIHono<{
           throw createUnauthorizedResponse();
         }
 
-        const loginSession = await ctx.env.data.logins.get(
+        const existingLoginSession = await ctx.env.data.logins.get(
           client.tenant.id,
           code.login_id,
         );
-        if (!loginSession || loginSession.authParams.username !== email) {
+        if (
+          !existingLoginSession ||
+          existingLoginSession.authParams.username !== email
+        ) {
           throw createUnauthorizedResponse();
         }
 
-        if (loginSession.authParams.username !== email) {
-          throw createUnauthorizedResponse();
-        }
-
-        // TODO: A temporary solution as the ticket doesn't have a username field. We should move the tickets over to the codes table instead
-        const { username, ...authParams } = loginSession.authParams;
-        ticket.authParams = authParams;
+        loginSession = existingLoginSession;
       } else if (password) {
         // This will throw if the login fails
         await loginWithPassword(ctx, client, {
@@ -110,14 +100,29 @@ export const authenticateRoutes = new OpenAPIHono<{
           password,
           client_id,
         });
+
+        loginSession = await ctx.env.data.logins.create(client.tenant.id, {
+          expires_at: new Date(
+            Date.now() + TICKET_EXPIRATION_TIME,
+          ).toISOString(),
+          authParams: {
+            client_id: client.id,
+            username: email,
+          },
+        });
       } else {
         throw new HTTPException(400, { message: "Code or password required" });
       }
 
-      await ctx.env.data.tickets.create(ticket);
+      const code = await ctx.env.data.codes.create(client.tenant.id, {
+        code_id: nanoid(),
+        code_type: "ticket",
+        login_id: loginSession.login_id,
+        expires_at: new Date(Date.now() + TICKET_EXPIRATION_TIME).toISOString(),
+      });
 
       return ctx.json({
-        login_ticket: ticket.id,
+        login_ticket: code.code_id,
         // TODO: I guess these should be validated when accepting the ticket
         co_verifier: randomString(32),
         co_id: randomString(12),
