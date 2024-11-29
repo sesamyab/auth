@@ -10,7 +10,9 @@ type Props = {
   state: string;
 };
 
-const ForgotPasswordSentPage: FC<Props> = ({ vendorSettings, state }) => {
+const ForgotPasswordSentPage: FC<Props> = (params) => {
+  const { vendorSettings, state } = params;
+
   return (
     <Layout title="Login" vendorSettings={vendorSettings}>
       <div className="flex flex-1 flex-col justify-center">

@@ -12,7 +12,9 @@ type Props = {
   email?: string;
 };
 
-const PreSignupPage: FC<Props> = ({ vendorSettings, email, state }) => {
+const PreSignupPage: FC<Props> = (params) => {
+  const { vendorSettings, email, state } = params;
+
   return (
     <Layout
       title={i18next.t("create_password_account_title")}

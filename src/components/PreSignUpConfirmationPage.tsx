@@ -12,11 +12,9 @@ type Props = {
   state: string;
 };
 
-const PreSignupComfirmationPage: FC<Props> = ({
-  vendorSettings,
-  email,
-  state,
-}) => {
+const PreSignupComfirmationPage: FC<Props> = (params) => {
+  const { vendorSettings, email, state } = params;
+
   return (
     <Layout
       title={i18next.t("email_verification_for_signup_sent_title")}

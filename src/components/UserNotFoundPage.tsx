@@ -10,7 +10,9 @@ type Props = {
   authParams: AuthParams;
 };
 
-const UserNotFound: FC<Props> = ({ vendorSettings, authParams }) => {
+const UserNotFound: FC<Props> = (params) => {
+  const { vendorSettings, authParams } = params;
+
   const linkParams = new URLSearchParams({
     ...authParams,
   });

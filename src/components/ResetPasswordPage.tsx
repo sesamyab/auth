@@ -12,11 +12,9 @@ type ResetPasswordPageProps = {
   email: string;
 };
 
-const ResetPasswordPage: FC<ResetPasswordPageProps> = ({
-  error,
-  vendorSettings,
-  email,
-}) => {
+const ResetPasswordPage: FC<ResetPasswordPageProps> = (params) => {
+  const { error, vendorSettings, email } = params;
+
   return (
     <Layout
       title={i18next.t("reset_password_title")}

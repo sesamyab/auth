@@ -7,7 +7,9 @@ type Props = {
   vendorSettings: VendorSettings;
 };
 
-const IncognitoPage: FC<Props> = ({ redirectUrl, vendorSettings }) => {
+const IncognitoPage: FC<Props> = (params) => {
+  const { redirectUrl, vendorSettings } = params;
+
   return (
     <Layout title="Login" vendorSettings={vendorSettings}>
       <div className="flex flex-1 flex-col justify-center">
