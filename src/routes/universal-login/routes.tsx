@@ -99,9 +99,8 @@ async function initJSXRoute(ctx: Context, state: string) {
     vendorSettings: {
       ...vendorSettings,
       // HACK: Temporarily remove the terms of service link for the Fokus app
-      termsAndConditionsUrl: ctx.req.header("User-Agent")?.startsWith("fokus")
-        ? null
-        : vendorSettings.termsAndConditionsUrl,
+      termsAndConditionsUrl:
+        client.id === "fokus-app" ? null : vendorSettings.termsAndConditionsUrl,
     },
     client,
     tenant,
