@@ -8,7 +8,9 @@ interface TransProps {
   components: JSXNode[];
 }
 
-const Trans: FC<TransProps> = ({ i18nKey, values, components }) => {
+const Trans: FC<TransProps> = (params) => {
+  const { i18nKey, values, components } = params;
+
   const translation = i18next.t(i18nKey, values);
   const regex = /<(\d+)>(.*?)<\/\d+>/g;
 
@@ -17,7 +19,7 @@ const Trans: FC<TransProps> = ({ i18nKey, values, components }) => {
   let match: RegExpExecArray | null;
 
   while ((match = regex.exec(translation)) !== null) {
-    const [fullMatch, index, content] = match;
+    const [, index, content] = match;
     const precedingText = translation.substring(lastIndex, match.index);
     if (precedingText) {
       result.push(precedingText);

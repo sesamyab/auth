@@ -14,12 +14,9 @@ type Props = {
   state: string;
 };
 
-const ForgotPasswordPage: FC<Props> = ({
-  error,
-  vendorSettings,
-  state,
-  email,
-}) => {
+const ForgotPasswordPage: FC<Props> = (parms) => {
+  const { error, vendorSettings, email, state } = parms;
+
   return (
     <Layout
       title={i18next.t("forgot_password_title")}

@@ -10,12 +10,9 @@ type Props = {
   state?: string;
 };
 
-const MessagePage: FC<Props> = ({
-  message,
-  vendorSettings,
-  pageTitle,
-  state,
-}) => {
+const MessagePage: FC<Props> = (params) => {
+  const { message, vendorSettings, pageTitle, state } = params;
+
   return (
     <Layout title="Login" vendorSettings={vendorSettings}>
       {pageTitle ? <div className="mb-6 text-gray-300">{pageTitle}</div> : ""}

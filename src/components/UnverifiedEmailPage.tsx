@@ -10,7 +10,9 @@ type Props = {
   state: string;
 };
 
-const UnverifiedEmailPage: FC<Props> = ({ vendorSettings, state }) => {
+const UnverifiedEmailPage: FC<Props> = (params) => {
+  const { vendorSettings, state } = params;
+
   return (
     <Layout
       title={i18next.t("unverified_email")}

@@ -17,12 +17,9 @@ type Props = {
   client: Client;
 };
 
-const EnterPasswordPage: FC<Props> = ({
-  error,
-  vendorSettings,
-  email,
-  state,
-}) => {
+const EnterPasswordPage: FC<Props> = (params) => {
+  const { error, vendorSettings, email, state } = params;
+
   const loginLinkParams = new URLSearchParams({
     state,
   });

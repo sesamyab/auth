@@ -15,13 +15,9 @@ type Props = {
   code?: string;
 };
 
-const SignupPage: FC<Props> = ({
-  error,
-  vendorSettings,
-  email,
-  code,
-  state,
-}) => {
+const SignupPage: FC<Props> = (params) => {
+  const { state, error, vendorSettings, email, code } = params;
+
   return (
     <Layout
       title={i18next.t("create_account_title")}
