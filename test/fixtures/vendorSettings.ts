@@ -15,7 +15,7 @@ export const FOKUS_VENDOR_SETTINGS: VendorSettings = {
   supportEmail: null,
   supportUrl: null,
   siteUrl: null,
-  termsAndConditionsUrl: null,
+  termsAndConditionsUrl: "https://www.fokus.se/prenumerationsvillkor/",
 };
 
 export const BREAKIT_VENDOR_SETTINGS: VendorSettings = {
@@ -69,5 +69,5 @@ export const PARCFERME_VENDOR_SETTINGS: VendorSettings = {
   supportEmail: null,
   supportUrl: "https://www.parcferme.no",
   siteUrl: "https://www.parcferme.no",
-  termsAndConditionsUrl: null,
+  termsAndConditionsUrl: "https://www.parcferme.no/villkor/",
 };
