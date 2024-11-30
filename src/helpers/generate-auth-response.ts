@@ -132,6 +132,15 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
 
   const keyBuffer = pemToBuffer(privatKey);
 
+  // HACK: Testing custom claims for opensearch
+  const customClaims =
+    client.id === "sesamy-elastic" && user?.email.endsWith("sesamy.com")
+      ? {
+          roles: ["admin"],
+          subject_key: user.name || user.email,
+        }
+      : {};
+
   const accessToken = await createJWT(
     "RS256",
     keyBuffer,
@@ -143,6 +152,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
       azp: client.tenant.id,
       tenant_id: client.tenant.id,
       act_as: params.actAs?.user_id,
+      ...customClaims,
     },
     {
       includeIssuedTimestamp: true,
