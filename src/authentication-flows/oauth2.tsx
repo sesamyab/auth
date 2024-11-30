@@ -305,6 +305,7 @@ export async function oauth2Callback({
     const token = await oauth2Client.exchangeCodeForTokenResponse(code, true);
 
     if (options.userinfo_endpoint) {
+      ctx.set("log", JSON.stringify({ userinfo, options, token }));
       userinfo = getProfileData(
         await oauth2Client.getUserProfile(token.access_token),
       );
@@ -340,8 +341,10 @@ export async function oauth2Callback({
   } else {
     try {
       await preUserSignupHook(ctx, client, ctx.env.data, email);
-    } catch (err: any) {
-      console.log("error", err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+
+      console.log("error", error.message);
       const vendorSettings = await fetchVendorSettings(
         env,
         client.id,
