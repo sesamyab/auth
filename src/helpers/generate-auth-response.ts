@@ -136,7 +136,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
   const customClaims =
     client.id === "sesamy-elastic" && user?.email.endsWith("sesamy.com")
       ? {
-          roles: ["sesamy_admin"],
+          roles: "sesamy_admin",
           subject_key: user.name || user.email,
         }
       : {};
