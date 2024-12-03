@@ -29,7 +29,6 @@ import createAdapters, { Database } from "@authhero/kysely-adapter";
 interface ContextFixtureParams {
   headers?: { [key: string]: string };
   stateData?: { [key: string]: string };
-  tickets?: Ticket[];
   sessions?: SessionInsert[];
   passwords?: Password[];
   users?: User[];
@@ -51,7 +50,6 @@ export async function contextFixture(
   const {
     headers = {},
     logs = [],
-    tickets,
     sessions,
     users,
     passwords,
@@ -120,12 +118,6 @@ export async function contextFixture(
   if (users) {
     users.forEach((user) => {
       data.users.create(TENANT_FIXTURE.id, user);
-    });
-  }
-
-  if (tickets) {
-    tickets.forEach((ticket) => {
-      data.tickets.create(ticket);
     });
   }
 

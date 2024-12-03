@@ -18,11 +18,6 @@ export async function cleanup(db: Kysely<Database>) {
     .limit(100000)
     .execute();
   await db
-    .deleteFrom("tickets")
-    .where("created_at", "<", oneDayAgo)
-    .limit(100000)
-    .execute();
-  await db
     .deleteFrom("logins")
     .where("created_at", "<", oneWeekAgo)
     .limit(100000)
