@@ -109,6 +109,8 @@ export const authenticateRoutes = new OpenAPIHono<{
             client_id: client.id,
             username: email,
           },
+          useragent: ctx.req.header("user-agent"),
+          ip: ctx.req.header("x-real-ip"),
         });
       } else {
         throw new HTTPException(400, { message: "Code or password required" });

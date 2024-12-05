@@ -104,7 +104,7 @@ export const dbConnectionRoutes = new OpenAPIHono<{
       });
 
       await sendEmailVerificationEmail({
-        env: ctx.env,
+        ctx,
         client,
         user: newUser,
       });
@@ -165,6 +165,8 @@ export const dbConnectionRoutes = new OpenAPIHono<{
           Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
         ).toISOString(),
         authParams,
+        useragent: ctx.req.header("user-agent"),
+        ip: ctx.req.header("x-real-ip"),
       });
 
       await requestPasswordReset(ctx, client, email, session.login_id);
