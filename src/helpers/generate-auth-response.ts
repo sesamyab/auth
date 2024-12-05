@@ -194,6 +194,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
         name: user.name,
         email: user.email,
         email_verified: user.email_verified,
+        ...customClaims,
       },
       {
         includeIssuedTimestamp: true,
