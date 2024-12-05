@@ -1,4 +1,4 @@
-import { VendorSettings } from "@authhero/adapter-interfaces";
+import { VendorSettings } from "authhero";
 
 export const FOKUS_VENDOR_SETTINGS: VendorSettings = {
   name: "Fokus",

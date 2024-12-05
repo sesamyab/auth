@@ -2,7 +2,7 @@ import { test, expect } from "vitest";
 import { testClient } from "hono/testing";
 import { getTestServer } from "./helpers/test-server";
 import { snapshotResponse } from "./helpers/playwrightSnapshots";
-import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType } from "authhero";
 
 test("should hide social buttons for fokus by not specifying any connection", async () => {
   const testTenantLanguage = "en";

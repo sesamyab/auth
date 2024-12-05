@@ -1,5 +1,5 @@
 import i18next from "i18next";
-import { VendorSettings } from "@authhero/adapter-interfaces";
+import { VendorSettings } from "authhero";
 
 type Props = {
   vendorSettings: VendorSettings;

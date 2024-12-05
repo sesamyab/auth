@@ -9,7 +9,7 @@ import {
   AuthParams,
   PKCEAuthorizationCodeGrantTypeParams,
   User,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 export async function pkceAuthorizeCodeGrant(
   ctx: Context<{ Bindings: Env; Variables: Var }>,

@@ -1,4 +1,4 @@
-import { BaseUser, baseUserSchema } from "@authhero/adapter-interfaces";
+import { BaseUser, baseUserSchema } from "authhero";
 import { z } from "zod";
 
 export interface PostUsersBody extends BaseUser {

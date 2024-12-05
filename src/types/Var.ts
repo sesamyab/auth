@@ -1,4 +1,4 @@
-import { Auth0Client, Login } from "@authhero/adapter-interfaces";
+import { Auth0Client, Login } from "authhero";
 import { z } from "zod";
 
 export type Var = {

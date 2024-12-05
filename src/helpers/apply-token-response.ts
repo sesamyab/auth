@@ -4,7 +4,7 @@ import {
   AuthorizationResponseMode,
   CodeResponse,
   TokenResponse,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 function applyTokenResponseAsQuery(
   tokenResponse: TokenResponse | CodeResponse,

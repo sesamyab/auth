@@ -5,7 +5,7 @@ import { validateRedirectUrl } from "../../utils/validate-redirect-url";
 import { HTTPException } from "hono/http-exception";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { createLogMessage } from "../../utils/create-log-message";
-import { LogTypes } from "@authhero/adapter-interfaces";
+import { LogTypes } from "authhero";
 
 export const logoutRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
   // --------------------------------

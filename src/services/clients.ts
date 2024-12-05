@@ -1,7 +1,7 @@
 import { Env } from "../types";
 import { getDefaultSettings } from "../models/DefaultSettings";
 import { HTTPException } from "hono/http-exception";
-import { Client, connectionSchema } from "@authhero/adapter-interfaces";
+import { Client, connectionSchema } from "authhero";
 import { flattenObject, unflattenObject } from "../utils/flatten";
 
 export async function getClient(env: Env, clientId: string): Promise<Client> {

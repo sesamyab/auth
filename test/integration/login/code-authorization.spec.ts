@@ -2,11 +2,7 @@ import { test, expect } from "vitest";
 import { getTestServer } from "../helpers/test-server";
 import { testClient } from "hono/testing";
 import { parseJwt } from "../../../src/utils/parse-jwt";
-import {
-  AuthorizationResponseType,
-  Log,
-  LogTypes,
-} from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType, Log, LogTypes } from "authhero";
 
 test("code authorization flow should work", async () => {
   const { oauthApp, env } = await getTestServer({

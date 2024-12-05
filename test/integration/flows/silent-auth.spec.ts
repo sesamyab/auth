@@ -7,7 +7,7 @@ import {
   AuthorizationResponseType,
   Log,
   LogTypes,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 function getDefaultSilentAuthSearchParams() {
   return {

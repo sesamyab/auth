@@ -3,7 +3,7 @@ import Layout from "./Layout";
 import Button from "./Button";
 import i18next from "i18next";
 import Icon from "./Icon";
-import { VendorSettings } from "@authhero/adapter-interfaces";
+import { VendorSettings } from "authhero";
 
 type Props = {
   vendorSettings: VendorSettings;

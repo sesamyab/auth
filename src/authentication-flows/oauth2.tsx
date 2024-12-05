@@ -1,11 +1,6 @@
 import { Context } from "hono";
 import { Google, Facebook, generateCodeVerifier } from "arctic";
-import {
-  AuthParams,
-  Client,
-  LogTypes,
-  Login,
-} from "@authhero/adapter-interfaces";
+import { AuthParams, Client, LogTypes, Login } from "authhero";
 import { Env } from "../types";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
 import { parseJwt } from "../utils/parse-jwt";

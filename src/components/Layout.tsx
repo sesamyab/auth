@@ -1,4 +1,4 @@
-import { VendorSettings } from "@authhero/adapter-interfaces";
+import { VendorSettings } from "authhero";
 import AppLogo from "./AppLogo";
 import i18next from "i18next";
 import Footer from "./Footer";

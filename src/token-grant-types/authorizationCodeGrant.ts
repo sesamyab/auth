@@ -7,7 +7,7 @@ import {
   AuthorizationCodeGrantTypeParams,
   AuthorizationResponseMode,
   AuthorizationResponseType,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 import { getImpersonatedUser } from "../utils/users";
 
 export async function authorizeCodeGrant(

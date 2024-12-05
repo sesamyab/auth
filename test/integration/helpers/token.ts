@@ -2,7 +2,7 @@ import { createJWT } from "oslo/jwt";
 import { pemToBuffer } from "../../../src/utils/jwt";
 import { TimeSpan } from "oslo";
 import { createX509Certificate } from "../../../src/helpers/encryption";
-import { SigningKey } from "@authhero/adapter-interfaces";
+import { SigningKey } from "authhero";
 
 let signingKey: SigningKey | null = null;
 

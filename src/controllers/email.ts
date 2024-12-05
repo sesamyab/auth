@@ -13,7 +13,7 @@ import {
 import { createMagicLink } from "../utils/magicLink";
 import { createLogMessage } from "../utils/create-log-message";
 import { waitUntil } from "../utils/wait-until";
-import { AuthParams, Client, LogTypes } from "@authhero/adapter-interfaces";
+import { AuthParams, Client, LogTypes } from "authhero";
 
 const engine = new Liquid();
 

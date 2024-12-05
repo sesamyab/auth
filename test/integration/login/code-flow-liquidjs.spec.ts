@@ -13,7 +13,7 @@ import {
   Log,
   LogTypes,
   UserResponse,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 function getCodeAndTo(email: EmailOptions) {
   const codeEmailBody = email.content[0].value;

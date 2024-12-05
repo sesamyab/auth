@@ -8,7 +8,7 @@ import {
   Connection,
   Domain,
   Tenant,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 const TENANT_FIXTURE: Tenant = {
   id: "tenantId",

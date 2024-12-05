@@ -1,4 +1,4 @@
-import { Client } from "@authhero/adapter-interfaces";
+import { Client } from "authhero";
 import { getDomainFromEmail } from "../../utils/email";
 import { EmailOptions } from "./EmailOptions";
 

@@ -10,7 +10,7 @@ import validatePassword from "../../utils/validatePassword";
 import { createLogMessage } from "../../utils/create-log-message";
 import { requestPasswordReset } from "../../authentication-flows/password";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
-import { AuthParams, LogTypes } from "@authhero/adapter-interfaces";
+import { AuthParams, LogTypes } from "authhero";
 
 export const dbConnectionRoutes = new OpenAPIHono<{
   Bindings: Env;
