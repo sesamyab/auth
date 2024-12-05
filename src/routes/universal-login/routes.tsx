@@ -1131,7 +1131,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
         if (!email_verified) {
           await sendEmailVerificationEmail({
-            env: ctx.env,
+            ctx,
             client,
             user: newUser,
             authParams: session.authParams,

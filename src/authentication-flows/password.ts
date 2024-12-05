@@ -63,6 +63,8 @@ export async function requestPasswordReset(
       client_id: client.id,
       username: email,
     },
+    useragent: ctx.req.header("user-agent"),
+    ip: ctx.req.header("x-real-ip"),
   });
 
   let code_id = generateOTP();
@@ -147,7 +149,7 @@ export async function loginWithPassword(
   if (!user.email_verified && client.email_validation === "enforced") {
     const { password, ...cleanAuthParams } = authParams;
     await sendEmailVerificationEmail({
-      env: ctx.env,
+      ctx,
       client,
       user,
       authParams: cleanAuthParams,

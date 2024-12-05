@@ -31,6 +31,8 @@ export async function universalAuth({
     ).toISOString(),
     authParams,
     auth0Client,
+    useragent: ctx.req.header("user-agent"),
+    ip: ctx.req.header("x-real-ip"),
   });
 
   // Check if the user in the login_hint matches the user in the session

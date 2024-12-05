@@ -101,18 +101,20 @@ export async function validateCode(
 // can we mock templates? or even properly use them?
 
 interface sendEmailVerificationEmailParams {
-  env: Env;
+  ctx: Context<{ Bindings: Env; Variables: Var }>;
   client: Client;
   user: User;
   authParams?: AuthParams;
 }
 
 export async function sendEmailVerificationEmail({
-  env,
+  ctx,
   client,
   user,
   authParams: authParamsInitial,
 }: sendEmailVerificationEmailParams) {
+  const { env } = ctx;
+
   const authParams: AuthParams = {
     ...authParamsInitial,
     client_id: client.id,
@@ -127,6 +129,8 @@ export async function sendEmailVerificationEmail({
       Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
     authParams,
+    useragent: ctx.req.header("user-agent"),
+    ip: ctx.req.header("x-real-ip"),
   };
 
   await env.data.logins.create(client.tenant.id, login);
@@ -181,7 +185,7 @@ export async function sendOtpEmail({
         ctx.env.data,
         session.authParams.username,
       );
-    } catch (err) {
+    } catch {
       const log = createLogMessage(ctx, {
         type: LogTypes.FAILED_SIGNUP,
         description: "Public signup is disabled",
