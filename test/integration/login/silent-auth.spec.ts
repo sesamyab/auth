@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { getTestServer, testPasswordUser } from "../helpers/test-server";
 import { testClient } from "hono/testing";
-import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType } from "authhero";
 
 describe("Silent auth", () => {
   it("should login using silent auth and the check-account page", async () => {

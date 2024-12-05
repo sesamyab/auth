@@ -14,7 +14,7 @@ import { sendEmailVerificationEmail } from "./passwordless";
 import { HTTPException } from "hono/http-exception";
 import { CustomException } from "../models/CustomError";
 import userIdGenerate from "../utils/userIdGenerate";
-import { AuthParams, Client, LogTypes } from "@authhero/adapter-interfaces";
+import { AuthParams, Client, LogTypes } from "authhero";
 
 export async function requestPasswordReset(
   ctx: Context<{

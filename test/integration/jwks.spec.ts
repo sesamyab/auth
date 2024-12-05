@@ -2,10 +2,7 @@ import { describe, it, expect } from "vitest";
 import { testClient } from "hono/testing";
 import { getAdminToken } from "./helpers/token";
 import { getTestServer } from "./helpers/test-server";
-import {
-  jwksKeySchema,
-  openIDConfigurationSchema,
-} from "@authhero/adapter-interfaces";
+import { jwksKeySchema, openIDConfigurationSchema } from "authhero";
 
 describe("jwks", () => {
   it("should return a list with the test certificate", async () => {

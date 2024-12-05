@@ -47,7 +47,7 @@ import {
   PasswordInsert,
   ListLogsResponse,
   User,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 import CheckEmailPage from "../../components/CheckEmailPage";
 import { getAuthCookie } from "../../services/cookies";
 import PreSignupPage from "../../components/PreSignUpPage";

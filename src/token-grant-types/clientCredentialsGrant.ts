@@ -3,10 +3,7 @@ import { getClient } from "../services/clients";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
 import { HTTPException } from "hono/http-exception";
 import { Context } from "hono";
-import {
-  AuthParams,
-  ClientCredentialsGrantTypeParams,
-} from "@authhero/adapter-interfaces";
+import { AuthParams, ClientCredentialsGrantTypeParams } from "authhero";
 
 export async function clientCredentialsGrant(
   ctx: Context<{ Bindings: Env; Variables: Var }>,

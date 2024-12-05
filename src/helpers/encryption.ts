@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 import * as x509 from "@peculiar/x509";
 import { encodeHex, base64 } from "oslo/encoding";
 import { sha256 } from "oslo/crypto";
-import { SigningKey } from "@authhero/adapter-interfaces";
+import { SigningKey } from "authhero";
 
 export interface CreateX509CertificateParams {
   name: string;

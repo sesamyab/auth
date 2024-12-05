@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { Env } from "../types";
 import { Var } from "../types/Var";
-import { Log, LogType } from "@authhero/adapter-interfaces";
+import { Log, LogType } from "authhero";
 
 type LogParams = {
   type: LogType;

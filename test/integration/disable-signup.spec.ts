@@ -2,7 +2,7 @@ import { test, expect } from "vitest";
 import { getTestServer } from "./helpers/test-server";
 import { testClient } from "hono/testing";
 import { snapshotResponse } from "./helpers/playwrightSnapshots";
-import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType } from "authhero";
 
 test("only allows existing users to progress to the enter code step", async () => {
   const testTenantLanguage = "en";

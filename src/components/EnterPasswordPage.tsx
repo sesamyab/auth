@@ -7,7 +7,7 @@ import DisabledSubmitButton from "./DisabledSubmitButton";
 import Icon from "./Icon";
 import Form from "./Form";
 import { GoBack } from "./GoBack";
-import { Client, VendorSettings } from "@authhero/adapter-interfaces";
+import { Client, VendorSettings } from "authhero";
 
 type Props = {
   error?: string;

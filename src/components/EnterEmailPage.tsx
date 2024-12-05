@@ -1,5 +1,5 @@
 import type { FC } from "hono/jsx";
-import { Client, Login, VendorSettings } from "@authhero/adapter-interfaces";
+import { Client, Login, VendorSettings } from "authhero";
 import Layout from "./Layout";
 import i18next from "i18next";
 import cn from "classnames";

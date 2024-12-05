@@ -1,4 +1,4 @@
-import { VendorSettings } from "@authhero/adapter-interfaces";
+import { VendorSettings } from "authhero";
 import type { FC } from "hono/jsx";
 
 type AppLogoProps = {

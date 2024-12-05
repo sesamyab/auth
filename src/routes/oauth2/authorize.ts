@@ -16,7 +16,7 @@ import {
   AuthorizationResponseMode,
   AuthorizationResponseType,
   CodeChallengeMethod,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 const UI_STRATEGIES = [
   "email",
   "sms",

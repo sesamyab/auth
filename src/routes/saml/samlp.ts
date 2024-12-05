@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
-import { AuthorizationResponseMode } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseMode } from "authhero";
 import { Env, Var } from "../../types";
 import { getClient } from "../../services/clients";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";

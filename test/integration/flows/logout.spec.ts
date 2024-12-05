@@ -5,11 +5,7 @@ import {
 } from "../helpers/silent-auth";
 import { getTestServer } from "../helpers/test-server";
 import { testClient } from "hono/testing";
-import {
-  AuthorizationResponseType,
-  Log,
-  LogTypes,
-} from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType, Log, LogTypes } from "authhero";
 
 describe("logout", () => {
   it("should delete the session if a user logs out", async () => {

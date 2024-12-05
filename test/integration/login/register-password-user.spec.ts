@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { getTestServer } from "../helpers/test-server";
 import { testClient } from "hono/testing";
 import { snapshotResponse } from "../helpers/playwrightSnapshots";
-import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType } from "authhero";
 
 describe("Register password user", () => {
   it("should register a new user with password", async () => {

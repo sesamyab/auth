@@ -5,7 +5,7 @@ import {
   CodeChallengeMethod,
   LogTypes,
   Session,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 import { serializeAuthCookie } from "../services/cookies";
 import { Env } from "../types";
 import renderAuthIframe from "../templates/authIframe";

@@ -1,4 +1,4 @@
-import { User, UserDataAdapter } from "@authhero/adapter-interfaces";
+import { User, UserDataAdapter } from "authhero";
 
 export async function getUsersByEmail(
   userAdapter: UserDataAdapter,

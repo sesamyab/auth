@@ -2,7 +2,7 @@ import { Env, Var } from "../../types";
 import { HTTPException } from "hono/http-exception";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import authenticationMiddleware from "../../middlewares/authentication";
-import { userSchema } from "@authhero/adapter-interfaces";
+import { userSchema } from "authhero";
 
 export const userinfoRoutes = new OpenAPIHono<{
   Bindings: Env;

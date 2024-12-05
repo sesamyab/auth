@@ -1,7 +1,7 @@
 import { test, expect } from "vitest";
 import { getTestServer } from "../helpers/test-server";
 import { testClient } from "hono/testing";
-import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType } from "authhero";
 
 test("Should user the language passed in the authorize call", async () => {
   const { oauthApp, env } = await getTestServer();

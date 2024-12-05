@@ -1,9 +1,6 @@
 import { expect } from "vitest";
 import { parseJwt } from "../../../src/utils/parse-jwt";
-import {
-  AuthorizationResponseMode,
-  AuthorizationResponseType,
-} from "@authhero/adapter-interfaces";
+import { AuthorizationResponseMode, AuthorizationResponseType } from "authhero";
 
 export async function doSilentAuthRequest(
   setCookiesHeader: string,

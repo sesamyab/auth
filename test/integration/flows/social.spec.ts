@@ -6,11 +6,7 @@ import { doSilentAuthRequestAndReturnTokens } from "../helpers/silent-auth";
 import { testClient } from "hono/testing";
 import { getTestServer } from "../helpers/test-server";
 
-import {
-  AuthorizationResponseType,
-  Log,
-  LogTypes,
-} from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType, Log, LogTypes } from "authhero";
 
 const LOGIN2_STATE = "client_id=clientId&connection=auth2";
 

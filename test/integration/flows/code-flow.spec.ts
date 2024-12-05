@@ -7,7 +7,7 @@ import { getAdminToken } from "../helpers/token";
 import { getTestServer } from "../helpers/test-server";
 import { EmailOptions } from "../../../src/services/email/EmailOptions";
 import { snapshotEmail } from "../helpers/playwrightSnapshots";
-import { AuthorizationResponseType, Log } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType, Log } from "authhero";
 
 const AUTH_PARAMS = {
   nonce: "ehiIoMV7yJCNbSEpRq513IQgSX7XvvBM",

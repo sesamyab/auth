@@ -22,7 +22,7 @@ import {
   LogTypes,
   TokenResponse,
   User,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 import { setSilentAuthCookies } from "./silent-auth-cookie";
 import { samlResponseForm } from "../templates/samlResponse";
 import { HTTPException } from "hono/http-exception";

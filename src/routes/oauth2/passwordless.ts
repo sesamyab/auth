@@ -13,7 +13,7 @@ import {
   AuthParams,
   AuthorizationResponseType,
   authParamsSchema,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 const OTP_EXPIRATION_TIME = 30 * 60 * 1000;
 

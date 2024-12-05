@@ -1,8 +1,4 @@
-import {
-  jwksKeySchema,
-  jwksSchema,
-  openIDConfigurationSchema,
-} from "@authhero/adapter-interfaces";
+import { jwksKeySchema, jwksSchema, openIDConfigurationSchema } from "authhero";
 import { JWKS_CACHE_TIMEOUT_IN_SECONDS } from "../../constants";
 import { Env } from "../../types";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";

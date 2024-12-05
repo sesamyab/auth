@@ -14,7 +14,7 @@ import {
   LogTypes,
   User,
   UserResponse,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 function getCodeStateTo(email: EmailOptions) {
   const verifyEmailBody = email.content[0].value;

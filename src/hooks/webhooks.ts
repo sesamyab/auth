@@ -1,9 +1,4 @@
-import {
-  DataAdapters,
-  Hook,
-  LogTypes,
-  User,
-} from "@authhero/adapter-interfaces";
+import { DataAdapters, Hook, LogTypes, User } from "authhero";
 import { createLogMessage } from "../utils/create-log-message";
 import { Context } from "hono";
 import { Var, Env, hookResponseSchema } from "../types";

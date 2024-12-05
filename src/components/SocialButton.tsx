@@ -1,6 +1,6 @@
 import cn from "classnames";
 import Button from "./Button";
-import { Login } from "@authhero/adapter-interfaces";
+import { Login } from "authhero";
 
 type Props = {
   connection: "google-oauth2" | "apple" | "facebook" | "vipps";

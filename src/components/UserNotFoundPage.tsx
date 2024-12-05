@@ -2,7 +2,7 @@ import Button from "./Button";
 import Layout from "./Layout";
 import i18next from "i18next";
 import type { FC } from "hono/jsx";
-import { AuthParams, VendorSettings } from "@authhero/adapter-interfaces";
+import { AuthParams, VendorSettings } from "authhero";
 
 type Props = {
   error?: string;

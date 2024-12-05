@@ -5,7 +5,7 @@ import {
   Connection,
   Domain,
   Tenant,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 
 export const APPLICATION_FIXTURE: Application = {
   id: "clientId",

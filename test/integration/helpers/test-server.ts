@@ -13,7 +13,7 @@ import {
   Connection,
   DataAdapters,
   Tenant,
-} from "@authhero/adapter-interfaces";
+} from "authhero";
 import createAdapters, { Database } from "@authhero/kysely-adapter";
 import * as x509 from "@peculiar/x509";
 import createApp from "../../../src/app";

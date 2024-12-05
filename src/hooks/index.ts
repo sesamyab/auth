@@ -1,9 +1,4 @@
-import {
-  Client,
-  DataAdapters,
-  LogTypes,
-  User,
-} from "@authhero/adapter-interfaces";
+import { Client, DataAdapters, LogTypes, User } from "authhero";
 import { linkUsersHook } from "./link-users";
 import { postUserRegistrationWebhook, preUserSignupWebhook } from "./webhooks";
 import { Context } from "hono";

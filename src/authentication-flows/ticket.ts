@@ -1,4 +1,4 @@
-import { AuthParams } from "@authhero/adapter-interfaces";
+import { AuthParams } from "authhero";
 import { Env } from "../types";
 import userIdGenerate from "../utils/userIdGenerate";
 import { generateAuthResponse } from "../helpers/generate-auth-response";

@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { Env, Var } from "../types";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../constants";
-import { AuthParams, Client, Session } from "@authhero/adapter-interfaces";
+import { AuthParams, Client, Session } from "authhero";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
 import { sendOtpEmail } from "./passwordless";
 import { getSendParamFromAuth0ClientHeader } from "../utils/getSendParamFromAuth0ClientHeader";

@@ -20,13 +20,7 @@ import {
 import { waitUntil } from "../utils/wait-until";
 import { Context } from "hono";
 import { createLogMessage } from "../utils/create-log-message";
-import {
-  AuthParams,
-  Client,
-  LogTypes,
-  Login,
-  User,
-} from "@authhero/adapter-interfaces";
+import { AuthParams, Client, LogTypes, Login, User } from "authhero";
 import { preUserSignupHook } from "../hooks";
 import { SendType } from "../utils/getSendParamFromAuth0ClientHeader";
 

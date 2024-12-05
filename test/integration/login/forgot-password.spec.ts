@@ -6,7 +6,7 @@ import {
   snapshotEmail,
 } from "../helpers/playwrightSnapshots";
 import type { EmailOptions } from "../../../src/services/email/EmailOptions";
-import { AuthorizationResponseType } from "@authhero/adapter-interfaces";
+import { AuthorizationResponseType } from "authhero";
 
 const DEFAULT_AUTHORIZE_PARAMS = {
   client_id: "clientId",
