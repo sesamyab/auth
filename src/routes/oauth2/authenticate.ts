@@ -6,6 +6,7 @@ import { HTTPException } from "hono/http-exception";
 import { getClient } from "../../services/clients";
 import { loginWithPassword } from "../../authentication-flows/password";
 import { Login } from "authhero";
+import { getClientInfo } from "../../utils/client-info";
 
 function createUnauthorizedResponse() {
   return new HTTPException(403, {
@@ -109,8 +110,7 @@ export const authenticateRoutes = new OpenAPIHono<{
             client_id: client.id,
             username: email,
           },
-          useragent: ctx.req.header("user-agent"),
-          ip: ctx.req.header("x-real-ip"),
+          ...getClientInfo(ctx.req.raw.headers),
         });
       } else {
         throw new HTTPException(400, { message: "Code or password required" });

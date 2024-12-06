@@ -15,6 +15,7 @@ import { HTTPException } from "hono/http-exception";
 import { CustomException } from "../models/CustomError";
 import userIdGenerate from "../utils/userIdGenerate";
 import { AuthParams, Client, LogTypes } from "authhero";
+import { getClientInfo } from "../utils/client-info";
 
 export async function requestPasswordReset(
   ctx: Context<{
@@ -63,8 +64,7 @@ export async function requestPasswordReset(
       client_id: client.id,
       username: email,
     },
-    useragent: ctx.req.header("user-agent"),
-    ip: ctx.req.header("x-real-ip"),
+    ...getClientInfo(ctx.req.raw.headers),
   });
 
   let code_id = generateOTP();

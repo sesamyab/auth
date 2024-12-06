@@ -27,6 +27,7 @@ import { setSilentAuthCookies } from "./silent-auth-cookie";
 import { samlResponseForm } from "../templates/samlResponse";
 import { HTTPException } from "hono/http-exception";
 import { createSamlResponse } from "./saml";
+import { getClientInfo } from "../utils/client-info";
 
 export type AuthFlowType =
   | "cross-origin"
@@ -84,8 +85,7 @@ async function generateCode({
         Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
       ).toISOString(),
       authParams,
-      useragent: ctx.req.header("user-agent"),
-      ip: ctx.req.header("x-real-ip"),
+      ...getClientInfo(ctx.req.raw.headers),
     });
 
     login_id = login.login_id;

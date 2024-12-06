@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import generateOTP from "../../utils/otp";
 import { getClient } from "../../services/clients";
 import { sendCode, sendLink } from "../../controllers/email";
@@ -8,12 +7,12 @@ import { HTTPException } from "hono/http-exception";
 import { validateCode } from "../../authentication-flows/passwordless";
 import { validateRedirectUrl } from "../../utils/validate-redirect-url";
 import { generateAuthResponse } from "../../helpers/generate-auth-response";
-import { setSearchParams } from "../../utils/url";
 import {
   AuthParams,
   AuthorizationResponseType,
   authParamsSchema,
 } from "authhero";
+import { getClientInfo } from "../../utils/client-info";
 
 const OTP_EXPIRATION_TIME = 30 * 60 * 1000;
 
@@ -57,17 +56,16 @@ export const passwordlessRoutes = new OpenAPIHono<{
       const { client_id, email, send, authParams } = body;
       const client = await getClient(env, client_id);
 
-      const login = await env.data.logins.create(client.tenant.id, {
+      const loginSessions = await env.data.logins.create(client.tenant.id, {
         authParams: { ...authParams, client_id, username: email },
         expires_at: new Date(Date.now() + OTP_EXPIRATION_TIME).toISOString(),
-        useragent: ctx.req.header("user-agent"),
-        ip: ctx.req.header("x-real-ip"),
+        ...getClientInfo(ctx.req.raw.headers),
       });
 
       const code = await env.data.codes.create(client.tenant.id, {
         code_id: generateOTP(),
         code_type: "otp",
-        login_id: login.login_id,
+        login_id: loginSessions.login_id,
         expires_at: new Date(Date.now() + OTP_EXPIRATION_TIME).toISOString(),
       });
 
