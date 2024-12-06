@@ -59,7 +59,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
       const loginSessions = await env.data.logins.create(client.tenant.id, {
         authParams: { ...authParams, client_id, username: email },
         expires_at: new Date(Date.now() + OTP_EXPIRATION_TIME).toISOString(),
-        ...getClientInfo(ctx.req.raw.headers),
+        ...getClientInfo(ctx.req),
       });
 
       const code = await env.data.codes.create(client.tenant.id, {

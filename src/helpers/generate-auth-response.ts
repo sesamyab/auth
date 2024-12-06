@@ -85,7 +85,7 @@ async function generateCode({
         Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
       ).toISOString(),
       authParams,
-      ...getClientInfo(ctx.req.raw.headers),
+      ...getClientInfo(ctx.req),
     });
 
     login_id = login.login_id;

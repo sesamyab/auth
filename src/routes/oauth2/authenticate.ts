@@ -110,7 +110,7 @@ export const authenticateRoutes = new OpenAPIHono<{
             client_id: client.id,
             username: email,
           },
-          ...getClientInfo(ctx.req.raw.headers),
+          ...getClientInfo(ctx.req),
         });
       } else {
         throw new HTTPException(400, { message: "Code or password required" });

@@ -161,15 +161,15 @@ export const dbConnectionRoutes = new OpenAPIHono<{
         username: email,
       };
 
-      const session = await ctx.env.data.logins.create(client.tenant.id, {
+      const loginSession = await ctx.env.data.logins.create(client.tenant.id, {
         expires_at: new Date(
           Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
         ).toISOString(),
         authParams,
-        ...getClientInfo(ctx.req.raw.headers),
+        ...getClientInfo(ctx.req),
       });
 
-      await requestPasswordReset(ctx, client, email, session.login_id);
+      await requestPasswordReset(ctx, client, email, loginSession.login_id);
 
       return ctx.html("We've just sent you an email to reset your password.");
     },

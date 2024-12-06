@@ -122,22 +122,22 @@ export async function sendEmailVerificationEmail({
     username: user.email,
   };
 
-  const login = await env.data.logins.create(client.tenant.id, {
+  const loginSession = await env.data.logins.create(client.tenant.id, {
     expires_at: new Date(
       Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
     authParams,
-    ...getClientInfo(ctx.req.raw.headers),
+    ...getClientInfo(ctx.req),
   });
 
-  const state = login.login_id;
+  const state = loginSession.login_id;
 
   const code_id = generateOTP();
 
   await env.data.codes.create(client.tenant.id, {
     code_id,
     code_type: "email_verification",
-    login_id: login.login_id,
+    login_id: loginSession.login_id,
     expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
   });
 

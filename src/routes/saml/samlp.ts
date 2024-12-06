@@ -138,7 +138,7 @@ export const samlpRoutes = new OpenAPIHono<{
         expires_at: new Date(
           Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
         ).toISOString(),
-        ...getClientInfo(ctx.req.raw.headers),
+        ...getClientInfo(ctx.req),
       });
 
       return ctx.redirect(`/u/enter-email?state=${loginSession.login_id}`);

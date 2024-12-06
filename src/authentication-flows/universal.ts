@@ -31,7 +31,7 @@ export async function universalAuth({
       Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
     authParams,
-    ...getClientInfo(ctx.req.raw.headers),
+    ...getClientInfo(ctx.req),
   });
 
   // Check if the user in the login_hint matches the user in the session

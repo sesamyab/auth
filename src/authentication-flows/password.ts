@@ -64,7 +64,7 @@ export async function requestPasswordReset(
       client_id: client.id,
       username: email,
     },
-    ...getClientInfo(ctx.req.raw.headers),
+    ...getClientInfo(ctx.req),
   });
 
   let code_id = generateOTP();
