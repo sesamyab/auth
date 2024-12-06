@@ -28,7 +28,6 @@ export async function socialAuth(
   client: Client,
   connectionName: string,
   authParams: AuthParams,
-  auth0Client?: string,
 ) {
   if (!authParams.state) {
     throw new HTTPException(400, { message: "State not found" });
