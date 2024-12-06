@@ -56,7 +56,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
       const { client_id, email, send, authParams } = body;
       const client = await getClient(env, client_id);
 
-      const loginSessions = await env.data.logins.create(client.tenant.id, {
+      const loginSession = await env.data.logins.create(client.tenant.id, {
         authParams: { ...authParams, client_id, username: email },
         expires_at: new Date(Date.now() + OTP_EXPIRATION_TIME).toISOString(),
         ...getClientInfo(ctx.req),
@@ -65,7 +65,7 @@ export const passwordlessRoutes = new OpenAPIHono<{
       const code = await env.data.codes.create(client.tenant.id, {
         code_id: generateOTP(),
         code_type: "otp",
-        login_id: loginSessions.login_id,
+        login_id: loginSession.login_id,
         expires_at: new Date(Date.now() + OTP_EXPIRATION_TIME).toISOString(),
       });
 
