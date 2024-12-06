@@ -11,6 +11,7 @@ import { createLogMessage } from "../../utils/create-log-message";
 import { requestPasswordReset } from "../../authentication-flows/password";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
 import { AuthParams, LogTypes } from "authhero";
+import { getClientInfo } from "../../utils/client-info";
 
 export const dbConnectionRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -160,16 +161,15 @@ export const dbConnectionRoutes = new OpenAPIHono<{
         username: email,
       };
 
-      const session = await ctx.env.data.logins.create(client.tenant.id, {
+      const loginSession = await ctx.env.data.logins.create(client.tenant.id, {
         expires_at: new Date(
           Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
         ).toISOString(),
         authParams,
-        useragent: ctx.req.header("user-agent"),
-        ip: ctx.req.header("x-real-ip"),
+        ...getClientInfo(ctx.req),
       });
 
-      await requestPasswordReset(ctx, client, email, session.login_id);
+      await requestPasswordReset(ctx, client, email, loginSession.login_id);
 
       return ctx.html("We've just sent you an email to reset your password.");
     },

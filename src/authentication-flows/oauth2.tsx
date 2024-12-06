@@ -21,13 +21,13 @@ import {
 } from "../constants";
 import { nanoid } from "nanoid";
 import { Apple } from "../strategies/Apple";
+import { getClientInfo } from "../utils/client-info";
 
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
   connectionName: string,
   authParams: AuthParams,
-  auth0Client?: string,
 ) {
   if (!authParams.state) {
     throw new HTTPException(400, { message: "State not found" });
@@ -46,24 +46,24 @@ export async function socialAuth(
     throw new HTTPException(403, { message: "Connection Not Found" });
   }
 
-  let session = await ctx.env.data.logins.get(
+  let loginSession = await ctx.env.data.logins.get(
     client.tenant.id,
     authParams.state,
   );
 
-  if (!session) {
-    session = await ctx.env.data.logins.create(client.tenant.id, {
+  if (!loginSession) {
+    loginSession = await ctx.env.data.logins.create(client.tenant.id, {
       expires_at: new Date(
         Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
       ).toISOString(),
       authParams,
-      auth0Client,
+      ...getClientInfo(ctx.req),
     });
   }
 
   const code_verifier = generateCodeVerifier();
   const auth2State = await ctx.env.data.codes.create(client.tenant.id, {
-    login_id: session.login_id,
+    login_id: loginSession.login_id,
     code_id: nanoid(),
     code_type: "oauth2_state",
     code_verifier,

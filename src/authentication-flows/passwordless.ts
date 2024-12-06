@@ -23,6 +23,7 @@ import { createLogMessage } from "../utils/create-log-message";
 import { AuthParams, Client, LogTypes, Login, User } from "authhero";
 import { preUserSignupHook } from "../hooks";
 import { SendType } from "../utils/getSendParamFromAuth0ClientHeader";
+import { getClientInfo } from "../utils/client-info";
 
 interface LoginParams {
   client_id: string;
@@ -121,28 +122,22 @@ export async function sendEmailVerificationEmail({
     username: user.email,
   };
 
-  const login: Login = {
-    login_id: nanoid(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+  const loginSession = await env.data.logins.create(client.tenant.id, {
     expires_at: new Date(
       Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
     authParams,
-    useragent: ctx.req.header("user-agent"),
-    ip: ctx.req.header("x-real-ip"),
-  };
+    ...getClientInfo(ctx.req),
+  });
 
-  await env.data.logins.create(client.tenant.id, login);
-
-  const state = login.login_id;
+  const state = loginSession.login_id;
 
   const code_id = generateOTP();
 
   await env.data.codes.create(client.tenant.id, {
     code_id,
     code_type: "email_verification",
-    login_id: login.login_id,
+    login_id: loginSession.login_id,
     expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
   });
 

@@ -166,18 +166,12 @@ export const authorizeRoutes = new OpenAPIHono<{
         client.connections.length === 1 &&
         !UI_STRATEGIES.includes(client.connections[0].strategy || "")
       ) {
-        return socialAuth(
-          ctx,
-          client,
-          client.connections[0].name,
-          authParams,
-          auth0Client,
-        );
+        return socialAuth(ctx, client, client.connections[0].name, authParams);
       }
 
       // Social login
       if (connection && connection !== "email") {
-        return socialAuth(ctx, client, connection, authParams, auth0Client);
+        return socialAuth(ctx, client, connection, authParams);
       } else if (login_ticket) {
         return ticketAuth(
           ctx,
@@ -191,8 +185,8 @@ export const authorizeRoutes = new OpenAPIHono<{
       return universalAuth({
         ctx,
         client,
-        authParams,
         auth0Client,
+        authParams,
         session: session || undefined,
         connection,
         login_hint,

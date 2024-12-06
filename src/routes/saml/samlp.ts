@@ -6,6 +6,7 @@ import { getClient } from "../../services/clients";
 import { UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS } from "../../constants";
 import { X509Certificate } from "@peculiar/x509";
 import { createSamlMetadata, parseSamlRequestQuery } from "../../helpers/saml";
+import { getClientInfo } from "../../utils/client-info";
 
 export const samlpRoutes = new OpenAPIHono<{
   Bindings: Env;
@@ -118,7 +119,7 @@ export const samlpRoutes = new OpenAPIHono<{
       const issuer = samlRequest["samlp:AuthnRequest"]["saml:Issuer"]["#text"];
 
       // Create a new Login session
-      const login = await ctx.env.data.logins.create(client.tenant.id, {
+      const loginSession = await ctx.env.data.logins.create(client.tenant.id, {
         authParams: {
           client_id: client.id,
           // TODO: A terrible hack to get the vendor_id
@@ -137,10 +138,9 @@ export const samlpRoutes = new OpenAPIHono<{
         expires_at: new Date(
           Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
         ).toISOString(),
-        useragent: ctx.req.header("user-agent"),
-        ip: ctx.req.header("x-real-ip"),
+        ...getClientInfo(ctx.req),
       });
 
-      return ctx.redirect(`/u/enter-email?state=${login.login_id}`);
+      return ctx.redirect(`/u/enter-email?state=${loginSession.login_id}`);
     },
   );

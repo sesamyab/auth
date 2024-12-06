@@ -5,6 +5,7 @@ import { AuthParams, Client, Session } from "authhero";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
 import { sendOtpEmail } from "./passwordless";
 import { getSendParamFromAuth0ClientHeader } from "../utils/getSendParamFromAuth0ClientHeader";
+import { getClientInfo } from "../utils/client-info";
 
 interface UniversalAuthParams {
   ctx: Context<{ Bindings: Env; Variables: Var }>;
@@ -25,14 +26,12 @@ export async function universalAuth({
   connection,
   login_hint,
 }: UniversalAuthParams) {
-  const login = await ctx.env.data.logins.create(client.tenant.id, {
+  const loginSession = await ctx.env.data.logins.create(client.tenant.id, {
     expires_at: new Date(
       Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
     authParams,
-    auth0Client,
-    useragent: ctx.req.header("user-agent"),
-    ip: ctx.req.header("x-real-ip"),
+    ...getClientInfo(ctx.req),
   });
 
   // Check if the user in the login_hint matches the user in the session
@@ -47,7 +46,7 @@ export async function universalAuth({
         ctx,
         client,
         // This needs to match the login_id as it has the reference to the auth params
-        sid: login.login_id,
+        sid: loginSession.login_id,
         authParams,
         user,
       });
@@ -57,15 +56,15 @@ export async function universalAuth({
   // If there's an email connectiona and a login_hint we redirect to the check-account page
   if (connection === "email" && login_hint) {
     const sendType = getSendParamFromAuth0ClientHeader(auth0Client);
-    await sendOtpEmail({ ctx, client, session: login, sendType });
+    await sendOtpEmail({ ctx, client, session: loginSession, sendType });
 
-    return ctx.redirect(`/u/enter-code?state=${login.login_id}`);
+    return ctx.redirect(`/u/enter-code?state=${loginSession.login_id}`);
   }
 
   // If there is a session we redirect to the check-account page
   if (session) {
-    return ctx.redirect(`/u/check-account?state=${login.login_id}`);
+    return ctx.redirect(`/u/check-account?state=${loginSession.login_id}`);
   }
 
-  return ctx.redirect(`/u/enter-email?state=${login.login_id}`);
+  return ctx.redirect(`/u/enter-email?state=${loginSession.login_id}`);
 }
