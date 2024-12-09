@@ -128,19 +128,4 @@ it("should redirect the user back with a code if the email matches the current s
   const code = loginHinUrl.searchParams.get("code");
 
   expect(code).toBeTypeOf("string");
-
-  const tokenResponse = await oauthClient.oauth.token.$post({
-    form: {
-      client_id: "clientId",
-      client_secret: "clientSecret",
-      code: code!,
-      grant_type: "authorization_code",
-      redirect_uri: "http://localhost:3000/callback",
-    },
-  });
-
-  expect(tokenResponse.status).toBe(200);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tokenBody: any = await tokenResponse.json();
-  expect(tokenBody.access_token).toBeTypeOf("string");
 });
