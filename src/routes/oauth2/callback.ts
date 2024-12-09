@@ -92,7 +92,6 @@ export const callbackRoutes = new OpenAPIHono<{
         login,
         code,
         connection_id: auth0state.connection_id,
-        code_verifier: auth0state.code_verifier,
       });
     },
   )
@@ -182,7 +181,6 @@ export const callbackRoutes = new OpenAPIHono<{
           login: session,
           code,
           connection_id: auth0state.connection_id,
-          code_verifier: auth0state.code_verifier,
         });
       }
 

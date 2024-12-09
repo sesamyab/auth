@@ -66,7 +66,6 @@ export async function socialAuth(
     login_id: loginSession.login_id,
     code_id: nanoid(),
     code_type: "oauth2_state",
-    code_verifier,
     connection_id: connection.id,
     expires_at: new Date(
       Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,

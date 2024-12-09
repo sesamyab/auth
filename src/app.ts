@@ -105,10 +105,11 @@ export default function create(params: CreateAuthParams) {
 
   managementApp.use(registerComponent(managementApp));
 
-  const legacyOauthApp = createOauthApp(params).route("/", oauthApp);
+  const legacyOauthApp = createOauthApp(params);
   const samlApp = createSamlApp(params);
 
   rootApp
+    .route("/", oauthApp)
     .route("/", legacyOauthApp)
     .route("/api/v2", managementApp)
     .route("/", samlApp);

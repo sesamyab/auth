@@ -19,7 +19,6 @@ const server = {
     const db = getDb(dialect);
     const dataAdapter = createAdapters(db);
     const { app } = createApp({
-      // @ts-expect-error session missmatch
       dataAdapter,
     });
 
@@ -55,6 +54,7 @@ const server = {
         oauth2ClientFactory: { create: oAuth2ClientFactory },
         sendEmail,
         signSAML,
+        data: dataAdapter,
       },
       ctx,
     );
