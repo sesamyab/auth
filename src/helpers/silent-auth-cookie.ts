@@ -17,7 +17,7 @@ export async function setSilentAuthCookies(
     used_at: new Date().toISOString(),
   };
 
-  const createdSession = await env.data.sessions.create(tenant_id, session);
+  await env.data.sessions.create(tenant_id, session);
 
   return session.session_id;
 }

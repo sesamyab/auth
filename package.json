@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "bun  --watch src/bun.ts",
+    "dev": "wrangler dev",
     "dev:wrangler": "wrangler dev --remote",
     "dev:https": "wrangler dev --remote --local-protocol=https",
     "format": "prettier --write '**/*.{ts,css,json,md}'",
@@ -50,12 +50,12 @@
     ]
   },
   "dependencies": {
-    "@authhero/kysely-adapter": "0.24.1",
+    "@authhero/kysely-adapter": "0.24.2",
     "@hono/zod-openapi": "0.16.2",
     "@peculiar/x509": "^1.12.3",
     "@planetscale/database": "1.19.0",
     "arctic": "^2.3.0",
-    "authhero": "^0.16.0",
+    "authhero": "^0.17.0",
     "bcryptjs": "^2.4.3",
     "fast-xml-parser": "^4.5.0",
     "hono": "4.4.0",

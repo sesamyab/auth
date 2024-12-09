@@ -19,6 +19,7 @@ const server = {
     const db = getDb(dialect);
     const dataAdapter = createAdapters(db);
     const { app } = createApp({
+      // @ts-expect-error session missmatch
       dataAdapter,
     });
 
@@ -58,7 +59,7 @@ const server = {
       ctx,
     );
   },
-  async scheduled(event: Event, env: Env, ctx: ExecutionContext) {
+  async scheduled(event: Event, env: Env) {
     const dialect = new PlanetScaleDialect({
       host: env.DATABASE_HOST,
       username: env.DATABASE_USERNAME,
