@@ -56,7 +56,7 @@ import bcryptjs from "bcryptjs";
 import UnverifiedEmailPage from "../../components/UnverifiedEmailPage";
 import ForgotPasswordSentPage from "../../components/ForgotPasswordSentPage";
 import { preUserSignupHook } from "../../hooks";
-import IncognitoPage from "../../components/Incognito";
+import InvalidSessionPage from "../../components/InvalidSession";
 
 async function initJSXRoute(ctx: Context, state: string) {
   const { env } = ctx;
@@ -1552,19 +1552,16 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
     },
   )
   // --------------------------------
-  // GET /u/incognito
+  // GET /u/invalid-session
   // --------------------------------
   .openapi(
     createRoute({
       tags: ["login"],
       method: "get",
-      path: "/incognito",
+      path: "/invalid-session",
       request: {
         query: z.object({
-          redirect_url: z.string().openapi({
-            description: "The url to redirect to after login",
-          }),
-          vendor_id: z.string(),
+          state: z.string(),
         }),
       },
       responses: {
@@ -1574,16 +1571,12 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       },
     }),
     async (ctx) => {
-      const { redirect_url, vendor_id } = ctx.req.valid("query");
-      const vendorSettings = await fetchVendorSettings(
-        ctx.env,
-        undefined,
-        vendor_id,
-      );
+      const { state } = ctx.req.valid("query");
+      const { vendorSettings, session } = await initJSXRoute(ctx, state);
 
       return ctx.html(
-        <IncognitoPage
-          redirectUrl={redirect_url}
+        <InvalidSessionPage
+          redirectUrl={session.authParams.redirect_uri}
           vendorSettings={vendorSettings}
         />,
       );

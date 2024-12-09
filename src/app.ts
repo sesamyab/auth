@@ -99,17 +99,17 @@ export default function create(params: CreateAuthParams) {
       });
     });
 
-  const { managementApp } = init({
+  const { managementApp, oauthApp } = init({
     dataAdapter: params.dataAdapter,
   });
 
   managementApp.use(registerComponent(managementApp));
 
-  const oauthApp = createOauthApp(params);
+  const legacyOauthApp = createOauthApp(params).route("/", oauthApp);
   const samlApp = createSamlApp(params);
 
   rootApp
-    .route("/", oauthApp)
+    .route("/", legacyOauthApp)
     .route("/api/v2", managementApp)
     .route("/", samlApp);
 
@@ -126,7 +126,7 @@ export default function create(params: CreateAuthParams) {
 
   return {
     app,
-    oauthApp,
+    oauthApp: legacyOauthApp,
     managementApp,
     samlApp,
   };

@@ -3,11 +3,11 @@ import { Env, Var } from "./types";
 import { addDataHooks } from "./hooks";
 import { CreateAuthParams } from "./app";
 import { loginRoutes } from "./routes/universal-login/routes";
-import { wellKnownRoutes } from "./routes/oauth2/well-known";
+// import { wellKnownRoutes } from "./routes/oauth2/well-known";
 import { authorizeRoutes } from "./routes/oauth2/authorize";
 import { callbackRoutes } from "./routes/oauth2/callback";
 import { userinfoRoutes } from "./routes/oauth2/userinfo";
-import { tokenRoutes } from "./routes/oauth2/token";
+// import { tokenRoutes } from "./routes/oauth2/token";
 import { dbConnectionRoutes } from "./routes/oauth2/dbconnections";
 import { passwordlessRoutes } from "./routes/oauth2/passwordless";
 import { authenticateRoutes } from "./routes/oauth2/authenticate";
@@ -23,11 +23,11 @@ export default function create(params: CreateAuthParams) {
 
   const oauthApp = app
     .route("/u", loginRoutes)
-    .route("/.well-known", wellKnownRoutes)
+    // .route("/.well-known", wellKnownRoutes)
     .route("/authorize", authorizeRoutes)
     .route("/callback", callbackRoutes)
     .route("/userinfo", userinfoRoutes)
-    .route("/oauth/token", tokenRoutes)
+    // .route("/oauth/token", tokenRoutes)
     .route("/dbconnections", dbConnectionRoutes)
     .route("/passwordless", passwordlessRoutes)
     .route("/co/authenticate", authenticateRoutes)
