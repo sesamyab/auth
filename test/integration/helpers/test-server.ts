@@ -46,7 +46,6 @@ export async function getTestServer(args: getEnvParams = {}) {
 
   await migrateToLatest(dialect, false, db);
 
-  // @ts-expect-error session missmatch
   const data: DataAdapters = createAdapters(db);
   const signingKey = await getCertificate();
 

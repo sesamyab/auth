@@ -2223,10 +2223,10 @@ assertion-error@^2.0.1:
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-2.0.1.tgz#f641a196b335690b1070bf00b6e7593fec190bf7"
   integrity sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==
 
-authhero@^0.17.0:
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.17.0.tgz#4ef247e4485206032ccf381bc8fb84da06b3d874"
-  integrity sha512-d4zg1YyjoRmRf8Qy9DVnYXCNTc3FBlASr1CHLop6q9eTBE496AfH+vWyJ05N9EzHlzLCFuTEOAwdpzRRotBn2A==
+authhero@^0.18.0:
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.18.0.tgz#85d8af24a326332a1e8ab9b17f40be5895dc38f0"
+  integrity sha512-XbMrlhwyNuVz7HEk0aN74i4hxqbLvr6FkwzrFlS0RA2eBZh2xWsNcDok2qQeiyY7Fg1Ol3jXdGGlIi3Y0AcP/A==
   dependencies:
     "@authhero/adapter-interfaces" "^0.29.0"
     "@peculiar/x509" "^1.12.3"
