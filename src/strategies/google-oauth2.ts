@@ -47,12 +47,7 @@ export async function validateAuthorizationCodeAndGetUser(
   const { options } = connection;
 
   if (!options?.client_id || !options.client_secret || !code_verifier) {
-    throw new Error(
-      "Missing required Google authentication parameters: " +
-        JSON.stringify(options) +
-        " " +
-        code_verifier,
-    );
+    throw new Error("Missing required authentication parameters");
   }
 
   const google = new Google(
