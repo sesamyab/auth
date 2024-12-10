@@ -1,92 +1,102 @@
-import { createJWTSignatureMessage, encodeJWT } from "@oslojs/jwt";
-import { OAuth2Tokens } from "arctic";
-import { createOAuth2Request, sendTokenRequest } from "arctic/dist/request";
+import { Apple } from "arctic";
+import { Context } from "hono";
+import { Connection } from "authhero";
+import { nanoid } from "nanoid";
+import { Env, Var } from "../types";
+import { parseJWT } from "oslo/jwt";
+import { idTokenSchema } from "../types/IdToken";
 
-const authorizationEndpoint = "https://appleid.apple.com/auth/authorize";
-const tokenEndpoint = "https://appleid.apple.com/auth/token";
+function getAppleOptions(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  connection: Connection,
+) {
+  const { options } = connection;
 
-export class Apple {
-  private clientId: string;
-  private teamId: string;
-  private keyId: string;
-  private pkcs8PrivateKey: Uint8Array;
-  private redirectURI: string;
-
-  constructor(
-    clientId: string,
-    teamId: string,
-    keyId: string,
-    pkcs8PrivateKey: Uint8Array,
-    redirectURI: string,
+  if (
+    !options ||
+    !options.client_id ||
+    !options.team_id ||
+    !options.kid ||
+    !options.app_secret
   ) {
-    this.clientId = clientId;
-    this.teamId = teamId;
-    this.keyId = keyId;
-    this.pkcs8PrivateKey = pkcs8PrivateKey;
-    this.redirectURI = redirectURI;
+    throw new Error("Missing required Apple authentication parameters");
   }
 
-  public createAuthorizationURL(state: string, scopes: string[]): URL {
-    const url = new URL(authorizationEndpoint);
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("client_id", this.clientId);
-    url.searchParams.set("state", state);
-    url.searchParams.set("scope", scopes.join(" "));
-    url.searchParams.set("redirect_uri", this.redirectURI);
-    if (scopes.some((scope) => ["email", "name"].includes(scope))) {
-      url.searchParams.set("response_mode", "form_post");
-    }
-    return url;
+  // Use a secure buffer to handle private key
+  const privateKeyBuffer = Buffer.from(options.app_secret, "utf-8");
+  const cleanedKey = privateKeyBuffer
+    .toString()
+    .replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, "");
+  const keyArray = Uint8Array.from(Buffer.from(cleanedKey, "base64"));
+  // Clear sensitive data from memory
+  privateKeyBuffer.fill(0);
+
+  return { options, keyArray };
+}
+
+export async function getRedirect(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  connection: Connection,
+) {
+  const { options, keyArray } = getAppleOptions(ctx, connection);
+
+  const apple = new Apple(
+    options.client_id!,
+    options.team_id!,
+    options.kid!,
+    keyArray,
+    `${ctx.env.ISSUER}callback`,
+  );
+
+  const code = nanoid();
+
+  const appleAuthorizatioUrl = await apple.createAuthorizationURL(
+    code,
+    options.scope?.split(" ") || ["name", "email"],
+  );
+
+  const scopes = options.scope?.split(" ") || ["name", "email"];
+  if (scopes.some((scope) => ["email", "name"].includes(scope))) {
+    appleAuthorizatioUrl.searchParams.set("response_mode", "form_post");
   }
 
-  public async validateAuthorizationCode(code: string): Promise<OAuth2Tokens> {
-    const body = new URLSearchParams();
-    body.set("grant_type", "authorization_code");
-    body.set("code", code);
-    body.set("redirect_uri", this.redirectURI);
-    body.set("client_id", this.clientId);
-    const clientSecret = await this.createClientSecret();
-    body.set("client_secret", clientSecret);
-    const request = createOAuth2Request(tokenEndpoint, body);
-    const tokens = await sendTokenRequest(request);
-    return tokens;
+  return {
+    redirectUrl: appleAuthorizatioUrl.href,
+    code,
+  };
+}
+
+export async function validateAuthorizationCodeAndGetUser(
+  ctx: Context<{ Bindings: Env; Variables: Var }>,
+  connection: Connection,
+  code: string,
+) {
+  const { options, keyArray } = getAppleOptions(ctx, connection);
+
+  const apple = new Apple(
+    options.client_id!,
+    options.team_id!,
+    options.kid!,
+    keyArray,
+    `${ctx.env.ISSUER}callback`,
+  );
+
+  const tokens = await apple.validateAuthorizationCode(code);
+  const idToken = parseJWT(tokens.idToken());
+
+  if (!idToken) {
+    throw new Error("Invalid Apple ID token");
   }
 
-  private async createClientSecret(): Promise<string> {
-    const privateKey = await crypto.subtle.importKey(
-      "pkcs8",
-      this.pkcs8PrivateKey,
-      {
-        name: "ECDSA",
-        namedCurve: "P-256",
-      },
-      false,
-      ["sign"],
-    );
-    const now = Math.floor(Date.now() / 1000);
-    const headerJSON = JSON.stringify({
-      typ: "JWT",
-      alg: "ES256",
-      kid: this.keyId,
-    });
-    const payloadJSON = JSON.stringify({
-      iss: this.teamId,
-      exp: now + 5 * 60,
-      aud: ["https://appleid.apple.com"],
-      sub: this.clientId,
-      iat: now,
-    });
-    const signature = new Uint8Array(
-      await crypto.subtle.sign(
-        {
-          name: "ECDSA",
-          hash: "SHA-256",
-        },
-        privateKey,
-        createJWTSignatureMessage(headerJSON, payloadJSON),
-      ),
-    );
-    const jwt = encodeJWT(headerJSON, payloadJSON, signature);
-    return jwt;
-  }
+  const payload = idTokenSchema.parse(idToken.payload);
+
+  return {
+    id: payload.sub,
+    email: payload.email,
+    given_name: payload.given_name,
+    family_name: payload.family_name,
+    name: payload.name,
+    picture: payload.picture,
+    locale: payload.locale,
+  };
 }
