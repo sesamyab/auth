@@ -1,5 +1,4 @@
 import { Context } from "hono";
-import { Google, Facebook, generateCodeVerifier } from "arctic";
 import { AuthParams, Client, LogTypes, Login } from "authhero";
 import { Env } from "../types";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
@@ -92,24 +91,6 @@ export async function socialAuth(
       Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
   });
-  if (connection.strategy === "facebook") {
-    if (!options.client_id || !options.client_secret) {
-      throw new Error("Missing required Facebook authentication parameters");
-    }
-
-    const facebook = new Facebook(
-      options.client_id,
-      options.client_secret,
-      `${ctx.env.ISSUER}callback`,
-    );
-
-    const facebookAuthorizationUrl = facebook.createAuthorizationURL(
-      auth2State.code_id,
-      options.scope?.split(" ") || ["email"],
-    );
-
-    return ctx.redirect(facebookAuthorizationUrl.href);
-  }
 
   const oauthLoginUrl = new URL(options.authorization_endpoint!);
 
@@ -218,48 +199,36 @@ export async function oauth2Callback({
     );
   } else {
     // Legacy version
-
     const options = connection.options || {};
 
-    if (connection.strategy === "facebook") {
-      const facebook = new Facebook(
-        options.client_id!,
-        options.client_secret!,
-        `${ctx.env.ISSUER}callback`,
-      );
+    const oauth2Client = env.oauth2ClientFactory.create(
+      {
+        ...connection,
+        client_id: options.client_id!,
+        client_secret: options.client_secret,
+        authorization_endpoint: options.authorization_endpoint!,
+        token_endpoint: options.token_endpoint!,
+        scope: options.scope!,
+        userinfo_endpoint: options.userinfo_endpoint,
+      },
+      `${env.ISSUER}callback`,
+    );
 
-      const tokens = await facebook.validateAuthorizationCode(code);
-      userinfo = getProfileData(parseJwt(tokens.idToken()));
-    } else {
-      const oauth2Client = env.oauth2ClientFactory.create(
-        {
-          ...connection,
-          client_id: options.client_id!,
-          client_secret: options.client_secret,
-          authorization_endpoint: options.authorization_endpoint!,
-          token_endpoint: options.token_endpoint!,
-          scope: options.scope!,
-          userinfo_endpoint: options.userinfo_endpoint,
-        },
-        `${env.ISSUER}callback`,
-      );
+    const token = await oauth2Client.exchangeCodeForTokenResponse(code, true);
 
-      const token = await oauth2Client.exchangeCodeForTokenResponse(code, true);
-
-      if (options.userinfo_endpoint) {
-        ctx.set("log", JSON.stringify({ userinfo, options, token }));
-        userinfo = getProfileData(
-          await oauth2Client.getUserProfile(token.access_token),
-        );
-      } else if (token.id_token) {
-        userinfo = getProfileData(parseJwt(token.id_token));
-      } else {
-        throw new HTTPException(500, {
-          message: "No id_token or userinfo endpoint available",
-        });
-      }
+    if (options.userinfo_endpoint) {
       ctx.set("log", JSON.stringify({ userinfo, options, token }));
+      userinfo = getProfileData(
+        await oauth2Client.getUserProfile(token.access_token),
+      );
+    } else if (token.id_token) {
+      userinfo = getProfileData(parseJwt(token.id_token));
+    } else {
+      throw new HTTPException(500, {
+        message: "No id_token or userinfo endpoint available",
+      });
     }
+    ctx.set("log", JSON.stringify({ userinfo, options, token }));
   }
 
   const { sub, email, ...profileData } = userinfo;
