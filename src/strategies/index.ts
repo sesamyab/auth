@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { Connection } from "authhero";
 import { Env, Var } from "../types";
-import * as apple from "./apple";
+import * as apple from "./apple2";
 import * as facebook from "./facebook";
 import * as google from "./google-oauth2";
 
