@@ -83,37 +83,16 @@ export async function socialAuth(
   }
 
   // This the legacy version
-  const code_verifier = generateCodeVerifier();
   const auth2State = await ctx.env.data.codes.create(client.tenant.id, {
     login_id: loginSession.login_id,
     code_id: nanoid(),
     code_type: "oauth2_state",
     connection_id: connection.id,
-    code_verifier,
     expires_at: new Date(
       Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
   });
-
-  if (connection.strategy === "google-oauth2") {
-    if (!options.client_id || !options.client_secret) {
-      throw new Error("Missing required Google authentication parameters");
-    }
-
-    const google = new Google(
-      options.client_id,
-      options.client_secret,
-      `${ctx.env.ISSUER}callback`,
-    );
-
-    const googleAuthorizationUrl = google.createAuthorizationURL(
-      auth2State.code_id,
-      code_verifier,
-      options.scope?.split(" ") ?? ["email", "profile"],
-    );
-
-    return ctx.redirect(googleAuthorizationUrl.href);
-  } else if (connection.strategy === "facebook") {
+  if (connection.strategy === "facebook") {
     if (!options.client_id || !options.client_secret) {
       throw new Error("Missing required Facebook authentication parameters");
     }
@@ -242,19 +221,7 @@ export async function oauth2Callback({
 
     const options = connection.options || {};
 
-    if (connection.strategy === "google-oauth2") {
-      const google = new Google(
-        options.client_id!,
-        options.client_secret!,
-        `${ctx.env.ISSUER}callback`,
-      );
-
-      const tokens = await google.validateAuthorizationCode(
-        code,
-        code_verifier!,
-      );
-      userinfo = getProfileData(parseJwt(tokens.idToken()));
-    } else if (connection.strategy === "facebook") {
+    if (connection.strategy === "facebook") {
       const facebook = new Facebook(
         options.client_id!,
         options.client_secret!,

@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { Env, Var } from "../types";
 import * as apple from "./apple";
+import * as google from "./google-oauth2";
 import { Connection } from "authhero";
 
 export type UserInfo = {
@@ -26,4 +27,5 @@ export type Strategy = {
 
 export const strategies: { [strategy: string]: Strategy } = {
   apple,
+  "google-oauth2": google,
 };

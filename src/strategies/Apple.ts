@@ -50,18 +50,18 @@ export async function getRedirect(
 
   const code = nanoid();
 
-  const appleAuthorizatioUrl = await apple.createAuthorizationURL(
+  const authorizatioUrl = await apple.createAuthorizationURL(
     code,
     options.scope?.split(" ") || ["name", "email"],
   );
 
   const scopes = options.scope?.split(" ") || ["name", "email"];
   if (scopes.some((scope) => ["email", "name"].includes(scope))) {
-    appleAuthorizatioUrl.searchParams.set("response_mode", "form_post");
+    authorizatioUrl.searchParams.set("response_mode", "form_post");
   }
 
   return {
-    redirectUrl: appleAuthorizatioUrl.href,
+    redirectUrl: authorizatioUrl.href,
     code,
   };
 }
@@ -85,7 +85,7 @@ export async function validateAuthorizationCodeAndGetUser(
   const idToken = parseJWT(tokens.idToken());
 
   if (!idToken) {
-    throw new Error("Invalid Apple ID token");
+    throw new Error("Invalid ID token");
   }
 
   const payload = idTokenSchema.parse(idToken.payload);
