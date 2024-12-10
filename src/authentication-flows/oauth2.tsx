@@ -1,5 +1,4 @@
 import { Context } from "hono";
-import { Google, Facebook, generateCodeVerifier } from "arctic";
 import { AuthParams, Client, LogTypes, Login } from "authhero";
 import { Env } from "../types";
 import { generateAuthResponse } from "../helpers/generate-auth-response";
@@ -20,8 +19,8 @@ import {
   UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
 } from "../constants";
 import { nanoid } from "nanoid";
-import { Apple } from "../strategies/Apple";
 import { getClientInfo } from "../utils/client-info";
+import { strategies } from "../strategies";
 
 export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -61,91 +60,37 @@ export async function socialAuth(
     });
   }
 
-  const code_verifier = generateCodeVerifier();
+  const options = connection.options || {};
+
+  const strategy = strategies[connection.strategy];
+
+  if (strategy) {
+    const result = await strategy.getRedirect(ctx, connection);
+
+    await ctx.env.data.codes.create(client.tenant.id, {
+      login_id: loginSession.login_id,
+      code_id: result.code,
+      code_type: "oauth2_state",
+      connection_id: connection.id,
+      code_verifier: result.codeVerifier,
+      expires_at: new Date(
+        Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
+      ).toISOString(),
+    });
+
+    return ctx.redirect(result.redirectUrl);
+  }
+
+  // This the legacy version
   const auth2State = await ctx.env.data.codes.create(client.tenant.id, {
     login_id: loginSession.login_id,
     code_id: nanoid(),
     code_type: "oauth2_state",
     connection_id: connection.id,
-    code_verifier,
     expires_at: new Date(
       Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
     ).toISOString(),
   });
-
-  const options = connection.options || {};
-
-  if (connection.strategy === "apple") {
-    if (
-      !options.client_id ||
-      !options.team_id ||
-      !options.kid ||
-      !options.app_secret
-    ) {
-      throw new Error("Missing required Apple authentication parameters");
-    }
-
-    // Use a secure buffer to handle private key
-    const privateKeyBuffer = Buffer.from(options.app_secret, "utf-8");
-    const cleanedKey = privateKeyBuffer
-      .toString()
-      .replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, "");
-    const keyArray = Uint8Array.from(Buffer.from(cleanedKey, "base64"));
-    // Clear sensitive data from memory
-    privateKeyBuffer.fill(0);
-
-    const apple = new Apple(
-      options.client_id!,
-      options.team_id!,
-      options.kid!,
-      keyArray,
-      `${ctx.env.ISSUER}callback`,
-    );
-
-    const appleAuthorizatioUrl = await apple.createAuthorizationURL(
-      auth2State.code_id,
-      options.scope?.split(" ") || ["name", "email"],
-    );
-
-    return ctx.redirect(appleAuthorizatioUrl.href);
-  } else if (connection.strategy === "google-oauth2") {
-    if (!options.client_id || !options.client_secret) {
-      throw new Error("Missing required Google authentication parameters");
-    }
-
-    const google = new Google(
-      options.client_id,
-      options.client_secret,
-      `${ctx.env.ISSUER}callback`,
-    );
-
-    const googleAuthorizationUrl = google.createAuthorizationURL(
-      auth2State.code_id,
-      code_verifier,
-      options.scope?.split(" ") ?? ["email", "profile"],
-    );
-
-    return ctx.redirect(googleAuthorizationUrl.href);
-  } else if (connection.strategy === "facebook") {
-    if (!options.client_id || !options.client_secret) {
-      throw new Error("Missing required Facebook authentication parameters");
-    }
-
-    const facebook = new Facebook(
-      options.client_id,
-      options.client_secret,
-      `${ctx.env.ISSUER}callback`,
-    );
-
-    const facebookAuthorizationUrl = facebook.createAuthorizationURL(
-      auth2State.code_id,
-      options.scope?.split(" ") || ["email"],
-    );
-
-    return ctx.redirect(facebookAuthorizationUrl.href);
-  }
-
-  console.log("got here", JSON.stringify(options));
 
   const oauthLoginUrl = new URL(options.authorization_endpoint!);
 
@@ -242,48 +187,20 @@ export async function oauth2Callback({
     });
   }
 
-  const options = connection.options || {};
-
   let userinfo: any;
-  if (connection.strategy === "apple") {
-    // Use a secure buffer to handle private key
-    const privateKeyBuffer = Buffer.from(options.app_secret!, "utf-8");
-    const cleanedKey = privateKeyBuffer
-      .toString()
-      .replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, "");
-    const keyArray = Uint8Array.from(Buffer.from(cleanedKey, "base64"));
-    // Clear sensitive data from memory
-    privateKeyBuffer.fill(0);
 
-    const apple = new Apple(
-      options.client_id!,
-      options.team_id!,
-      options.kid!,
-      keyArray,
-      `${ctx.env.ISSUER}callback`,
+  const strategy = strategies[connection.strategy];
+  if (strategy) {
+    userinfo = await strategy.validateAuthorizationCodeAndGetUser(
+      ctx,
+      connection,
+      code,
+      code_verifier,
     );
-
-    const tokens = await apple.validateAuthorizationCode(code);
-    userinfo = parseJwt(tokens.idToken());
-  } else if (connection.strategy === "google-oauth2") {
-    const google = new Google(
-      options.client_id!,
-      options.client_secret!,
-      `${ctx.env.ISSUER}callback`,
-    );
-
-    const tokens = await google.validateAuthorizationCode(code, code_verifier!);
-    userinfo = getProfileData(parseJwt(tokens.idToken()));
-  } else if (connection.strategy === "facebook") {
-    const facebook = new Facebook(
-      options.client_id!,
-      options.client_secret!,
-      `${ctx.env.ISSUER}callback`,
-    );
-
-    const tokens = await facebook.validateAuthorizationCode(code);
-    userinfo = getProfileData(parseJwt(tokens.idToken()));
   } else {
+    // Legacy version
+    const options = connection.options || {};
+
     const oauth2Client = env.oauth2ClientFactory.create(
       {
         ...connection,
