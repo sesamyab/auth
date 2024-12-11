@@ -19,8 +19,8 @@ export default async function send(emailOptions: EmailOptions, apiKey: string) {
   );
 
   const recipients = emailOptions.to
-    .map((recipient) => `${recipient.name} <${recipient.email}>`)
-    .join(",");
+    .map((recipient) => recipient.email)
+    .join(", ");
 
   const formData = new URLSearchParams();
   formData.append(

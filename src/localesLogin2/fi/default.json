@@ -53,6 +53,8 @@
   "go_back": "Palaa takaisin",
   "invalid-email": "Virheellinen sähköpostiosoite",
   "invalid_password": "Virheellinen salasana",
+  "invalid_session_body": "Linkki ei ole enää voimassa. Varmista, että avaat maagisen linkin samassa selaimessa, jolla aloitit kirjautumisen. Voit aloittaa uuden kirjautumisen napsauttamalla alla olevaa painiketta.",
+  "invalid_session_title": "Virheellinen linkki",
   "link_email_click_to_login": "Kirjaudu sisään napsauttamalla painiketta",
   "link_email_login": "Kirjaudu sisään",
   "link_email_or_enter_code": "Tai kirjoita koodi osoitteessa {{vendorName}} kirjautumisen loppuun saattamiseksi.",

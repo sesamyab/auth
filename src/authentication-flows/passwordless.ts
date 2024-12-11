@@ -6,7 +6,6 @@ import {
   getPrimaryUserByEmail,
   getPrimaryUserByEmailAndProvider,
 } from "../utils/users";
-import { nanoid } from "nanoid";
 import generateOTP from "../utils/otp";
 import {
   CODE_EXPIRATION_TIME,
@@ -32,10 +31,16 @@ interface LoginParams {
   ip?: string;
 }
 
+interface ValidateCodeResponse {
+  status: "success" | "invalid_code" | "Invalid_session";
+  user?: User;
+  loginSession?: string;
+}
+
 export async function validateCode(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   params: LoginParams,
-): Promise<User> {
+): Promise<ValidateCodeResponse> {
   const { env } = ctx;
 
   const client = await getClient(env, params.client_id);
@@ -43,20 +48,36 @@ export async function validateCode(
   const code = await env.data.codes.get(client.tenant.id, params.otp, "otp");
 
   if (!code) {
-    throw new HTTPException(403, { message: "Code not found or expired" });
+    return {
+      status: "invalid_code",
+    };
   }
 
   const login = await env.data.logins.get(client.tenant.id, code.login_id);
   if (!login) {
-    throw new HTTPException(403, { message: "Code not found or expired" });
+    return {
+      status: "invalid_code",
+    };
+  }
+
+  if (
+    login.useragent !== ctx.req.header("user-agent") ||
+    login.ip !== params.ip
+  ) {
+    return {
+      status: "Invalid_session",
+      loginSession: login.login_id,
+    };
   }
 
   if (login.authParams.username !== params.email) {
-    throw new HTTPException(403, { message: "Email does not match" });
+    return {
+      status: "Invalid_session",
+      loginSession: login.login_id,
+    };
   }
 
-  // TODO: disable for now
-  // await env.data.codes.remove(client.tenant.id, otp.id);
+  await env.data.codes.remove(client.tenant.id, code.code_id);
 
   const emailUser = await getPrimaryUserByEmailAndProvider({
     userAdapter: env.data.users,
@@ -66,7 +87,11 @@ export async function validateCode(
   });
 
   if (emailUser) {
-    return emailUser;
+    return {
+      status: "success",
+      loginSession: login.login_id,
+      user: emailUser,
+    };
   }
 
   const user = await env.data.users.create(client.tenant.id, {
@@ -92,7 +117,11 @@ export async function validateCode(
 
   waitUntil(ctx, env.data.logs.create(client.tenant.id, log));
 
-  return user;
+  return {
+    status: "success",
+    loginSession: login.login_id,
+    user,
+  };
 }
 
 // this is not inside src/controllers/email/sendValidateEmailAddress

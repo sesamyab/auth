@@ -131,19 +131,29 @@ export const passwordlessRoutes = new OpenAPIHono<{
       ctx.set("strategy_type", "passwordless");
 
       try {
-        const user = await validateCode(ctx, {
+        const { user, loginSession } = await validateCode(ctx, {
           client_id,
           email,
           otp: verification_code,
           ip: ctx.req.header("x-real-ip"),
         });
-        ctx.set("userId", user.user_id);
+
+        if (!loginSession) {
+          throw new HTTPException(400, {
+            message: "Code not found or expired",
+          });
+        } else if (!user) {
+          return ctx.redirect(
+            `${ctx.env.ISSUER}u/invalid-session?state=${loginSession}`,
+          );
+        }
 
         if (!validateRedirectUrl(client.callbacks || [], redirect_uri)) {
           throw new HTTPException(400, {
             message: `Invalid redirect URI - ${redirect_uri}`,
           });
         }
+        ctx.set("userId", user.user_id);
 
         const authParams: AuthParams = {
           client_id,
@@ -161,9 +171,11 @@ export const passwordlessRoutes = new OpenAPIHono<{
           user,
           authParams,
         });
-      } catch (e: any) {
+      } catch (err: unknown) {
+        const error = err as Error;
+
         const redirectUrl = new URL(redirect_uri);
-        redirectUrl.searchParams.set("error", e.message);
+        redirectUrl.searchParams.set("error", error.message);
         redirectUrl.searchParams.set("state", state);
         return ctx.redirect(redirectUrl.toString());
       }
