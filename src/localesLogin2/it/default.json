@@ -53,6 +53,8 @@
   "go_back": "Torna indietro",
   "invalid-email": "Email non valida",
   "invalid_password": "Password non valida",
+  "invalid_session_body": "Il link non è più valido. Assicuratevi di aprire il link magico nello stesso browser con cui avete iniziato il login. Potete fare clic sul pulsante sottostante per iniziare un nuovo login.",
+  "invalid_session_title": "Collegamento non valido",
   "link_email_click_to_login": "Fare clic sul pulsante per accedere",
   "link_email_login": "Accedi",
   "link_email_or_enter_code": "Oppure inserire il codice all'indirizzo {{vendorName}} per completare il login.",

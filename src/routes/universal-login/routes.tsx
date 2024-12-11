@@ -885,42 +885,12 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         });
       }
 
-      try {
-        const user = await validateCode(ctx, {
-          client_id: session.authParams.client_id,
-          email: session.authParams.username,
-          otp: code,
-        });
-        ctx.set("userName", user.email);
-        ctx.set("userId", user.user_id);
-        ctx.set("connection", user.connection);
-        ctx.set("strategy", "email");
-        ctx.set("strategy_type", "passwordless");
-
-        const actAs = await getImpersonatedUser(
-          ctx.env.data.users,
-          client.tenant.id,
-          session.authParams.username,
-          session.authParams.act_as,
-        );
-
-        const authResponse = await generateAuthResponse({
-          ctx,
-          client,
-          authParams: session.authParams,
-          user,
-          actAs,
-        });
-
-        return authResponse;
-      } catch {
-        const user = await getPrimaryUserByEmailAndProvider({
-          userAdapter: ctx.env.data.users,
-          tenant_id: client.tenant.id,
-          email: session.authParams.username,
-          provider: "auth2",
-        });
-
+      const { user } = await validateCode(ctx, {
+        client_id: session.authParams.client_id,
+        email: session.authParams.username,
+        otp: code,
+      });
+      if (!user) {
         return ctx.html(
           <EnterCodePage
             vendorSettings={vendorSettings}
@@ -933,6 +903,29 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           400,
         );
       }
+
+      ctx.set("userName", user.email);
+      ctx.set("userId", user.user_id);
+      ctx.set("connection", user.connection);
+      ctx.set("strategy", "email");
+      ctx.set("strategy_type", "passwordless");
+
+      const actAs = await getImpersonatedUser(
+        ctx.env.data.users,
+        client.tenant.id,
+        session.authParams.username,
+        session.authParams.act_as,
+      );
+
+      const authResponse = await generateAuthResponse({
+        ctx,
+        client,
+        authParams: session.authParams,
+        user,
+        actAs,
+      });
+
+      return authResponse;
     },
   )
   // --------------------------------

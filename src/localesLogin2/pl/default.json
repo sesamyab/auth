@@ -53,6 +53,8 @@
   "go_back": "Wróć",
   "invalid-email": "Nieprawidłowy adres e-mail",
   "invalid_password": "Nieprawidłowe hasło",
+  "invalid_session_body": "Upewnij się, że otworzyłeś magiczny link w tej samej przeglądarce, w której rozpocząłeś logowanie. Możesz kliknąć poniższy przycisk, aby rozpocząć nowe logowanie.",
+  "invalid_session_title": "Nieprawidłowy link",
   "link_email_click_to_login": "Kliknij przycisk, aby się zalogować",
   "link_email_login": "Zaloguj się",
   "link_email_or_enter_code": "Lub wprowadź kod na stronie {{vendorName}}, aby dokończyć logowanie.",

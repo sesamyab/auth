@@ -53,6 +53,8 @@
   "go_back": "Vrátit se zpět",
   "invalid-email": "Neplatný e-mail",
   "invalid_password": "Neplatné heslo",
+  "invalid_session_body": "Odkaz již není platný. Ujistěte se, že jste kouzelný odkaz otevřeli ve stejném prohlížeči, ve kterém jste přihlášení zahájili. Kliknutím na tlačítko níže můžete zahájit nové přihlášení.",
+  "invalid_session_title": "Neplatný odkaz",
   "link_email_click_to_login": "Kliknutím na tlačítko se přihlásíte",
   "link_email_login": "Přihlášení",
   "link_email_or_enter_code": "Nebo zadejte kód na adrese {{vendorName}} a dokončete přihlášení.",
