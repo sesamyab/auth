@@ -19,22 +19,17 @@
   dependencies:
     openapi3-ts "^4.1.2"
 
-"@authhero/adapter-interfaces@^0.29.1":
-  version "0.29.1"
-  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.29.1.tgz#69c6d449320094e2a54d4da062b30e1cb96a56be"
-  integrity sha512-CPibpdVCQ2yA//guyn0h+JiqGSCb+Hi5wCT+0jzkh4TuFdKBGpI+JX6FZReRs7aO+qIV3DMmcov6zFH3UQln5Q==
+"@authhero/adapter-interfaces@^0.31.0":
+  version "0.31.0"
+  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.31.0.tgz#b8a2721e0d6787f1f5a47ad3a192a66947538d38"
+  integrity sha512-VeyrI2/rW4ba2swxMlojDOZTu68r/KdwvfFxepRWXBeRjSnRufX0nuVplj2YR9UFcHv72scn3BPF51S4nb409g==
 
-"@authhero/adapter-interfaces@^0.30.0":
-  version "0.30.0"
-  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.30.0.tgz#5304a1367589e26b2d8e1f2f878d1ca36206a0df"
-  integrity sha512-fauqIGY+UC9i6S2TJpWKojE30SWuvbPXtCh9VgtZjNl0P70PsnfZ55zb6hYprR9yg6+2/EtX9IdoeYiK/SWEPQ==
-
-"@authhero/kysely-adapter@0.24.3":
-  version "0.24.3"
-  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.24.3.tgz#3ae8eb91bf2a148e64cd7bf7a3051cea708fcc4e"
-  integrity sha512-CTGrRan+SEbtpanfRh1T10sB/Lg/NKbUXGqTnn8oEKPkDzi89yreVo5kXpLVUTCJVp0NaGYP9ZKf/vD4e8qPcQ==
+"@authhero/kysely-adapter@0.25.0":
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.25.0.tgz#038d80525a1fc279e05bdd87c814b7d4ac0cf5cb"
+  integrity sha512-gyLkoFIKbzdYamDwfmkA3xJEihtTcwoP2kq18farqz4SBV9Z49YIAhy5Th+Z+RPVvP1PiOwxd/iMpGQ4HTA6Wg==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.29.1"
+    "@authhero/adapter-interfaces" "^0.31.0"
     kysely "^0.27.4"
     nanoid "^5.0.8"
 
@@ -2213,12 +2208,12 @@ assertion-error@^2.0.1:
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-2.0.1.tgz#f641a196b335690b1070bf00b6e7593fec190bf7"
   integrity sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==
 
-authhero@^0.22.0:
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.22.0.tgz#08c66c8ca8d4027847665f05af30605db29c6990"
-  integrity sha512-yub9AAohKPuQ+STcHAAyC11ft8L+egt6JGKmneK3Qx8V7o9xc1OqFS3/vkHViwSZzIYxPkxdBZXM6l1EzgetGQ==
+authhero@^0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.23.0.tgz#9cdb970a7dc0349f43380f2c828f8f444e6b644a"
+  integrity sha512-2nCa3LqDc7Fw45D30HQ55naOFFoouR5EOb/MdaqSlHULDD8YqrbfEmLTMUg7ZepWnWD4Vf3Uuu+EfwT5Ax6gew==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.30.0"
+    "@authhero/adapter-interfaces" "^0.31.0"
     "@peculiar/x509" "^1.12.3"
     bcrypt "^5.1.1"
     bcryptjs "^2.4.3"
