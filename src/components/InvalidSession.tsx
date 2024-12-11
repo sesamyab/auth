@@ -22,9 +22,12 @@ const InvalidSessionPage: FC<Props> = (params) => {
       </div>
       <div className="flex flex-1 flex-col justify-center">
         {redirectUrl && (
-          <Button href={redirectUrl} className="text-primary hover:underline">
-            {i18next.t("continue")}
-          </Button>
+          <a
+            className="block text-primary hover:text-primaryHover text-center"
+            href={redirectUrl}
+          >
+            {i18next.t("go_back")}
+          </a>
         )}
       </div>
     </Layout>

@@ -1567,9 +1567,21 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       const { state } = ctx.req.valid("query");
       const { vendorSettings, session } = await initJSXRoute(ctx, state);
 
+      let redirectUrl: URL | undefined;
+
+      if (session.authParams.redirect_uri && session.authParams.state) {
+        redirectUrl = new URL(session.authParams.redirect_uri);
+        redirectUrl.searchParams.set("state", session.authParams.state);
+        redirectUrl.searchParams.set("error", "invalid_session");
+        redirectUrl.searchParams.set(
+          "error_description",
+          session.authParams.username || "",
+        );
+      }
+
       return ctx.html(
         <InvalidSessionPage
-          redirectUrl={session.authParams.redirect_uri}
+          redirectUrl={redirectUrl?.href}
           vendorSettings={vendorSettings}
         />,
       );
