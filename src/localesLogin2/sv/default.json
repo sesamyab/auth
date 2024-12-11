@@ -53,6 +53,8 @@
   "go_back": "Gå tillbaka",
   "invalid-email": "Ogiltig e-postadress",
   "invalid_password": "Ogiltigt lösenord",
+  "invalid_session_body": "Länken är inte längre giltig. Vänligen se till att öppna den magiska länken i samma webbläsare som du startade inloggningen med. Du kan klicka på knappen nedan för att starta en ny inloggning.",
+  "invalid_session_title": "Ogiltig länk",
   "link_email_click_to_login": "Klicka på knappen för att logga in",
   "link_email_login": "Logga in",
   "link_email_or_enter_code": "Eller skriv in koden på {{vendorName}} för att slutföra inloggningen.",

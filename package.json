@@ -1,6 +1,6 @@
 {
   "name": "auth2",
-  "version": "1.257.36",
+  "version": "1.257.41",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -50,12 +50,12 @@
     ]
   },
   "dependencies": {
-    "@authhero/kysely-adapter": "0.24.3",
+    "@authhero/kysely-adapter": "0.25.0",
     "@hono/zod-openapi": "0.16.2",
     "@peculiar/x509": "^1.12.3",
     "@planetscale/database": "1.19.0",
     "arctic": "^2.3.0",
-    "authhero": "^0.20.2",
+    "authhero": "^0.23.0",
     "bcryptjs": "^2.4.3",
     "fast-xml-parser": "^4.5.0",
     "hono": "4.4.0",
@@ -64,12 +64,9 @@
     "kysely-bun-sqlite": "^0.3.2",
     "kysely-planetscale": "^1.5.0",
     "liquidjs": "^10.19.0",
-    "lru-cache": "^11.0.2",
     "nanoid": "5.0.9",
     "oslo": "^1.2.1",
     "playwright": "1.44.1",
-    "xml-crypto": "^6.0.0",
-    "xmldsigjs": "^2.6.1",
     "zod": "3.23.8"
   },
   "devDependencies": {

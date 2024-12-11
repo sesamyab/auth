@@ -647,9 +647,8 @@ describe("magic link flow", () => {
     const redirectUri2 = new URL(
       authenticateResponse2.headers.get("location")!,
     );
-    expect(redirectUri2.hostname).toBe("login.example.com");
-    expect(redirectUri2.pathname).toBe("/callback");
-    expect(redirectUri2.searchParams.get("error")).toBe("Email does not match");
+    expect(redirectUri2.hostname).toBe("example.com");
+    expect(redirectUri2.pathname).toBe("/u/invalid-session");
   });
 
   describe("edge cases", () => {
