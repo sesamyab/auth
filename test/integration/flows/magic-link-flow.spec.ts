@@ -648,7 +648,7 @@ describe("magic link flow", () => {
       authenticateResponse2.headers.get("location")!,
     );
     expect(redirectUri2.hostname).toBe("example.com");
-    expect(redirectUri2.pathname).toBe("/u/invalid-code");
+    expect(redirectUri2.pathname).toBe("/u/invalid-session");
   });
 
   describe("edge cases", () => {
