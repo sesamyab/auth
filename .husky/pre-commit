@@ -3,4 +3,4 @@
 
 npx lint-staged
 yarn type-check
-# yarn test
+yarn test

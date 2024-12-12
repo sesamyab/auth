@@ -4,8 +4,6 @@ import { Connection } from "authhero";
 import { nanoid } from "nanoid";
 import { Env, Var } from "../types";
 import { parseJWT } from "oslo/jwt";
-// import { idTokenSchema } from "../types/IdToken";
-// import { url } from "inspector";
 import { z } from "zod";
 
 export async function getRedirect(
@@ -35,6 +33,8 @@ export async function getRedirect(
     code,
     ["openid"],
   );
+
+  authorizationUrl.searchParams.set("prompt", "login");
 
   return {
     redirectUrl: authorizationUrl.href,
@@ -74,8 +74,8 @@ export async function validateAuthorizationCodeAndGetUser(
   const accessToken = parseJWT(tokens.accessToken());
   if (
     !accessToken ||
-    !("sub" in accessToken.payload) ||
-    typeof accessToken.payload.sub !== "string"
+    !("DebtorAccountNumber" in accessToken.payload) ||
+    typeof accessToken.payload.DebtorAccountNumber !== "string"
   ) {
     throw new Error("Invalid access token");
   }
@@ -104,7 +104,7 @@ export async function validateAuthorizationCodeAndGetUser(
     .parse(await tokenResponse.json());
 
   const userInfoUrl = new URL(options.userinfo_endpoint);
-  userInfoUrl.pathname = `/api/v1/debtors/${accessToken.payload.sub}`;
+  userInfoUrl.pathname = `/api/v1/debtors/${accessToken.payload.DebtorAccountNumber}`;
   const debtorResponse = await fetch(userInfoUrl.href, {
     headers: {
       token: value,
@@ -118,12 +118,20 @@ export async function validateAuthorizationCodeAndGetUser(
     throw new Error("Failed to fetch user info");
   }
 
-  throw new Error("Not implemented");
+  const debtorBody = await debtorResponse.json();
+  const debtor = z
+    .object({
+      firstname: z.string().optional(),
+      lastname: z.string().optional(),
+      email: z.string().optional(),
+      debtorAccountNumber: z.string(),
+    })
+    .parse(debtorBody);
 
-  // const debtor = z.ParseStatus();
-
-  // return {
-  //   id: payload.sub,
-  //   email: payload.email,
-  // };
+  return {
+    id: debtor.debtorAccountNumber,
+    email: debtor.email,
+    given_name: debtor.firstname,
+    family_name: debtor.lastname,
+  };
 }
