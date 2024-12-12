@@ -214,10 +214,6 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
   //   tokenResponse.refresh_token = refresh_token;
   // }
 
-  if (client.id === "sesamy-elastic") {
-    ctx.set("log", JSON.stringify(tokenResponse));
-  }
-
   return tokenResponse;
 }
 

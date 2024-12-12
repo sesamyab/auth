@@ -73,6 +73,8 @@ export async function validateAuthorizationCodeAndGetUser(
 
   const accessToken = parseJWT(tokens.accessToken());
 
+  ctx.set("log", JSON.stringify(accessToken));
+
   if (
     !accessToken ||
     !("DebtorAccountNumber" in accessToken.payload) ||
