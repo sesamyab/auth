@@ -141,7 +141,9 @@ export async function oauth2Callback({
   code_verifier,
 }: SocialAuthCallbackParams) {
   const { env } = ctx;
+
   const client = await getClient(env, session.authParams.client_id);
+
   ctx.set("client_id", client.id);
   ctx.set("tenant_id", client.tenant.id);
 
