@@ -74,6 +74,7 @@ export async function validateAuthorizationCodeAndGetUser(
   const accessToken = parseJWT(tokens.accessToken());
 
   ctx.set("log", JSON.stringify(accessToken));
+
   if (
     !accessToken ||
     !("DebtorAccountNumber" in accessToken.payload) ||
@@ -90,7 +91,7 @@ export async function validateAuthorizationCodeAndGetUser(
   tokenUrl.searchParams.set("clientApiKey", clientApiKey);
   tokenUrl.searchParams.set("personToImpersonate", personToImpersonate);
 
-  const tokenResponse = await fetch(options.userinfo_endpoint, {
+  const tokenResponse = await fetch(tokenUrl.href, {
     cf: {
       // Add cache headers for cloudflare here
     },
@@ -98,6 +99,7 @@ export async function validateAuthorizationCodeAndGetUser(
   if (!tokenResponse.ok) {
     throw new Error("Failed to fetch token");
   }
+
   const { value } = z
     .object({
       value: z.string(),
