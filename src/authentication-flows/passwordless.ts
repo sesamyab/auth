@@ -62,7 +62,7 @@ export async function validateCode(
 
   if (
     login.useragent !== ctx.req.header("user-agent") ||
-    login.ip !== params.ip
+    (params.ip && login.ip !== params.ip)
   ) {
     return {
       status: "Invalid_session",
@@ -70,7 +70,7 @@ export async function validateCode(
     };
   }
 
-  if (login.authParams.username !== params.email) {
+  if (params.email && login.authParams.username !== params.email) {
     return {
       status: "Invalid_session",
       loginSession: login.login_id,

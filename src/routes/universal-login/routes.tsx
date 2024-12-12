@@ -890,6 +890,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         email: session.authParams.username,
         otp: code,
       });
+
+      console.log("user", user);
+
       if (!user) {
         return ctx.html(
           <EnterCodePage

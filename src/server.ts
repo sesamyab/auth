@@ -6,6 +6,10 @@ import { getDb } from "./services/db";
 import sendEmail from "./services/email";
 import createAdapters from "@authhero/kysely-adapter";
 import { cleanup } from "./handlers/cleanup";
+import {
+  OnExecuteCredentialsExchangeAPI,
+  OnExecuteCredentialsExchangeEvent,
+} from "./types/Hooks";
 
 const server = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
@@ -55,6 +59,16 @@ const server = {
         sendEmail,
         signSAML,
         data: dataAdapter,
+        hooks: {
+          onExecuteCredentialsExchange: async (
+            event: OnExecuteCredentialsExchangeEvent,
+            api: OnExecuteCredentialsExchangeAPI,
+          ) => {
+            if (event.client.id === "data-processor") {
+              api.accessToken.setCustomClaim("roles", "sesamy_admin");
+            }
+          },
+        },
       },
       ctx,
     );
