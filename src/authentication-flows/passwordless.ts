@@ -9,6 +9,7 @@ import {
 import generateOTP from "../utils/otp";
 import {
   CODE_EXPIRATION_TIME,
+  EMAIL_VERIFICATION_EXPIRATION_TIME,
   UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS,
 } from "../constants";
 import {
@@ -77,7 +78,7 @@ export async function validateCode(
     };
   }
 
-  await env.data.codes.remove(client.tenant.id, code.code_id);
+  await env.data.codes.used(client.tenant.id, code.code_id);
 
   const emailUser = await getPrimaryUserByEmailAndProvider({
     userAdapter: env.data.users,
@@ -167,7 +168,9 @@ export async function sendEmailVerificationEmail({
     code_id,
     code_type: "email_verification",
     login_id: loginSession.login_id,
-    expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
+    expires_at: new Date(
+      Date.now() + EMAIL_VERIFICATION_EXPIRATION_TIME,
+    ).toISOString(),
   });
 
   await sendValidateEmailAddress(env, client, user.email, code_id, state);
