@@ -32,7 +32,7 @@ export async function ticketAuth(
   ctx.set("connection", realm);
 
   const code = await env.data.codes.get(tenant_id, ticketId, "ticket");
-  if (!code) {
+  if (!code || code.used_at) {
     throw new HTTPException(403, { message: "Ticket not found" });
   }
 
@@ -45,7 +45,7 @@ export async function ticketAuth(
   const client = await getClient(ctx.env, login.authParams.client_id);
   ctx.set("client_id", login.authParams.client_id);
 
-  await env.data.codes.remove(tenant_id, ticketId);
+  await env.data.codes.used(tenant_id, ticketId);
 
   const provider = getProviderFromRealm(realm);
 

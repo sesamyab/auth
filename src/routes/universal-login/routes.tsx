@@ -39,7 +39,10 @@ import {
   requestPasswordReset,
 } from "../../authentication-flows/password";
 import { CustomException } from "../../models/CustomError";
-import { CODE_EXPIRATION_TIME } from "../../constants";
+import {
+  CODE_EXPIRATION_TIME,
+  EMAIL_VERIFICATION_EXPIRATION_TIME,
+} from "../../constants";
 import {
   Client,
   Login,
@@ -1493,7 +1496,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         code_id: generateOTP(),
         code_type: "email_verification",
         login_id: session.login_id,
-        expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
+        expires_at: new Date(
+          Date.now() + EMAIL_VERIFICATION_EXPIRATION_TIME,
+        ).toISOString(),
       });
 
       await sendSignupValidateEmailAddress(

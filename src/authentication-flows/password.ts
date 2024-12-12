@@ -6,7 +6,10 @@ import {
   getUserByEmailAndProvider,
   getUsersByEmail,
 } from "../utils/users";
-import { CODE_EXPIRATION_TIME } from "../constants";
+import {
+  CODE_EXPIRATION_TIME,
+  LOGIN_SESSION_EXPIRATION_TIME,
+} from "../constants";
 import generateOTP from "../utils/otp";
 import { sendResetPassword } from "../controllers/email";
 import { createLogMessage } from "../utils/create-log-message";
@@ -59,7 +62,9 @@ export async function requestPasswordReset(
   }
 
   const loginSession = await ctx.env.data.logins.create(client.tenant.id, {
-    expires_at: new Date(Date.now() + CODE_EXPIRATION_TIME).toISOString(),
+    expires_at: new Date(
+      Date.now() + LOGIN_SESSION_EXPIRATION_TIME,
+    ).toISOString(),
     authParams: {
       client_id: client.id,
       username: email,
