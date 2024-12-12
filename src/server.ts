@@ -64,6 +64,8 @@ const server = {
             event: OnExecuteCredentialsExchangeEvent,
             api: OnExecuteCredentialsExchangeAPI,
           ) => {
+            console.log("got here");
+
             if (event.client.id === "data-processor") {
               api.accessToken.setCustomClaim("roles", "sesamy_admin");
             }

@@ -19,22 +19,17 @@
   dependencies:
     openapi3-ts "^4.1.2"
 
-"@authhero/adapter-interfaces@^0.31.0":
-  version "0.31.0"
-  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.31.0.tgz#b8a2721e0d6787f1f5a47ad3a192a66947538d38"
-  integrity sha512-VeyrI2/rW4ba2swxMlojDOZTu68r/KdwvfFxepRWXBeRjSnRufX0nuVplj2YR9UFcHv72scn3BPF51S4nb409g==
-
 "@authhero/adapter-interfaces@^0.32.0":
   version "0.32.0"
   resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.32.0.tgz#eae44b19ce066dacea4ba13e7315831a7e178e7b"
   integrity sha512-jCgph4UTDqhg61HjeO0E9b0+QoEEeWK/1UaFkNUsb3ymE3VMT18bG0UeWHB2uZy3yNKgfcyIca9rEw7XGNpMSA==
 
-"@authhero/kysely-adapter@0.25.0":
-  version "0.25.0"
-  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.25.0.tgz#038d80525a1fc279e05bdd87c814b7d4ac0cf5cb"
-  integrity sha512-gyLkoFIKbzdYamDwfmkA3xJEihtTcwoP2kq18farqz4SBV9Z49YIAhy5Th+Z+RPVvP1PiOwxd/iMpGQ4HTA6Wg==
+"@authhero/kysely-adapter@0.25.1":
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.25.1.tgz#15ad60779c6cc8dcb009adee1a8512f24f9e68cd"
+  integrity sha512-BHupmcA1a5k1RpIEJJ6Blsx/5kZXSk92fUwGdB5Y5G640+4FfIUPzPFWcMe10020N0q/2BDsweUMW2EZKl2NwQ==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.31.0"
+    "@authhero/adapter-interfaces" "^0.32.0"
     kysely "^0.27.4"
     nanoid "^5.0.8"
 
@@ -2213,10 +2208,10 @@ assertion-error@^2.0.1:
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-2.0.1.tgz#f641a196b335690b1070bf00b6e7593fec190bf7"
   integrity sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==
 
-authhero@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.24.0.tgz#1c0679847a726dac13c3368877931414efe02328"
-  integrity sha512-ycUVV18Gkri+Muf4Q44OI2hPHmdezRekHCWSTguOSw9pKbdv1yDs1+AtsBFoBXUyDFd9PDcP9p7u85OsUak6JQ==
+authhero@^0.25.0:
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.25.0.tgz#4804f1b50b2c91ffd83bd77f18b433996113676d"
+  integrity sha512-j1QnbdaKU1W5kR/m3yxvNfc8/wcKml6ABCLAcAqAIGATnxCWTl8XpTCr0KViJKfbe6+XqMNJQ/QwSbZT6K1vkQ==
   dependencies:
     "@authhero/adapter-interfaces" "^0.32.0"
     "@peculiar/x509" "^1.12.3"
