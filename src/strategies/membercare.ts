@@ -3,8 +3,118 @@ import { Context } from "hono";
 import { Connection } from "authhero";
 import { nanoid } from "nanoid";
 import { Env, Var } from "../types";
-import { parseJWT } from "oslo/jwt";
 import { z } from "zod";
+import { base64url } from "oslo/encoding";
+
+function getJWTParts(
+  jwt: string,
+): [header: string, payload: string, signature: string] | null {
+  const jwtParts = jwt.split(".");
+  if (jwtParts.length !== 3) {
+    return null;
+  }
+  return jwtParts as [string, string, string];
+}
+
+function parseJWT(jwt: string) {
+  const jwtParts = getJWTParts(jwt);
+  if (!jwtParts) {
+    return null;
+  }
+  const textDecoder = new TextDecoder();
+  const rawHeader = base64url.decode(jwtParts[0], {
+    strict: false,
+  });
+  const rawPayload = base64url.decode(jwtParts[1], {
+    strict: false,
+  });
+  const header: unknown = JSON.parse(textDecoder.decode(rawHeader));
+  if (typeof header !== "object" || header === null) {
+    return null;
+  }
+  const payload: unknown = JSON.parse(textDecoder.decode(rawPayload));
+  if (typeof payload !== "object" || payload === null) {
+    return null;
+  }
+  const properties: {
+    [key: string]: string | Date | null | string[] | number;
+  } = {
+    algorithm:
+      "alg" in header && typeof header.alg === "string" ? header.alg : null,
+    expiresAt: null,
+    subject: null,
+    issuedAt: null,
+    issuer: null,
+    jwtId: null,
+    audiences: null,
+    notBefore: null,
+  };
+  if ("exp" in payload) {
+    if (typeof payload.exp !== "number") {
+      return null;
+    }
+    properties.expiresAt = new Date(payload.exp * 1000);
+  }
+  if ("iss" in payload) {
+    if (typeof payload.iss !== "string") {
+      return null;
+    }
+    properties.issuer = payload.iss;
+  }
+  if ("sub" in payload) {
+    if (typeof payload.sub !== "string") {
+      return null;
+    }
+    properties.subject = payload.sub;
+  }
+  if ("aud" in payload) {
+    if (!Array.isArray(payload.aud)) {
+      if (typeof payload.aud !== "string") {
+        return null;
+      }
+      properties.audiences = [payload.aud];
+    } else {
+      for (const item of payload.aud) {
+        if (typeof item !== "string") {
+          return null;
+        }
+      }
+      properties.audiences = payload.aud;
+    }
+  }
+  if ("nbf" in payload) {
+    if (typeof payload.nbf !== "number") {
+      return null;
+    }
+    properties.notBefore = new Date(payload.nbf * 1000);
+  }
+  if ("iat" in payload) {
+    if (typeof payload.iat !== "number") {
+      return null;
+    }
+    properties.issuedAt = new Date(payload.iat * 1000);
+  }
+  if ("jti" in payload) {
+    if (typeof payload.jti !== "string") {
+      return null;
+    }
+    properties.jwtId = payload.jti;
+  }
+
+  return {
+    value: jwt,
+    header: {
+      ...header,
+      typ: "JWT",
+      alg: properties.alg,
+    },
+    payload: {
+      ...payload,
+    },
+    parts: jwtParts,
+    ...properties,
+  };
+}
 
 export async function getRedirect(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
@@ -77,8 +187,8 @@ export async function validateAuthorizationCodeAndGetUser(
 
   if (
     !accessToken ||
-    !("DebtorAccountNumber" in accessToken.payload) ||
-    typeof accessToken.payload.DebtorAccountNumber !== "string"
+    !("sub" in accessToken.payload) ||
+    typeof accessToken.payload.sub !== "string"
   ) {
     throw new Error("Invalid access token");
   }
@@ -108,7 +218,7 @@ export async function validateAuthorizationCodeAndGetUser(
     .parse(await tokenResponse.json());
 
   const userInfoUrl = new URL(options.userinfo_endpoint);
-  userInfoUrl.pathname = `/api/v1/debtors/${accessToken.payload.DebtorAccountNumber}`;
+  userInfoUrl.pathname = `/api/v1/persons/${accessToken.payload.sub}`;
   const debtorResponse = await fetch(userInfoUrl.href, {
     headers: {
       token: value,
@@ -119,7 +229,9 @@ export async function validateAuthorizationCodeAndGetUser(
   });
 
   if (!debtorResponse.ok) {
-    throw new Error("Failed to fetch user info");
+    throw new Error(
+      "Failed to fetch user info: " + userInfoUrl.href + " " + value,
+    );
   }
 
   const debtorBody = await debtorResponse.json();
