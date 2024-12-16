@@ -66,7 +66,7 @@ export async function validateAuthorizationCodeAndGetUser(
   const payload = idTokenSchema.parse(idToken.payload);
 
   return {
-    id: payload.sub,
+    sub: payload.sub,
     email: payload.email,
     given_name: payload.given_name,
     family_name: payload.family_name,

@@ -249,7 +249,7 @@ export async function validateAuthorizationCodeAndGetUser(
     .parse(debtorBody);
 
   return {
-    id: debtor.debtorAccountNumber,
+    sub: debtor.debtorAccountNumber,
     email: debtor.contacts[0].value,
     given_name: debtor.firstname,
     family_name: debtor.lastname,
