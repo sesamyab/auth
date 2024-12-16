@@ -141,7 +141,7 @@ export async function getRedirect(
   const authorizationUrl = oauth2.createAuthorizationURL(
     options.authorization_endpoint,
     code,
-    ["openid"],
+    ["openid profile usermc"],
   );
 
   authorizationUrl.searchParams.set("prompt", "login");
@@ -183,12 +183,11 @@ export async function validateAuthorizationCodeAndGetUser(
 
   const accessToken = parseJWT(tokens.accessToken());
 
-  ctx.set("log", JSON.stringify(accessToken));
-
   if (
     !accessToken ||
-    !("sub" in accessToken.payload) ||
-    typeof accessToken.payload.sub !== "string"
+    !("Membercare.Security.DebtorAccountNumber" in accessToken.payload) ||
+    typeof accessToken.payload["Membercare.Security.DebtorAccountNumber"] !==
+      "string"
   ) {
     throw new Error("Invalid access token");
   }
@@ -218,7 +217,7 @@ export async function validateAuthorizationCodeAndGetUser(
     .parse(await tokenResponse.json());
 
   const userInfoUrl = new URL(options.userinfo_endpoint);
-  userInfoUrl.pathname = `/api/v1/persons/${accessToken.payload.sub}`;
+  userInfoUrl.pathname = `/api/v1/persons/${accessToken.payload["Membercare.Security.DebtorAccountNumber"]}`;
   const debtorResponse = await fetch(userInfoUrl.href, {
     headers: {
       token: value,
@@ -239,15 +238,21 @@ export async function validateAuthorizationCodeAndGetUser(
     .object({
       firstname: z.string().optional(),
       lastname: z.string().optional(),
-      email: z.string().optional(),
+      name: z.string().optional(),
       debtorAccountNumber: z.string(),
+      contacts: z.array(
+        z.object({
+          value: z.string(),
+        }),
+      ),
     })
     .parse(debtorBody);
 
   return {
     id: debtor.debtorAccountNumber,
-    email: debtor.email,
+    email: debtor.contacts[0].value,
     given_name: debtor.firstname,
     family_name: debtor.lastname,
+    name: debtor.name,
   };
 }
