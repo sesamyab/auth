@@ -7,7 +7,7 @@ import * as google from "./google-oauth2";
 import * as membercare from "./membercare";
 
 export type UserInfo = {
-  id: string;
+  sub: string;
   email?: string;
   given_name?: string;
   family_name?: string;
