@@ -28,6 +28,7 @@ const Button = ({
 }: PropsWithChildren<Props>) => {
   const hrefProps = Component === "a" ? { href } : {};
   return (
+    // @ts-expect-error - refactor this when migrating to authhero
     <Component
       class={cn(
         "relative w-full rounded-lg text-center",
