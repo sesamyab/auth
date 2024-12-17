@@ -697,14 +697,13 @@ describe("social sign on", () => {
       // -----------------
       // create new user
       // -----------------
-
       await env.data.users.create("tenantId", {
         email: "örjan.lindström@example.com",
         email_verified: false,
         name: "örjan",
-        provider: "email",
+        provider: "auth2",
         connection: "Username-Password-Authentication",
-        user_id: "email|123456789012345678901",
+        user_id: "auth2|123456789012345678901",
         last_ip: "",
         login_count: 0,
         is_social: false,
