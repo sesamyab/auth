@@ -695,19 +695,22 @@ describe("social sign on", () => {
       const oauthClient = testClient(oauthApp, env);
 
       // -----------------
-      // signup new user
+      // create new user
       // -----------------
 
-      const createUserResponse = await oauthClient.dbconnections.signup.$post({
-        json: {
-          client_id: "clientId",
-          connection: "Username-Password-Authentication",
-          // matches social sign up we will do next
-          email: "örjan.lindström@example.com",
-          password: "Password1234!",
-        },
+      await env.data.users.create("tenantId", {
+        email: "örjan.lindström@example.com",
+        email_verified: false,
+        name: "örjan",
+        provider: "email",
+        connection: "Username-Password-Authentication",
+        user_id: "email|123456789012345678901",
+        last_ip: "",
+        login_count: 0,
+        is_social: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       });
-      expect(createUserResponse.status).toBe(200);
 
       //-----------------
       // sign up new social user that has same email address
