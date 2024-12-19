@@ -18,6 +18,8 @@ describe("send", () => {
         { type: "text/plain", value: "Test plain content" },
         { type: "text/html", value: "<p>Test HTML content</p>" },
       ],
+      data: {},
+      template: "test-template",
     };
 
     fetchMock.mockResponse(JSON.stringify({ message: "Queued. Thank you." }), {
@@ -29,7 +31,7 @@ describe("send", () => {
 
     expect(fetchMock.mock.calls.length).toEqual(1);
     expect(fetchMock.mock.calls[0][0]).toEqual(
-      "https://api.eu.mailgun.net/v3/mydomain.com/messages",
+      "https://api.eu.mailgun.net/v3/mydomain.com/messages"
     );
     expect(fetchMock.mock.calls?.[0]?.[1]?.method).toEqual("POST");
   });
@@ -43,12 +45,14 @@ describe("send", () => {
         { type: "text/plain", value: "Test plain content" },
         { type: "text/html", value: "<p>Test HTML content</p>" },
       ],
+      data: {},
+      template: "test-template",
     };
 
     fetchMock.mockReject(new Error("API call failed"));
 
     await expect(send(testEmailOptions, "test-api-key")).rejects.toThrow(
-      "API call failed",
+      "API call failed"
     );
   });
 });

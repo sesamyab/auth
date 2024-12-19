@@ -111,6 +111,7 @@ describe("Register password", () => {
     });
 
     // this is the original email sent after signing up
+    expect(emails.length).toBe(2);
     const { to, code, state, subject } = getCodeStateTo(emails[0]);
 
     await snapshotEmail(emails[0]);
@@ -291,7 +292,7 @@ describe("Register password", () => {
     });
     const [linkedPasswordUser] = users.users.filter(
       (u: User) =>
-        u.email === "existing-code-user@example.com" && u.provider === "auth2",
+        u.email === "existing-code-user@example.com" && u.provider === "auth2"
     );
     expect(linkedPasswordUser.linked_to).toBe("email|codeUserId");
     // -----------------------------
@@ -345,7 +346,7 @@ describe("Register password", () => {
           authorization: `Bearer ${token}`,
           "tenant-id": "tenantId",
         },
-      },
+      }
     );
     const primaryUser = (await primaryUserRes.json()) as UserResponse;
     expect(primaryUser.identities).toEqual([
@@ -475,6 +476,7 @@ describe("Register password", () => {
       },
     });
 
+    expect(emails.length).toBe(1);
     const { code, state } = getCodeStateTo(emails[0]);
 
     const emailValidatedRes = await oauthClient.u["validate-email"].$get({
@@ -490,7 +492,7 @@ describe("Register password", () => {
 
     // next step anchor is like <a href="/u/enter-password?state={}""
     const nextStepState = emailValidatedBody.match(
-      /\/u\/enter-password\?state=([^&"]+)">/,
+      /\/u\/enter-password\?state=([^&"]+)">/
     )![1];
 
     //-------------------
@@ -571,10 +573,10 @@ describe("Register password", () => {
     });
     expect(authorizeRes2.status).toBe(302);
     const authorizeRes2URlSearchParams = new URLSearchParams(
-      authorizeRes2.headers.get("location")!.split("?")[1],
+      authorizeRes2.headers.get("location")!.split("?")[1]
     );
     const authorizeRes2Query = Object.fromEntries(
-      authorizeRes2URlSearchParams.entries(),
+      authorizeRes2URlSearchParams.entries()
     );
 
     const blockedLogin = await oauthClient.u["enter-password"].$post({
@@ -606,7 +608,7 @@ describe("Register password", () => {
     const emailValidatedBody = await emailValidatedRes.text();
 
     const nextStepState = emailValidatedBody.match(
-      /\/u\/enter-password\?state=([^&"]+)">/,
+      /\/u\/enter-password\?state=([^&"]+)">/
     )![1];
 
     //-------------------
@@ -679,7 +681,7 @@ describe("Login with password user", () => {
     expect(loginFormResponse.status).toBe(200);
     const loginSearchParams = new URLSearchParams(location!.split("?")[1]);
     const loginSearchParamsQuery = Object.fromEntries(
-      loginSearchParams.entries(),
+      loginSearchParams.entries()
     );
 
     await snapshotResponse(loginFormResponse);
@@ -750,7 +752,7 @@ describe("Login with password user", () => {
 
     const loginSearchParams = new URLSearchParams(location!.split("?")[1]);
     const loginSearchParamsQuery = Object.fromEntries(
-      loginSearchParams.entries(),
+      loginSearchParams.entries()
     );
 
     const nonexistingUserResponse = await oauthClient.u["enter-password"].$post(
@@ -761,7 +763,7 @@ describe("Login with password user", () => {
         form: {
           password: "password",
         },
-      },
+      }
     );
 
     await snapshotResponse(nonexistingUserResponse);
@@ -796,7 +798,7 @@ describe("Login with password user", () => {
 
     const loginSearchParams = new URLSearchParams(location!.split("?")[1]);
     const loginSearchParamsQuery = Object.fromEntries(
-      loginSearchParams.entries(),
+      loginSearchParams.entries()
     );
 
     const incorrectPasswordResponse = await oauthClient.u[
@@ -819,7 +821,7 @@ describe("Login with password user", () => {
     });
 
     const failedLoginLog = logs.find(
-      (log) => log.type === LogTypes.FAILED_LOGIN_INCORRECT_PASSWORD,
+      (log) => log.type === LogTypes.FAILED_LOGIN_INCORRECT_PASSWORD
     );
     expect(failedLoginLog).toMatchObject({
       type: "fp",

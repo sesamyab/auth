@@ -1,6 +1,6 @@
 import { IOAuth2ClientFactory } from "../services/oauth2-client";
 import type { EmailOptions } from "../services/email/EmailOptions";
-import { Client, DataAdapters } from "authhero";
+import { Client, DataAdapters, EmailService } from "authhero";
 
 export type Env = {
   ISSUER: string;
@@ -20,10 +20,11 @@ export type Env = {
   SAML_SIGN_URL: string;
   oauth2ClientFactory: IOAuth2ClientFactory;
   data: DataAdapters;
-  sendEmail: (client: Client, email: EmailOptions) => Promise<void>;
+  emailProviders?: { [key: string]: EmailService };
+  sendEmail: (env: Env, client: Client, email: EmailOptions) => Promise<void>;
   signSAML: (
     xmlContent: string,
     privateKey: string,
-    publicKey: string,
+    publicKey: string
   ) => Promise<string>;
 };

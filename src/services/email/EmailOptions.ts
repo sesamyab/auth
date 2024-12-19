@@ -1,3 +1,5 @@
+import { EmailProvider } from "authhero/dist/authhero";
+
 interface EmailUser {
   email: string;
   name: string;
@@ -11,4 +13,6 @@ export interface EmailOptions {
     type: "text/plain" | "text/html";
     value: string;
   }[];
+  template: string;
+  data: Record<string, any>;
 }

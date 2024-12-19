@@ -17,6 +17,7 @@ import {
 import createAdapters, { Database } from "@authhero/kysely-adapter";
 import * as x509 from "@peculiar/x509";
 import createApp from "../../../src/app";
+import { Env } from "../../../src/types";
 
 type getEnvParams = {
   testTenantLanguage?: string;
@@ -35,7 +36,11 @@ export async function getTestServer(args: getEnvParams = {}) {
 
   const emails: EmailOptions[] = [];
 
-  function sendEmailAdapter(client: Client, emailOptions: EmailOptions) {
+  function sendEmailAdapter(
+    env: Env,
+    client: Client,
+    emailOptions: EmailOptions
+  ) {
     emails.push(emailOptions);
 
     return "ok";

@@ -9,7 +9,8 @@ import { cleanup } from "./handlers/cleanup";
 import {
   OnExecuteCredentialsExchangeAPI,
   OnExecuteCredentialsExchangeEvent,
-} from "./types/Hooks";
+} from "authhero";
+import sendSqsEmail from "./email-services/sqs";
 
 const server = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
@@ -29,7 +30,7 @@ const server = {
     const signSAML = async (
       xmlContent: string,
       privateKey: string,
-      publicCert: string,
+      publicCert: string
     ) => {
       const response = await fetch(env.SAML_SIGN_URL, {
         method: "POST",
@@ -59,18 +60,24 @@ const server = {
         sendEmail,
         signSAML,
         data: dataAdapter,
+        emailProviders: {
+          sesamy: sendSqsEmail,
+        },
         hooks: {
           onExecuteCredentialsExchange: async (
             event: OnExecuteCredentialsExchangeEvent,
-            api: OnExecuteCredentialsExchangeAPI,
+            api: OnExecuteCredentialsExchangeAPI
           ) => {
             if (event.client.id === "data-processor") {
               api.accessToken.setCustomClaim("roles", "sesamy_admin");
+            } else if (event.client.id === "sesamy-elastic") {
+              api.accessToken.setCustomClaim("roles", "sesamy_user");
+              api.idToken.setCustomClaim("roles", "sesamy_user");
             }
           },
         },
       },
-      ctx,
+      ctx
     );
   },
   async scheduled(event: Event, env: Env) {
