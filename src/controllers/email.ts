@@ -213,7 +213,7 @@ export async function sendResetPassword(
     ],
     subject: t("password_reset_subject", options),
     data,
-    template: "auth-password_reset",
+    template: "auth-password-reset",
   });
 }
 
