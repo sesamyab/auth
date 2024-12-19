@@ -18,6 +18,8 @@ describe("send", () => {
         { type: "text/plain", value: "Test plain content" },
         { type: "text/html", value: "<p>Test HTML content</p>" },
       ],
+      data: {},
+      template: "test-template",
     };
 
     fetchMock.mockResponse(JSON.stringify({ message: "Queued. Thank you." }), {
@@ -43,6 +45,8 @@ describe("send", () => {
         { type: "text/plain", value: "Test plain content" },
         { type: "text/html", value: "<p>Test HTML content</p>" },
       ],
+      data: {},
+      template: "test-template",
     };
 
     fetchMock.mockReject(new Error("API call failed"));

@@ -111,6 +111,7 @@ describe("Register password", () => {
     });
 
     // this is the original email sent after signing up
+    expect(emails.length).toBe(2);
     const { to, code, state, subject } = getCodeStateTo(emails[0]);
 
     await snapshotEmail(emails[0]);
@@ -475,6 +476,7 @@ describe("Register password", () => {
       },
     });
 
+    expect(emails.length).toBe(1);
     const { code, state } = getCodeStateTo(emails[0]);
 
     const emailValidatedRes = await oauthClient.u["validate-email"].$get({

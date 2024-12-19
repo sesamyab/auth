@@ -39,7 +39,7 @@ export async function sendCode(
     lng: client.tenant.language || "sv",
   };
 
-  const codeEmailBody = await engine.render(sendCodeUniversalTemplate, {
+  const data = {
     code,
     vendorName: client.tenant.name,
     logo,
@@ -52,9 +52,11 @@ export async function sendCode(
     contactUs: t("contact_us", options),
     copyright: t("copyright", options),
     supportInfo: t("support_info", options),
-  });
+  };
 
-  await env.sendEmail(client, {
+  const codeEmailBody = await engine.render(sendCodeUniversalTemplate, data);
+
+  await env.sendEmail(env, client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -67,6 +69,8 @@ export async function sendCode(
       },
     ],
     subject: t("code_email_subject", options),
+    template: "auth-code",
+    data,
   });
 
   const log = createLogMessage(ctx, {
@@ -106,7 +110,7 @@ export async function sendLink(
     lng: client.tenant.language || "sv",
   };
 
-  const codeEmailBody = await engine.render(sendCodeUniversalTemplate, {
+  const data = {
     code,
     vendorName: client.tenant.name,
     logo,
@@ -121,9 +125,11 @@ export async function sendLink(
     supportInfo: t("support_info", options),
     contactUs: t("contact_us", options),
     copyright: t("copyright", options),
-  });
+  };
 
-  await env.sendEmail(client, {
+  const codeEmailBody = await engine.render(sendCodeUniversalTemplate, data);
+
+  await env.sendEmail(env, client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -136,6 +142,8 @@ export async function sendLink(
       },
     ],
     subject: t("code_email_subject", options),
+    data,
+    template: "auth-link",
   });
 
   const log = createLogMessage(ctx, {
@@ -169,27 +177,29 @@ export async function sendResetPassword(
     lng: client.tenant.language || "sv",
   };
 
+  const data = {
+    vendorName: client.tenant.name,
+    logo,
+    passwordResetUrl,
+    supportUrl: client.tenant.support_url || "https://support.sesamy.com",
+    buttonColor: client.tenant.primary_color || "#7d68f4",
+    passwordResetTitle: t("password_reset_title", options),
+    resetPasswordEmailClickToReset: t(
+      "reset_password_email_click_to_reset",
+      options,
+    ),
+    resetPasswordEmailReset: t("reset_password_email_reset", options),
+    supportInfo: t("support_info", options),
+    contactUs: t("contact_us", options),
+    copyright: t("copyright", options),
+  };
+
   const passwordResetBody = await engine.render(
     sendPasswordResetUniversalTemplate,
-    {
-      vendorName: client.tenant.name,
-      logo,
-      passwordResetUrl,
-      supportUrl: client.tenant.support_url || "https://support.sesamy.com",
-      buttonColor: client.tenant.primary_color || "#7d68f4",
-      passwordResetTitle: t("password_reset_title", options),
-      resetPasswordEmailClickToReset: t(
-        "reset_password_email_click_to_reset",
-        options,
-      ),
-      resetPasswordEmailReset: t("reset_password_email_reset", options),
-      supportInfo: t("support_info", options),
-      contactUs: t("contact_us", options),
-      copyright: t("copyright", options),
-    },
+    data,
   );
 
-  await env.sendEmail(client, {
+  await env.sendEmail(env, client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -202,6 +212,8 @@ export async function sendResetPassword(
       },
     ],
     subject: t("password_reset_subject", options),
+    data,
+    template: "auth-password_reset",
   });
 }
 
@@ -227,23 +239,25 @@ export async function sendValidateEmailAddress(
 
   const emailValidationUrl = `${env.ISSUER}u/signup?state=${state}&code=${code}`;
 
+  const data = {
+    vendorName: client.tenant.name,
+    logo,
+    emailValidationUrl,
+    supportUrl: client.tenant.support_url || "https://support.sesamy.com",
+    buttonColor: client.tenant.primary_color || "#7d68f4",
+    welcomeToYourAccount: t("welcome_to_your_account", options),
+    verifyEmailVerify: t("verify_email_verify", options),
+    supportInfo: t("support_info", options),
+    contactUs: t("contact_us", options),
+    copyright: t("copyright", options),
+  };
+
   const emailValidationBody = await engine.render(
     sendEmailValidationUniversalTemplate,
-    {
-      vendorName: client.tenant.name,
-      logo,
-      emailValidationUrl,
-      supportUrl: client.tenant.support_url || "https://support.sesamy.com",
-      buttonColor: client.tenant.primary_color || "#7d68f4",
-      welcomeToYourAccount: t("welcome_to_your_account", options),
-      verifyEmailVerify: t("verify_email_verify", options),
-      supportInfo: t("support_info", options),
-      contactUs: t("contact_us", options),
-      copyright: t("copyright", options),
-    },
+    data,
   );
 
-  await env.sendEmail(client, {
+  await env.sendEmail(env, client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -256,6 +270,8 @@ export async function sendValidateEmailAddress(
       },
     ],
     subject: t("verify_email_subject", options),
+    data,
+    template: "auth-verify-email",
   });
 }
 
@@ -284,24 +300,26 @@ export async function sendSignupValidateEmailAddress(
     lng: client.tenant.language || "sv",
   };
 
+  const data = {
+    vendorName: client.tenant.name,
+    logo,
+    signupUrl,
+    setPassword: t("set_password", options),
+    registerPasswordAccount: t("register_password_account", options),
+    clickToSignUpDescription: t("click_to_sign_up_description", options),
+    supportUrl: client.tenant.support_url || "https://support.sesamy.com",
+    buttonColor: client.tenant.primary_color || "#7d68f4",
+    supportInfo: t("support_info", options),
+    contactUs: t("contact_us", options),
+    copyright: t("copyright", options),
+  };
+
   const emailValidationBody = await engine.render(
     sendEmailValidationUniversalTemplate,
-    {
-      vendorName: client.tenant.name,
-      logo,
-      signupUrl,
-      setPassword: t("set_password", options),
-      registerPasswordAccount: t("register_password_account", options),
-      clickToSignUpDescription: t("click_to_sign_up_description", options),
-      supportUrl: client.tenant.support_url || "https://support.sesamy.com",
-      buttonColor: client.tenant.primary_color || "#7d68f4",
-      supportInfo: t("support_info", options),
-      contactUs: t("contact_us", options),
-      copyright: t("copyright", options),
-    },
+    data,
   );
 
-  await env.sendEmail(client, {
+  await env.sendEmail(env, client, {
     to: [{ email: to, name: to }],
     from: {
       email: client.tenant.sender_email,
@@ -314,5 +332,7 @@ export async function sendSignupValidateEmailAddress(
       },
     ],
     subject: t("register_password_account", options),
+    data,
+    template: "auth-pre-signup-verification",
   });
 }

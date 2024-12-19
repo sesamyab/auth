@@ -2200,15 +2200,16 @@ assertion-error@^2.0.1:
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-2.0.1.tgz#f641a196b335690b1070bf00b6e7593fec190bf7"
   integrity sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==
 
-authhero@^0.26.0:
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.26.0.tgz#0188b271ba5f1543bc38dbaf5dd416727a244651"
-  integrity sha512-zHdHW5KQjlvkZzr0DYL2KE5/wrZwXuU3LxMNvc1fEc13F2Q1Q+fVABWUJ1djUWhBiX21RDqW4VZ2AyAD7rePug==
+authhero@^0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.28.0.tgz#1a132b24d50467cdfda6535b618ddb08cc6278c7"
+  integrity sha512-xtCTwWG/Ya2+VVDYctwJs9AhYqDaU3QIFkGGZNyduOl2mgXIXrzeRAWJMEo1d5bGAde4M/TOwhWnLb1faGkeug==
   dependencies:
     "@authhero/adapter-interfaces" "^0.33.0"
     "@peculiar/x509" "^1.12.3"
     bcrypt "^5.1.1"
     bcryptjs "^2.4.3"
+    nanoid "^5.0.8"
     oslo "^1.2.1"
     zxcvbn "^4.4.2"
 
@@ -2230,6 +2231,11 @@ available-typed-arrays@^1.0.7:
   integrity sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==
   dependencies:
     possible-typed-array-names "^1.0.0"
+
+aws4fetch@^1.0.20:
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/aws4fetch/-/aws4fetch-1.0.20.tgz#090d6c65e32c6df645dd5e5acf04cc56da575cbe"
+  integrity sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==
 
 balanced-match@^1.0.0:
   version "1.0.2"
