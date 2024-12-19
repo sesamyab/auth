@@ -39,7 +39,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   function sendEmailAdapter(
     env: Env,
     client: Client,
-    emailOptions: EmailOptions
+    emailOptions: EmailOptions,
   ) {
     emails.push(emailOptions);
 

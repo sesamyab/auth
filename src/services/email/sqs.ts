@@ -4,7 +4,7 @@ import { AwsClient } from "aws4fetch";
 import { EmailProvider } from "authhero";
 
 export default async function send(
-  params: EmailOptions & { emailProvider: EmailProvider }
+  params: EmailOptions & { emailProvider: EmailProvider },
 ) {
   const sqsSchema = z.object({
     credentials: z.object({

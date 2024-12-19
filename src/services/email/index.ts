@@ -9,7 +9,7 @@ import { Env } from "../../types";
 export default async function sendEmail(
   env: Env,
   client: Client,
-  emailOptions: EmailOptions
+  emailOptions: EmailOptions,
 ) {
   const emailProvider = await env.data.emailProviders.get(client.tenant.id);
   if (emailProvider && emailProvider.name === "sesamy") {

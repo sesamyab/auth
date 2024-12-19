@@ -30,7 +30,7 @@ const server = {
     const signSAML = async (
       xmlContent: string,
       privateKey: string,
-      publicCert: string
+      publicCert: string,
     ) => {
       const response = await fetch(env.SAML_SIGN_URL, {
         method: "POST",
@@ -66,7 +66,7 @@ const server = {
         hooks: {
           onExecuteCredentialsExchange: async (
             event: OnExecuteCredentialsExchangeEvent,
-            api: OnExecuteCredentialsExchangeAPI
+            api: OnExecuteCredentialsExchangeAPI,
           ) => {
             if (event.client.id === "data-processor") {
               api.accessToken.setCustomClaim("roles", "sesamy_admin");
@@ -77,7 +77,7 @@ const server = {
           },
         },
       },
-      ctx
+      ctx,
     );
   },
   async scheduled(event: Event, env: Env) {

@@ -21,14 +21,14 @@ export async function sendCode(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
   to: string,
-  code: string
+  code: string,
 ) {
   const { env } = ctx;
 
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
-    env.IMAGE_PROXY_URL
+    env.IMAGE_PROXY_URL,
   );
 
   const sendCodeUniversalTemplate = engine.parse(codeV2);
@@ -85,7 +85,7 @@ export async function sendLink(
   client: Client,
   to: string,
   code: string,
-  authParams: AuthParams
+  authParams: AuthParams,
 ) {
   const { env } = ctx;
 
@@ -99,7 +99,7 @@ export async function sendLink(
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
-    env.IMAGE_PROXY_URL
+    env.IMAGE_PROXY_URL,
   );
 
   const sendCodeUniversalTemplate = engine.parse(linkV2);
@@ -159,12 +159,12 @@ export async function sendResetPassword(
   to: string,
   // auth0 just has a ticket, but we have a code and a state
   code: string,
-  state: string
+  state: string,
 ) {
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
-    env.IMAGE_PROXY_URL
+    env.IMAGE_PROXY_URL,
   );
 
   // the auth0 link looks like this:  https://auth.sesamy.dev/u/reset-verify?ticket={ticket}#
@@ -186,7 +186,7 @@ export async function sendResetPassword(
     passwordResetTitle: t("password_reset_title", options),
     resetPasswordEmailClickToReset: t(
       "reset_password_email_click_to_reset",
-      options
+      options,
     ),
     resetPasswordEmailReset: t("reset_password_email_reset", options),
     supportInfo: t("support_info", options),
@@ -196,7 +196,7 @@ export async function sendResetPassword(
 
   const passwordResetBody = await engine.render(
     sendPasswordResetUniversalTemplate,
-    data
+    data,
   );
 
   await env.sendEmail(env, client, {
@@ -222,12 +222,12 @@ export async function sendValidateEmailAddress(
   client: Client,
   to: string,
   code: string,
-  state: string
+  state: string,
 ) {
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
-    env.IMAGE_PROXY_URL
+    env.IMAGE_PROXY_URL,
   );
 
   const sendEmailValidationUniversalTemplate = engine.parse(verifyEmail);
@@ -254,7 +254,7 @@ export async function sendValidateEmailAddress(
 
   const emailValidationBody = await engine.render(
     sendEmailValidationUniversalTemplate,
-    data
+    data,
   );
 
   await env.sendEmail(env, client, {
@@ -280,19 +280,19 @@ export async function sendSignupValidateEmailAddress(
   client: Client,
   to: string,
   code: string,
-  state: string
+  state: string,
 ) {
   const logo = getClientLogoPngGreyBg(
     client.tenant.logo ||
       "https://assets.sesamy.com/static/images/sesamy/logo-translucent.png",
-    env.IMAGE_PROXY_URL
+    env.IMAGE_PROXY_URL,
   );
 
   // we have not checked the route name that auth0 uses
   const signupUrl = `${env.ISSUER}u/signup?state=${state}&code=${code}`;
 
   const sendEmailValidationUniversalTemplate = engine.parse(
-    preSignupVerification
+    preSignupVerification,
   );
 
   const options = {
@@ -316,7 +316,7 @@ export async function sendSignupValidateEmailAddress(
 
   const emailValidationBody = await engine.render(
     sendEmailValidationUniversalTemplate,
-    data
+    data,
   );
 
   await env.sendEmail(env, client, {

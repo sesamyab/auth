@@ -25,6 +25,6 @@ export type Env = {
   signSAML: (
     xmlContent: string,
     privateKey: string,
-    publicKey: string
+    publicKey: string,
   ) => Promise<string>;
 };
