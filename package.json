@@ -88,6 +88,8 @@
     "classnames": "^2.5.1",
     "dotenv": "16.4.7",
     "eslint": "9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.2",
     "husky": "9.1.7",
     "i18next": "24.1.2",
