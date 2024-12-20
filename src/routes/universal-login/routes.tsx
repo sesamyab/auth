@@ -65,7 +65,7 @@ async function initJSXRoute(ctx: Context, state: string) {
   const { env } = ctx;
   const login: Login = await env.data.logins.get(
     ctx.var.tenant_id || "",
-    state,
+    state
   );
   if (!login) {
     throw new HTTPException(400, { message: "Session not found" });
@@ -84,7 +84,7 @@ async function initJSXRoute(ctx: Context, state: string) {
   const vendorSettings = await fetchVendorSettings(
     env,
     client.id,
-    login.authParams.vendor_id,
+    login.authParams.vendor_id
   );
 
   const loginSessionLanguage = login.authParams.ui_locales
@@ -101,9 +101,11 @@ async function initJSXRoute(ctx: Context, state: string) {
   return {
     vendorSettings: {
       ...vendorSettings,
-      // HACK: Temporarily remove the terms of service link for the Fokus app
+      // HACK: Change the terms and conditions for fokus app
       termsAndConditionsUrl:
-        client.id === "fokus-app" ? null : vendorSettings.termsAndConditionsUrl,
+        client.id === "fokus-app"
+          ? "https://www.fokus.se/kopvillkor-app/"
+          : vendorSettings.termsAndConditionsUrl,
     },
     client,
     tenant,
@@ -115,7 +117,7 @@ async function handleLogin(
   ctx: Context,
   user: User,
   session: Login,
-  client: Client,
+  client: Client
 ) {
   if (session.authParams.redirect_uri) {
     ctx.set("userName", user.email);
@@ -133,7 +135,7 @@ async function handleLogin(
   const vendorSettings = await fetchVendorSettings(
     ctx.env,
     client.id,
-    session.authParams.vendor_id,
+    session.authParams.vendor_id
   );
 
   return ctx.html(
@@ -141,7 +143,7 @@ async function handleLogin(
       message="You are logged in"
       pageTitle="Logged in"
       vendorSettings={vendorSettings}
-    />,
+    />
   );
 }
 
@@ -149,7 +151,7 @@ async function usePasswordLogin(
   ctx: Context,
   client: Client,
   username: string,
-  login_selection?: "password" | "code",
+  login_selection?: "password" | "code"
 ) {
   if (login_selection !== undefined) {
     return login_selection === "password";
@@ -172,15 +174,15 @@ async function usePasswordLogin(
         include_totals: false,
         sort: { sort_by: "date", sort_order: "desc" },
         q: `type:${LogTypes.SUCCESS_LOGIN} user_id:${user.user_id}`,
-      },
+      }
     );
 
     const [lastLogin] = lastLogins.logs.filter(
       (log) =>
         log.strategy &&
         ["Username-Password-Authentication", "passwordless", "email"].includes(
-          log.strategy,
-        ),
+          log.strategy
+        )
     );
 
     if (lastLogin) {
@@ -189,7 +191,7 @@ async function usePasswordLogin(
   }
 
   const promptSettings = await ctx.env.data.promptSettings.get(
-    client.tenant.id,
+    client.tenant.id
   );
   return promptSettings.password_first;
 }
@@ -221,7 +223,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, client, session } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       if (!session.authParams.username) {
@@ -234,9 +236,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           email={session.authParams.username}
           state={state}
           client={client}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // POST /u/enter-password
@@ -275,7 +277,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, client, session } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       const { username } = session.authParams;
@@ -307,7 +309,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
               state={state}
               client={client}
             />,
-            400,
+            400
           );
         } else if (customException.code === "EMAIL_NOT_VERIFIED") {
           // login2 looks a bit better - https://login2.sesamy.dev/unverified-email
@@ -317,7 +319,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
               state={state}
             />,
 
-            400,
+            400
           );
         }
 
@@ -329,10 +331,10 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             state={state}
             client={client}
           />,
-          400,
+          400
         );
       }
-    },
+    }
   )
   // --------------------------------
   // GET /u/reset-password
@@ -371,9 +373,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         <ResetPasswordPage
           vendorSettings={vendorSettings}
           email={session.authParams.username}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // POST /u/reset-password
@@ -418,7 +420,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, client, session } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       if (!session.authParams.username) {
@@ -432,7 +434,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             vendorSettings={vendorSettings}
             email={session.authParams.username}
           />,
-          400,
+          400
         );
       }
 
@@ -443,7 +445,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             vendorSettings={vendorSettings}
             email={session.authParams.username}
           />,
-          400,
+          400
         );
       }
 
@@ -464,7 +466,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         const foundCode = await env.data.codes.get(
           client.tenant.id,
           code,
-          "password_reset",
+          "password_reset"
         );
 
         if (!foundCode) {
@@ -477,7 +479,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
               vendorSettings={vendorSettings}
               email={session.authParams.username}
             />,
-            400,
+            400
           );
         }
 
@@ -489,7 +491,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
         const existingPassword = await env.data.passwords.get(
           client.tenant.id,
-          user.user_id,
+          user.user_id
         );
         if (existingPassword) {
           await env.data.passwords.update(client.tenant.id, passwordOptions);
@@ -510,7 +512,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             vendorSettings={vendorSettings}
             email={session.authParams.username}
           />,
-          400,
+          400
         );
       }
 
@@ -519,9 +521,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           message={i18next.t("password_has_been_reset")}
           vendorSettings={vendorSettings}
           state={state}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // GET /u/forgot-password
@@ -554,9 +556,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           vendorSettings={vendorSettings}
           state={state}
           email={session.authParams.username}
-        />,
+        />
       );
-    },
+    }
   )
   // -------------------------------
   // POST /u/forgot-password
@@ -584,23 +586,20 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, client, session } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       await requestPasswordReset(
         ctx,
         client,
         session.authParams.username!,
-        session.login_id,
+        session.login_id
       );
 
       return ctx.html(
-        <ForgotPasswordSentPage
-          vendorSettings={vendorSettings}
-          state={state}
-        />,
+        <ForgotPasswordSentPage vendorSettings={vendorSettings} state={state} />
       );
-    },
+    }
   )
   // --------------------------------
   // GET /u/enter-email
@@ -629,7 +628,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, session, client } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       return ctx.html(
@@ -639,9 +638,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           client={client}
           email={session.authParams.username}
           impersonation={impersonation === "true"}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // POST /u/enter-email
@@ -687,7 +686,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { client, session, vendorSettings } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
       ctx.set("client_id", client.id);
 
@@ -721,7 +720,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
               email={params.username}
               client={client}
             />,
-            400,
+            400
           );
         }
       }
@@ -736,7 +735,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           ctx,
           client,
           params.username,
-          params.login_selection,
+          params.login_selection
         )
       ) {
         return ctx.redirect(`/u/enter-password?state=${state}`);
@@ -746,7 +745,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       let existingCode = await env.data.codes.get(
         client.tenant.id,
         code_id,
-        "otp",
+        "otp"
       );
 
       // This is a slighly hacky way to ensure we don't generate a code that already exists
@@ -755,7 +754,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         existingCode = await env.data.codes.get(
           client.tenant.id,
           code_id,
-          "otp",
+          "otp"
         );
       }
 
@@ -768,7 +767,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const sendType = getSendParamFromAuth0ClientHeader(session.auth0Client);
 
-      if (sendType === "link") {
+      if (sendType === "link" && !params.username.includes("online.no")) {
         waitUntil(
           ctx,
           sendLink(
@@ -776,18 +775,18 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             client,
             params.username,
             createdCode.code_id,
-            session.authParams,
-          ),
+            session.authParams
+          )
         );
       } else {
         waitUntil(
           ctx,
-          sendCode(ctx, client, params.username, createdCode.code_id),
+          sendCode(ctx, client, params.username, createdCode.code_id)
         );
       }
 
       return ctx.redirect(`/u/enter-code?state=${state}`);
-    },
+    }
   )
   // --------------------------------
   // GET /u/enter-code
@@ -815,7 +814,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, session, client } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       if (!session.authParams.username) {
@@ -838,9 +837,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           state={state}
           client={client}
           hasPasswordLogin={!!passwordUser}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // POST /u/enter-code
@@ -878,7 +877,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, session, client } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
       ctx.set("client_id", client.id);
 
@@ -906,7 +905,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             client={client}
             hasPasswordLogin={!!user}
           />,
-          400,
+          400
         );
       }
 
@@ -920,7 +919,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ctx.env.data.users,
         client.tenant.id,
         session.authParams.username,
-        session.authParams.act_as,
+        session.authParams.act_as
       );
 
       const authResponse = await generateAuthResponse({
@@ -932,7 +931,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       });
 
       return authResponse;
-    },
+    }
   )
   // --------------------------------
   // GET /u/signup
@@ -975,7 +974,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             vendorSettings={vendorSettings}
             email={username}
             code={code}
-          />,
+          />
         );
       }
 
@@ -984,9 +983,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           state={state}
           vendorSettings={vendorSettings}
           email={username}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // POST /u/signup
@@ -1028,7 +1027,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { vendorSettings, client, session } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       const connection = "Username-Password-Authentication";
@@ -1050,7 +1049,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             error={i18next.t("create_account_passwords_didnt_match")}
             email={session.authParams.username}
           />,
-          400,
+          400
         );
       }
 
@@ -1063,7 +1062,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             error={i18next.t("create_account_weak_password")}
             email={session.authParams.username}
           />,
-          400,
+          400
         );
       }
 
@@ -1071,13 +1070,13 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         ? await env.data.codes.get(
             client.tenant.id,
             loginParams.code,
-            "email_verification",
+            "email_verification"
           )
         : undefined;
       const emailVerificationSession = emailVerificationCode
         ? await env.data.logins.get(
             client.tenant.id,
-            emailVerificationCode.login_id,
+            emailVerificationCode.login_id
           )
         : undefined;
 
@@ -1142,7 +1141,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
               pageTitle={i18next.t("validate_email_title")}
               vendorSettings={vendorSettings}
               state={state}
-            />,
+            />
           );
         }
 
@@ -1151,7 +1150,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         const vendorSettings = await fetchVendorSettings(
           env,
           client.id,
-          session.authParams.vendor_id,
+          session.authParams.vendor_id
         );
 
         const error = err as Error;
@@ -1162,10 +1161,10 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
             error={error.message}
             email={email}
           />,
-          400,
+          400
         );
       }
-    },
+    }
   )
   // --------------------------------
   // GET /u/validate-email
@@ -1199,7 +1198,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const { client, session, vendorSettings } = await initJSXRoute(
         ctx,
-        state,
+        state
       );
 
       const email = session.authParams.username;
@@ -1222,7 +1221,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       const foundCode = await env.data.codes.get(
         client.tenant.id,
         code,
-        "email_verification",
+        "email_verification"
       );
 
       if (!foundCode) {
@@ -1236,7 +1235,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       const usersWithSameEmail = await getUsersByEmail(
         env.data.users,
         client.tenant.id,
-        email,
+        email
       );
 
       const usersWithSameEmailButNotUsernamePassword =
@@ -1244,7 +1243,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       if (usersWithSameEmailButNotUsernamePassword.length > 0) {
         const primaryUsers = usersWithSameEmailButNotUsernamePassword.filter(
-          (user) => !user.linked_to,
+          (user) => !user.linked_to
         );
 
         // these cases are currently not handled! if we think they're edge cases and we release this, we should at least inform datadog!
@@ -1267,9 +1266,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       }
 
       return ctx.html(
-        <EmailValidatedPage vendorSettings={vendorSettings} state={state} />,
+        <EmailValidatedPage vendorSettings={vendorSettings} state={state} />
       );
-    },
+    }
   )
 
   // --------------------------------
@@ -1307,9 +1306,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           pageTitle="User info"
           vendorSettings={vendorSettings}
           state={state}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // GET /u/check-account
@@ -1341,7 +1340,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       // Fetch the cookie
       const authCookie = getAuthCookie(
         client.tenant.id,
-        ctx.req.header("cookie"),
+        ctx.req.header("cookie")
       );
       const authSession = authCookie
         ? await env.data.sessions.get(client.tenant.id, authCookie)
@@ -1353,7 +1352,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const user = await env.data.users.get(
         client.tenant.id,
-        authSession.user_id,
+        authSession.user_id
       );
 
       if (!user) {
@@ -1365,9 +1364,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           vendorSettings={vendorSettings}
           state={state}
           user={user}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // POST /u/check-account
@@ -1399,7 +1398,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       // Fetch the cookie
       const authCookie = getAuthCookie(
         client.tenant.id,
-        ctx.req.header("cookie"),
+        ctx.req.header("cookie")
       );
       const authSession = authCookie
         ? await env.data.sessions.get(client.tenant.id, authCookie)
@@ -1411,7 +1410,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const user = await env.data.users.get(
         client.tenant.id,
-        authSession.user_id,
+        authSession.user_id
       );
 
       if (!user) {
@@ -1419,7 +1418,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
       }
 
       return handleLogin(ctx, user, session, client);
-    },
+    }
   )
   // --------------------------------
   // GET /u/pre-signup
@@ -1457,9 +1456,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           state={state}
           vendorSettings={vendorSettings}
           email={username}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // POST /u/pre-signup
@@ -1497,7 +1496,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         code_type: "email_verification",
         login_id: session.login_id,
         expires_at: new Date(
-          Date.now() + EMAIL_VERIFICATION_EXPIRATION_TIME,
+          Date.now() + EMAIL_VERIFICATION_EXPIRATION_TIME
         ).toISOString(),
       });
 
@@ -1506,11 +1505,11 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         client,
         username,
         otpCode.code_id,
-        state,
+        state
       );
 
       return ctx.redirect(`/u/pre-signup-sent?state=${state}`);
-    },
+    }
   )
   // --------------------------------
   // GET /u/pre-signup-sent
@@ -1548,9 +1547,9 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
           vendorSettings={vendorSettings}
           state={state}
           email={username}
-        />,
+        />
       );
-    },
+    }
   )
   // --------------------------------
   // GET /u/invalid-session
@@ -1583,7 +1582,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         redirectUrl.searchParams.set("error", "invalid_session");
         redirectUrl.searchParams.set(
           "error_description",
-          session.authParams.username || "",
+          session.authParams.username || ""
         );
       }
 
@@ -1591,7 +1590,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         <InvalidSessionPage
           redirectUrl={redirectUrl?.href}
           vendorSettings={vendorSettings}
-        />,
+        />
       );
-    },
+    }
   );
