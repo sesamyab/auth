@@ -767,11 +767,7 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
 
       const sendType = getSendParamFromAuth0ClientHeader(session.auth0Client);
 
-      if (
-        sendType === "link" &&
-        !params.username.includes("online.no") &&
-        client.id !== "np"
-      ) {
+      if (sendType === "link" && !params.username.includes("online.no")) {
         waitUntil(
           ctx,
           sendLink(
