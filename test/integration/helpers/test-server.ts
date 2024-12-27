@@ -39,7 +39,7 @@ export async function getTestServer(args: getEnvParams = {}) {
   function sendEmailAdapter(
     env: Env,
     client: Client,
-    emailOptions: EmailOptions,
+    emailOptions: EmailOptions
   ) {
     emails.push(emailOptions);
 
@@ -219,12 +219,9 @@ export async function getTestServer(args: getEnvParams = {}) {
     name: "Åkesson Þorsteinsson",
     nickname: "Åkesson Þorsteinsson",
     picture: "https://example.com/foo.png",
-    login_count: 0,
     provider: "auth2",
     connection: "Username-Password-Authentication",
     is_social: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   });
 
   await data.passwords.create("tenantId", {

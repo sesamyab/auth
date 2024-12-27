@@ -75,7 +75,7 @@ describe("social sign on", () => {
       // previous args should create this state
       expect(socialSignOnQuery2.get("state")).toBeTypeOf("string");
       expect(socialSignOnQuery2.get("redirect_uri")).toBe(
-        "https://example.com/callback",
+        "https://example.com/callback"
       );
       expect(socialSignOnQuery2.get("client_id")).toBe("socialClientId");
       expect(socialSignOnQuery2.get("response_type")).toBe("code");
@@ -118,26 +118,26 @@ describe("social sign on", () => {
 
         expect(socialCallbackResponse.status).toBe(302);
         const location2 = new URL(
-          socialCallbackResponse.headers.get("location")!,
+          socialCallbackResponse.headers.get("location")!
         );
 
         expect(location2.host).toBe("login2.sesamy.dev");
 
         const socialCallbackQuery2 = new URLSearchParams(
-          location2.hash.slice(1),
+          location2.hash.slice(1)
         );
 
         expect(socialCallbackQuery2.get("access_token")).toBeDefined();
         expect(socialCallbackQuery2.get("id_token")).toBeDefined();
         expect(socialCallbackQuery2.get("expires_in")).toBe("86400");
         expect(socialCallbackQuery2.get("state")).toBe(
-          encodeURIComponent(LOGIN2_STATE),
+          encodeURIComponent(LOGIN2_STATE)
         );
         const idToken = socialCallbackQuery2.get("id_token");
         const idTokenPayload = parseJwt(idToken!);
         expect(idTokenPayload.aud).toBe("clientId");
         expect(idTokenPayload.sub).toBe(
-          "demo-social-provider|123456789012345678901",
+          "demo-social-provider|123456789012345678901"
         );
         expect(idTokenPayload.name).toBe("örjan.lindström@example.com");
         expect(idTokenPayload.email).toBe("örjan.lindström@example.com");
@@ -155,10 +155,10 @@ describe("social sign on", () => {
         });
         expect(logs.length).toBe(2);
         const successLoginLog = logs.find(
-          (log: Log) => log.type === LogTypes.SUCCESS_LOGIN,
+          (log: Log) => log.type === LogTypes.SUCCESS_LOGIN
         );
         const successSignupLog = logs.find(
-          (log: Log) => log.type === LogTypes.SUCCESS_SIGNUP,
+          (log: Log) => log.type === LogTypes.SUCCESS_SIGNUP
         );
         expect(successSignupLog).toMatchObject({
           type: "ss",
@@ -188,7 +188,7 @@ describe("social sign on", () => {
             setCookiesHeader,
             oauthClient,
             "nonce",
-            "clientId",
+            "clientId"
           );
         expect(silentAuthIdTokenPayload).toMatchObject({
           sub: "demo-social-provider|123456789012345678901",
@@ -209,7 +209,7 @@ describe("social sign on", () => {
             headers: {
               authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
         const newSocialUser = (await newSocialUserRes.json()) as UserResponse;
         expect(newSocialUser).toMatchObject(EXPECTED_NEW_USER);
@@ -251,23 +251,23 @@ describe("social sign on", () => {
         });
         expect(socialCallbackResponse.status).toBe(302);
         const location2 = new URL(
-          socialCallbackResponse.headers.get("location")!,
+          socialCallbackResponse.headers.get("location")!
         );
         expect(location2.host).toBe("login2.sesamy.dev");
         const socialCallbackQuery2 = new URLSearchParams(
-          location2.hash.slice(1),
+          location2.hash.slice(1)
         );
         expect(socialCallbackQuery2.get("access_token")).toBeDefined();
         expect(socialCallbackQuery2.get("id_token")).toBeDefined();
         expect(socialCallbackQuery2.get("expires_in")).toBe("86400");
         expect(socialCallbackQuery2.get("state")).toBe(
-          encodeURIComponent(LOGIN2_STATE),
+          encodeURIComponent(LOGIN2_STATE)
         );
         const idToken = socialCallbackQuery2.get("id_token");
         const idTokenPayload = parseJwt(idToken!);
         expect(idTokenPayload.aud).toBe("clientId");
         expect(idTokenPayload.sub).toBe(
-          "demo-social-provider|123456789012345678901",
+          "demo-social-provider|123456789012345678901"
         );
         expect(idTokenPayload.name).toBe("örjan.lindström@example.com");
         expect(idTokenPayload.email).toBe("örjan.lindström@example.com");
@@ -285,7 +285,7 @@ describe("social sign on", () => {
             setCookiesHeader,
             oauthClient,
             "nonce",
-            "clientId",
+            "clientId"
           );
         expect(silentAuthIdTokenPayload).toMatchObject({
           sub: "demo-social-provider|123456789012345678901",
@@ -306,7 +306,7 @@ describe("social sign on", () => {
             headers: {
               authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
         const newSocialUser = (await newSocialUserRes.json()) as UserResponse;
         expect(newSocialUser).toMatchObject(EXPECTED_NEW_USER);
@@ -331,6 +331,7 @@ describe("social sign on", () => {
             connection: "email",
             // we are ignoring this for code logins
             email_verified: true,
+            is_social: false,
           },
           header: {
             "tenant-id": "tenantId",
@@ -340,7 +341,7 @@ describe("social sign on", () => {
           headers: {
             authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       expect(createEmailUserResponse.status).toBe(201);
@@ -388,18 +389,18 @@ describe("social sign on", () => {
       });
 
       const socialCallbackResponseQuery = new URLSearchParams(
-        socialCallbackResponse.headers.get("location")?.split("#")[1],
+        socialCallbackResponse.headers.get("location")?.split("#")[1]
       );
       const accessTokenPayload = parseJwt(
-        socialCallbackResponseQuery.get("access_token")!,
+        socialCallbackResponseQuery.get("access_token")!
       );
       // This is the big change here
       expect(accessTokenPayload.sub).not.toBe(
-        "demo-social-provider|1234567890",
+        "demo-social-provider|1234567890"
       );
       expect(accessTokenPayload.sub).toBe(createEmailUser.user_id);
       const idTokenPayload = parseJwt(
-        socialCallbackResponseQuery.get("id_token")!,
+        socialCallbackResponseQuery.get("id_token")!
       );
       // This is the big change here
       expect(idTokenPayload.sub).not.toBe("demo-social-provider|1234567890");
@@ -422,7 +423,7 @@ describe("social sign on", () => {
           headers: {
             authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
       const newSocialUser = (await newSocialUserRes.json()) as UserResponse;
       expect(newSocialUser.email).toBe("örjan.lindström@example.com");
@@ -440,7 +441,7 @@ describe("social sign on", () => {
           headers: {
             authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
       const primaryUser = (await primaryUserRes.json()) as UserResponse;
       expect(primaryUser.identities).toEqual([
@@ -477,7 +478,7 @@ describe("social sign on", () => {
           setCookiesHeader,
           oauthClient,
           "nonce",
-          "clientId",
+          "clientId"
         );
       expect(silentAuthIdTokenPayload).toMatchObject({
         // testing this means it must be working
@@ -499,10 +500,10 @@ describe("social sign on", () => {
       });
 
       const socialCallbackResponse2Query = new URLSearchParams(
-        socialCallbackResponse2.headers.get("location")?.split("#")[1],
+        socialCallbackResponse2.headers.get("location")?.split("#")[1]
       );
       expect(
-        parseJwt(socialCallbackResponse2Query.get("access_token")!).sub,
+        parseJwt(socialCallbackResponse2Query.get("access_token")!).sub
       ).toBe(createEmailUser.user_id);
       // ---------------------------------------------
       // now log-in with another SSO account with the same email address
@@ -536,15 +537,14 @@ describe("social sign on", () => {
       expect(socialCallbackResponseAnotherSSO.status).toBe(302);
 
       const socialCallbackResponseAnotherSSOQuery = new URLSearchParams(
-        socialCallbackResponseAnotherSSO.headers.get("location")?.split("#")[1],
+        socialCallbackResponseAnotherSSO.headers.get("location")?.split("#")[1]
       );
       // these confirm we are still signing in with the primary user
       expect(
-        parseJwt(socialCallbackResponseAnotherSSOQuery.get("access_token")!)
-          .sub,
+        parseJwt(socialCallbackResponseAnotherSSOQuery.get("access_token")!).sub
       ).toBe(createEmailUser.user_id);
       expect(
-        parseJwt(socialCallbackResponseAnotherSSOQuery.get("id_token")!).sub,
+        parseJwt(socialCallbackResponseAnotherSSOQuery.get("id_token")!).sub
       ).toBe(createEmailUser.user_id);
       // ---------------------------------------------
       // now check that the primary user has new identities
@@ -558,7 +558,7 @@ describe("social sign on", () => {
           headers: {
             authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
       const primaryUserAgain =
         (await primaryUserResAgain.json()) as UserResponse;
@@ -614,11 +614,8 @@ describe("social sign on", () => {
         email: "örjan.lindström@example.com",
         email_verified: true,
         last_ip: "",
-        login_count: 0,
         is_social: true,
         user_id: "email|7575757575757",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
       await env.data.users.create("tenantId", {
@@ -628,12 +625,9 @@ describe("social sign on", () => {
         email: "örjan.lindström@example.com",
         email_verified: true,
         last_ip: "",
-        login_count: 0,
         is_social: true,
         profileData: JSON.stringify(EXPECTED_PROFILE_DATA),
         user_id: "other-social-provider|123456789012345678901",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
       // ---------------------------------------------
@@ -680,11 +674,11 @@ describe("social sign on", () => {
       });
 
       const socialCallbackResponseQuery = new URLSearchParams(
-        socialCallbackResponse.headers.get("location")?.split("#")[1],
+        socialCallbackResponse.headers.get("location")?.split("#")[1]
       );
 
       const accessTokenPayload = parseJwt(
-        socialCallbackResponseQuery.get("access_token")!,
+        socialCallbackResponseQuery.get("access_token")!
       );
 
       expect(accessTokenPayload.sub).toBe("email|7575757575757");
@@ -705,10 +699,7 @@ describe("social sign on", () => {
         connection: "Username-Password-Authentication",
         user_id: "auth2|123456789012345678901",
         last_ip: "",
-        login_count: 0,
         is_social: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
       //-----------------
@@ -743,14 +734,14 @@ describe("social sign on", () => {
       });
       expect(socialCallbackResponse.status).toBe(302);
       const location2 = new URL(
-        socialCallbackResponse.headers.get("location")!,
+        socialCallbackResponse.headers.get("location")!
       );
       const socialCallbackQuery2 = new URLSearchParams(location2.hash.slice(1));
 
       const idToken = socialCallbackQuery2.get("id_token");
       const idTokenPayload = parseJwt(idToken!);
       expect(idTokenPayload.sub).toBe(
-        "demo-social-provider|123456789012345678901",
+        "demo-social-provider|123456789012345678901"
       );
       expect(idTokenPayload.email_verified).toBe(true);
     });
@@ -791,7 +782,7 @@ describe("social sign on", () => {
 
         expect(socialCallbackResponse.status).toBe(403);
         expect(await socialCallbackResponse.text()).toBe(
-          "Connection not found",
+          "Connection not found"
         );
       });
     });
@@ -843,7 +834,7 @@ describe("social sign on", () => {
       expect(location.pathname).toBe("/callback");
       expect(location.searchParams.get("error")).toBe("access_denied");
       expect(location.searchParams.get("error_description")).toBe(
-        "Permissions error",
+        "Permissions error"
       );
       expect(location.searchParams.get("error_code")).toBe("200");
       expect(location.searchParams.get("error_reason")).toBe("user_denied");

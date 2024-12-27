@@ -5,7 +5,6 @@ import { CreateAuthParams } from "./app";
 import { loginRoutes } from "./routes/universal-login/routes";
 import { authorizeRoutes } from "./routes/oauth2/authorize";
 import { callbackRoutes } from "./routes/oauth2/callback";
-import { authenticateRoutes } from "./routes/oauth2/authenticate";
 
 export default function create(params: CreateAuthParams) {
   const app = new OpenAPIHono<{ Bindings: Env; Variables: Var }>();
@@ -18,8 +17,7 @@ export default function create(params: CreateAuthParams) {
   const oauthApp = app
     .route("/u", loginRoutes)
     .route("/authorize", authorizeRoutes)
-    .route("/callback", callbackRoutes)
-    .route("/co/authenticate", authenticateRoutes);
+    .route("/callback", callbackRoutes);
 
   oauthApp.doc("/spec", {
     openapi: "3.0.0",

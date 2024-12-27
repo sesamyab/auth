@@ -35,13 +35,9 @@ test("only allows existing users to progress to the enter code step", async () =
     user_id: "email|existing-breakit-user",
     email: "existing-breakit-user@example.com",
     email_verified: true,
-    login_count: 0,
     provider: "email",
     connection: "email",
     is_social: false,
-    // more inconsistencies in adapters... this adapter requires these
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   });
   // this will only render the FB button
   await env.data.connections.create("breakit", {
@@ -84,7 +80,7 @@ test("only allows existing users to progress to the enter code step", async () =
       form: {
         username: "not-a-real-breakit-user@example.com",
       },
-    },
+    }
   );
   expect(nonExistingUserEmailResponse.status).toBe(400);
   await snapshotResponse(nonExistingUserEmailResponse);
@@ -121,7 +117,7 @@ test("only allows existing users to progress to the enter code step", async () =
 
   // this shows we're being redirected to the next step as the user exists
   expect(
-    existingUserEmailResponseLocation!.startsWith("/u/enter-code"),
+    existingUserEmailResponseLocation!.startsWith("/u/enter-code")
   ).toBeTruthy();
 
   // ----------------------------
@@ -238,7 +234,6 @@ test("only allows existing breakit users to progress to the enter code step with
     email: "örjan.lindström@example.com",
     email_verified: true,
     last_ip: "",
-    login_count: 0,
     is_social: true,
     profileData: JSON.stringify({
       locale: "es-ES",
@@ -250,8 +245,6 @@ test("only allows existing breakit users to progress to the enter code step with
       email_verified: true,
     }),
     user_id: "demo-social-provider|123456789012345678901",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   });
 
   const session2 = await env.data.logins.create("breakit", {

@@ -40,7 +40,7 @@ interface ValidateCodeResponse {
 
 export async function validateCode(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
-  params: LoginParams,
+  params: LoginParams
 ): Promise<ValidateCodeResponse> {
   const { env } = ctx;
 
@@ -103,11 +103,8 @@ export async function validateCode(
     connection: "email",
     email_verified: true,
     last_ip: ctx.req.header("x-real-ip"),
-    login_count: 1,
     last_login: new Date().toISOString(),
     is_social: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   });
   ctx.set("userId", user.user_id);
 
@@ -154,7 +151,7 @@ export async function sendEmailVerificationEmail({
 
   const loginSession = await env.data.logins.create(client.tenant.id, {
     expires_at: new Date(
-      Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+      Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000
     ).toISOString(),
     authParams,
     ...getClientInfo(ctx.req),
@@ -169,7 +166,7 @@ export async function sendEmailVerificationEmail({
     code_type: "email_verification",
     login_id: loginSession.login_id,
     expires_at: new Date(
-      Date.now() + EMAIL_VERIFICATION_EXPIRATION_TIME,
+      Date.now() + EMAIL_VERIFICATION_EXPIRATION_TIME
     ).toISOString(),
   });
 
@@ -210,7 +207,7 @@ export async function sendOtpEmail({
         ctx,
         client,
         ctx.env.data,
-        session.authParams.username,
+        session.authParams.username
       );
     } catch {
       const log = createLogMessage(ctx, {
@@ -241,13 +238,13 @@ export async function sendOtpEmail({
         client,
         session.authParams.username,
         createdCode.code_id,
-        session.authParams,
-      ),
+        session.authParams
+      )
     );
   } else {
     waitUntil(
       ctx,
-      sendCode(ctx, client, session.authParams.username, createdCode.code_id),
+      sendCode(ctx, client, session.authParams.username, createdCode.code_id)
     );
   }
 }

@@ -1098,14 +1098,10 @@ export const loginRoutes = new OpenAPIHono<{ Bindings: Env; Variables: Var }>()
         const newUser = await ctx.env.data.users.create(client.tenant.id, {
           user_id: `auth2|${userIdGenerate()}`,
           email,
-          // TODO: this should be set by the adapter
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
           email_verified,
           provider: "auth2",
           connection,
           is_social: false,
-          login_count: 0,
         });
         ctx.set("userId", newUser.user_id);
 

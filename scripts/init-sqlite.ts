@@ -51,12 +51,9 @@ const data = createAdapters(db);
     email: "admin",
     email_verified: true,
     is_social: false,
-    login_count: 0,
     last_login: new Date().toISOString(),
     provider: "email",
     connection: "Username-Password-Authentication",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   });
 
   await data.passwords.create(tenant.id, {
