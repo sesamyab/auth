@@ -80,7 +80,7 @@ test("only allows existing users to progress to the enter code step", async () =
       form: {
         username: "not-a-real-breakit-user@example.com",
       },
-    }
+    },
   );
   expect(nonExistingUserEmailResponse.status).toBe(400);
   await snapshotResponse(nonExistingUserEmailResponse);
@@ -117,7 +117,7 @@ test("only allows existing users to progress to the enter code step", async () =
 
   // this shows we're being redirected to the next step as the user exists
   expect(
-    existingUserEmailResponseLocation!.startsWith("/u/enter-code")
+    existingUserEmailResponseLocation!.startsWith("/u/enter-code"),
   ).toBeTruthy();
 
   // ----------------------------

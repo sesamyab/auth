@@ -68,7 +68,7 @@ describe("Login with code on liquidjs template", () => {
         headers: {
           authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     const results = await resInitialQuery.json();
     //no users found with this email
@@ -123,7 +123,7 @@ describe("Login with code on liquidjs template", () => {
     const { to, code, subject } = getCodeAndTo(emails[0]);
     expect(to).toBe("test@example.com");
     expect(subject).toBe(
-      `Velkommen til Test Tenant ! ${code} er påloggingskoden`
+      `Velkommen til Test Tenant ! ${code} er påloggingskoden`,
     );
 
     const { logs } = await env.data.logs.list("tenantId", {
@@ -142,7 +142,7 @@ describe("Login with code on liquidjs template", () => {
     // Authenticate using the code
     const enterCodeParams = enterCodeLocation!.split("?")[1];
     const enterCodeQuery = Object.fromEntries(
-      new URLSearchParams(enterCodeParams).entries()
+      new URLSearchParams(enterCodeParams).entries(),
     );
 
     const enterCodeForm = await oauthClient.u["enter-code"].$get({
@@ -219,7 +219,7 @@ describe("Login with code on liquidjs template", () => {
         headers: {
           authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     expect(resInitialQuery.status).toBe(200);
 
@@ -265,14 +265,14 @@ describe("Login with code on liquidjs template", () => {
     const { to, code, subject } = getCodeAndTo(emails[0]);
     expect(to).toBe("bar@example.com");
     expect(subject).toBe(
-      `Witamy na Test Tenant! ${code} to kod logowania do Twojego konta.`
+      `Witamy na Test Tenant! ${code} to kod logowania do Twojego konta.`,
     );
     await snapshotEmail(emails[0], true);
 
     // Authenticate using the code
     const enterCodeParams = enterCodeLocation!.split("?")[1];
     const enterCodeQuery = Object.fromEntries(
-      new URLSearchParams(enterCodeParams).entries()
+      new URLSearchParams(enterCodeParams).entries(),
     );
 
     const authenticateResponse = await oauthClient.u["enter-code"].$post({
@@ -305,7 +305,7 @@ describe("Login with code on liquidjs template", () => {
     });
 
     const loginLog = logs.find(
-      (log: Log) => log.type === LogTypes.SUCCESS_LOGIN
+      (log: Log) => log.type === LogTypes.SUCCESS_LOGIN,
     );
 
     expect(loginLog).toMatchObject({
@@ -371,13 +371,13 @@ describe("Login with code on liquidjs template", () => {
     const { to, code, subject } = getCodeAndTo(emails[0]);
     expect(to).toBe("foo@example.com");
     expect(subject).toBe(
-      `Välkommen till Test Tenant! ${code} är koden för att logga in`
+      `Välkommen till Test Tenant! ${code} är koden för att logga in`,
     );
 
     // Authenticate using the code
     const enterCodeParams = enterCodeLocation!.split("?")[1];
     const enterCodeQuery = Object.fromEntries(
-      new URLSearchParams(enterCodeParams).entries()
+      new URLSearchParams(enterCodeParams).entries(),
     );
 
     const authenticateResponse = await oauthClient.u["enter-code"].$post({
@@ -440,13 +440,13 @@ describe("Login with code on liquidjs template", () => {
     const { to, code, subject } = getCodeAndTo(emails[0]);
     expect(to).toBe("foo@example.com");
     expect(subject).toBe(
-      `Välkommen till Test Tenant! ${code} är koden för att logga in`
+      `Välkommen till Test Tenant! ${code} är koden för att logga in`,
     );
 
     // Authenticate using the code
     const enterCodeParams = enterCodeLocation!.split("?")[1];
     const enterCodeQuery = Object.fromEntries(
-      new URLSearchParams(enterCodeParams).entries()
+      new URLSearchParams(enterCodeParams).entries(),
     );
 
     const authenticateResponse = await oauthClient.u["enter-code"].$post({
@@ -488,7 +488,7 @@ describe("Login with code on liquidjs template", () => {
         headers: {
           authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     const primaryUser = (await primaryUserRes.json()) as UserResponse;
@@ -552,7 +552,7 @@ describe("Login with code on liquidjs template", () => {
           headers: {
             authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const baseUser = (await baseUserRes.json()) as UserResponse;
@@ -610,14 +610,14 @@ describe("Login with code on liquidjs template", () => {
 
       expect(to).toBe("same-email@example.com");
       expect(subject).toBe(
-        `Välkommen till Test Tenant! ${code} är koden för att logga in`
+        `Välkommen till Test Tenant! ${code} är koden för att logga in`,
       );
 
       // Authenticate using the code
 
       const enterCodeParams = enterCodeLocation!.split("?")[1];
       const enterCodeQuery = Object.fromEntries(
-        new URLSearchParams(enterCodeParams).entries()
+        new URLSearchParams(enterCodeParams).entries(),
       );
 
       const authenticateResponse = await oauthClient.u["enter-code"].$post({
@@ -670,7 +670,7 @@ describe("Login with code on liquidjs template", () => {
           headers: {
             authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const baseUser2 = (await baseUserRes2.json()) as UserResponse;
@@ -852,14 +852,14 @@ describe("Login with code on liquidjs template", () => {
 
     const enterCodeParams = enterCodeLocation!.split("?")[1];
     const enterCodeQuery = Object.fromEntries(
-      new URLSearchParams(enterCodeParams).entries()
+      new URLSearchParams(enterCodeParams).entries(),
     );
 
     await new Promise((resolve) => setTimeout(resolve, 0));
     const { to, code, subject } = getCodeAndTo(emails[0]);
     expect(to).toBe("foo@example.com");
     expect(subject).toBe(
-      `Velkommen til Test Tenant ! ${code} er påloggingskoden`
+      `Velkommen til Test Tenant ! ${code} er påloggingskoden`,
     );
 
     const authenticateResponse = await oauthClient.u["enter-code"].$post({
@@ -918,7 +918,7 @@ describe("Login with code on liquidjs template", () => {
 
     const enterCodeParams = enterCodeLocation!.split("?")[1];
     const enterCodeQuery = Object.fromEntries(
-      new URLSearchParams(enterCodeParams).entries()
+      new URLSearchParams(enterCodeParams).entries(),
     );
 
     const incorrectCodeResponse = await oauthClient.u["enter-code"].$post({
@@ -967,12 +967,12 @@ describe("Login with code on liquidjs template", () => {
     const { to, code, subject } = getCodeAndTo(emails[0]);
     expect(to).toBe("john-doe@example.com");
     expect(subject).toBe(
-      `Välkommen till Test Tenant! ${code} är koden för att logga in`
+      `Välkommen till Test Tenant! ${code} är koden för att logga in`,
     );
 
     const enterCodeParams = enterCodeLocation!.split("?")[1];
     const enterCodeQuery = Object.fromEntries(
-      new URLSearchParams(enterCodeParams).entries()
+      new URLSearchParams(enterCodeParams).entries(),
     );
 
     const authenticateResponse = await oauthClient.u["enter-code"].$post({

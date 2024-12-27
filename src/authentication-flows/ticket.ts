@@ -25,7 +25,7 @@ export async function ticketAuth(
   tenant_id: string,
   ticketId: string,
   authParams: AuthParams,
-  realm: string
+  realm: string,
 ) {
   const { env } = ctx;
 

@@ -27,7 +27,7 @@ export async function requestPasswordReset(
   }>,
   client: Client,
   email: string,
-  state: string
+  state: string,
 ) {
   let user = await getPrimaryUserByEmailAndProvider({
     userAdapter: ctx.env.data.users,
@@ -40,7 +40,7 @@ export async function requestPasswordReset(
     const matchingUser = await getUsersByEmail(
       ctx.env.data.users,
       client.tenant.id,
-      email
+      email,
     );
 
     if (!matchingUser.length) {
@@ -60,7 +60,7 @@ export async function requestPasswordReset(
 
   const loginSession = await ctx.env.data.logins.create(client.tenant.id, {
     expires_at: new Date(
-      Date.now() + LOGIN_SESSION_EXPIRATION_TIME
+      Date.now() + LOGIN_SESSION_EXPIRATION_TIME,
     ).toISOString(),
     authParams: {
       client_id: client.id,
@@ -73,7 +73,7 @@ export async function requestPasswordReset(
   let existingCode = await ctx.env.data.codes.get(
     client.tenant.id,
     code_id,
-    "password_reset"
+    "password_reset",
   );
 
   // This is a slighly hacky way to ensure we don't generate a code that already exists
@@ -82,7 +82,7 @@ export async function requestPasswordReset(
     existingCode = await ctx.env.data.codes.get(
       client.tenant.id,
       code_id,
-      "password_reset"
+      "password_reset",
     );
   }
 
@@ -99,7 +99,7 @@ export async function requestPasswordReset(
 export async function loginWithPassword(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
-  authParams: AuthParams & { password: string }
+  authParams: AuthParams & { password: string },
 ) {
   const { env } = ctx;
 
@@ -129,7 +129,7 @@ export async function loginWithPassword(
 
   const { password } = await env.data.passwords.get(
     client.tenant.id,
-    user.user_id
+    user.user_id,
   );
 
   const valid = await bcryptjs.compare(authParams.password, password);
@@ -175,7 +175,7 @@ export async function loginWithPassword(
 
   const primaryUser = await env.data.users.get(
     client.tenant.id,
-    user.linked_to
+    user.linked_to,
   );
   if (!primaryUser) {
     throw new CustomException(403, {
