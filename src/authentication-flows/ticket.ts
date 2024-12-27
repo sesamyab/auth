@@ -64,12 +64,9 @@ export async function ticketAuth(
       provider: "email",
       connection: "email",
       email_verified: true,
-      login_count: 1,
       is_social: false,
       last_ip: "",
       last_login: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     });
   }
 

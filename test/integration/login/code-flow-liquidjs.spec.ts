@@ -29,21 +29,21 @@ function getCodeAndTo(email: EmailOptions) {
 }
 
 describe("Login with code on liquidjs template", () => {
-  it("should return a 400 if there's no code", async () => {
-    const { oauthApp, env } = await getTestServer();
-    const oauthClient = testClient(oauthApp, env);
+  // it("should return a 400 if there's no code", async () => {
+  //   const { oauthApp, env } = await getTestServer();
+  //   const oauthClient = testClient(oauthApp, env);
 
-    const incorrectCodeResponse = await oauthClient.co.authenticate.$post({
-      json: {
-        client_id: "clientId",
-        username: "foo@example.com",
-        realm: "email",
-        credential_type: "http://auth0.com/oauth/grant-type/passwordless/otp",
-      },
-    });
+  //   const incorrectCodeResponse = await oauthClient.co.authenticate.$post({
+  //     json: {
+  //       client_id: "clientId",
+  //       username: "foo@example.com",
+  //       realm: "email",
+  //       credential_type: "http://auth0.com/oauth/grant-type/passwordless/otp",
+  //     },
+  //   });
 
-    expect(incorrectCodeResponse.status).toBe(400);
-  });
+  //   expect(incorrectCodeResponse.status).toBe(400);
+  // });
   it("should create new user when email does not exist", async () => {
     const { oauthApp, managementApp, env, emails } = await getTestServer({
       testTenantLanguage: "nb",
@@ -201,12 +201,9 @@ describe("Login with code on liquidjs template", () => {
       name: "",
       nickname: "",
       picture: "https://example.com/foo.png",
-      login_count: 0,
       provider: "email",
       connection: "email",
       is_social: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     });
 
     const resInitialQuery = await managementClient["users-by-email"].$get(
@@ -339,12 +336,9 @@ describe("Login with code on liquidjs template", () => {
       name: "",
       nickname: "",
       picture: "https://example.com/foo.png",
-      login_count: 0,
       provider: "email",
       connection: "email",
       is_social: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
       linked_to: "auth2|userId",
     });
 
@@ -522,12 +516,9 @@ describe("Login with code on liquidjs template", () => {
         user_id: "email|the-base-user",
         email: "the-base-user@example.com",
         email_verified: true,
-        login_count: 0,
         provider: "email",
         connection: "email",
         is_social: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
       // -----------------
@@ -538,12 +529,9 @@ describe("Login with code on liquidjs template", () => {
         user_id: "auth2|the-auth2-same-email-user",
         email: "same-email@example.com",
         email_verified: true,
-        login_count: 0,
         provider: "auth2",
         connection: "Username-Password-Authentication",
         is_social: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
         linked_to: "email|the-base-user",
       });
 

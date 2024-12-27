@@ -103,11 +103,8 @@ export async function validateCode(
     connection: "email",
     email_verified: true,
     last_ip: ctx.req.header("x-real-ip"),
-    login_count: 1,
     last_login: new Date().toISOString(),
     is_social: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   });
   ctx.set("userId", user.user_id);
 

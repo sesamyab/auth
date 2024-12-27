@@ -26,7 +26,7 @@ export async function socialAuth(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   client: Client,
   connectionName: string,
-  authParams: AuthParams,
+  authParams: AuthParams
 ) {
   if (!authParams.state) {
     throw new HTTPException(400, { message: "State not found" });
@@ -47,13 +47,13 @@ export async function socialAuth(
 
   let loginSession = await ctx.env.data.logins.get(
     client.tenant.id,
-    authParams.state,
+    authParams.state
   );
 
   if (!loginSession) {
     loginSession = await ctx.env.data.logins.create(client.tenant.id, {
       expires_at: new Date(
-        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000
       ).toISOString(),
       authParams,
       ...getClientInfo(ctx.req),
@@ -74,7 +74,7 @@ export async function socialAuth(
       connection_id: connection.id,
       code_verifier: result.codeVerifier,
       expires_at: new Date(
-        Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
+        Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000
       ).toISOString(),
     });
 
@@ -88,7 +88,7 @@ export async function socialAuth(
     code_type: "oauth2_state",
     connection_id: connection.id,
     expires_at: new Date(
-      Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000,
+      Date.now() + OAUTH2_CODE_EXPIRES_IN_SECONDS * 1000
     ).toISOString(),
   });
 
@@ -175,7 +175,7 @@ export async function oauth2Callback({
   if (
     !validateRedirectUrl(
       client.callbacks || [],
-      session.authParams.redirect_uri,
+      session.authParams.redirect_uri
     )
   ) {
     const invalidRedirectUriMessage = `Invalid redirect URI - ${session.authParams.redirect_uri}`;
@@ -197,7 +197,7 @@ export async function oauth2Callback({
       ctx,
       connection,
       code,
-      code_verifier,
+      code_verifier
     );
   } else {
     // Legacy version
@@ -213,7 +213,7 @@ export async function oauth2Callback({
         scope: options.scope!,
         userinfo_endpoint: options.userinfo_endpoint,
       },
-      `${env.ISSUER}callback`,
+      `${env.ISSUER}callback`
     );
 
     const token = await oauth2Client.exchangeCodeForTokenResponse(code, true);
@@ -221,7 +221,7 @@ export async function oauth2Callback({
     if (options.userinfo_endpoint) {
       ctx.set("log", JSON.stringify({ userinfo, options, token }));
       userinfo = getProfileData(
-        await oauth2Client.getUserProfile(token.access_token),
+        await oauth2Client.getUserProfile(token.access_token)
       );
     } else if (token.id_token) {
       userinfo = getProfileData(parseJwt(token.id_token));
@@ -262,7 +262,7 @@ export async function oauth2Callback({
       const vendorSettings = await fetchVendorSettings(
         env,
         client.id,
-        session.authParams.vendor_id,
+        session.authParams.vendor_id
       );
 
       await i18next.changeLanguage(client.tenant.language || "sv");
@@ -272,7 +272,7 @@ export async function oauth2Callback({
           vendorSettings={vendorSettings}
           authParams={session.authParams}
         />,
-        400,
+        400
       );
     }
 
@@ -284,11 +284,8 @@ export async function oauth2Callback({
       connection: connection.name,
       email_verified: strictEmailVerified,
       last_ip: "",
-      login_count: 0,
       is_social: true,
       last_login: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
       profileData: JSON.stringify(profileData),
     });
     ctx.set("userId", user.user_id);

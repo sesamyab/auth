@@ -331,6 +331,7 @@ describe("social sign on", () => {
             connection: "email",
             // we are ignoring this for code logins
             email_verified: true,
+            is_social: false,
           },
           header: {
             "tenant-id": "tenantId",
@@ -614,11 +615,8 @@ describe("social sign on", () => {
         email: "örjan.lindström@example.com",
         email_verified: true,
         last_ip: "",
-        login_count: 0,
         is_social: true,
         user_id: "email|7575757575757",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
       await env.data.users.create("tenantId", {
@@ -628,12 +626,9 @@ describe("social sign on", () => {
         email: "örjan.lindström@example.com",
         email_verified: true,
         last_ip: "",
-        login_count: 0,
         is_social: true,
         profileData: JSON.stringify(EXPECTED_PROFILE_DATA),
         user_id: "other-social-provider|123456789012345678901",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
       // ---------------------------------------------
@@ -705,10 +700,7 @@ describe("social sign on", () => {
         connection: "Username-Password-Authentication",
         user_id: "auth2|123456789012345678901",
         last_ip: "",
-        login_count: 0,
         is_social: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
       //-----------------

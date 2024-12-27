@@ -53,11 +53,8 @@ export async function requestPasswordReset(
       email,
       email_verified: false,
       is_social: false,
-      login_count: 0,
       provider: "auth2",
       connection: "Username-Password-Authentication",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     });
   }
 
