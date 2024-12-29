@@ -3,7 +3,6 @@ import { Env, Var } from "./types";
 import { addDataHooks } from "./hooks";
 import { CreateAuthParams } from "./app";
 import { loginRoutes } from "./routes/universal-login/routes";
-import { authorizeRoutes } from "./routes/oauth2/authorize";
 import { callbackRoutes } from "./routes/oauth2/callback";
 
 export default function create(params: CreateAuthParams) {
@@ -16,7 +15,6 @@ export default function create(params: CreateAuthParams) {
 
   const oauthApp = app
     .route("/u", loginRoutes)
-    .route("/authorize", authorizeRoutes)
     .route("/callback", callbackRoutes);
 
   oauthApp.doc("/spec", {
