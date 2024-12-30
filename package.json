@@ -50,12 +50,12 @@
     ]
   },
   "dependencies": {
-    "@authhero/kysely-adapter": "0.26.0",
+    "@authhero/kysely-adapter": "0.27.0",
     "@hono/zod-openapi": "0.18.3",
     "@peculiar/x509": "^1.12.3",
     "@planetscale/database": "1.19.0",
-    "arctic": "^2.3.2",
-    "authhero": "^0.35.0",
+    "arctic": "^2.3.3",
+    "authhero": "^0.36.0",
     "aws4fetch": "^1.0.20",
     "bcryptjs": "^2.4.3",
     "fast-xml-parser": "^4.5.1",
