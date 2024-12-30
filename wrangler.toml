@@ -29,6 +29,8 @@ SAML_SIGN_URL = "https://api.sesamy.dev/profile/saml/sign"
 READ_PERMISSION = "auth:read"
 WRITE_PERMISSION = "auth:write"
 ENVIRONMENT = 'dev'
+DEFAULT_TENANT_ID = 'DEFAULT_SETTINGS'
+DEFAULT_CLIENT_ID = 'DEFAULT_CLIENT'
 
 
 [observability]
@@ -61,6 +63,8 @@ READ_PERMISSION = 'auth:read'
 WRITE_PERMISSION = 'auth:write'
 ENVIRONMENT = 'prod'
 IMAGE_PROXY_URL = "https://imgproxy.prod.sesamy.cloud"
+DEFAULT_TENANT_ID = 'DEFAULT_SETTINGS'
+DEFAULT_CLIENT_ID = 'DEFAULT_CLIENT'
 
 [env.production.observability]
 enabled = true

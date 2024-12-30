@@ -12,6 +12,8 @@ export type Env = {
   DATABASE_HOST: string;
   DATABASE_PASSWORD: string;
   DATABASE_USERNAME: string;
+  DEFAULT_TENANT?: string;
+  DEFAULT_CLIENT?: string;
   TOKEN_SERVICE: Fetcher;
   AUTH_URL: string;
   READ_PERMISSION?: string;
@@ -25,6 +27,6 @@ export type Env = {
   signSAML: (
     xmlContent: string,
     privateKey: string,
-    publicKey: string,
+    publicKey: string
   ) => Promise<string>;
 };

@@ -1,0 +1,1 @@
+cp /Users/markus/Projects/authhero/authhero/packages/authhero/dist/authhero.mjs /Users/markus/Projects/sesamy/auth/node_modules/authhero/dist/authhero.mjs
