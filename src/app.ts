@@ -17,7 +17,7 @@ import sv from "./localesLogin2/sv/default.json";
 import pl from "./localesLogin2/pl/default.json";
 import cs from "./localesLogin2/cs/default.json";
 import fi from "./localesLogin2/fi/default.json";
-import createOauthApp from "./oauth-app";
+import createOauthApp from "./universal-app";
 import { init, DataAdapters } from "authhero";
 import createSamlApp from "./saml-app";
 import { registerComponent } from "hono-openapi-middlewares";

@@ -9,7 +9,6 @@ import {
   User,
 } from "authhero";
 import { Env } from "../../src/types";
-import { oAuth2ClientFactory } from "./oauth2Client";
 import { EmailOptions } from "../../src/services/email/EmailOptions";
 import { Var } from "../../src/types/Var";
 import { getCertificate } from "../integration/helpers/token";
@@ -143,12 +142,8 @@ export async function contextFixture(
     },
     env: {
       ISSUER: "https://auth.example.com/",
-      LOGIN2_URL: "https://login2.sesamy.dev",
       API_URL: "https://api.sesamy.dev",
       ENVIRONMENT: "dev",
-      oauth2ClientFactory: {
-        create: oAuth2ClientFactory,
-      },
       sendEmail: async (emailOptions: EmailOptions) => {
         logs.push(emailOptions);
       },

@@ -3,7 +3,6 @@ import SQLite from "better-sqlite3";
 import bcryptjs from "bcryptjs";
 import { migrateToLatest } from "../../../migrate/migrate";
 import { getCertificate } from "./token";
-import { mockOAuth2ClientFactory } from "../mockOauth2Client";
 import type { EmailOptions } from "../../../src/services/email/EmailOptions";
 import {
   Application,
@@ -257,11 +256,9 @@ export async function getTestServer(args: getEnvParams = {}) {
     ISSUER: "https://example.com/",
     READ_PERMISSION: "auth:read",
     WRITE_PERMISSION: "auth:write",
-    LOGIN2_URL: "https://login2.sesamy.dev",
     API_URL: "https://api.sesamy.dev",
     ENVIRONMENT: "dev",
     db,
-    oauth2ClientFactory: mockOAuth2ClientFactory,
     signSAML: async () => "Mocked SAML Response",
   };
 

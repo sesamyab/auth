@@ -1,4 +1,3 @@
-import { IOAuth2ClientFactory } from "../services/oauth2-client";
 import type { EmailOptions } from "../services/email/EmailOptions";
 import { Client, DataAdapters, EmailService } from "authhero";
 
@@ -20,7 +19,6 @@ export type Env = {
   WRITE_PERMISSION?: string;
   ENVIRONMENT: string;
   SAML_SIGN_URL: string;
-  oauth2ClientFactory: IOAuth2ClientFactory;
   data: DataAdapters;
   emailProviders?: { [key: string]: EmailService };
   sendEmail: (env: Env, client: Client, email: EmailOptions) => Promise<void>;

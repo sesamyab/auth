@@ -1,9 +1,6 @@
 import { Context } from "hono";
 import { Connection } from "authhero";
 import { Env, Var } from "../types";
-import * as apple from "./apple";
-import * as facebook from "./facebook";
-import * as google from "./google-oauth2";
 import * as membercare from "./membercare";
 
 export type UserInfo = {
@@ -28,8 +25,5 @@ export type Strategy = {
 };
 
 export const strategies: { [strategy: string]: Strategy } = {
-  apple,
-  facebook,
-  "google-oauth2": google,
   membercare,
 };

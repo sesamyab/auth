@@ -3,7 +3,6 @@ import { Env, Var } from "./types";
 import { addDataHooks } from "./hooks";
 import { CreateAuthParams } from "./app";
 import { loginRoutes } from "./routes/universal-login/routes";
-import { callbackRoutes } from "./routes/oauth2/callback";
 
 export default function create(params: CreateAuthParams) {
   const app = new OpenAPIHono<{ Bindings: Env; Variables: Var }>();
@@ -13,9 +12,7 @@ export default function create(params: CreateAuthParams) {
     return next();
   });
 
-  const oauthApp = app
-    .route("/u", loginRoutes)
-    .route("/callback", callbackRoutes);
+  const oauthApp = app.route("/u", loginRoutes);
 
   oauthApp.doc("/spec", {
     openapi: "3.0.0",

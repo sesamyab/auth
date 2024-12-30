@@ -1,6 +1,5 @@
 import { Env } from "./types/Env";
 import createApp from "./app";
-import { oAuth2ClientFactory } from "./services/oauth2-client";
 import { PlanetScaleDialect } from "kysely-planetscale";
 import { getDb } from "./services/db";
 import sendEmail from "./services/email";
@@ -56,7 +55,6 @@ const server = {
       // Add dependencies to the environment
       {
         ...env,
-        oauth2ClientFactory: { create: oAuth2ClientFactory },
         sendEmail,
         signSAML,
         data: dataAdapter,
