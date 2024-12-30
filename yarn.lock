@@ -26,6 +26,13 @@
   dependencies:
     nanoid "^5.0.8"
 
+"@authhero/adapter-interfaces@^0.35.0":
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/@authhero/adapter-interfaces/-/adapter-interfaces-0.35.0.tgz#47bfb306b06fea9460cb7fd24eaa6a566e9d1ac9"
+  integrity sha512-d63q++13yiurLtYziOrr4e4NAND3MBP4DDQLVKND2u7dt4xLuPIYmrKfv11WqlNLz28qP8hJJq9miLYpszK48A==
+  dependencies:
+    nanoid "^5.0.8"
+
 "@authhero/kysely-adapter@0.26.0":
   version "0.26.0"
   resolved "https://registry.yarnpkg.com/@authhero/kysely-adapter/-/kysely-adapter-0.26.0.tgz#7491c7d51866bc9fe33643d99a61c4428dadff1c"
@@ -2081,6 +2088,15 @@ arctic@^2.3.2:
     "@oslojs/encoding" "1.1.0"
     "@oslojs/jwt" "0.2.0"
 
+arctic@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/arctic/-/arctic-2.3.3.tgz#a68078ac38288809ee9e8a18090b91ee35bc8002"
+  integrity sha512-f42+wyM0LKNwUY0TV3fSH1Fnsr/klcZi42XfWFvlNP7Ag8aBX92FaKQIU5xBQzxvvy7jg02tF567LsIlmEujKg==
+  dependencies:
+    "@oslojs/crypto" "1.0.1"
+    "@oslojs/encoding" "1.1.0"
+    "@oslojs/jwt" "0.2.0"
+
 are-we-there-yet@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/are-we-there-yet/-/are-we-there-yet-2.0.0.tgz#372e0e7bd279d8e94c653aaa1f67200884bf3e1c"
@@ -2207,13 +2223,14 @@ assertion-error@^2.0.1:
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-2.0.1.tgz#f641a196b335690b1070bf00b6e7593fec190bf7"
   integrity sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==
 
-authhero@^0.31.0:
-  version "0.31.0"
-  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.31.0.tgz#d54a213d5e42406c182d6109574ca2d1eae0a601"
-  integrity sha512-fwopZn8Ul+wGmL2U2hK5VXeCJsagwGA1vN2IXTnhGCQNhI+FmQRr0U9m305jAylI2FykqE+apnV8joev0F5ffw==
+authhero@^0.33.0:
+  version "0.33.0"
+  resolved "https://registry.yarnpkg.com/authhero/-/authhero-0.33.0.tgz#c6e59bc89256f4cf336833699da4c69f14b9b2e1"
+  integrity sha512-iRcMMASoLAo0bWIAak3+GG0mLHryxtM2X/zZ+w/nCRpdy2p0ePJ021ZM+Fvz4cko5lhOgOWK9ZNgMAg04MW0gw==
   dependencies:
-    "@authhero/adapter-interfaces" "^0.34.0"
+    "@authhero/adapter-interfaces" "^0.35.0"
     "@peculiar/x509" "^1.12.3"
+    arctic "^2.3.3"
     bcrypt "^5.1.1"
     bcryptjs "^2.4.3"
     i18next "^24.2.0"
