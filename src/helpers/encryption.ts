@@ -8,7 +8,7 @@ export interface CreateX509CertificateParams {
   name: string;
 }
 export async function createX509Certificate(
-  params: CreateX509CertificateParams
+  params: CreateX509CertificateParams,
 ): Promise<SigningKey> {
   const alg = {
     name: "RSASSA-PKCS1-v1_5",
@@ -34,7 +34,7 @@ export async function createX509Certificate(
       new x509.ExtendedKeyUsageExtension(["1.3.6.1.5.5.7.3.1"], true), // serverAuth
       new x509.KeyUsagesExtension(
         x509.KeyUsageFlags.keyCertSign | x509.KeyUsageFlags.cRLSign,
-        true
+        true,
       ),
       await x509.SubjectKeyIdentifierExtension.create(keys.publicKey),
     ],
@@ -58,7 +58,7 @@ export async function createX509Certificate(
 
 export function convertPKCS7ToPem(
   keyType: "PRIVATE" | "PUBLIC",
-  binaryData: ArrayBuffer
+  binaryData: ArrayBuffer,
 ) {
   const base64Cert = base64.encode(new Uint8Array(binaryData));
   let pemCert = `-----BEGIN ${keyType} KEY-----\r\n`;

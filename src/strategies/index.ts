@@ -14,13 +14,13 @@ export type UserInfo = {
 export type Strategy = {
   getRedirect: (
     ctx: Context<{ Bindings: Env; Variables: Var }>,
-    connection: Connection
+    connection: Connection,
   ) => Promise<{ redirectUrl: string; code: string; codeVerifier?: string }>;
   validateAuthorizationCodeAndGetUser: (
     ctx: Context<{ Bindings: Env; Variables: Var }>,
     connection: Connection,
     code: string,
-    codeVerifier?: string
+    codeVerifier?: string,
   ) => Promise<UserInfo>;
 };
 

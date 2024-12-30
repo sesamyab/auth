@@ -43,7 +43,7 @@ interface ContextFixtureParams {
 }
 
 export async function contextFixture(
-  params?: ContextFixtureParams
+  params?: ContextFixtureParams,
 ): Promise<Context<{ Bindings: Env; Variables: Var }>> {
   const {
     headers = {},

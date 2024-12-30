@@ -87,7 +87,7 @@ export default function create(params: CreateAuthParams) {
         exposeHeaders: ["Content-Length", "Content-Range"],
         maxAge: 600,
         credentials: true,
-      })
+      }),
     )
     .use(loggerMiddleware)
     .get("/", async (ctx: Context) => {
