@@ -1,6 +1,5 @@
 import { Env } from "./types/Env";
 import createApp from "./app";
-import { oAuth2ClientFactory } from "./services/oauth2-client";
 import { PlanetScaleDialect } from "kysely-planetscale";
 import { getDb } from "./services/db";
 import sendEmail from "./services/email";
@@ -30,7 +29,7 @@ const server = {
     const signSAML = async (
       xmlContent: string,
       privateKey: string,
-      publicCert: string,
+      publicCert: string
     ) => {
       const response = await fetch(env.SAML_SIGN_URL, {
         method: "POST",
@@ -56,7 +55,6 @@ const server = {
       // Add dependencies to the environment
       {
         ...env,
-        oauth2ClientFactory: { create: oAuth2ClientFactory },
         sendEmail,
         signSAML,
         data: dataAdapter,
@@ -66,7 +64,7 @@ const server = {
         hooks: {
           onExecuteCredentialsExchange: async (
             event: OnExecuteCredentialsExchangeEvent,
-            api: OnExecuteCredentialsExchangeAPI,
+            api: OnExecuteCredentialsExchangeAPI
           ) => {
             if (event.client.id === "data-processor") {
               api.accessToken.setCustomClaim("roles", "sesamy_admin");
@@ -77,7 +75,7 @@ const server = {
           },
         },
       },
-      ctx,
+      ctx
     );
   },
   async scheduled(event: Event, env: Env) {

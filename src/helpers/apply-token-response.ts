@@ -8,7 +8,7 @@ import {
 
 function applyTokenResponseAsQuery(
   tokenResponse: TokenResponse | CodeResponse,
-  authParams: AuthParams,
+  authParams: AuthParams
 ) {
   const { redirect_uri } = authParams;
 
@@ -38,7 +38,7 @@ function applyTokenResponseAsQuery(
 
 function applyTokenResponseAsFragment(
   tokenResponse: TokenResponse | CodeResponse,
-  authParams: AuthParams,
+  authParams: AuthParams
 ) {
   const { redirect_uri, state } = authParams;
 
@@ -75,7 +75,7 @@ function applyTokenResponseAsFragment(
 
 export function applyTokenResponse(
   tokenResponse: TokenResponse | CodeResponse,
-  authParams: AuthParams,
+  authParams: AuthParams
 ) {
   if (authParams.response_type?.includes("token")) {
     return applyTokenResponseAsFragment(tokenResponse, authParams);

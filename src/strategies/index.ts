@@ -1,9 +1,6 @@
 import { Context } from "hono";
 import { Connection } from "authhero";
 import { Env, Var } from "../types";
-import * as apple from "./apple";
-import * as facebook from "./facebook";
-import * as google from "./google-oauth2";
 import * as membercare from "./membercare";
 
 export type UserInfo = {
@@ -17,19 +14,16 @@ export type UserInfo = {
 export type Strategy = {
   getRedirect: (
     ctx: Context<{ Bindings: Env; Variables: Var }>,
-    connection: Connection,
+    connection: Connection
   ) => Promise<{ redirectUrl: string; code: string; codeVerifier?: string }>;
   validateAuthorizationCodeAndGetUser: (
     ctx: Context<{ Bindings: Env; Variables: Var }>,
     connection: Connection,
     code: string,
-    codeVerifier?: string,
+    codeVerifier?: string
   ) => Promise<UserInfo>;
 };
 
 export const strategies: { [strategy: string]: Strategy } = {
-  apple,
-  facebook,
-  "google-oauth2": google,
   membercare,
 };

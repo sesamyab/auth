@@ -7,7 +7,7 @@ import { z } from "zod";
 import { base64url } from "oslo/encoding";
 
 function getJWTParts(
-  jwt: string,
+  jwt: string
 ): [header: string, payload: string, signature: string] | null {
   const jwtParts = jwt.split(".");
   if (jwtParts.length !== 3) {
@@ -118,7 +118,7 @@ function parseJWT(jwt: string) {
 
 export async function getRedirect(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
-  connection: Connection,
+  connection: Connection
 ) {
   const { options } = connection;
 
@@ -133,7 +133,7 @@ export async function getRedirect(
   const oauth2 = new OAuth2Client(
     options.client_id,
     options.client_secret,
-    `${ctx.env.ISSUER}callback`,
+    `${ctx.env.ISSUER}callback`
   );
 
   const code = nanoid();
@@ -141,7 +141,7 @@ export async function getRedirect(
   const authorizationUrl = oauth2.createAuthorizationURL(
     options.authorization_endpoint,
     code,
-    ["openid profile usermc"],
+    ["openid profile usermc"]
   );
 
   authorizationUrl.searchParams.set("prompt", "login");
@@ -155,7 +155,7 @@ export async function getRedirect(
 export async function validateAuthorizationCodeAndGetUser(
   ctx: Context<{ Bindings: Env; Variables: Var }>,
   connection: Connection,
-  code: string,
+  code: string
 ) {
   const { options } = connection;
 
@@ -172,13 +172,13 @@ export async function validateAuthorizationCodeAndGetUser(
   const oauth2 = new OAuth2Client(
     options.client_id,
     options.client_secret,
-    `${ctx.env.ISSUER}callback`,
+    `${ctx.env.ISSUER}callback`
   );
 
   const tokens = await oauth2.validateAuthorizationCode(
     options.token_endpoint,
     code,
-    null,
+    null
   );
 
   const accessToken = parseJWT(tokens.accessToken());
@@ -229,7 +229,7 @@ export async function validateAuthorizationCodeAndGetUser(
 
   if (!debtorResponse.ok) {
     throw new Error(
-      "Failed to fetch user info: " + userInfoUrl.href + " " + value,
+      "Failed to fetch user info: " + userInfoUrl.href + " " + value
     );
   }
 
@@ -243,7 +243,7 @@ export async function validateAuthorizationCodeAndGetUser(
       contacts: z.array(
         z.object({
           value: z.string(),
-        }),
+        })
       ),
     })
     .parse(debtorBody);

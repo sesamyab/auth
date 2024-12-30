@@ -82,7 +82,7 @@ async function generateCode({
     // The code is connected to a login session
     const login = await ctx.env.data.logins.create(client.tenant.id, {
       expires_at: new Date(
-        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000,
+        Date.now() + UNIVERSAL_AUTH_SESSION_EXPIRES_IN_SECONDS * 1000
       ).toISOString(),
       authParams,
       ...getClientInfo(ctx.req),
@@ -123,7 +123,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
         login_count: user.login_count + 1,
         // This is specific to cloudflare
         last_ip: ctx.req.header("cf-connecting-ip"),
-      }),
+      })
     );
   }
 
@@ -162,7 +162,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
       headers: {
         kid: signingKey.kid,
       },
-    },
+    }
   );
 
   const tokenResponse: TokenResponse = {
@@ -204,7 +204,7 @@ export async function generateTokens(params: GenerateAuthResponseParams) {
         headers: {
           kid: signingKey.kid,
         },
-      },
+      }
     );
   }
 
@@ -302,7 +302,7 @@ export async function generateAuthResponse(params: GenerateAuthResponseParams) {
     return samlResponseForm(
       redirectUrl.toString(),
       samlResponse,
-      state.relayState,
+      state.relayState
     );
   }
 
